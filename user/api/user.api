@@ -1,0 +1,13 @@
+type AccountLoginReq {
+	Account  string `json:"account"`
+	Password string `json:"password"`
+}
+
+type AccountLoginResp {
+	Token string `json:"token"`
+}
+
+service user-api {
+	@handler AccountLoginHandler
+	post /user/accountLogin(AccountLoginReq) returns (AccountLoginResp)
+}
