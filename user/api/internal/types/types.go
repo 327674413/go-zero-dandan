@@ -2,8 +2,10 @@
 package types
 
 type AccountLoginReq struct {
-	Account  string `json:"account"`
-	Password string `json:"password"`
+	Account   *string `json:"account"`
+	Password  *string `json:"password"`
+	PortEnum  *int    `json:"port_enum,optional"`
+	Checkcode *int    `json:"checkcode,optional"`
 }
 
 type AccountLoginResp struct {

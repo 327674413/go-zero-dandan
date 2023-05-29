@@ -3,13 +3,12 @@ package logic
 import (
 	"context"
 	"errors"
-	util "go-zero-dandan/common/util"
-	"go-zero-dandan/user/model"
-
+	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/common/util"
 	"go-zero-dandan/user/api/internal/svc"
 	"go-zero-dandan/user/api/internal/types"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/user/model"
+	"gorm.io/gorm"
 )
 
 type AccountLoginLogic struct {
@@ -27,13 +26,20 @@ func NewAccountLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Acco
 }
 
 func (l *AccountLoginLogic) AccountLogin(req *types.AccountLoginReq) (resp *types.AccountLoginResp, err error) {
-	user := &model.UserDetail{}
-	password := util.Sha256(req.Password)
-	err = l.svcCtx.DB.Where("account = ? AND password = ?", req.Account, password).First(user).Error
+	account := *req.Account
+	user := &model.User{}
+	password := util.Sha256(*req.Password)
+	err = l.svcCtx.DB.Where("account = ? AND password = ?", account, password).First(user).Error
 	if err != nil {
-		logx.Error("[DB ERROR]:", err)
-		err = errors.New("用户名或密码不正确")
-		return
+		if err != gorm.ErrRecordNotFound {
+			logx.Error("[DB ERROR]:", err)
+			err = errors.New("遇到了点小问题")
+			return
+		} else {
+			err = errors.New("用户名或密码不正确")
+			return
+		}
+
 	}
 	resp = &types.AccountLoginResp{
 		Token: "",
