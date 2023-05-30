@@ -1,20 +1,22 @@
 package svc
 
 import (
-	"go-zero-dandan/common/model"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/user/api/internal/config"
-	"gorm.io/gorm"
+	"go-zero-dandan/user/model"
 )
 
 type ServiceContext struct {
-	Config config.Config
-	DB     *gorm.DB
+	Config        config.Config
+	UserMainModel model.UserMainModel
+	UserInfoModel model.UserInfoModel
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
-		Config: c,
-		DB:     model.DB,
+		Config:        c,
+		UserMainModel: model.NewUserMainModel(sqlx.NewMysql(c.DB.DataSource)),
+		UserInfoModel: model.NewUserInfoModel(sqlx.NewMysql(c.DB.DataSource)),
 	}
 }

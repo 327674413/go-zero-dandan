@@ -5,6 +5,6 @@ import "github.com/zeromicro/go-zero/rest"
 type Config struct {
 	rest.RestConf
 	DB struct {
-		TablePrefix string
+		DataSource string
 	}
 }
