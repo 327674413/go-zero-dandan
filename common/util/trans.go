@@ -5,6 +5,36 @@ import (
 	"strings"
 )
 
+type ArrT[T any] []T
+type MapT[k comparable, v any] map[k]v
+
+// MapToArr 将map转成数组
+func MapToArr[k comparable, v any](mp MapT[k, v]) []v {
+	arr := make(ArrT[v], 0)
+	var i int
+	for _, data := range mp {
+		arr[i] = data
+		i++
+	}
+	return arr
+}
+
+// GetKey 泛型接口
+type GetKey[k comparable] interface {
+	any
+	Get() k
+}
+
+var s GetKey[int]
+
+func ArrToMap[data GetKey[k], k comparable](arr ArrT[data]) MapT[k, data] {
+	mp := make(MapT[k, data], len(arr))
+	for _, data := range arr {
+		mp[data.Get()] = data
+	}
+	return mp
+}
+
 // ObjToMap 根据逗号分割的字符串，从来源结构体中获取值变成新的map
 func ObjToMap(data any, str string) map[string]any {
 	result := make(map[string]interface{})

@@ -15,7 +15,7 @@ type (
 	// and implement the added methods in customUserMainModel.
 	UserMainModel interface {
 		userMainModel
-		GetOne[T int | int64 | string](ctx context.Context, rowBuilder squirrel.SelectBuilder, where T) (*UserMain, error)
+		GetOne[T string | int | int64](ctx context.Context, rowBuilder squirrel.SelectBuilder, where T) (*UserMain, error)
 	}
 
 	customUserMainModel struct {
