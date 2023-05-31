@@ -39,7 +39,7 @@ type (
 		Id        int64     `db:"id"`
 		BirthDate time.Time `db:"birth_date"` // 出生日期
 		UserId    int64     `db:"user_id"`    // 用户id
-		AppId     int64     `db:"app_id"`     // 应用id
+		PlatId    int64     `db:"plat_id"`    // 应用id
 		CreateAt  int64     `db:"create_at"`  // 创建时间戳
 		UpdateAt  int64     `db:"update_at"`  // 更新时间戳
 		DeleteAt  int64     `db:"delete_at"`  // 删除时间戳
@@ -75,13 +75,13 @@ func (m *defaultUserInfoModel) FindOne(ctx context.Context, id int64) (*UserInfo
 
 func (m *defaultUserInfoModel) Insert(ctx context.Context, data *UserInfo) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?)", m.table, userInfoRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.BirthDate, data.UserId, data.AppId, data.DeleteAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.BirthDate, data.UserId, data.PlatId, data.DeleteAt)
 	return ret, err
 }
 
 func (m *defaultUserInfoModel) Update(ctx context.Context, data *UserInfo) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userInfoRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.BirthDate, data.UserId, data.AppId, data.DeleteAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.BirthDate, data.UserId, data.PlatId, data.DeleteAt, data.Id)
 	return err
 }
 

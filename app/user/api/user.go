@@ -3,10 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	"go-zero-dandan/user/api/internal/config"
-	"go-zero-dandan/user/api/internal/handler"
-	"go-zero-dandan/user/api/internal/svc"
+	"go-zero-dandan/app/user/api/internal/config"
+	"go-zero-dandan/app/user/api/internal/handler"
+	"go-zero-dandan/app/user/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"

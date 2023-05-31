@@ -2,23 +2,23 @@ package handler
 
 import (
 	"github.com/zeromicro/go-zero/rest/httpx"
+	"go-zero-dandan/app/user/api/internal/logic"
+	"go-zero-dandan/app/user/api/internal/svc"
+	"go-zero-dandan/app/user/api/internal/types"
 	"go-zero-dandan/common/api"
-	"go-zero-dandan/user/api/internal/logic"
-	"go-zero-dandan/user/api/internal/svc"
-	"go-zero-dandan/user/api/internal/types"
 	"net/http"
 )
 
-func AccountLoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func LoginByPhoneHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.AccountLoginReq
+		var req types.LoginByPhoneReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.OkJsonCtx(r.Context(), w, api.Fail(err.Error()))
 			return
 		}
 
-		l := logic.NewAccountLoginLogic(r.Context(), svcCtx)
-		resp, err := l.AccountLogin(&req)
+		l := logic.NewLoginByPhoneLogic(r.Context(), svcCtx)
+		resp, err := l.LoginByPhone(&req)
 		if err != nil {
 			httpx.OkJsonCtx(r.Context(), w, api.Fail(err.Error()))
 		} else {

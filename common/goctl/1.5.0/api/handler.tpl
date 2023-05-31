@@ -3,6 +3,7 @@ package {{.PkgName}}
 import (
 	"net/http"
 	"go-zero-dandan/common/api"
+	"github.com/zeromicro/go-zero/rest/httpx"
 	{{.ImportPackages}}
 )
 

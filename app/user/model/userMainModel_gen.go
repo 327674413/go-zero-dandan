@@ -47,7 +47,7 @@ type (
 		Email       string `db:"email"`         // 邮箱地址
 		Avatar      string `db:"avatar"`        // 头像
 		SexEm       int64  `db:"sex_em"`        // 性别枚举
-		AppId       int64  `db:"app_id"`        // 应用id
+		PlatId      int64  `db:"plat_id"`       // 应用id
 		CreateAt    int64  `db:"create_at"`     // 创建时间戳
 		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
 		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
@@ -83,13 +83,13 @@ func (m *defaultUserMainModel) FindOne(ctx context.Context, id int64) (*UserMain
 
 func (m *defaultUserMainModel) Insert(ctx context.Context, data *UserMain) (sql.Result, error) {
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userMainRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.AppId, data.DeleteAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.DeleteAt)
 	return ret, err
 }
 
 func (m *defaultUserMainModel) Update(ctx context.Context, data *UserMain) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.AppId, data.DeleteAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.DeleteAt, data.Id)
 	return err
 }
 

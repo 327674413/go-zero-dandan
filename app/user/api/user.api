@@ -1,0 +1,30 @@
+type LoginByPhoneAndOtpReq {
+	Phone     *string `json:"phone,optional"`
+	PortEnum  *int64  `json:"port_enum"`
+	OtpCode   *string `json:"otp_code"`
+	PhoneArea *string `json:"phone_area,optional"`
+}
+
+type LoginByPhoneReq {
+	Phone   *string `json:"phone"`
+	OtpCode *string `json:"otp_code"`
+}
+type UserInfoResp {
+	Id          int64  `json:"id"`
+	UserUnionId int64  `json:"user_union_id"`
+	Account     string `json:"account"`
+	Uid         string `json:"uid"`
+	Nickname    string `json:"nickname"`
+	Phone       string `json:"phone"`
+	PhoneArea   string `json:"phone_area"`
+	Email       string `json:"email"`
+	Avatar      string `json:"avatar"`
+	SexEm       int64  `json:"sex_em"`
+	CreateAt    int64  `json:"create_at"`
+	UpdateAt    int64  `json:"update_at"`
+	UserToken   string `json:"user_token"`
+}
+service user-api {
+	@handler LoginByPhone
+	post /user/LoginByPhone(LoginByPhoneReq) returns (UserInfoResp)
+}

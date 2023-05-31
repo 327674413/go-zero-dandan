@@ -2,8 +2,8 @@ package svc
 
 import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"go-zero-dandan/user/api/internal/config"
-	"go-zero-dandan/user/model"
+	"go-zero-dandan/app/user/api/internal/config"
+	"go-zero-dandan/app/user/model"
 )
 
 type ServiceContext struct {

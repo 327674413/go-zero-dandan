@@ -4,6 +4,8 @@
 ```
 #进user目录执行
 goctl api go -api user.api -dir . -style goZero
+#如果用了自定义模版则输入home路径
+goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 ### 创建user model
 ```
@@ -16,7 +18,7 @@ goctl model mysql ddl --src user.sql --dir . -style goZero
 CREATE TABLE `表名`  (
     `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
     
-    `app_id` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
+    `plat_id` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
     `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
     `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',
     `delete_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳',
@@ -34,7 +36,7 @@ go run user.go -f etc/user-api.yaml
 goctl template init
 #会在指定目录生成模版文件
 #然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api
-goctl api go -api user.api -dir . -style goZero -home ../../common/goctl/1.5.0
+goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 
 ## 约定
