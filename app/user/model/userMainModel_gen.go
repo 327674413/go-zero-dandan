@@ -30,8 +30,16 @@ type (
 	}
 
 	defaultUserMainModel struct {
-		conn  sqlx.SqlConn
-		table string
+		conn            sqlx.SqlConn
+		table           string
+		softDeleteField string
+		softDeleteState bool
+		fieldSql        string
+		whereSql        string
+		whereData       []any
+		orderSql        string
+		err             error
+		ctx             context.Context
 	}
 
 	UserMain struct {
@@ -56,8 +64,11 @@ type (
 
 func newUserMainModel(conn sqlx.SqlConn) *defaultUserMainModel {
 	return &defaultUserMainModel{
-		conn:  conn,
-		table: "`user_main`",
+		conn:            conn,
+		table:           "`user_main`",
+		softDeleteField: "delete_at",
+		softDeleteState: true,
+		whereData:       make([]any, 0),
 	}
 }
 

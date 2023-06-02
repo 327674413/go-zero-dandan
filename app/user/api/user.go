@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/api/internal/config"
 	"go-zero-dandan/app/user/api/internal/handler"
 	"go-zero-dandan/app/user/api/internal/svc"
@@ -25,6 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
+	logx.DisableStat()
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
