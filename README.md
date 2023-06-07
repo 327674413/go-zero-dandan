@@ -7,16 +7,16 @@ goctl api go -api user.api -dir . -style goZero
 #如果用了自定义模版则输入home路径
 goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 
-#mac电脑可以vim 
+#mac电脑可以vim ~/.bash_profile 
 然后加入
-alias gozeroApi='goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.0'
-alias gozeroModel='goctl model mysql ddl --src *.sql --dir . -style goZero'
+alias gozeroApi='goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0'
+alias gozeroModel='goctl model mysql ddl --src *.sql --dir . -style goZero ../../../common/goctl/1.5.0'
 ```
 ### 创建user model
 ```
 #先创建sql建表文件，如user.sql
 #进入到目录下，执行model生成脚本
-goctl model mysql ddl --src user.sql --dir . -style goZero
+goctl model mysql ddl --src user.sql --dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 ### 标准表模版
 ```
@@ -40,8 +40,8 @@ go run user.go -f etc/user-api.yaml
 ```
 goctl template init
 #会在指定目录生成模版文件
-#然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api
-goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.0
+#然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api(用*就会该目录下所有.api文件)
+goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 
 ## 约定
@@ -57,4 +57,4 @@ goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.
 | _qty  | 数量   | int      | 根据系统小数点读写自动换算 
 
 # Todo
-- 配置全局变量，如在model中，如果设置TableName()，则用表前缀模式
+- 接管httpx.Parse，解决不能同时支持数字和字符串数字的问题以及转化失败报错英文的问题

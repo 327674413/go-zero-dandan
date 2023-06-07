@@ -1,0 +1,14 @@
+type GetTokenReq {
+	Appid  *string `json:"appid"`
+	Secret *string `json:"secret"`
+}
+
+type GetTokenResp {
+	Token     string `json:"token"`
+	ExpireSec int64  `json:"expire_sec""`
+}
+
+service plat-api {
+	@handler GetToken
+	post /plat/getToken(GetTokenReq) returns (GetTokenResp)
+}

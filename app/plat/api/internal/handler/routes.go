@@ -4,7 +4,7 @@ package handler
 import (
 	"net/http"
 
-	"go-zero-dandan/app/user/api/internal/svc"
+	"go-zero-dandan/app/plat/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -14,10 +14,9 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
-				Path:    "/user/LoginByPhone",
-				Handler: LoginByPhoneHandler(serverCtx),
+				Path:    "/plat/getToken",
+				Handler: GetTokenHandler(serverCtx),
 			},
 		},
-		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 }

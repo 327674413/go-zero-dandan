@@ -36,8 +36,9 @@ type (
 		softDeleteState bool
 		fieldSql        string
 		whereSql        string
-		whereData       []any
+		aliasSql        string
 		orderSql        string
+		whereData       []any
 		err             error
 		ctx             context.Context
 	}

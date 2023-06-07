@@ -1,6 +1,6 @@
-Name: user-api
+Name: plat-api
 Host: 0.0.0.0
-Port: 8801
+Port: 8800
 DB:
   DataSource: "gozero:8a7yNLrsThjw3jra@tcp(81.69.7.120:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
 Env: dev

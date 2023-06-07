@@ -2,5 +2,8 @@ func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, c ca
 	return &default{{.upperStartCamelObject}}Model{
 		{{if .withCache}}CachedConn: sqlc.NewConn(conn, c){{else}}conn:conn{{end}},
 		table:      {{.table}},
+		softDeleteField: "delete_at",
+        softDeleteState: true,
+        whereData:       make([]any, 0),
 	}
 }

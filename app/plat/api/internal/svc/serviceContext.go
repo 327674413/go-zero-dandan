@@ -1,7 +1,7 @@
 package svc
 
 import (
-	"go-zero-dandan/app/user/api/internal/config"
+	"go-zero-dandan/app/plat/api/internal/config"
 )
 
 type ServiceContext struct {

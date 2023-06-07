@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go-zero-dandan/app/user/api/global"
 )
 
 var _ UserMainModel = (*customUserMainModel)(nil)
@@ -36,10 +37,18 @@ type (
 )
 
 // NewUserMainModel returns a model for the database table.
-func NewUserMainModel(conn sqlx.SqlConn) UserMainModel {
-	return &customUserMainModel{
-		defaultUserMainModel: newUserMainModel(conn),
+func NewUserMainModel(conn ...sqlx.SqlConn) UserMainModel {
+	if len(conn) > 0 {
+		return &customUserMainModel{
+			defaultUserMainModel: newUserMainModel(conn[0]),
+		}
+	} else {
+		return &customUserMainModel{
+			defaultUserMainModel: newUserMainModel(sqlx.NewMysql(global.Config.DB.DataSource)),
+		}
+
 	}
+
 }
 
 func (m *defaultUserMainModel) Find(ctx context.Context, id ...any) (*UserMain, error) {
@@ -50,13 +59,16 @@ func (m *defaultUserMainModel) Find(ctx context.Context, id ...any) (*UserMain, 
 	}
 	var resp UserMain
 	var sql string
+	field := userMainRows
+	if m.fieldSql != "" {
+		field = m.fieldSql
+	}
 	if len(id) > 0 {
-		sql = fmt.Sprintf("select %s from %s where id=? limit 1", userMainRows, m.table)
-		err = m.conn.QueryRowCtx(ctx, &resp, sql, id[0])
+		sql = fmt.Sprintf("select %s from %s where id=? limit 1", field, m.table)
+		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, id[0]) //QueryRowCtx 必须字段都覆盖
 	} else {
-		sql = fmt.Sprintf("select %s from %s where "+m.whereSql+" limit 1", userMainRows, m.table)
-		fmt.Println(m.whereData)
-		err = m.conn.QueryRowCtx(ctx, &resp, sql, m.whereData...)
+		sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql+" limit 1", field, m.table, m.aliasSql)
+		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, m.whereData...)
 	}
 	switch err {
 	case nil:
@@ -67,6 +79,11 @@ func (m *defaultUserMainModel) Find(ctx context.Context, id ...any) (*UserMain, 
 		fmt.Println(err)
 		return nil, err
 	}
+}
+func (m *defaultUserMainModel) WhereId(id int) *defaultUserMainModel {
+	m.whereSql = "id=?"
+	m.whereData = append(m.whereData, id)
+	return m
 }
 func (m *defaultUserMainModel) Page(ctx context.Context, page int, rows int) ([]*UserMain, error) {
 
@@ -79,24 +96,25 @@ func (m *defaultUserMainModel) List(ctx context.Context) ([]*UserMain, error) {
 func (m *defaultUserMainModel) WhereStr(whereStr string) *defaultUserMainModel {
 	return m
 }
-func (m *defaultUserMainModel) WhereId(id int) *defaultUserMainModel {
-	m.whereSql = "id=?"
-	m.whereData = append(m.whereData, id)
-	return m
-}
+
 func (m *defaultUserMainModel) WhereMap(whereMap map[string]any) *defaultUserMainModel {
 	return m
 }
 func (m *defaultUserMainModel) WhereRaw(whereStr string, whereData []any) *defaultUserMainModel {
-
+	if m.whereSql != "" {
+		m.whereSql += " AND (" + whereStr + ")"
+	} else {
+		m.whereSql = "(" + whereStr + ")"
+	}
+	m.whereData = append(m.whereData, whereData...)
 	return m
 }
 func (m *defaultUserMainModel) Alias(field string) *defaultUserMainModel {
-
+	m.aliasSql = field
 	return m
 }
 func (m *defaultUserMainModel) Field(field string) *defaultUserMainModel {
-
+	m.fieldSql = field
 	return m
 }
 func (m *defaultUserMainModel) Order(order string) *defaultUserMainModel {

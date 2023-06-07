@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -60,7 +61,7 @@ func ObjToMap(data any, str string) map[string]any {
 }
 
 // ObjToObj 根据目标结构体的字段，从来源结构体中查找对应的值并进行赋值
-func ObjToObj(src any, dest any, fields ...string) {
+func ObjToObj(src interface{}, dest interface{}, fields ...string) {
 	srcValue := reflect.ValueOf(src)
 	destValue := reflect.ValueOf(dest).Elem()
 
@@ -83,13 +84,17 @@ func ObjToObj(src any, dest any, fields ...string) {
 		}
 
 		// 在来源结构体中查找同名字段
-		if _, ok := srcType.FieldByName(destFieldType.Name); ok {
+		if srcFieldType, ok := srcType.FieldByName(destFieldType.Name); ok {
 			srcFieldValue := srcValue.FieldByName(destFieldType.Name)
 
 			// 检查字段类型是否匹配
 			if srcFieldValue.Type().AssignableTo(destField.Type()) {
 				// 进行赋值操作
 				destField.Set(srcFieldValue)
+			} else {
+				// 如果字段类型不匹配，则输出警告信息
+				fmt.Printf("Warning: field type mismatch, source field '%s' type '%s', destination field '%s' type '%s'\n",
+					srcFieldType.Name, srcFieldType.Type, destFieldType.Name, destFieldType.Type)
 			}
 		}
 	}

@@ -25,17 +25,24 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 }
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-
-	userMain, err := l.svcCtx.UserMainModel.WhereId(1).Find(l.ctx)
+	phone := *req.Phone
+	platId := l.ctx.Value("platId")
+	userId := l.ctx.Value("userId")
+	fmt.Println("platId:", platId, ",userId:", userId)
+	userMainModel := model.NewUserMainModel()
+	userMain, err := userMainModel.Alias("A").Field("id,account").
+		WhereRaw("phone=?", []any{phone}).
+		Find(l.ctx)
 	if err != nil && err != model.ErrNotFound {
 		return nil, errors.New("查询失败")
 	}
+	resp = &types.UserInfoResp{}
 	if err == model.ErrNotFound {
-		fmt.Println("1111111")
+		fmt.Println("未注册用户")
 		//自动注册
 	} else {
 		resp.Id = userMain.Id
-		fmt.Println("222222")
+		fmt.Println("已注册用户")
 		//直接登录
 	}
 	return resp, nil

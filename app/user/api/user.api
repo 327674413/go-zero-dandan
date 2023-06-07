@@ -24,6 +24,10 @@ type UserInfoResp {
 	UpdateAt    int64  `json:"update_at"`
 	UserToken   string `json:"user_token"`
 }
+@server(
+	jwt: Auth
+	//middleware: UserInfoMiddleware
+)
 service user-api {
 	@handler LoginByPhone
 	post /user/LoginByPhone(LoginByPhoneReq) returns (UserInfoResp)
