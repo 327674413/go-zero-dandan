@@ -8,6 +8,15 @@ type LoginByPhoneAndOtpReq struct {
 	PhoneArea *string `json:"phone_area,optional"`
 }
 
+type GetPhoneVerifyCodeReq struct {
+	Phone     *string `json:"phone"`
+	PhoneArea *string `json:"phone_area,optional"`
+}
+
+type SuccessResp struct {
+	Msg string `json:"msg"`
+}
+
 type LoginByPhoneReq struct {
 	Phone   *string `json:"phone"`
 	OtpCode *string `json:"otp_code"`

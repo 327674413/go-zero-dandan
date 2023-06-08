@@ -11,7 +11,6 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	Env string
 }
 
 var Conf Config

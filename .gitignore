@@ -17,4 +17,6 @@ data/*
 .vscode
 .vscode/
 
+#etcd
+etcd/
 

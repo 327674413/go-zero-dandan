@@ -4,7 +4,13 @@ type LoginByPhoneAndOtpReq {
 	OtpCode   *string `json:"otp_code"`
 	PhoneArea *string `json:"phone_area,optional"`
 }
-
+type getPhoneVerifyCodeReq {
+	Phone     *string `json:"phone"`
+	PhoneArea *string `json:"phone_area,optional"`
+}
+type SuccessResp {
+	Msg string `json:"msg"`
+}
 type LoginByPhoneReq {
 	Phone   *string `json:"phone"`
 	OtpCode *string `json:"otp_code"`
@@ -31,4 +37,6 @@ type UserInfoResp {
 service user-api {
 	@handler LoginByPhone
 	post /user/LoginByPhone(LoginByPhoneReq) returns (UserInfoResp)
+	@handler getPhoneVerifyCode
+	post /user/getPhoneVerifyCode(getPhoneVerifyCodeReq) returns (SuccessResp)
 }

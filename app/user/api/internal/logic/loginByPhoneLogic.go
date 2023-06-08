@@ -27,8 +27,7 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
 	phone := *req.Phone
 	platId := l.ctx.Value("platId")
-	userId := l.ctx.Value("userId")
-	fmt.Println("platId:", platId, ",userId:", userId)
+	fmt.Println("platId:", platId)
 	userMainModel := model.NewUserMainModel()
 	userMain, err := userMainModel.Alias("A").Field("id,account").
 		WhereRaw("phone=?", []any{phone}).

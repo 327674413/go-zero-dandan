@@ -17,6 +17,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/user/LoginByPhone",
 				Handler: LoginByPhoneHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/user/getPhoneVerifyCode",
+				Handler: getPhoneVerifyCodeHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)

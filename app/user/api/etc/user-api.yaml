@@ -7,3 +7,8 @@ Env: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 604800
+MessageRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: message.rpc

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package message;
+
+message SendPhoneReq {
+  string phone = 1;
+  string areaCode = 2;
+  string content = 3;
+  int64 TempId = 4;
+}
+
+message SendPhoneResp {
+  // 交易流水号
+  string Trade = 1;
+  // 交易状态
+  int64 code = 2;
+}
+
+service message {
+  rpc sendPhone(SendPhoneReq) returns(SendPhoneResp);
+}

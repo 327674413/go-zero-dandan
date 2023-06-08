@@ -7,7 +7,6 @@ type Config struct {
 	DB struct {
         DataSource string
     }
-    Env string
 	{{.auth}}
 	{{.jwtTrans}}
 }
