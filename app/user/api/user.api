@@ -32,7 +32,7 @@ type UserInfoResp {
 }
 @server(
 	jwt: Auth
-	//middleware: UserInfoMiddleware
+	middleware: LangMiddleware
 )
 service user-api {
 	@handler LoginByPhone

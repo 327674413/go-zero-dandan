@@ -2,7 +2,11 @@ package logic
 
 import (
 	"context"
-	"go-zero-dandan/common/api"
+	"fmt"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go-zero-dandan/app/message/rpc/message"
+	"go-zero-dandan/common/errd"
+	"go-zero-dandan/common/land"
 	"go-zero-dandan/common/util"
 
 	"go-zero-dandan/app/user/api/internal/svc"
@@ -27,15 +31,18 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
 	phone := *req.Phone
+	localizer := l.ctx.Value("lang").(*i18n.Localizer)
+	phoneTextData := map[string]string{"Field": land.Trans(localizer, "PhoneNumbera")}
+	fmt.Println("雪花id:", util.MakeId())
 	if check := util.CheckIsPhone(phone); check == false {
-		return nil, api.Fail("请输入正确的手机号")
+		return nil, errd.FailCode(localizer, errd.ReqPhoneError, phoneTextData)
 	}
-	/*sendPhoneRes, err := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
+	sendPhoneRes, err := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
 		Phone: phone,
 	})
-	fmt.Println("RPC返回：", sendPhoneRes, err)
+	fmt.Println("RPC返回：", sendPhoneRes)
 	if err != nil {
-		return nil, err
-	}*/
+		return nil, errd.Fail(err.Error())
+	}
 	return
 }

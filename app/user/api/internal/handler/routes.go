@@ -11,18 +11,21 @@ import (
 
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
-		[]rest.Route{
-			{
-				Method:  http.MethodPost,
-				Path:    "/user/LoginByPhone",
-				Handler: LoginByPhoneHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/user/getPhoneVerifyCode",
-				Handler: getPhoneVerifyCodeHandler(serverCtx),
-			},
-		},
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.LangMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/LoginByPhone",
+					Handler: LoginByPhoneHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/user/getPhoneVerifyCode",
+					Handler: getPhoneVerifyCodeHandler(serverCtx),
+				},
+			}...,
+		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 	)
 }

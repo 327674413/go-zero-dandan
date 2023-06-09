@@ -17,6 +17,7 @@ data/*
 .vscode
 .vscode/
 
-#etcd
-etcd/
+#docker
+docker/data
+
 

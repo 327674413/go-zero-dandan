@@ -4,15 +4,14 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/rest"
 	"go-zero-dandan/app/user/api/global"
 	"go-zero-dandan/app/user/api/internal/config"
 	"go-zero-dandan/app/user/api/internal/handler"
 	"go-zero-dandan/app/user/api/internal/svc"
 	"net/http"
-
-	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/rest"
 )
 
 var configFile = flag.String("f", "etc/user-api.yaml", "the config file")
