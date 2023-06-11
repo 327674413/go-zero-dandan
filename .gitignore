@@ -9,6 +9,7 @@
 
 data/*
 !data/.gitkeep
+*-dev.yaml
 
 # gitlab ci
 .cache

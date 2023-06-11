@@ -28,7 +28,7 @@ goctl rpc protoc message.proto --go_out=./types --go-grpc_out=./types --zrpc_out
 ### 标准表模版
 ```
 CREATE TABLE `表名`  (
-    `id` int UNSIGNED NOT NULL AUTO_INCREMENT,
+    `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
     
     `plat_id` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
     `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
@@ -66,3 +66,4 @@ goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 # Todo
 - 接管httpx.Parse，解决不能同时支持数字和字符串数字的问题以及转化失败报错英文的问题
 - 研究一下APISIX  和 kong ，实现统一的网关入口，做黑名单等事务
+- kafka在docker里必须要添加hosts把容器id放进去，不然找不到地址的问题解决
