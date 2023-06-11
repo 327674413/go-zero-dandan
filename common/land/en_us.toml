@@ -1,0 +1,28 @@
+Err = "Encountered a small problem, please try again later"
+ReqFieldRequired = "{{.Field}} is required"
+ReqPhoneError = "Not a correct phone number"
+
+Success = "Success"
+SuccessAsync = "Submit Finish"
+PhoneNumber = "phone number"
+
+
+
+
+
+
+
+
+
+
+[MyUnreadEmails]
+description = "The number of unread emails I have"
+one = "I have {{.PluralCount}} unread email."
+other = "I have {{.PluralCount}} unread emails."
+
+[PersonUnreadEmails]
+description = "The number of unread emails a person has"
+one = "{{.Name}} has {{.UnreadEmailCount}} unread email."
+other = "{{.Name}} has {{.UnreadEmailCount}} unread emails."
+
+

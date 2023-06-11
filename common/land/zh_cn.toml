@@ -1,0 +1,32 @@
+Err = "遇到了点小问题,请稍后再试"
+ReqFieldRequired = "{{.Field}}不能为空"
+ReqPhoneError = "请输入正确的手机号码"
+
+SuccAdd = "新增成功"
+SuccEdit = "修改成功"
+SuccDel = "删除成功"
+SuccSubmit = "提交成功"
+PhoneNumber = "手机号码"
+
+
+
+
+
+
+
+[HelloPerson]
+hash = "sha1-5b49bfdad81fedaeefb224b0ffc2acc58b09cff5"
+other = "Hola {{.Name}}"
+
+[MyUnreadEmails]
+description = "The number of unread emails I have"
+hash = "sha1-6a65d17f53981a3657db1897630e9cb069053ea8"
+one = "Tengo {{.PluralCount}} correo electrónico sin leer"
+other = "Tengo {{.PluralCount}} correos electrónicos no leídos"
+
+[PersonUnreadEmails]
+description = "The number of unread emails a person has"
+hash = "sha1-3a672fa89c5c8564bb233c907638004983792464"
+one = "{{.Name}} tiene {{.UnreadEmailCount}} correo electrónico no leído"
+other = "{{.Name}} tiene {{.UnreadEmailCount}} correos electrónicos no leídos"
+
