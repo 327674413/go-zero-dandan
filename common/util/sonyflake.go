@@ -20,7 +20,11 @@ var rg = struct {
 }
 
 func init() {
+	// todo::如何自动设置不重复的machineID
 	var f sonyflake.Settings
+	f.MachineID = func() (uint16, error) {
+		return 1111, nil
+	}
 	f.StartTime = time.Date(2022, 4, 1, 0, 0, 0, 0, time.UTC)
 	sf = sonyflake.NewSonyflake(f)
 	if sf == nil {

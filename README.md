@@ -30,7 +30,7 @@ goctl rpc protoc message.proto --go_out=./types --go-grpc_out=./types --zrpc_out
 CREATE TABLE `表名`  (
     `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
     
-    `plat_id` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
+    `plat_id` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
     `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
     `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',
     `delete_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳',

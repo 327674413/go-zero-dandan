@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -108,4 +109,21 @@ func StrInArr(fieldName string, fields []string) bool {
 		}
 	}
 	return false
+}
+
+// IpTo12Digits 将ip补0转成12个数字
+func IpTo12Digits(ip string) (string, error) {
+	parts := strings.Split(ip, ".")
+	if len(parts) != 4 {
+		return "", fmt.Errorf("invalid IP address: %s", ip)
+	}
+	digits := make([]string, 4)
+	for i, part := range parts {
+		val, err := strconv.Atoi(part)
+		if err != nil {
+			return "", fmt.Errorf("invalid IP address: %s", ip)
+		}
+		digits[i] = fmt.Sprintf("%03d", val)
+	}
+	return strings.Join(digits, ""), nil
 }

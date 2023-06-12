@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"go-zero-dandan/app/message/rpc/message"
 	"go-zero-dandan/common/errd"
 	"go-zero-dandan/common/land"
 	"go-zero-dandan/common/util"
+	"strconv"
 
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
@@ -37,10 +37,19 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 	if check := util.CheckIsPhone(phone); check == false {
 		return nil, errd.FailCode(localizer, errd.ReqPhoneError, phoneTextData)
 	}
-	sendPhoneRes, err := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
-		Phone: phone,
-	})
-	fmt.Println("RPC返回：", sendPhoneRes)
+	code := strconv.Itoa(util.Rand(1000, 9999))
+	err = l.svcCtx.Redis.Hset("phone", phone, code)
+
+	if err != nil {
+		fmt.Println("redis error,", err)
+	}
+
+	//fmt.Println(l.svcCtx.Redis.GetStr("phone", phone))
+	/*
+		sendPhoneRes, err := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
+			Phone: phone,
+		})
+		fmt.Println("RPC返回：", sendPhoneRes)*/
 	if err != nil {
 		return nil, errd.Fail(err.Error())
 	}

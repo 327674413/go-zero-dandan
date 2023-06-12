@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	{{.imports}}
-
+    "go-zero-dandan/app/{{.serviceName}}/global"
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -20,6 +20,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	global.Config = c //自定义应用内全局的配置参数，在其他文件里使用
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
@@ -30,7 +31,7 @@ func main() {
 		}
 	})
 	defer s.Stop()
-
+    logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }
