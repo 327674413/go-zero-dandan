@@ -10,13 +10,15 @@ goctl api go -api user.api -dir . -style goZero -home ../../../common/goctl/1.5.
 #mac电脑可以vim ~/.bash_profile 
 然后加入
 alias gozeroApi='goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0'
-alias gozeroModel='goctl model mysql ddl --src *.sql --dir . -style goZero ../../../common/goctl/1.5.0'
+alias gozeroModel='goctl model mysql ddl --src *.sql --dir . -style goZero -home ../../../common/goctl/1.5.0'
 ```
 ### 创建user model
 ```
 #先创建sql建表文件，如user.sql
 #进入到目录下，执行model生成脚本
 goctl model mysql ddl --src user.sql --dir . -style goZero -home ../../../common/goctl/1.5.0
+#或者直接连接数据库创建
+goctl model mysql datasource -url="${DB_USER}:${$DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}" -table="${DB_TABLE}" . -style goZero -home ../../../common/goctl/1.5.0
 ```
 
 ### rpc服务创建

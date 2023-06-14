@@ -17,7 +17,7 @@ import (
 var (
 	platMainFieldNames          = builder.RawFieldNames(&PlatMain{})
 	platMainRows                = strings.Join(platMainFieldNames, ",")
-	platMainRowsExpectAutoSet   = strings.Join(stringx.Remove(platMainFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	platMainRowsExpectAutoSet   = strings.Join(stringx.Remove(platMainFieldNames, "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	platMainRowsWithPlaceHolder = strings.Join(stringx.Remove(platMainFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 )
 
@@ -43,17 +43,17 @@ type (
 	}
 
 	PlatMain struct {
-		Id             int64  `db:"id"`
-		Appid          string `db:"appid"`             // 对外应用标识
-		Secret         string `db:"secret"`            // 对外应用密钥
-		SysPlatStateId int64  `db:"sys_plat_state_id"` // 应用状态
-		RenterId       int64  `db:"renter_id"`         // 租户id
-		Name           string `db:"name"`              // 应用名称
-		SysPlatClasId  int64  `db:"sys_plat_clas_id"`  // 应用类型
-		ExpireAt       int64  `db:"expire_at"`         // 应用到期时间戳
-		CreateAt       int64  `db:"create_at"`         // 创建时间戳
-		UpdateAt       int64  `db:"update_at"`         // 更新时间戳
-		DeleteAt       int64  `db:"delete_at"`         // 删除时间戳
+		Id       int64  `db:"id"`
+		Appid    string `db:"appid"`     // 对外应用标识
+		Secret   string `db:"secret"`    // 对外应用密钥
+		StateEm  int64  `db:"state_em"`  // 应用状态
+		RenterId int64  `db:"renter_id"` // 租户id
+		Name     string `db:"name"`      // 应用名称
+		ClasEm   int64  `db:"clas_em"`   // 应用类型
+		ExpireAt int64  `db:"expire_at"` // 应用到期时间戳
+		CreateAt int64  `db:"create_at"` // 创建时间戳
+		UpdateAt int64  `db:"update_at"` // 更新时间戳
+		DeleteAt int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 
@@ -88,14 +88,14 @@ func (m *defaultPlatMainModel) FindOne(ctx context.Context, id int64) (*PlatMain
 }
 
 func (m *defaultPlatMainModel) Insert(ctx context.Context, data *PlatMain) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?)", m.table, platMainRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Appid, data.Secret, data.SysPlatStateId, data.RenterId, data.Name, data.SysPlatClasId, data.ExpireAt, data.DeleteAt)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, platMainRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Id, data.Appid, data.Secret, data.StateEm, data.RenterId, data.Name, data.ClasEm, data.ExpireAt, data.DeleteAt)
 	return ret, err
 }
 
 func (m *defaultPlatMainModel) Update(ctx context.Context, data *PlatMain) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, platMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.Appid, data.Secret, data.SysPlatStateId, data.RenterId, data.Name, data.SysPlatClasId, data.ExpireAt, data.DeleteAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.Appid, data.Secret, data.StateEm, data.RenterId, data.Name, data.ClasEm, data.ExpireAt, data.DeleteAt, data.Id)
 	return err
 }
 

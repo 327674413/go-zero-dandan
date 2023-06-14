@@ -11,6 +11,7 @@ data/*
 !data/.gitkeep
 *-dev.yaml
 
+private.md
 # gitlab ci
 .cache
 

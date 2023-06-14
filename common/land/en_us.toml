@@ -1,11 +1,16 @@
 Err = "Encountered a small problem, please try again later"
-ReqFieldRequired = "{{.Field}} is required"
+ReqFieldRequired = "{{.Field1}} is required"
 ReqPhoneError = "Not a correct phone number"
+
+
+PlatConfigNotInit = "Not set {{.Field1}}"
+
+
 
 Success = "Success"
 SuccessAsync = "Submit Finish"
-PhoneNumber = "phone number"
-
+PhoneNumber = "Phone Number"
+SmsTemp ="Sms Template"
 
 
 

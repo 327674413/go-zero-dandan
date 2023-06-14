@@ -8,13 +8,13 @@ package message;
 message SendPhoneReq {
   string phone = 1;
   string areaCode = 2;
-  string content = 3;
-  int64 TempId = 4;
+  repeated string tempData = 3;
+  int64 tempId = 4;
 }
 
 message SendPhoneResp {
   // 交易流水号
-  string Trade = 1;
+  string trade = 1;
   // 交易状态
   int64 code = 2;
 }

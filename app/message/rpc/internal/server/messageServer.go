@@ -8,7 +8,7 @@ import (
 
 	"go-zero-dandan/app/message/rpc/internal/logic"
 	"go-zero-dandan/app/message/rpc/internal/svc"
-	"go-zero-dandan/app/message/rpc/pb"
+	"go-zero-dandan/app/message/rpc/types/pb"
 )
 
 type MessageServer struct {

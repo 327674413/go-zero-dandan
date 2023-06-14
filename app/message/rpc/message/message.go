@@ -6,7 +6,7 @@ package message
 import (
 	"context"
 
-	"go-zero-dandan/app/message/rpc/pb"
+	"go-zero-dandan/app/message/rpc/types/pb"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"

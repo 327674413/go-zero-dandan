@@ -3,11 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"go-zero-dandan/app/message/rpc/internal/config"
 	"go-zero-dandan/app/message/rpc/internal/server"
 	"go-zero-dandan/app/message/rpc/internal/svc"
-	"go-zero-dandan/app/message/rpc/pb"
+	"go-zero-dandan/app/message/rpc/types/pb"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -33,7 +34,7 @@ func main() {
 		}
 	})
 	defer s.Stop()
-
+	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

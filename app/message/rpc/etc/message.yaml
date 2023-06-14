@@ -1,7 +1,13 @@
 Name: message.rpc
 ListenOn: 127.0.0.1:8080
 Mode: dev
+DB:
+  DataSource:
 Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: message.rpc
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf

@@ -20,6 +20,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	redisConn := redis.MustNewRedis(c.RedisConf)
 	redisdConn := redisd.NewRedisd(redisConn, "user")
+
 	return &ServiceContext{
 		Config:         c,
 		MessageRpc:     message.NewMessage(zrpc.MustNewClient(c.MessageRpc)),

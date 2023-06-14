@@ -1,13 +1,17 @@
 Err = "遇到了点小问题,请稍后再试"
-ReqFieldRequired = "{{.Field}}不能为空"
+ReqFieldRequired = "{{.Field1}}不能为空"
 ReqPhoneError = "请输入正确的手机号码"
+
+
+PlatConfigNotInit = "未配置{{.Field1}}"
+
 
 SuccAdd = "新增成功"
 SuccEdit = "修改成功"
 SuccDel = "删除成功"
 SuccSubmit = "提交成功"
 PhoneNumber = "手机号码"
-
+SmsTemp ="短信模版"
 
 
 
