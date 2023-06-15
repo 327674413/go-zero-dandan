@@ -9,6 +9,7 @@ PlatConfigNotInit = "Not set {{.Field1}}"
 
 Success = "Success"
 SuccessAsync = "Submit Finish"
+
 PhoneNumber = "Phone Number"
 SmsTemp ="Sms Template"
 

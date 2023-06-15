@@ -1,4 +1,4 @@
-package errd
+package respd
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ var msg map[int]string
 
 func init() {
 	msg = make(map[int]string)
-	msg[Ok] = "Succ"
+	msg[Ok] = "Success"
 	msg[OkAsync] = "SuccessAsync"
 	msg[Auth] = "Auth"
 	msg[Err] = "Error"

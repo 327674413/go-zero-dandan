@@ -6,7 +6,7 @@ import (
 	"go-zero-dandan/app/message/model"
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/pb"
-	"go-zero-dandan/common/errd"
+	"go-zero-dandan/common/respd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/common/utild/smsd"
 )
@@ -28,23 +28,23 @@ func NewSendPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendPho
 func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SendPhoneResp, error) {
 	resp := &pb.SendPhoneResp{}
 	if in.TempId == 0 {
-		return nil, errd.RpcEncodeTempErr(errd.ReqFieldRequired, []string{"TempId"})
+		return nil, respd.RpcEncodeTempErr(respd.ReqFieldRequired, []string{"TempId"})
 	}
 	if !utild.CheckIsPhone(in.Phone) {
-		return nil, errd.RpcEncodeTempErr(errd.ReqPhoneError, []string{})
+		return nil, respd.RpcEncodeTempErr(respd.ReqPhoneError, []string{})
 	}
 	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
 	smsTemp, err := messageSmsTempModel.CacheFind(l.ctx, l.svcCtx.Redis, in.TempId)
 	if err != nil {
-		return nil, errd.RpcEncodeSysErr(err.Error())
+		return nil, respd.RpcEncodeSysErr(err.Error())
 	}
 	if smsTemp.Id == 0 {
-		return nil, errd.RpcEncodeTempErr(errd.PlatConfigNotInit, []string{"SmsTemp"})
+		return nil, respd.RpcEncodeTempErr(respd.PlatConfigNotInit, []string{"SmsTemp"})
 	}
 	sms := smsd.NewSmsTencent(smsTemp.SecretId, smsTemp.SecretKey)
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
 	if err != nil {
-		return nil, errd.RpcEncodeMsgErr(err.Error(), errd.TrdSmsSendError)
+		return nil, respd.RpcEncodeMsgErr(err.Error(), respd.TrdSmsSendError)
 	}
 	resp.Code = 200
 	resp.Trade = "1111111"

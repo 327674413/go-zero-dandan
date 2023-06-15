@@ -4,12 +4,10 @@ ReqPhoneError = "请输入正确的手机号码"
 
 
 PlatConfigNotInit = "未配置{{.Field1}}"
-Succ="操作成功"
+Success="操作成功"
+SuccessAsync="提交完成"
 
-SuccAdd = "新增成功"
-SuccEdit = "修改成功"
-SuccDel = "删除成功"
-SuccSubmit = "提交成功"
+
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
 

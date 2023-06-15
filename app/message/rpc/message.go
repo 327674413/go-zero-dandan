@@ -25,7 +25,7 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
-	fmt.Printf("------------Mode：%s-----------", c.Mode)
+	fmt.Printf("------------Mode：%s-----------\n", c.Mode)
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		pb.RegisterMessageServer(grpcServer, server.NewMessageServer(ctx))
 

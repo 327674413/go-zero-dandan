@@ -1,4 +1,4 @@
-package errd
+package respd
 
 import (
 	"encoding/json"

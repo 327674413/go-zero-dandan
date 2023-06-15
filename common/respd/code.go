@@ -1,4 +1,4 @@
-package errd
+package respd
 
 // 2成功类，5异常类不适合展示给用户，6校验类，7第三方对接类
 const (

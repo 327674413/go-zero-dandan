@@ -5,7 +5,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/logic"
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
-	"go-zero-dandan/common/errd"
+	"go-zero-dandan/common/respd"
 	"net/http"
 )
 
@@ -13,7 +13,7 @@ func getPhoneVerifyCodeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.GetPhoneVerifyCodeReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.OkJsonCtx(r.Context(), w, errd.Fail(err.Error()))
+			httpx.OkJsonCtx(r.Context(), w, respd.Fail(err.Error()))
 			return
 		}
 
@@ -22,7 +22,7 @@ func getPhoneVerifyCodeHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.OkJsonCtx(r.Context(), w, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, errd.Succ(resp))
+			httpx.OkJsonCtx(r.Context(), w, respd.Succ(resp))
 		}
 	}
 }
