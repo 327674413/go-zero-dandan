@@ -10,7 +10,7 @@ var msg map[int]string
 
 func init() {
 	msg = make(map[int]string)
-	msg[Ok] = "Success"
+	msg[Ok] = "Succ"
 	msg[OkAsync] = "SuccessAsync"
 	msg[Auth] = "Auth"
 	msg[Err] = "Error"
@@ -20,13 +20,17 @@ func init() {
 
 }
 
-func Msg(localize *i18n.Localizer, errCode int, tempData []string) string {
+func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string {
+	tempData := make([]string, 0)
+	if len(tempDataArr) > 0 {
+		tempData = tempDataArr[0]
+	}
 	m := make(map[string]string)
 	for i, v := range tempData {
 		key := "Field" + fmt.Sprint(i+1)
 		m[key] = getMsg(localize, v)
 	}
-	if code, ok := msg[errCode]; ok {
+	if code, ok := msg[msgCode]; ok {
 		return land.Trans(localize, code, m)
 	} else {
 		return land.Trans(localize, msg[Err], m)

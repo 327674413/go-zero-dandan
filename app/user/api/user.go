@@ -21,6 +21,7 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	fmt.Printf("------------Mode：%s-----------\n", c.Mode)
 	global.Config = c //自定义应用内全局的配置参数，在其他文件里使用
 	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
 		// 将错误对象转换为 JSON 格式，并写入响应

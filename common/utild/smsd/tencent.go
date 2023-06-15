@@ -1,8 +1,8 @@
 package smsd
 
 import (
+	"encoding/json"
 	"fmt"
-
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/errors"
 	"github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common/profile"
@@ -49,6 +49,46 @@ func (t *Tencent) Send(phoneNumer string, smsSdkAppId string, signName string, t
 		return err
 	}
 	// 输出json格式的字符串回包
-	fmt.Printf("%s", response.ToJsonString())
-	return nil
+	str := response.ToJsonString()
+	resp := &smsResp{}
+	err = json.Unmarshal([]byte(str), resp)
+	if err != nil {
+		return err
+	}
+	if resp.Response.SendStatusSet[0].Code == "Ok" {
+		return nil
+	} else {
+		return NewSmsError(resp.Response.SendStatusSet[0].Message)
+	}
+
+}
+
+type SmsError struct {
+	Msg string
+}
+
+func (t *SmsError) Error() string {
+	return t.Msg
+}
+func NewSmsError(msg string) *SmsError {
+	return &SmsError{Msg: msg}
+}
+
+type smsSendStatus struct {
+	SerialNo       string `json:"SerialNo"`
+	PhoneNumber    string `json:"PhoneNumber"`
+	Fee            int    `json:"Fee"`
+	SessionContext string `json:"SessionContext"`
+	Code           string `json:"Code"`
+	Message        string `json:"Message"`
+	IsoCode        string `json:"IsoCode"`
+}
+
+type smsResponse struct {
+	SendStatusSet []smsSendStatus `json:"SendStatusSet"`
+	RequestId     string          `json:"RequestId"`
+}
+
+type smsResp struct {
+	Response smsResponse `json:"Response"`
 }

@@ -23,7 +23,7 @@ type LoginByPhoneReq struct {
 }
 
 type UserInfoResp struct {
-	Id          int64  `json:"id"`
+	Id          int64  `json:"id,string"`
 	UserUnionId int64  `json:"user_union_id"`
 	Account     string `json:"account"`
 	Uid         string `json:"uid"`

@@ -7,8 +7,9 @@ import (
 	"go-zero-dandan/app/message/rpc/message"
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
+	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/errd"
-	"go-zero-dandan/common/util"
+	"go-zero-dandan/common/utild"
 	"strconv"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -31,27 +32,30 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
 	phone := *req.Phone
 	localizer := l.ctx.Value("lang").(*i18n.Localizer)
-	fmt.Println("雪花id:", util.MakeId())
-	if check := util.CheckIsPhone(phone); check == false {
+	fmt.Println("雪花id:", utild.MakeId())
+	if check := utild.CheckIsPhone(phone); check == false {
 		return nil, errd.FailCode(localizer, errd.ReqPhoneError, []string{})
 	}
-	code := strconv.Itoa(util.Rand(1000, 9999))
+	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err = l.svcCtx.Redis.Set("verifyCode", phone, code, 300)
 	if err != nil {
 		fmt.Println("redis error,", err)
 	}
+	resp = &types.SuccessResp{Msg: errd.Msg(localizer, errd.Ok)}
+	if l.svcCtx.Mode == constd.ModeDev {
+		fmt.Println("code：", code)
+		return resp, nil
+	} else {
+		_, rpcErr := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
+			Phone:    phone,
+			TempId:   1,
+			TempData: []string{code, "5"},
+		})
+		if rpcErr != nil {
+			return nil, errd.RpcFail(localizer, rpcErr)
+		}
+		return resp, nil
+	}
 
-	sendPhoneRes, rpcErr := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
-		Phone:    phone,
-		TempId:   1,
-		TempData: []string{code, "5"},
-	})
-	if rpcErr != nil {
-		return nil, errd.RpcFail(localizer, rpcErr)
-	}
-	fmt.Println("RPC返回：", sendPhoneRes, err)
-	if err != nil {
-		return nil, errd.Fail(err.Error())
-	}
 	return resp, nil
 }

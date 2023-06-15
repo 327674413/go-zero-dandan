@@ -11,6 +11,7 @@ type ServiceContext struct {
 	Config  config.Config
 	SqlConn sqlx.SqlConn
 	Redis   *redisd.Redisd
+	Mode    string
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -20,5 +21,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:  c,
 		SqlConn: sqlx.NewMysql(c.Db.DataSource),
 		Redis:   redisdConn,
+		Mode:    c.Mode,
 	}
 }

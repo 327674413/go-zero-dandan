@@ -1,6 +1,6 @@
 Name: user-api
 Host: 0.0.0.0
-Port: 8801
+Port: 8800
 DB:
   DataSource: DB_USER:DB_PASS@tcp(DB_IP:DB_PORT)/DB_NAME?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Env: dev

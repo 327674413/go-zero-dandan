@@ -1,4 +1,4 @@
-package util
+package utild
 
 import (
 	"crypto/sha256"

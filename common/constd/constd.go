@@ -1,5 +1,6 @@
 package constd
 
 const (
-	ErrReqFieldEmpty = "ErrReqFieldEmpty"
+	ModeDev  = "dev" //开发环境
+	ModeProd = "pro" //生产环境
 )

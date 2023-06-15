@@ -14,6 +14,11 @@ type Errd struct {
 	Code   int    `json:"code"`
 	Msg    string `json:"msg"`
 }
+type Okd struct {
+	Result bool `json:"result"`
+	Code   int  `json:"code"`
+	Data   any  `json:"data"`
+}
 
 func (t *Errd) Error() string {
 	return fmt.Sprintf("result:%v, code: %d, msg: %s", t.Result, t.Code, t.Msg)
@@ -68,6 +73,12 @@ func Fail(msg string, code ...int) error {
 		apiCode = code[0]
 	}
 	return &Errd{Result: false, Code: apiCode, Msg: msg}
+}
+func Succ(data any) *Okd {
+	return &Okd{Result: true, Code: Ok, Data: data}
+}
+func SuccAsync(data any) *Okd {
+	return &Okd{Result: true, Code: OkAsync, Data: data}
 }
 func FailI18n(localize *i18n.Localizer, temp string, tempData ...map[string]string) error {
 	apiCode := 400

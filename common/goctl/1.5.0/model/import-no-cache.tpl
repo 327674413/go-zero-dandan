@@ -3,6 +3,8 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"go-zero-dandan/common/redisd"
+    "strconv"
 	{{if .time}}"time"{{end}}
 
     {{if .containsPQ}}"github.com/lib/pq"{{end}}

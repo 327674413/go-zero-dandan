@@ -19,6 +19,7 @@ type (
 
 	custom{{.upperStartCamelObject}}Model struct {
 		*default{{.upperStartCamelObject}}Model
+		SoftDeletable bool
 	}
 )
 
@@ -26,5 +27,6 @@ type (
 func New{{.upperStartCamelObject}}Model(conn sqlx.SqlConn{{if .withCache}}, c cache.CacheConf{{end}}) {{.upperStartCamelObject}}Model {
 	return &custom{{.upperStartCamelObject}}Model{
 		default{{.upperStartCamelObject}}Model: new{{.upperStartCamelObject}}Model(conn{{if .withCache}}, c{{end}}),
+		SoftDeletable:true,//是否启用软删除
 	}
 }

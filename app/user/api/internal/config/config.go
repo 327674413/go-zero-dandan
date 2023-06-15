@@ -15,7 +15,6 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	Env        string
 	MessageRpc zrpc.RpcClientConf
 	RedisConf  redis.RedisConf
 }

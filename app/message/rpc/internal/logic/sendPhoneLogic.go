@@ -7,8 +7,8 @@ import (
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/pb"
 	"go-zero-dandan/common/errd"
-	"go-zero-dandan/common/util"
-	"go-zero-dandan/common/util/smsd"
+	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/utild/smsd"
 )
 
 type SendPhoneLogic struct {
@@ -30,7 +30,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SendPhoneResp, erro
 	if in.TempId == 0 {
 		return nil, errd.RpcEncodeTempErr(errd.ReqFieldRequired, []string{"TempId"})
 	}
-	if !util.CheckIsPhone(in.Phone) {
+	if !utild.CheckIsPhone(in.Phone) {
 		return nil, errd.RpcEncodeTempErr(errd.ReqPhoneError, []string{})
 	}
 	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
@@ -44,7 +44,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SendPhoneResp, erro
 	sms := smsd.NewSmsTencent(smsTemp.SecretId, smsTemp.SecretKey)
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
 	if err != nil {
-		return nil, err
+		return nil, errd.RpcEncodeMsgErr(err.Error(), errd.TrdSmsSendError)
 	}
 	resp.Code = 200
 	resp.Trade = "1111111"

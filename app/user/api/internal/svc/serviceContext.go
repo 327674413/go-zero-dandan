@@ -15,6 +15,7 @@ type ServiceContext struct {
 	MessageRpc     message.Message
 	LangMiddleware rest.Middleware
 	Redis          *redisd.Redisd
+	Mode           string
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -26,5 +27,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		MessageRpc:     message.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
 		LangMiddleware: middleware.NewLangMiddleware().Handle,
 		Redis:          redisdConn,
+		Mode:           c.Mode,
 	}
 }

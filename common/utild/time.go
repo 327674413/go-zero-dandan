@@ -1,4 +1,4 @@
-package util
+package utild
 
 //与时间相关的方法
 import (
