@@ -1,5 +1,5 @@
 Name: message.rpc
-ListenOn: 127.0.0.1:8080
+ListenOn: 127.0.0.1:8802
 Mode: dev
 DB:
   DataSource:
@@ -11,3 +11,12 @@ RedisConf:
   Host: 127.0.0.1:6379
   Type: node
   Pass: G62m50oigInC30sf
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9802
+  Path: /metrics
+Telemetry:
+  Name: message-rpc
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

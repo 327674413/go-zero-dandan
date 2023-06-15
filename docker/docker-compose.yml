@@ -45,7 +45,95 @@ services:
       - 2181:2181
     networks:
       - dandan_net
+  prometheus:
+    image: bitnami/prometheus:2.44.0
+    container_name: prometheus
+    environment:
+      # 时区上海 - Time zone Shanghai (Change if needed)
+      TZ: Asia/Shanghai
+    volumes:
+      - ${PROMETHEUS_CONF_DIR}/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+      - ${PROMETHEUS_CONF_DIR}/targets.json:/opt/bitnami/prometheus/conf/targets.json
+    restart: always
+    #user: root
+    ports:
+      - 9090:9090
+    networks:
+      - dandan_net
 
+  #查看prometheus监控数据 - Grafana to view Prometheus monitoring data
+  #启动后http://127.0.0.1:3001/ 进入，默认账号密码都是admin
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: grafana
+    hostname: grafana
+    #user: root
+    environment:
+    # 时区上海 - Time zone Shanghai (Change if needed)
+      TZ: Asia/Shanghai
+    restart: always
+    volumes:
+      - ./data/grafana/data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    networks:
+      - dandan_net
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:1.46.0
+    environment:
+      - TZ=Asia/Shanghai
+      - SPAN_STORAGE_TYPE=elasticsearch
+      - ES_SERVER_URLS=http://elasticsearch:9200
+      - LOG_LEVEL=debug
+    privileged: true
+    ports:
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "14250:14250"
+      - "14268:14268"
+      - "14269:14269"
+      - "9411:9411"
+    restart: always
+    networks:
+      - dandan_net
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.8.0
+    environment:
+      - TZ=Asia/Shanghai
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - node.name=es
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+    privileged: true
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    restart: always
+    networks:
+      - dandan_net
+  kibana:
+    image: kibana:8.8.0
+    container_name: kibana
+    environment:
+      - elasticsearch.hosts=http://elasticsearch:9200
+      - TZ=Asia/Shanghai
+    restart: always
+    networks:
+      - dandan_net
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
   #消息队列 - Message queue
   kafka:
     container_name: kafka

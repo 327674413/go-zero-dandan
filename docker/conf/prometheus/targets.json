@@ -1,0 +1,20 @@
+[
+  {
+    "targets": ["host.docker.internal:9801"],
+    "labels": {
+      "job": "user-api",
+      "app": "user-api",
+      "env": "test",
+      "instance": "host.docker.internal:8801"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9802"],
+    "labels": {
+      "job": "message-rpc",
+      "app": "message-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8802"
+    }
+  }
+]
