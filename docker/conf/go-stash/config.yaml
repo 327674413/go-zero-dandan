@@ -2,6 +2,8 @@ Clusters:
   - Input:
       Kafka:
         Name: gostash
+        Log:
+          Mode: file
         Brokers:
           - "kafka:9092"
         Topics:

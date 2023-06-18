@@ -3,11 +3,20 @@ package utild
 import (
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 	"sync"
 	"unicode"
+)
+
+var (
+	ErrInvalidCopyDestination        = errors.New("copy destination must be non-nil and addressable")
+	ErrInvalidCopyFrom               = errors.New("copy from must be non-nil and addressable")
+	ErrMapKeyNotMatch                = errors.New("map's key type doesn't match")
+	ErrNotSupported                  = errors.New("not supported")
+	ErrFieldNameTagStartNotUpperCase = errors.New("copier field name tag must be start upper case")
 )
 
 // These flags define options for tag handling
