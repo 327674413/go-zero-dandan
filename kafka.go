@@ -10,17 +10,17 @@ import (
 
 func main() {
 	producer()
-
+	//client()
 }
 func client() {
 	config := sarama.NewConfig()
 	config.Version = sarama.V3_3_1_0
-	client, err := sarama.NewConsumerGroup([]string{"127.0.0.1:9092"}, "normal_log_group", config)
+	client, err := sarama.NewConsumerGroup([]string{"127.0.0.1:9092"}, "pro", config)
 	if err != nil {
 		fmt.Println("sarama.NewConsumerGroup error")
 		panic(err)
 	}
-	if err := client.Consume(context.Background(), []string{"normal_log"}, &handler{}); err != nil {
+	if err := client.Consume(context.Background(), []string{"dandan-log"}, &handler{}); err != nil {
 		fmt.Println("client.Consume error")
 		panic(err)
 	}
@@ -59,7 +59,7 @@ func producer() {
 		"test": "测试字段",
 		"name": "张三",
 	}
-	data, err := json.Marshal(msg)
+	_, err := json.Marshal(msg)
 	if err != nil {
 		fmt.Println("json Marshal error")
 	}
@@ -72,8 +72,8 @@ func producer() {
 	defer client.Close()
 	// 发送消息
 	pid, offset, err := client.SendMessage(&sarama.ProducerMessage{
-		Topic: "normal_log",
-		Value: sarama.StringEncoder(data),
+		Topic: "dandan-log",
+		Value: sarama.StringEncoder("{\"@timestamp\":\"2023-06-17T23:49:31.553+08:00\",\"caller\":\"logic/getPhoneVerifyCodeLogic.go:38\",\"content\":\"测试日志\",\"level\":\"error\"}"),
 	})
 	if err != nil {
 		fmt.Println("send msg failed, err:", err)
