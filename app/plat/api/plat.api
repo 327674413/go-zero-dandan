@@ -7,7 +7,9 @@ type GetTokenResp {
 	Token     string `json:"token"`
 	ExpireSec int64  `json:"expire_sec""`
 }
-
+@server(
+	middleware: LangMiddleware
+)
 service plat-api {
 	@handler GetToken
 	post /plat/getToken(GetTokenReq) returns (GetTokenResp)

@@ -63,8 +63,12 @@ func RpcFail(localize *i18n.Localizer, rpcError error) error {
 	}
 	return Fail(msg, errCode)
 }
-func FailCode(localize *i18n.Localizer, errCode int, tempData []string) error {
-	msg := Msg(localize, errCode, tempData)
+func FailCode(localize *i18n.Localizer, errCode int, tempData ...[]string) error {
+	var tempD []string
+	if len(tempData) > 0 {
+		tempD = tempData[0]
+	}
+	msg := Msg(localize, errCode, tempD)
 	return &Errd{Result: false, Code: errCode, Msg: msg}
 }
 func Fail(msg string, code ...int) error {

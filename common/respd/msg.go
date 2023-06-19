@@ -15,9 +15,13 @@ func init() {
 	msg[Auth] = "Auth"
 	msg[Err] = "Error"
 	msg[ReqFieldRequired] = "ReqFieldRequired"
-	msg[ReqPhoneError] = "ReqPhoneError"
+	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[PlatConfigNotInit] = "PlatConfigNotInit"
-
+	msg[PlatInvalid] = "PlatInvalid"
+	msg[RedisSetErr] = "RedisSetErr"
+	msg[RedisSetVerifyCodeErr] = "RedisSetErr"
+	msg[RedisSetVerifyCodeIntervalErr] = "RedisSetErr"
+	msg[RedisGetErr] = "RedisGetErr"
 }
 
 func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string {

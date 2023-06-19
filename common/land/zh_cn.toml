@@ -1,12 +1,15 @@
 Err = "遇到了点小问题,请稍后再试"
 ReqFieldRequired = "{{.Field1}}不能为空"
-ReqPhoneError = "请输入正确的手机号码"
+ReqPhoneErr = "请输入正确的手机号码"
 
 
 PlatConfigNotInit = "未配置{{.Field1}}"
+PlatInvalid = "无效应用"
 Success="操作成功"
 SuccessAsync="提交完成"
 
+RedisSetError = "缓存写入失败"
+RedisGetError = "获取缓存失败"
 
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"

@@ -32,20 +32,17 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
-	phone := *req.Phone
-
 	localizer := l.ctx.Value("lang").(*i18n.Localizer)
-	fmt.Println("雪花id:", utild.MakeId())
-
-	if check := utild.CheckIsPhone(phone); check == false {
-		return nil, respd.FailCode(localizer, respd.ReqPhoneError, []string{})
-	}
+	phone := *req.Phone
 	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err = l.svcCtx.Redis.Set("verifyCode", phone, code, 300)
 	if err != nil {
-		fmt.Println("redis error,", err)
+		return nil, respd.FailCode(localizer, respd.RedisSetErr)
 	}
-
+	err = l.svcCtx.Redis.Inc("verifyCodeInterval", phone, 1, 60)
+	if err != nil {
+		return nil, respd.FailCode(localizer, respd.RedisSetErr)
+	}
 	resp = &types.SuccessResp{Msg: respd.Msg(localizer, respd.Ok)}
 	if l.svcCtx.Mode == constd.ModeDev {
 		fmt.Println("code：", code)

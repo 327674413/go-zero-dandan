@@ -1,10 +1,12 @@
 Err = "Encountered a small problem, please try again later"
 ReqFieldRequired = "{{.Field1}} is required"
-ReqPhoneError = "Not a correct phone number"
+ReqPhoneErr = "Not a correct phone number"
 
 
 PlatConfigNotInit = "Not set {{.Field1}}"
-
+PlatInvalid = "Invalid App"
+RedisSetError = "Redis set fail"
+RedisGetError = "Redis get fail"
 
 
 Success = "Success"

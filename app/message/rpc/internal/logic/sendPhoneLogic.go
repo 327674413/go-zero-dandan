@@ -31,7 +31,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SendPhoneResp, erro
 		return nil, respd.RpcEncodeTempErr(respd.ReqFieldRequired, []string{"TempId"})
 	}
 	if !utild.CheckIsPhone(in.Phone) {
-		return nil, respd.RpcEncodeTempErr(respd.ReqPhoneError, []string{})
+		return nil, respd.RpcEncodeTempErr(respd.ReqPhoneErr, []string{})
 	}
 	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
 	smsTemp, err := messageSmsTempModel.CacheFind(l.ctx, l.svcCtx.Redis, in.TempId)
@@ -44,7 +44,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SendPhoneResp, erro
 	sms := smsd.NewSmsTencent(smsTemp.SecretId, smsTemp.SecretKey)
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
 	if err != nil {
-		return nil, respd.RpcEncodeMsgErr(err.Error(), respd.TrdSmsSendError)
+		return nil, respd.RpcEncodeMsgErr(err.Error(), respd.TrdSmsSendErr)
 	}
 	resp.Code = 200
 	resp.Trade = "1111111"

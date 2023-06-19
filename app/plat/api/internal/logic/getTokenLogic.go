@@ -3,10 +3,11 @@ package logic
 import (
 	"context"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"go-zero-dandan/app/plat/api/internal/svc"
 	"go-zero-dandan/app/plat/api/internal/types"
 	"go-zero-dandan/app/plat/model"
-	"go-zero-dandan/common/api"
+	"go-zero-dandan/common/respd"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -27,14 +28,15 @@ func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetToken
 }
 
 func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
+	localizer := l.ctx.Value("lang").(*i18n.Localizer)
 	platModel := model.NewPlatMainModel()
 	platMain, err := platModel.WhereRaw("appid = ? and secret = ?", []any{req.Appid, req.Secret}).Find(l.ctx)
 	if err != nil && err != model.ErrNotFound {
-		return nil, api.Fail("查询失败")
+		return nil, respd.FailCode(localizer, respd.MysqlErr)
 	}
 	resp = &types.GetTokenResp{}
 	if err == model.ErrNotFound {
-		return nil, api.Fail("无效应用")
+		return nil, respd.FailCode(localizer, respd.PlatInvalid)
 	} else {
 		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain.Id)
 		resp.ExpireSec = l.svcCtx.Config.Auth.AccessExpire
