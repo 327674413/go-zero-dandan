@@ -12,11 +12,22 @@ func (m *default{{.upperStartCamelObject}}Model) Find(ctx context.Context, id ..
 		field = m.fieldSql
 	}
 	if len(id) > 0 {
-		sql = fmt.Sprintf("select %s from %s where id=? limit 1", field, m.table)
-		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, id[0]) //QueryRowCtx 必须字段都覆盖
+        if m.whereSql == ""{
+            m.whereSql = "1=1"
+        }
+        if m.platId != 0 {
+            m.whereSql = m.whereSql + fmt.Sprintf(" AND id=%d AND plat_id=%d",id[0],m.platId)
+        } else {
+            m.whereSql = m.whereSql + fmt.Sprintf(" AND id=%d",id[0])
+        }
+		sql = fmt.Sprintf("select %s from %s where %s limit 1", field, m.table,m.whereSql)
+		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql) //QueryRowCtx 必须字段都覆盖
 	} else {
 	    if m.whereSql == ""{
             m.whereSql = "1=1"
+        }
+        if m.platId != 0 {
+            m.whereSql = m.whereSql + " AND plat_id=" + fmt.Sprintf("%d",m.platId)
         }
 		sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql+" limit 1", field, m.table, m.aliasSql)
 		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, m.whereData...)

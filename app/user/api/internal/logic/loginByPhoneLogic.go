@@ -8,6 +8,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 	"go-zero-dandan/app/user/model"
+	"go-zero-dandan/common/utild"
 )
 
 type LoginByPhoneLogic struct {
@@ -26,9 +27,8 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
 	phone := *req.Phone
-	platId := l.ctx.Value("platId")
-	fmt.Println("platId:", platId)
-	userMainModel := model.NewUserMainModel()
+	platId := utild.AnyToInt64(l.ctx.Value("platId"))
+	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, platId)
 	userMain, err := userMainModel.Alias("A").Field("id,account").
 		WhereRaw("phone=?", []any{phone}).
 		Find(l.ctx)

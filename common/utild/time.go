@@ -158,17 +158,17 @@ func AnyToTime(anyTime interface{}) (time.Time, error) {
 	}
 }
 
-func AnyToInt64(anyTime interface{}) (int64, error) {
-	switch v := anyTime.(type) {
+func AnyToInt64(anyV interface{}) int64 {
+	switch v := anyV.(type) {
 	case int64:
-		return v, nil
+		return v
 	case int32:
-		return int64(v), nil
+		return int64(v)
 	case int:
-		return int64(v), nil
+		return int64(v)
 	case time.Time:
-		return v.Unix(), nil
+		return v.Unix()
 	default:
-		return 0, fmt.Errorf("时间格式%s错误，仅支持int、int32、int64、Time.time", v)
+		return 0
 	}
 }

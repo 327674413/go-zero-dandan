@@ -22,11 +22,12 @@ type (
 		{{if .withCache}}sqlc.CachedConn{{else}}conn sqlx.SqlConn{{end}}
 		table string
 		softDeleteField string
-        SoftDeletable   bool
+        softDeletable   bool
         fieldSql        string
         whereSql        string
         aliasSql 		string
         orderSql        string
+        platId          int64
         whereData       []any
         err             error
 	}
