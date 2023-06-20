@@ -1,4 +1,4 @@
-package respd
+package resd
 
 import (
 	"fmt"
@@ -16,12 +16,15 @@ func init() {
 	msg[Err] = "Error"
 	msg[ReqFieldRequired] = "ReqFieldRequired"
 	msg[ReqPhoneErr] = "ReqPhoneErr"
-	msg[PlatConfigNotInit] = "PlatConfigNotInit"
+	msg[ConfigNotInit] = "ConfigNotInit"
 	msg[PlatInvalid] = "PlatInvalid"
 	msg[RedisSetErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeIntervalErr] = "RedisSetErr"
 	msg[RedisGetErr] = "RedisGetErr"
+	msg[ReqGetPhoneVerifyCodeWait] = "ReqGetPhoneVerifyCodeWait"
+	msg[ReqGetPhoneVerifyCodeDayLimit] = "ReqGetPhoneVerifyCodeDayLimit"
+	msg[ReqGetPhoneVerifyCodeHourLimit] = "ReqGetPhoneVerifyCodeHourLimit"
 }
 
 func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string {

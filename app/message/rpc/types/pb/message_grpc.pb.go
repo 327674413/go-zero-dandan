@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
-	SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SendPhoneResp, error)
+	SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
 }
 
 type messageClient struct {
@@ -37,8 +37,8 @@ func NewMessageClient(cc grpc.ClientConnInterface) MessageClient {
 	return &messageClient{cc}
 }
 
-func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SendPhoneResp, error) {
-	out := new(SendPhoneResp)
+func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
+	out := new(SuccResp)
 	err := c.cc.Invoke(ctx, Message_SendPhone_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ..
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
 type MessageServer interface {
-	SendPhone(context.Context, *SendPhoneReq) (*SendPhoneResp, error)
+	SendPhone(context.Context, *SendPhoneReq) (*SuccResp, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -58,7 +58,7 @@ type MessageServer interface {
 type UnimplementedMessageServer struct {
 }
 
-func (UnimplementedMessageServer) SendPhone(context.Context, *SendPhoneReq) (*SendPhoneResp, error) {
+func (UnimplementedMessageServer) SendPhone(context.Context, *SendPhoneReq) (*SuccResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPhone not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}

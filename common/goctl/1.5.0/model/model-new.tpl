@@ -12,15 +12,13 @@ func (m *default{{.upperStartCamelObject}}Model) WhereId(id int) *default{{.uppe
 	m.whereData = append(m.whereData, id)
 	return m
 }
-func (m *default{{.upperStartCamelObject}}Model) Page(ctx context.Context, page int, rows int) ([]*{{.upperStartCamelObject}}, error) {
 
-	return nil, nil
-}
-func (m *default{{.upperStartCamelObject}}Model) List(ctx context.Context) ([]*{{.upperStartCamelObject}}, error) {
-
-	return nil, nil
-}
 func (m *default{{.upperStartCamelObject}}Model) WhereStr(whereStr string) *default{{.upperStartCamelObject}}Model {
+	if m.whereSql != "" {
+        m.whereSql += " AND (" + whereStr + ")"
+    } else {
+        m.whereSql = "(" + whereStr + ")"
+    }
 	return m
 }
 

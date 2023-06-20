@@ -10,7 +10,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/respd"
+	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"go.opentelemetry.io/otel"
 	oteltrace "go.opentelemetry.io/otel/trace"
@@ -34,16 +34,19 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
 	localizer := l.ctx.Value("lang").(*i18n.Localizer)
 	phone := *req.Phone
+
+	//生成验证码
 	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err = l.svcCtx.Redis.Set("verifyCode", phone, code, 300)
 	if err != nil {
-		return nil, respd.FailCode(localizer, respd.RedisSetErr)
+		return nil, resd.FailCode(localizer, resd.RedisSetErr)
 	}
-	err = l.svcCtx.Redis.Inc("verifyCodeInterval", phone, 1, 60)
+	currAt := fmt.Sprintf("%d", utild.GetStamp())
+	err = l.svcCtx.Redis.Set("verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
-		return nil, respd.FailCode(localizer, respd.RedisSetErr)
+		return nil, resd.FailCode(localizer, resd.RedisSetErr)
 	}
-	resp = &types.SuccessResp{Msg: respd.Msg(localizer, respd.Ok)}
+	resp = &types.SuccessResp{Msg: resd.Msg(localizer, resd.Ok)}
 	if l.svcCtx.Mode == constd.ModeDev {
 		fmt.Println("code：", code)
 		return resp, nil
@@ -54,7 +57,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return nil, respd.RpcFail(localizer, rpcErr)
+			return nil, resd.RpcFail(localizer, rpcErr)
 		}
 		return resp, nil
 	}

@@ -22,7 +22,7 @@ func NewMessageServer(svcCtx *svc.ServiceContext) *MessageServer {
 	}
 }
 
-func (s *MessageServer) SendPhone(ctx context.Context, in *pb.SendPhoneReq) (*pb.SendPhoneResp, error) {
+func (s *MessageServer) SendPhone(ctx context.Context, in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 	l := logic.NewSendPhoneLogic(ctx, s.svcCtx)
 	return l.SendPhone(in)
 }

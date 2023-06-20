@@ -1,12 +1,15 @@
 Err = "Encountered a small problem, please try again later"
 ReqFieldRequired = "{{.Field1}} is required"
 ReqPhoneErr = "Not a correct phone number"
+ReqGetPhoneVerifyCodeWait = "Too many requests for verification code. Please try again later"
+ReqGetPhoneVerifyCodeDayLimit="Too many requests for verification code today. Please try again tomorrow."
+ReqGetPhoneVerifyCodeHourLimit="Too many requests for verification in a hour. Please try again later."
 
-
-PlatConfigNotInit = "Not set {{.Field1}}"
+ConfigNotInit = "Not set {{.Field1}}"
 PlatInvalid = "Invalid App"
-RedisSetError = "Redis set fail"
-RedisGetError = "Redis get fail"
+RedisSetErr = "Redis set fail"
+RedisGetErr = "Redis get fail"
+
 
 
 Success = "Success"
@@ -14,7 +17,7 @@ SuccessAsync = "Submit Finish"
 
 PhoneNumber = "Phone Number"
 SmsTemp ="Sms Template"
-
+MessageSysConfig = "Message Center Config"
 
 
 

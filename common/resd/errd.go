@@ -1,4 +1,4 @@
-package respd
+package resd
 
 import (
 	"encoding/json"
@@ -44,8 +44,12 @@ func RpcEncodeSysErr(msg string, errCode ...int) error {
 	}
 	return status.Error(codes.Code(code), "msg:"+msg)
 }
-func RpcEncodeTempErr(errCode int, tempData []string) error {
-	msg, _ := json.Marshal(tempData)
+func RpcEncodeTempErr(errCode int, tempData ...[]string) error {
+	var tempD []string
+	if len(tempData) > 0 {
+		tempD = tempData[0]
+	}
+	msg, _ := json.Marshal(tempD)
 	return status.Error(codes.Code(errCode), "tmp:"+string(msg))
 }
 func RpcFail(localize *i18n.Localizer, rpcError error) error {

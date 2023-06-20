@@ -1,4 +1,5 @@
 func (m *default{{.upperStartCamelObject}}Model) Find(ctx context.Context, id ...any) (*{{.upperStartCamelObject}}, error) {
+	defer m.Reinit()
 	var err error
 	if err = m.err; err != nil {
 		m.err = nil
@@ -14,6 +15,9 @@ func (m *default{{.upperStartCamelObject}}Model) Find(ctx context.Context, id ..
 		sql = fmt.Sprintf("select %s from %s where id=? limit 1", field, m.table)
 		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, id[0]) //QueryRowCtx 必须字段都覆盖
 	} else {
+	    if m.whereSql == ""{
+            m.whereSql = "1=1"
+        }
 		sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql+" limit 1", field, m.table, m.aliasSql)
 		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, m.whereData...)
 	}
@@ -25,6 +29,37 @@ func (m *default{{.upperStartCamelObject}}Model) Find(ctx context.Context, id ..
 	default:
 		return nil, err
 	}
+}
+func (m *default{{.upperStartCamelObject}}Model) List(ctx context.Context) ([]*{{.upperStartCamelObject}},error) {
+	defer m.Reinit()
+	var err error
+	if err = m.err; err != nil {
+		m.err = nil
+		return nil, err
+	}
+	var resp []*{{.upperStartCamelObject}}
+	var sql string
+    field := {{.lowerStartCamelObject}}Rows
+	if m.fieldSql != "" {
+		field = m.fieldSql
+	}
+    if m.whereSql == ""{
+        m.whereSql = "1=1"
+    }
+    sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql, field, m.table, m.aliasSql)
+    err = m.conn.QueryRowsPartialCtx(ctx, &resp, sql, m.whereData...)
+	switch err {
+	case nil:
+		return resp, nil
+	case sqlx.ErrNotFound:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}
+func (m *default{{.upperStartCamelObject}}Model) Page(ctx context.Context, page int, rows int) ([]*{{.upperStartCamelObject}}, error) {
+    defer m.Reinit()
+	return nil, nil
 }
 func (m *default{{.upperStartCamelObject}}Model) FindOne(ctx context.Context, {{.lowerStartCamelPrimaryKey}} {{.dataType}}) (*{{.upperStartCamelObject}}, error) {
 	{{if .withCache}}{{.cacheKey}}
@@ -46,9 +81,17 @@ func (m *default{{.upperStartCamelObject}}Model) FindOne(ctx context.Context, {{
 	switch err {
 	case nil:
 		return &resp, nil
-	case sqlc.ErrNotFound:
+	case sqlx.ErrNotFound:
 		return nil, ErrNotFound
 	default:
 		return nil, err
 	}{{end}}
+}
+func (m *default{{.upperStartCamelObject}}Model) Reinit(){
+    m.whereSql = ""
+    m.fieldSql = ""
+    m.aliasSql = ""
+    m.orderSql = ""
+    m.whereData = make([]any, 0)
+    m.err = nil
 }

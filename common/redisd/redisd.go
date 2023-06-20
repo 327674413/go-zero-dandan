@@ -83,12 +83,12 @@ func (t *Redisd) Hset(field string, key string, data string) error {
 // Get 获取值
 func (t *Redisd) Get(field string, key string) (string, error) {
 	str, err := t.redisConn.Get(t.prefix + ":" + field + ":" + key)
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		//报错返回错误信息
 		return "", err
 	} else if str == "" {
-		//没找到数据，返回特殊错误
-		return "", &NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		//没找到数据，按空返回
+		return "", nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	} else {
 		return str, err
 	}
@@ -113,6 +113,9 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) erro
 	str, err := t.Get(field, key)
 	if err != nil {
 		return err
+	}
+	if str == "" {
+		return &NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	}
 	json.Unmarshal([]byte(str), targetStructPointer)
 	return nil

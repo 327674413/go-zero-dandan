@@ -11,14 +11,14 @@ message SendPhoneReq {
   repeated string tempData = 3;
   int64 tempId = 4;
 }
-
-message SendPhoneResp {
-  // 交易流水号
-  string trade = 1;
-  // 交易状态
-  int64 code = 2;
+message SuccResp{
+  //交易状态，默认200
+  int64 code = 1;
+  //成功返回的数据，用json来处理，暂未知是否需要这样
+  string content = 2;
 }
 
+
 service message {
-  rpc sendPhone(SendPhoneReq) returns(SendPhoneResp);
+  rpc sendPhone(SendPhoneReq) returns(SuccResp);
 }

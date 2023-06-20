@@ -1,19 +1,21 @@
 Err = "遇到了点小问题,请稍后再试"
 ReqFieldRequired = "{{.Field1}}不能为空"
 ReqPhoneErr = "请输入正确的手机号码"
+ReqGetPhoneVerifyCodeWait="获取验证码太频繁，请稍后再试"
+ReqGetPhoneVerifyCodeDayLimit="今日获取短信超出上限，请明日再试"
+ReqGetPhoneVerifyCodeHourLimit="一小时内获取短信超出上限，请稍后再试"
 
-
-PlatConfigNotInit = "未配置{{.Field1}}"
+ConfigNotInit = "未配置{{.Field1}}"
 PlatInvalid = "无效应用"
 Success="操作成功"
 SuccessAsync="提交完成"
 
-RedisSetError = "缓存写入失败"
-RedisGetError = "获取缓存失败"
+RedisSetErr = "缓存写入失败"
+RedisGetErr = "获取缓存失败"
 
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
-
+MessageSysConfig = "消息中心系统参数"
 
 
 

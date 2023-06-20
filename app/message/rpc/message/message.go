@@ -13,11 +13,11 @@ import (
 )
 
 type (
-	SendPhoneReq  = pb.SendPhoneReq
-	SendPhoneResp = pb.SendPhoneResp
+	SendPhoneReq = pb.SendPhoneReq
+	SuccResp     = pb.SuccResp
 
 	Message interface {
-		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SendPhoneResp, error)
+		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
 	}
 
 	defaultMessage struct {
@@ -31,7 +31,7 @@ func NewMessage(cli zrpc.Client) Message {
 	}
 }
 
-func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SendPhoneResp, error) {
+func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
 	client := pb.NewMessageClient(m.cli.Conn())
 	return client.SendPhone(ctx, in, opts...)
 }

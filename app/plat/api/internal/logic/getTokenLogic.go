@@ -7,7 +7,7 @@ import (
 	"go-zero-dandan/app/plat/api/internal/svc"
 	"go-zero-dandan/app/plat/api/internal/types"
 	"go-zero-dandan/app/plat/model"
-	"go-zero-dandan/common/respd"
+	"go-zero-dandan/common/resd"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -32,11 +32,11 @@ func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenRe
 	platModel := model.NewPlatMainModel()
 	platMain, err := platModel.WhereRaw("appid = ? and secret = ?", []any{req.Appid, req.Secret}).Find(l.ctx)
 	if err != nil && err != model.ErrNotFound {
-		return nil, respd.FailCode(localizer, respd.MysqlErr)
+		return nil, resd.FailCode(localizer, resd.MysqlErr)
 	}
 	resp = &types.GetTokenResp{}
 	if err == model.ErrNotFound {
-		return nil, respd.FailCode(localizer, respd.PlatInvalid)
+		return nil, resd.FailCode(localizer, resd.PlatInvalid)
 	} else {
 		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain.Id)
 		resp.ExpireSec = l.svcCtx.Config.Auth.AccessExpire
