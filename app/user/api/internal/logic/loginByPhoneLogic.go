@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/api/internal/svc"
@@ -32,7 +31,6 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
 	platClasEm := utild.AnyToInt(l.ctx.Value("clasEm"))
-	//已注册
 	loginByPhoneStrage := map[int]func(*types.LoginByPhoneReq) (*types.UserInfoResp, error){
 		constd.PlatClasEmMall: l.mallLoginByPhone,
 	}
@@ -52,12 +50,10 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 		return nil, resd.FailCode(l.lang, resd.MysqlErr)
 	}
 	if userMain.Id == 0 {
-		fmt.Println("未注册")
-		return nil, nil
-
-	} else {
-		fmt.Println("已注册")
 		//未注册
+		return nil, nil
+	} else {
+		//已注册
 		resp = &types.UserInfoResp{}
 		utild.Copy(&resp, userMain)
 		return resp, nil
@@ -65,6 +61,7 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 	return nil, nil
 }
 func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
+	//商城应用
 	resp, err = l.defaultLoginByPhone(req)
 	if err != nil {
 		return resp, err

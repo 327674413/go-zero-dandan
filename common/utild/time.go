@@ -2,7 +2,9 @@ package utild
 
 //与时间相关的方法
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -178,6 +180,14 @@ func AnyToInt64(anyV interface{}) int64 {
 		return int64(v)
 	case time.Time:
 		return v.Unix()
+	case json.Number:
+		var res int
+		err := json.Unmarshal([]byte(v), &res)
+		if err == nil {
+			return int64(res)
+		} else {
+			return 0
+		}
 	default:
 		return 0
 	}
@@ -197,7 +207,17 @@ func AnyToInt(anyV interface{}) int {
 		return int(v)
 	case int:
 		return v
+	case json.Number:
+		var res int
+		err := json.Unmarshal([]byte(v), &res)
+		if err == nil {
+			return res
+		} else {
+			return 0
+		}
 	default:
+		t := reflect.TypeOf(v)
+		fmt.Println(t.String())
 		return 0
 	}
 }
