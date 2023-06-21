@@ -153,6 +153,9 @@ func AnyToTime(anyTime interface{}) (time.Time, error) {
 		return time.Unix(int64(v), 0), nil
 	case time.Time:
 		return v, nil
+	case string:
+		res := StrToStamp(v)
+		return time.Unix(res, 0), nil
 	default:
 		return time.Time{}, fmt.Errorf("时间格式%s错误，仅支持int、int32、int64、Time.time", v)
 	}
@@ -160,6 +163,13 @@ func AnyToTime(anyTime interface{}) (time.Time, error) {
 
 func AnyToInt64(anyV interface{}) int64 {
 	switch v := anyV.(type) {
+	case string:
+		res, err := strconv.Atoi(v)
+		if err == nil {
+			return int64(res)
+		} else {
+			return 0
+		}
 	case int64:
 		return v
 	case int32:
@@ -168,6 +178,25 @@ func AnyToInt64(anyV interface{}) int64 {
 		return int64(v)
 	case time.Time:
 		return v.Unix()
+	default:
+		return 0
+	}
+}
+func AnyToInt(anyV interface{}) int {
+	switch v := anyV.(type) {
+	case string:
+		res, err := strconv.Atoi(v)
+		if err == nil {
+			return res
+		} else {
+			return 0
+		}
+	case int64:
+		return int(v)
+	case int32:
+		return int(v)
+	case int:
+		return v
 	default:
 		return 0
 	}

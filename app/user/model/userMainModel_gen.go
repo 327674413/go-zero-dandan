@@ -66,7 +66,7 @@ type (
 		StateEm     int64  `db:"state_em"`      // 用户状态枚举
 		Account     string `db:"account"`       // 登录账号
 		Password    string `db:"password"`      // 登录密码
-		Uid         string `db:"uid"`           // 用户编号
+		Code        string `db:"code"`          // 用户编号
 		Nickname    string `db:"nickname"`      // 昵称
 		Phone       string `db:"phone"`         // 手机号
 		PhoneArea   string `db:"phone_area"`    // 手机区号
@@ -271,13 +271,13 @@ func (m *defaultUserMainModel) Insert(ctx context.Context, data *UserMain) (sql.
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userMainRowsExpectAutoSet)
 	data.CreateAt = time.Now().Unix()
 	data.UpdateAt = time.Now().Unix()
-	ret, err := m.conn.ExecCtx(ctx, query, data.Id, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Id, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
 	return ret, err
 }
 
 func (m *defaultUserMainModel) Update(ctx context.Context, data *UserMain) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Uid, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt, data.Id)
 	return err
 }
 

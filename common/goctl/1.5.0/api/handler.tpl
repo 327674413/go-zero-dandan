@@ -2,7 +2,7 @@ package {{.PkgName}}
 
 import (
 	"net/http"
-	"go-zero-dandan/common/api"
+	"go-zero-dandan/common/resd"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	{{.ImportPackages}}
 )
@@ -11,7 +11,7 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		{{if .HasRequest}}var req types.{{.RequestType}}
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.OkJsonCtx(r.Context(), w, api.Fail(err.Error()))
+			httpx.OkJsonCtx(r.Context(), w, resd.Fail(err.Error()))
 			return
 		}
 
@@ -20,7 +20,7 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		if err != nil {
 			httpx.OkJsonCtx(r.Context(), w, err)
 		} else {
-			{{if .HasResp}}httpx.OkJsonCtx(r.Context(), w, resp){{else}}httpx.Ok(w){{end}}
+			{{if .HasResp}}httpx.OkJsonCtx(r.Context(), w, resd.Succ(resp)){{else}}httpx.Ok(w){{end}}
 		}
 	}
 }

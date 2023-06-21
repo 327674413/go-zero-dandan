@@ -16,19 +16,20 @@ type LoginByPhoneReq {
 	OtpCode *string `json:"otp_code"`
 }
 type UserInfoResp {
-	Id          int64  `json:"id,string"`
-	UserUnionId int64  `json:"user_union_id"`
-	Account     string `json:"account"`
-	Uid         string `json:"uid"`
-	Nickname    string `json:"nickname"`
-	Phone       string `json:"phone"`
-	PhoneArea   string `json:"phone_area"`
-	Email       string `json:"email"`
-	Avatar      string `json:"avatar"`
-	SexEm       int64  `json:"sex_em"`
-	CreateAt    int64  `json:"create_at"`
-	UpdateAt    int64  `json:"update_at"`
-	UserToken   string `json:"user_token"`
+	Id          int64       `json:"id,string"`
+	UserUnionId int64       `json:"userUnionId"`
+	Account     string      `json:"account"`
+	Uid         string      `json:"uid"`
+	Nickname    string      `json:"nickname"`
+	Phone       string      `json:"phone"`
+	PhoneArea   string      `json:"phoneArea"`
+	Email       string      `json:"email"`
+	Avatar      string      `json:"avatar"`
+	SexEm       int64       `json:"sexEm"`
+	CreateAt    int64       `json:"createAt"`
+	PlatInfo    interface{} `json:"platInfo"`
+	UpdateAt    int64       `json:"updateAt"`
+	UserToken   string      `json:"userToken"`
 }
 @server(
 	jwt: Auth

@@ -38,18 +38,19 @@ func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenRe
 	if err == model.ErrNotFound {
 		return nil, resd.FailCode(localizer, resd.PlatInvalid)
 	} else {
-		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain.Id)
+		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain)
 		resp.ExpireSec = l.svcCtx.Config.Auth.AccessExpire
 		//直接登录
 	}
 	return resp, nil
 }
 
-func (l *GetTokenLogic) getToken(secretKey string, iat, seconds, platId int64) (string, error) {
+func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, platMian *model.PlatMain) (string, error) {
 	claims := make(jwt.MapClaims)
 	claims["exp"] = iat + seconds
 	claims["iat"] = iat
-	claims["platId"] = platId
+	claims["platId"] = platMian.Id
+	claims["clasEm"] = platMian.ClasEm
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))
