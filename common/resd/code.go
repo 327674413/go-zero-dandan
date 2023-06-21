@@ -19,6 +19,8 @@ const (
 	ReqParamErr                    = 602 //请求参数不正确
 	ConfigNotInit                  = 603
 	PlatInvalid                    = 604 //无效appid、secret
+	PlatIdErr                      = 60400001
+	PlatClasErr                    = 60400002
 	ReqWait                        = 605 //请求太频繁
 	ReqPhoneErr                    = 60200001
 	ReqGetPhoneVerifyCodeWait      = 60500001 //请求太频繁

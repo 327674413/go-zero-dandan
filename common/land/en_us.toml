@@ -7,6 +7,8 @@ ReqGetPhoneVerifyCodeHourLimit="Too many requests for verification in a hour. Pl
 
 ConfigNotInit = "Not set {{.Field1}}"
 PlatInvalid = "Invalid App"
+PlatIdErr = "Invalid App Id"
+PlatClasErr = "Invalid App Clas"
 RedisSetErr = "Redis set fail"
 RedisGetErr = "Redis get fail"
 

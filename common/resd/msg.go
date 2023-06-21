@@ -18,6 +18,8 @@ func init() {
 	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[ConfigNotInit] = "ConfigNotInit"
 	msg[PlatInvalid] = "PlatInvalid"
+	msg[PlatIdErr] = "PlatIdErr"
+	msg[PlatClasErr] = "PlatClasErr"
 	msg[RedisSetErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeIntervalErr] = "RedisSetErr"

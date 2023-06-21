@@ -20,7 +20,7 @@ type LoginByPhoneLogic struct {
 }
 
 func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginByPhoneLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+	localizer, _ := ctx.Value("lang").(*i18n.Localizer)
 	return &LoginByPhoneLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
@@ -30,7 +30,10 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 }
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	platClasEm := utild.AnyToInt(l.ctx.Value("clasEm"))
+	platClasEm, ok := l.ctx.Value("clasEm").(int)
+	if !ok {
+		return nil, resd.FailCode(l.lang, resd.PlatClasErr)
+	}
 	loginByPhoneStrage := map[int]func(*types.LoginByPhoneReq) (*types.UserInfoResp, error){
 		constd.PlatClasEmMall: l.mallLoginByPhone,
 	}
@@ -43,7 +46,10 @@ func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *type
 }
 func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
 	phone := *req.Phone
-	platId := utild.AnyToInt64(l.ctx.Value("platId"))
+	platId, ok := l.ctx.Value("platId").(int64)
+	if !ok {
+		return nil, resd.FailCode(l.lang, resd.PlatIdErr)
+	}
 	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, platId)
 	userMain, err := userMainModel.WhereRaw("phone=?", []any{phone}).Find(l.ctx)
 	if err != nil {

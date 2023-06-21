@@ -7,6 +7,8 @@ ReqGetPhoneVerifyCodeHourLimit="一小时内获取短信超出上限，请稍后
 
 ConfigNotInit = "未配置{{.Field1}}"
 PlatInvalid = "无效应用"
+PlatIdErr = "应用id异常"
+PlatClasErr = "应用类型异常"
 Success="操作成功"
 SuccessAsync="提交完成"
 
