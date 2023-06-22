@@ -15,6 +15,10 @@ SuccessAsync="提交完成"
 RedisSetErr = "缓存写入失败"
 RedisGetErr = "获取缓存失败"
 
+NotFound = "未找到该信息"
+NotFoundUser = "未找到该用户"
+AccountOrPassWrong = "账号或密码错误"
+
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
 MessageSysConfig = "消息中心系统参数"

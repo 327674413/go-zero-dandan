@@ -3,6 +3,10 @@ package {{.pkgName}}
 import (
 	{{.imports}}
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go-zero-dandan/common/resd"
+    "go-zero-dandan/common/utild"
+    platId     int64
+    platClasEm int
 )
 
 type {{.logic}} struct {
@@ -26,4 +30,18 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	// todo: add your logic here and delete this line
 
 	{{.returnString}}
+}
+
+func (l *{{.logic}}) initPlat() (err error) {
+	platClasEm := utild.AnyToInt(l.ctx.Value("platClasEm"))
+	if platClasEm == 0 {
+		return resd.FailCode(l.lang, resd.PlatClasErr)
+	}
+	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
+	if platClasId == 0 {
+		return resd.FailCode(l.lang, resd.PlatIdErr)
+	}
+	l.platId = platClasId
+	l.platClasEm = platClasEm
+	return nil
 }

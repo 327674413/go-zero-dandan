@@ -10,23 +10,33 @@ var msg map[int]string
 
 func init() {
 	msg = make(map[int]string)
+	msg[Auth] = "Auth"
+	msg[AccountOrPassWrong] = "AccountOrPassWrong"
+	msg[ConfigNotInit] = "ConfigNotInit"
+	msg[Err] = "Error"
+	msg[NotFound] = "NotFound"
+	msg[NotFoundUser] = "NotFoundUser"
 	msg[Ok] = "Success"
 	msg[OkAsync] = "SuccessAsync"
-	msg[Auth] = "Auth"
-	msg[Err] = "Error"
-	msg[ReqFieldRequired] = "ReqFieldRequired"
-	msg[ReqPhoneErr] = "ReqPhoneErr"
-	msg[ConfigNotInit] = "ConfigNotInit"
-	msg[PlatInvalid] = "PlatInvalid"
-	msg[PlatIdErr] = "PlatIdErr"
 	msg[PlatClasErr] = "PlatClasErr"
+	msg[PlatIdErr] = "PlatIdErr"
+	msg[PlatInvalid] = "PlatInvalid"
+	msg[RedisErr] = "RedisErr"
+	msg[RedisIncErr] = "RedisIncErr"
+	msg[RedisDecErr] = "RedisDecErr"
 	msg[RedisSetErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeErr] = "RedisSetErr"
 	msg[RedisSetVerifyCodeIntervalErr] = "RedisSetErr"
 	msg[RedisGetErr] = "RedisGetErr"
+	msg[ReqFieldRequired] = "ReqFieldRequired"
 	msg[ReqGetPhoneVerifyCodeWait] = "ReqGetPhoneVerifyCodeWait"
 	msg[ReqGetPhoneVerifyCodeDayLimit] = "ReqGetPhoneVerifyCodeDayLimit"
 	msg[ReqGetPhoneVerifyCodeHourLimit] = "ReqGetPhoneVerifyCodeHourLimit"
+	msg[ReqKeyRequired] = "ReqKeyRequired"
+	msg[ReqParamErr] = "ReqParamErr"
+	msg[ReqPhoneErr] = "ReqPhoneErr"
+	msg[ReqWait] = "ReqWait"
+
 }
 
 func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string {

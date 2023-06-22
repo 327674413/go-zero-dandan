@@ -17,11 +17,14 @@ const (
 	ReqKeyRequired                 = 600 //未提供主键
 	ReqFieldRequired               = 601 //未提供比必填字段
 	ReqParamErr                    = 602 //请求参数不正确
-	ConfigNotInit                  = 603
-	PlatInvalid                    = 604 //无效appid、secret
+	ConfigNotInit                  = 603 //未配置参数
+	PlatInvalid                    = 604 //无效应用
 	PlatIdErr                      = 60400001
 	PlatClasErr                    = 60400002
-	ReqWait                        = 605 //请求太频繁
+	ReqWait                        = 605      //请求太频繁
+	NotFound                       = 606      //信息不存在
+	AccountOrPassWrong             = 62000001 //登录校验失败
+	NotFoundUser                   = 60600001 //用户不存在
 	ReqPhoneErr                    = 60200001
 	ReqGetPhoneVerifyCodeWait      = 60500001 //请求太频繁
 	ReqGetPhoneVerifyCodeDayLimit  = 60500002

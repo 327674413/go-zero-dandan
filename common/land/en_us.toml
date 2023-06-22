@@ -12,7 +12,9 @@ PlatClasErr = "Invalid App Clas"
 RedisSetErr = "Redis set fail"
 RedisGetErr = "Redis get fail"
 
-
+NotFound = "Data not found"
+NotFoundUser = "User not found"
+AccountOrPassWrong = "Account or password wrong"
 
 Success = "Success"
 SuccessAsync = "Submit Finish"

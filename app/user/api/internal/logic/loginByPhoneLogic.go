@@ -14,9 +14,11 @@ import (
 
 type LoginByPhoneLogic struct {
 	logx.Logger
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	lang   *i18n.Localizer
+	ctx        context.Context
+	svcCtx     *svc.ServiceContext
+	lang       *i18n.Localizer
+	platId     int64
+	platClasEm int
 }
 
 func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginByPhoneLogic {
@@ -30,44 +32,42 @@ func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Logi
 }
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	platClasEm, ok := l.ctx.Value("clasEm").(int)
-	if !ok {
-		return nil, resd.FailCode(l.lang, resd.PlatClasErr)
+	if err = l.initPlat(); err != nil {
+		return nil, err
 	}
 	loginByPhoneStrage := map[int]func(*types.LoginByPhoneReq) (*types.UserInfoResp, error){
 		constd.PlatClasEmMall: l.mallLoginByPhone,
 	}
-	if strateFunc, ok := loginByPhoneStrage[platClasEm]; ok {
+	if strateFunc, ok := loginByPhoneStrage[l.platClasEm]; ok {
 		return strateFunc(req)
 	} else {
 		return l.defaultLoginByPhone(req)
 	}
-
 }
+
+// defaultLoginByPhone 默认手机号登录
 func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
 	phone := *req.Phone
-	platId, ok := l.ctx.Value("platId").(int64)
-	if !ok {
-		return nil, resd.FailCode(l.lang, resd.PlatIdErr)
-	}
-	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, platId)
+	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
 	userMain, err := userMainModel.WhereRaw("phone=?", []any{phone}).Find(l.ctx)
 	if err != nil {
 		return nil, resd.FailCode(l.lang, resd.MysqlErr)
 	}
+	resp = &types.UserInfoResp{}
 	if userMain.Id == 0 {
 		//未注册
-		return nil, nil
+		return resp, nil
 	} else {
 		//已注册
-		resp = &types.UserInfoResp{}
+
 		utild.Copy(&resp, userMain)
 		return resp, nil
 	}
 	return nil, nil
 }
+
+// mallLoginByPhone 商城应用登录
 func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	//商城应用
 	resp, err = l.defaultLoginByPhone(req)
 	if err != nil {
 		return resp, err
@@ -76,4 +76,17 @@ func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *
 		"test": "aaa",
 	}
 	return resp, nil
+}
+func (l *LoginByPhoneLogic) initPlat() (err error) {
+	platClasEm := utild.AnyToInt(l.ctx.Value("platClasEm"))
+	if platClasEm == 0 {
+		return resd.FailCode(l.lang, resd.PlatClasErr)
+	}
+	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
+	if platClasId == 0 {
+		return resd.FailCode(l.lang, resd.PlatIdErr)
+	}
+	l.platId = platClasId
+	l.platClasEm = platClasEm
+	return nil
 }

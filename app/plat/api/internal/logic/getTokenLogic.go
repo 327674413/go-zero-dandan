@@ -50,7 +50,7 @@ func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, pla
 	claims["exp"] = iat + seconds
 	claims["iat"] = iat
 	claims["platId"] = platMian.Id
-	claims["clasEm"] = platMian.ClasEm
+	claims["platClasEm"] = platMian.ClasEm
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))
