@@ -8,6 +8,7 @@ import (
 	"go-zero-dandan/app/message/model"
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/pb"
+	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/common/utild/smsd"
@@ -77,6 +78,10 @@ func (l *SendPhoneLogic) checkReq(in *pb.SendPhoneReq) error {
 	//校验手机号
 	if utild.CheckIsPhone(in.Phone) == false {
 		return resd.RpcEncodeTempErr(resd.ReqPhoneErr)
+	}
+	//校验区号
+	if in.PhoneArea != "" && in.PhoneArea != constd.PhoneAreaChina {
+		return resd.RpcEncodeTempErr(resd.NotSupportPhoneArea)
 	}
 	return nil
 }

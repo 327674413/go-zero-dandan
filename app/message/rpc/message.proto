@@ -7,7 +7,7 @@ package message;
 
 message SendPhoneReq {
   string phone = 1;
-  string areaCode = 2;
+  string phoneArea = 2;
   repeated string tempData = 3;
   int64 tempId = 4;
 }

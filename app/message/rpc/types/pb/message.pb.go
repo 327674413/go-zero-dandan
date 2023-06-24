@@ -25,10 +25,10 @@ type SendPhoneReq struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Phone    string   `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
-	AreaCode string   `protobuf:"bytes,2,opt,name=areaCode,proto3" json:"areaCode,omitempty"`
-	TempData []string `protobuf:"bytes,3,rep,name=tempData,proto3" json:"tempData,omitempty"`
-	TempId   int64    `protobuf:"varint,4,opt,name=tempId,proto3" json:"tempId,omitempty"`
+	Phone     string   `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"`
+	PhoneArea string   `protobuf:"bytes,2,opt,name=phoneArea,proto3" json:"phoneArea,omitempty"`
+	TempData  []string `protobuf:"bytes,3,rep,name=tempData,proto3" json:"tempData,omitempty"`
+	TempId    int64    `protobuf:"varint,4,opt,name=tempId,proto3" json:"tempId,omitempty"`
 }
 
 func (x *SendPhoneReq) Reset() {
@@ -70,9 +70,9 @@ func (x *SendPhoneReq) GetPhone() string {
 	return ""
 }
 
-func (x *SendPhoneReq) GetAreaCode() string {
+func (x *SendPhoneReq) GetPhoneArea() string {
 	if x != nil {
-		return x.AreaCode
+		return x.PhoneArea
 	}
 	return ""
 }

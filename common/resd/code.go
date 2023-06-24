@@ -23,7 +23,9 @@ const (
 	PlatClasErr                    = 60400002
 	ReqWait                        = 605      //请求太频繁
 	NotFound                       = 606      //信息不存在
+	NotSupportPhoneArea            = 60700001 //暂不支持手机号
 	AccountOrPassWrong             = 62000001 //登录校验失败
+	VerifyCodeWrong                = 62000002
 	NotFoundUser                   = 60600001 //用户不存在
 	ReqPhoneErr                    = 60200001
 	ReqGetPhoneVerifyCodeWait      = 60500001 //请求太频繁

@@ -14,8 +14,9 @@ RedisGetErr = "Redis get fail"
 
 NotFound = "Data not found"
 NotFoundUser = "User not found"
-AccountOrPassWrong = "Account or password wrong"
-
+NotSupportPhoneArea =  "Unsupported phone number"
+AccountOrPassWrong = "Account or password is wrong"
+VerifyCodeWrong = "Verify code is wrong"
 Success = "Success"
 SuccessAsync = "Submit Finish"
 

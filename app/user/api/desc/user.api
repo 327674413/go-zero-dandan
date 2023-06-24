@@ -1,0 +1,16 @@
+import "types/user.api"
+@server(
+	jwt: Auth
+	middleware: LangMiddleware
+	prefix: user/v1
+	group: user
+)
+service user-api {
+	@handler regByPhone
+	post /regByPhone(RegByPhoneReq) returns (UserInfoResp)
+	@handler loginByPhone
+	post /loginByPhone(LoginByPhoneReq) returns (UserInfoResp)
+	@handler getPhoneVerifyCode
+	post /getPhoneVerifyCode(GetPhoneVerifyCodeReq) returns (SuccessResp)
+	
+}

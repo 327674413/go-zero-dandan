@@ -1,19 +1,21 @@
-type LoginByPhoneAndOtpReq {
-	Phone     *string `json:"phone,optional"`
-	PortEnum  *int64  `json:"port_enum"`
-	OtpCode   *string `json:"otp_code"`
-	PhoneArea *string `json:"phone_area,optional"`
-}
-type getPhoneVerifyCodeReq {
+type GetPhoneVerifyCodeReq {
 	Phone     *string `json:"phone"`
-	PhoneArea *string `json:"phone_area,optional"`
+	PhoneArea *string `json:"phoneArea,optional"`
 }
 type SuccessResp {
 	Msg string `json:"msg"`
 }
 type LoginByPhoneReq {
 	Phone   *string `json:"phone"`
-	OtpCode *string `json:"otp_code"`
+	PhoneArea *string `json:"phoneArea,optional"`
+	OtpCode *string `json:"otpCode"`
+	PortEm  *int64  `json:"portEm"`
+}
+type RegByPhoneReq {
+	Phone   *string `json:"phone"`
+	PhoneArea *string `json:"phoneArea,optional"`
+	OtpCode *string `json:"otpCode"`
+	PortEm  *int64  `json:"portEm"`
 }
 type UserInfoResp {
 	Id          int64       `json:"id,string"`
@@ -30,14 +32,4 @@ type UserInfoResp {
 	PlatInfo    interface{} `json:"platInfo"`
 	UpdateAt    int64       `json:"updateAt"`
 	UserToken   string      `json:"userToken"`
-}
-@server(
-	jwt: Auth
-	middleware: LangMiddleware
-)
-service user-api {
-	@handler LoginByPhone
-	post /user/LoginByPhone(LoginByPhoneReq) returns (UserInfoResp)
-	@handler getPhoneVerifyCode
-	post /user/getPhoneVerifyCode(getPhoneVerifyCodeReq) returns (SuccessResp)
 }

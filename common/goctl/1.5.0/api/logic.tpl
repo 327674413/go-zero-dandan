@@ -5,8 +5,6 @@ import (
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"go-zero-dandan/common/resd"
     "go-zero-dandan/common/utild"
-    platId     int64
-    platClasEm int
 )
 
 type {{.logic}} struct {
@@ -14,6 +12,8 @@ type {{.logic}} struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	lang   *i18n.Localizer
+	platId     int64
+    platClasEm int64
 }
 
 func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} {
@@ -33,7 +33,7 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 }
 
 func (l *{{.logic}}) initPlat() (err error) {
-	platClasEm := utild.AnyToInt(l.ctx.Value("platClasEm"))
+	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
 		return resd.FailCode(l.lang, resd.PlatClasErr)
 	}

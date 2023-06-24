@@ -16,6 +16,7 @@ func init() {
 	msg[Err] = "Error"
 	msg[NotFound] = "NotFound"
 	msg[NotFoundUser] = "NotFoundUser"
+	msg[NotSupportPhoneArea] = "NotSupportPhoneArea"
 	msg[Ok] = "Success"
 	msg[OkAsync] = "SuccessAsync"
 	msg[PlatClasErr] = "PlatClasErr"
@@ -36,6 +37,7 @@ func init() {
 	msg[ReqParamErr] = "ReqParamErr"
 	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[ReqWait] = "ReqWait"
+	msg[VerifyCodeWrong] = "VerifyCodeWrong"
 
 }
 
