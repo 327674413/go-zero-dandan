@@ -27,6 +27,6 @@ func NewUserUnionModel(conn sqlx.SqlConn, platId ...int64) UserUnionModel {
 	}
 	return &customUserUnionModel{
 		defaultUserUnionModel: newUserUnionModel(conn, platid),
-		SoftDeletable:         true, //是否启用软删除
+		softDeletable:         true, //是否启用软删除
 	}
 }

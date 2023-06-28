@@ -17,6 +17,14 @@ func init() {
 	msg[NotFound] = "NotFound"
 	msg[NotFoundUser] = "NotFoundUser"
 	msg[NotSupportPhoneArea] = "NotSupportPhoneArea"
+	msg[MysqlErr] = "MysqlErr"
+	msg[MysqlInsertErr] = "MysqlInsertErr"
+	msg[MysqlDeleteErr] = "MysqlDeleteErr"
+	msg[MysqlUpdateErr] = "MysqlUpdateErr"
+	msg[MysqlSelectErr] = "MysqlSelectErr"
+	msg[MysqlStartTransErr] = "MysqlStartTransErr"
+	msg[MysqlCommitErr] = "MysqlCommitErr"
+	msg[MysqlRollbackErr] = "MysqlRollbackErr"
 	msg[Ok] = "Success"
 	msg[OkAsync] = "SuccessAsync"
 	msg[PlatClasErr] = "PlatClasErr"
@@ -38,6 +46,7 @@ func init() {
 	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[ReqWait] = "ReqWait"
 	msg[VerifyCodeWrong] = "VerifyCodeWrong"
+	msg[VerifyCodeExpired] = "VerifyCodeExpired"
 
 }
 

@@ -26,6 +26,7 @@ var (
 type (
 	userMainModel interface {
 		Insert(ctx context.Context, data *UserMain) (sql.Result, error)
+		TxInsert(tx *sql.Tx, ctx context.Context, data *UserMain) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*UserMain, error)
 		Update(ctx context.Context, data *UserMain) error
 		Delete(ctx context.Context, id int64) error
@@ -61,22 +62,22 @@ type (
 	}
 
 	UserMain struct {
-		Id          int64  `db:"id"`
-		UserUnionId int64  `db:"user_union_id"` // 平台层用户唯一表示
-		StateEm     int64  `db:"state_em"`      // 用户状态枚举
-		Account     string `db:"account"`       // 登录账号
-		Password    string `db:"password"`      // 登录密码
-		Code        string `db:"code"`          // 用户编号
-		Nickname    string `db:"nickname"`      // 昵称
-		Phone       string `db:"phone"`         // 手机号
-		PhoneArea   string `db:"phone_area"`    // 手机区号
-		Email       string `db:"email"`         // 邮箱地址
-		Avatar      string `db:"avatar"`        // 头像
-		SexEm       int64  `db:"sex_em"`        // 性别枚举
-		PlatId      int64  `db:"plat_id"`       // 应用id
-		CreateAt    int64  `db:"create_at"`     // 创建时间戳
-		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
-		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
+		Id        int64  `db:"id"`
+		UnionId   int64  `db:"union_id"`   // 平台层用户唯一表示
+		StateEm   int64  `db:"state_em"`   // 用户状态枚举
+		Account   string `db:"account"`    // 登录账号
+		Password  string `db:"password"`   // 登录密码
+		Code      string `db:"code"`       // 用户编号
+		Nickname  string `db:"nickname"`   // 昵称
+		Phone     string `db:"phone"`      // 手机号
+		PhoneArea string `db:"phone_area"` // 手机区号
+		Email     string `db:"email"`      // 邮箱地址
+		Avatar    string `db:"avatar"`     // 头像
+		SexEm     int64  `db:"sex_em"`     // 性别枚举
+		PlatId    int64  `db:"plat_id"`    // 应用id
+		CreateAt  int64  `db:"create_at"`  // 创建时间戳
+		UpdateAt  int64  `db:"update_at"`  // 更新时间戳
+		DeleteAt  int64  `db:"delete_at"`  // 删除时间戳
 	}
 )
 
@@ -271,13 +272,19 @@ func (m *defaultUserMainModel) Insert(ctx context.Context, data *UserMain) (sql.
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userMainRowsExpectAutoSet)
 	data.CreateAt = time.Now().Unix()
 	data.UpdateAt = time.Now().Unix()
-	ret, err := m.conn.ExecCtx(ctx, query, data.Id, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
-	return ret, err
+	data.PlatId = m.platId
+	return m.conn.ExecCtx(ctx, query, data.Id, data.UnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
 }
-
+func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, ctx context.Context, data *UserMain) (sql.Result, error) {
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userMainRowsExpectAutoSet)
+	data.CreateAt = time.Now().Unix()
+	data.UpdateAt = time.Now().Unix()
+	data.PlatId = m.platId
+	return tx.ExecContext(ctx, query, data.Id, data.UnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
+}
 func (m *defaultUserMainModel) Update(ctx context.Context, data *UserMain) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UserUnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt, data.Id)
+	_, err := m.conn.ExecCtx(ctx, query, data.UnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt, data.Id)
 	return err
 }
 

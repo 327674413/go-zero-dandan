@@ -54,10 +54,10 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 	phone := *req.Phone
 	otpCode := *req.OtpCode
 	var phoneArea string
-	if req.PhoneArea == nil {
+	if req.PhoneArea != nil {
 		phoneArea = *req.PhoneArea
 	} else {
-		phoneArea = constd.PhoneAreaChina
+		phoneArea = constd.PhoneAreaEmChina
 	}
 	if err = userBiz.CheckPhoneVerifyCode(phone, phoneArea, otpCode); err != nil {
 		return nil, err

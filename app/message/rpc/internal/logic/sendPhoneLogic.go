@@ -80,7 +80,7 @@ func (l *SendPhoneLogic) checkReq(in *pb.SendPhoneReq) error {
 		return resd.RpcEncodeTempErr(resd.ReqPhoneErr)
 	}
 	//校验区号
-	if in.PhoneArea != "" && in.PhoneArea != constd.PhoneAreaChina {
+	if in.PhoneArea != "" && in.PhoneArea != constd.PhoneAreaEmChina {
 		return resd.RpcEncodeTempErr(resd.NotSupportPhoneArea)
 	}
 	return nil

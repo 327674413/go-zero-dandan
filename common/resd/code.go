@@ -7,6 +7,13 @@ const (
 	Auth                           = 400 //权限异常
 	Err                            = 500 //系统异常
 	MysqlErr                       = 501 //mysql异常
+	MysqlInsertErr                 = 50101
+	MysqlDeleteErr                 = 50102
+	MysqlUpdateErr                 = 50103
+	MysqlSelectErr                 = 50104
+	MysqlStartTransErr             = 50105
+	MysqlCommitErr                 = 50106
+	MysqlRollbackErr               = 50107
 	RedisErr                       = 502 //redis异常
 	RedisSetErr                    = 50201
 	RedisGetErr                    = 50202
@@ -26,6 +33,7 @@ const (
 	NotSupportPhoneArea            = 60700001 //暂不支持手机号
 	AccountOrPassWrong             = 62000001 //登录校验失败
 	VerifyCodeWrong                = 62000002
+	VerifyCodeExpired              = 62000003
 	NotFoundUser                   = 60600001 //用户不存在
 	ReqPhoneErr                    = 60200001
 	ReqGetPhoneVerifyCodeWait      = 60500001 //请求太频繁

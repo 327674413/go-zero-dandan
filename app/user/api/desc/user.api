@@ -3,7 +3,7 @@ import "types/user.api"
 	jwt: Auth
 	middleware: LangMiddleware
 	prefix: user/v1
-	group: user
+	group: account
 )
 service user-api {
 	@handler regByPhone
@@ -13,4 +13,14 @@ service user-api {
 	@handler getPhoneVerifyCode
 	post /getPhoneVerifyCode(GetPhoneVerifyCodeReq) returns (SuccessResp)
 	
+}
+@server(
+	jwt: Auth
+	middleware: LangMiddleware
+	prefix: user/v1
+	group: userInfo
+)
+service user-api {
+	@handler editMyInfo
+	post /editMyInfo(EditMyInfoReq) returns (UserInfoResp)
 }

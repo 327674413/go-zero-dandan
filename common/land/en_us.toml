@@ -17,6 +17,7 @@ NotFoundUser = "User not found"
 NotSupportPhoneArea =  "Unsupported phone number"
 AccountOrPassWrong = "Account or password is wrong"
 VerifyCodeWrong = "Verify code is wrong"
+VerifyCodeExpired = "Please obtain the verification code first"
 Success = "Success"
 SuccessAsync = "Submit Finish"
 

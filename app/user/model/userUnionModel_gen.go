@@ -26,6 +26,7 @@ var (
 type (
 	userUnionModel interface {
 		Insert(ctx context.Context, data *UserUnion) (sql.Result, error)
+		TxInsert(tx *sql.Tx, ctx context.Context, data *UserUnion) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*UserUnion, error)
 		Update(ctx context.Context, data *UserUnion) error
 		Delete(ctx context.Context, id int64) error
@@ -259,10 +260,14 @@ func (m *defaultUserUnionModel) Insert(ctx context.Context, data *UserUnion) (sq
 	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, userUnionRowsExpectAutoSet)
 	data.CreateAt = time.Now().Unix()
 	data.UpdateAt = time.Now().Unix()
-	ret, err := m.conn.ExecCtx(ctx, query, data.Id, data.CreateAt, data.UpdateAt)
-	return ret, err
+	return m.conn.ExecCtx(ctx, query, data.Id, data.CreateAt, data.UpdateAt)
 }
-
+func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, ctx context.Context, data *UserUnion) (sql.Result, error) {
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.table, userUnionRowsExpectAutoSet)
+	data.CreateAt = time.Now().Unix()
+	data.UpdateAt = time.Now().Unix()
+	return tx.ExecContext(ctx, query, data.Id, data.CreateAt, data.UpdateAt)
+}
 func (m *defaultUserUnionModel) Update(ctx context.Context, data *UserUnion) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userUnionRowsWithPlaceHolder)
 	_, err := m.conn.ExecCtx(ctx, query, data.CreateAt, data.UpdateAt, data.Id)

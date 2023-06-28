@@ -35,6 +35,14 @@ func (t *Redisd) Set(field string, key string, str string, expireSec ...int) err
 
 }
 
+// Del 删除
+func (t *Redisd) Del(field string, keys ...string) (int, error) {
+	for i, v := range keys {
+		keys[i] = t.prefix + ":" + field + ":" + v
+	}
+	return t.redisConn.Del(keys...)
+}
+
 // Inc 值递增n
 func (t *Redisd) Inc(field string, key string, num int, expireSec ...int) error {
 	oldNumStr, err := t.Get(field, key)

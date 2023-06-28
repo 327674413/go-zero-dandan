@@ -33,6 +33,6 @@ func New{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId ...int64{{if .w
     }
 	return &custom{{.upperStartCamelObject}}Model{
 		default{{.upperStartCamelObject}}Model: new{{.upperStartCamelObject}}Model(conn,platid{{if .withCache}}, c{{end}}),
-		SoftDeletable:true,//是否启用软删除
+		softDeletable:true,//是否启用软删除
 	}
 }

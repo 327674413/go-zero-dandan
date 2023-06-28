@@ -20,6 +20,9 @@ NotFoundUser = "未找到该用户"
 NotSupportPhoneArea = "暂不支持的手机号码"
 AccountOrPassWrong = "账号或密码错误"
 VerifyCodeWrong = "验证码错误"
+VerifyCodeExpired = "请先获取验证码"
+
+
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
 MessageSysConfig = "消息中心系统参数"
