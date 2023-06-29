@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package user;
+
+message UserInfoRpcResp {
+  int64 Id = 1;
+  int64 UnionId = 2;
+  int64 StateEm = 3;
+  string Account = 4;
+  string Nickname = 5;
+  string Phone = 6;
+  string PhoneArea = 7;
+  int64 SexEm = 8;
+  string Email = 9;
+  string Avatar = 10;
+}
+
+message EditUserInfoReq {
+  int64 Id = 1;
+  optional string Nickname = 2;
+  optional int64 SexEm = 3;
+  optional string Email = 4;
+  optional string Avatar = 5;
+}
+
+message IdReq {
+  int64 Id = 1;
+}
+message TokenReq {
+  string token = 1;
+}
+message SuccResp {
+  int64 Code= 1;
+}
+service user {
+  rpc getUserByToken(TokenReq) returns(UserInfoRpcResp);
+  rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
+}

@@ -7,11 +7,18 @@ Mode: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 604800
+Conf:
+  LoginTokenExSec: 60480
 MessageRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: message.rpc
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node

@@ -14,13 +14,14 @@ service user-api {
 	post /getPhoneVerifyCode(GetPhoneVerifyCodeReq) returns (SuccessResp)
 	
 }
+
 @server(
 	jwt: Auth
-	middleware: LangMiddleware
+	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
 	prefix: user/v1
 	group: userInfo
 )
 service user-api {
 	@handler editMyInfo
-	post /editMyInfo(EditMyInfoReq) returns (UserInfoResp)
+	post /editMyInfo(EditMyInfoReq) returns (SuccessResp)
 }

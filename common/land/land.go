@@ -32,6 +32,7 @@ func Set(lang string) *i18n.Localizer {
 	}
 	return i18n.NewLocalizer(bundle, currLang)
 }
+
 func Trans(localize *i18n.Localizer, temp string, tempData ...map[string]string) string {
 	var data map[string]string
 	if len(tempData) > 0 {

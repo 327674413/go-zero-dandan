@@ -216,3 +216,15 @@ func AnyToInt(anyV interface{}) int {
 		return 0
 	}
 }
+func AnyToStr(anyV interface{}) string {
+	switch v := anyV.(type) {
+	case int64, int32, int8, int16, int, uint, uint8, uint16, uint32, uint64:
+		return fmt.Sprintf("%d", v)
+	case json.Number:
+		return v.String()
+	case string:
+		return v
+	default:
+		return ""
+	}
+}

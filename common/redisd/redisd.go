@@ -84,8 +84,16 @@ func (t *Redisd) Dec(field string, key string, num int, expireSec ...int) error 
 }
 
 // Hset 设置哈希值
-func (t *Redisd) Hset(field string, key string, data string) error {
-	return t.redisConn.Hset(t.prefix+":"+field, key, data)
+func (t *Redisd) Hset(field string, key string, data string, expireSec ...int) error {
+	err := t.redisConn.Hset(t.prefix+":"+field, key, data)
+	if err != nil {
+		return err
+	}
+	if len(expireSec) > 0 {
+		return t.SetExSec(field, key, expireSec[0])
+	}
+	return nil
+
 }
 
 // Get 获取值
@@ -129,6 +137,9 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) erro
 	return nil
 }
 
+/*
+
+//目前感觉这个方法很奇怪，暂时先不考虑
 // HsetData 转成json设置哈希值
 func (t *Redisd) HsetData(field string, key string, data any) error {
 	str, err := json.Marshal(data)
@@ -138,6 +149,7 @@ func (t *Redisd) HsetData(field string, key string, data any) error {
 	return t.redisConn.Hset(t.prefix+":"+field, key, string(str))
 }
 
+
 // HgetData 获取哈希值后转json
 func (t *Redisd) HgetData(field string, key string, targetStructPointer any) error {
 	str, err := t.Hget(field, key)
@@ -146,4 +158,17 @@ func (t *Redisd) HgetData(field string, key string, targetStructPointer any) err
 	}
 	json.Unmarshal([]byte(str), targetStructPointer)
 	return nil
+}
+
+*/
+
+// SetExSec 设置新的过期时间,传入多少秒后过期
+func (t *Redisd) SetExSec(field string, key string, expireSec int) error {
+	res, err := t.redisConn.SetnxEx(t.prefix+":"+field, key, expireSec)
+	//目前理解res的布尔可以直接判断，不需要看err
+	if res == true {
+		return nil
+	} else {
+		return err
+	}
 }

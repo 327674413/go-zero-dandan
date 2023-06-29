@@ -24,19 +24,42 @@ type RegByPhoneReq struct {
 	PortEm    *int64  `json:"portEm"`
 }
 
+type EditMyInfoReq struct {
+	Nickname *string `json:"nickname,optional"`
+	SexEm    *int64  `json:"sexEm,optional"`
+	Avatar   *string `json:"avatar,optional"`
+}
+
+type UserInfoReq struct {
+	Id        int64       `json:"id,string"`
+	UnionId   int64       `json:"unionId,string"`
+	Account   string      `json:"account"`
+	Uid       string      `json:"uid"`
+	Nickname  string      `json:"nickname"`
+	Phone     string      `json:"phone"`
+	PhoneArea string      `json:"phoneArea"`
+	Email     string      `json:"email"`
+	Avatar    string      `json:"avatar"`
+	SexEm     int64       `json:"sexEm"`
+	CreateAt  int64       `json:"createAt"`
+	PlatInfo  interface{} `json:"platInfo"`
+	UpdateAt  int64       `json:"updateAt"`
+	UserToken string      `json:"userToken"`
+}
+
 type UserInfoResp struct {
-	Id          int64       `json:"id,string"`
-	UserUnionId int64       `json:"userUnionId"`
-	Account     string      `json:"account"`
-	Uid         string      `json:"uid"`
-	Nickname    string      `json:"nickname"`
-	Phone       string      `json:"phone"`
-	PhoneArea   string      `json:"phoneArea"`
-	Email       string      `json:"email"`
-	Avatar      string      `json:"avatar"`
-	SexEm       int64       `json:"sexEm"`
-	CreateAt    int64       `json:"createAt"`
-	PlatInfo    interface{} `json:"platInfo"`
-	UpdateAt    int64       `json:"updateAt"`
-	UserToken   string      `json:"userToken"`
+	Id        int64       `json:"id,string"`
+	UnionId   int64       `json:"unionId,string"`
+	Account   string      `json:"account"`
+	Uid       string      `json:"uid"`
+	Nickname  string      `json:"nickname"`
+	Phone     string      `json:"phone"`
+	PhoneArea string      `json:"phoneArea"`
+	Email     string      `json:"email"`
+	Avatar    string      `json:"avatar"`
+	SexEm     int64       `json:"sexEm"`
+	CreateAt  int64       `json:"createAt"`
+	PlatInfo  interface{} `json:"platInfo"`
+	UpdateAt  int64       `json:"updateAt"`
+	UserToken string      `json:"userToken"`
 }

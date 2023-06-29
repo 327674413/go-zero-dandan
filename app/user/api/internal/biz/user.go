@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 	"go-zero-dandan/app/user/model"
+	"go-zero-dandan/app/user/rpc/types/pb"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -125,6 +126,25 @@ func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code stri
 	}
 	return nil
 }
+func (t *UserBiz) CreateLoginState(userInfo *model.UserMain) (string, error) {
+	s := fmt.Sprintf("%d-%d-%d", userInfo.Id, utild.GetStamp(), utild.Rand(11111, 99999))
+	token := utild.Sha256(s)
+	err := t.svcCtx.Redis.SetData("userToken", token, userInfo, t.svcCtx.Config.Conf.LoginTokenExSec)
+	if err != nil {
+		return "", resd.FailCode(t.lang, resd.RedisSetUserLoginStateErr)
+	}
+	return token, nil
+}
+func (t *UserBiz) EditUserInfo(editUserInfoReq *pb.EditUserInfoReq) error {
+	userRpc := t.svcCtx.UserRpc
+	fmt.Println("nickname:", editUserInfoReq.Nickname, "avatar:", editUserInfoReq.Avatar, "email:", editUserInfoReq.Email, "sexEm:", editUserInfoReq.SexEm)
+	_, err := userRpc.EditUserInfo(t.ctx, editUserInfoReq)
+	if err != nil {
+		return resd.RpcFail(t.lang, err)
+	}
+	return nil
+}
+
 func (t *UserBiz) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(t.ctx.Value("platClasEm"))
 	if platClasEm == 0 {

@@ -13,3 +13,11 @@ type UserRegInfo struct {
 	Avatar    string
 	SexEm     int64
 }
+type UserEditInfo struct {
+	Id       int64
+	Code     *string
+	Nickname *string
+	Email    *string
+	Avatar   *string
+	SexEm    *int64
+}

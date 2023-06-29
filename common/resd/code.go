@@ -21,6 +21,8 @@ const (
 	RedisDecErr                    = 50204
 	RedisSetVerifyCodeErr          = 502010001
 	RedisSetVerifyCodeIntervalErr  = 502010002
+	RedisSetUserLoginStateErr      = 502010003
+	RedisGetUserTokenErr           = 502020001
 	ReqKeyRequired                 = 600 //未提供主键
 	ReqFieldRequired               = 601 //未提供比必填字段
 	ReqParamErr                    = 602 //请求参数不正确

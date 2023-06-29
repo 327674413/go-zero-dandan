@@ -18,13 +18,13 @@ type RegByPhoneReq {
 	PortEm  *int64  `json:"portEm"`
 }
 type EditMyInfoReq{
-	Nickname *string `json:"nickname"`
-	SexEm *int64 `json:"sex"`
-	Avatar *int64 `json:"avatar"`
+	Nickname *string `json:"nickname,optional"`
+	SexEm *int64 `json:"sexEm,optional"`
+	Avatar *string `json:"avatar,optional"`
 }
 type UserInfoReq {
 	Id          int64       `json:"id,string"`
-	UnionId int64       `json:"userUnionId"`
+	UnionId int64       `json:"unionId,string"`
 	Account     string      `json:"account"`
 	Uid         string      `json:"uid"`
 	Nickname    string      `json:"nickname"`
@@ -40,7 +40,7 @@ type UserInfoReq {
 }
 type UserInfoResp {
 	Id          int64       `json:"id,string"`
-	UnionId int64       `json:"userUnionId"`
+	UnionId int64       `json:"unionId,string"`
 	Account     string      `json:"account"`
 	Uid         string      `json:"uid"`
 	Nickname    string      `json:"nickname"`

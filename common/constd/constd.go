@@ -19,3 +19,7 @@ const (
 	SexEmMan    = 1 //男
 	SexEmWoman  = 2 //女
 )
+
+const (
+	RedisKeyUserToken = "userToken"
+)

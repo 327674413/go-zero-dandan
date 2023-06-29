@@ -75,6 +75,14 @@ func FailCode(localize *i18n.Localizer, errCode int, tempData ...[]string) error
 	msg := Msg(localize, errCode, tempD)
 	return &Errd{Result: false, Code: errCode, Msg: msg}
 }
+func SuccCode(localize *i18n.Localizer, succCode int, tempData ...[]string) Okd {
+	var tempD []string
+	if len(tempData) > 0 {
+		tempD = tempData[0]
+	}
+	msg := Msg(localize, succCode, tempD)
+	return Okd{Result: true, Code: 200, Data: map[string]string{"msg": msg}}
+}
 func Fail(msg string, code ...int) error {
 	apiCode := 400
 	if len(code) > 0 {

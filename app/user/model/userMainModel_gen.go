@@ -5,8 +5,10 @@ package model
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"go-zero-dandan/common/redisd"
+	"go-zero-dandan/common/utild"
 	"strconv"
 	"strings"
 	"time"
@@ -28,7 +30,7 @@ type (
 		Insert(ctx context.Context, data *UserMain) (sql.Result, error)
 		TxInsert(tx *sql.Tx, ctx context.Context, data *UserMain) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*UserMain, error)
-		Update(ctx context.Context, data *UserMain) error
+		Update(ctx context.Context, data map[string]string) error
 		Delete(ctx context.Context, id int64) error
 		Field(field string) *defaultUserMainModel
 		Alias(alias string) *defaultUserMainModel
@@ -282,9 +284,39 @@ func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, ctx context.Context, data *U
 	data.PlatId = m.platId
 	return tx.ExecContext(ctx, query, data.Id, data.UnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt)
 }
-func (m *defaultUserMainModel) Update(ctx context.Context, data *UserMain) error {
-	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userMainRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, data.UnionId, data.StateEm, data.Account, data.Password, data.Code, data.Nickname, data.Phone, data.PhoneArea, data.Email, data.Avatar, data.SexEm, data.PlatId, data.CreateAt, data.UpdateAt, data.Id)
+func (m *defaultUserMainModel) Update(ctx context.Context, data map[string]string) error {
+	var updateStr string
+	params := make([]any, 0)
+	var id int64
+	for k, v := range data {
+		if k == "Id" {
+			id = utild.AnyToInt64(k)
+			continue
+		}
+		updateStr = updateStr + fmt.Sprintf("%s=?,", utild.StrToSnake(k))
+		params = append(params, v)
+	}
+	if len(updateStr) > 0 {
+		updateStr = updateStr[:len(updateStr)-1]
+	} else {
+		return errors.New("update data is empty")
+	}
+	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
+	whereStr := m.whereSql
+	if whereStr == "" {
+		if id == 0 {
+			return errors.New("update param where is empty")
+		} else {
+			whereStr = fmt.Sprintf("id=%d", id)
+		}
+
+	}
+	if m.platId != 0 {
+		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", m.platId)
+	}
+	query := fmt.Sprintf("update %s set %s where %s", m.table, updateStr, whereStr)
+	_, err := m.conn.ExecCtx(ctx, query, params...)
+	m.Reinit()
 	return err
 }
 
