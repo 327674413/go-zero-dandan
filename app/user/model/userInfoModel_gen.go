@@ -5,7 +5,6 @@ package model
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/utild"
@@ -92,7 +91,6 @@ func (m *defaultUserInfoModel) WhereId(id int) *defaultUserInfoModel {
 }
 
 func (m *defaultUserInfoModel) WhereStr(whereStr string) *defaultUserInfoModel {
-	fmt.Println("进来了")
 	m.dao.WhereStr(whereStr)
 	return m
 }
