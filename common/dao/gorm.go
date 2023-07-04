@@ -1,17 +1,13 @@
 package dao
 
 import (
-	"fmt"
-	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
-	"gorm.io/gorm/schema"
 )
 
 var DB *gorm.DB
 
 func init() {
-	dbUser := ""
+	/*dbUser := ""
 	dbPass := ""
 	dbName := ""
 	dbAddr := ""
@@ -28,4 +24,5 @@ func init() {
 	if err != nil {
 		fmt.Println("数据库初始化失败", err)
 	}
+	*/
 }

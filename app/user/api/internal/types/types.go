@@ -25,9 +25,11 @@ type RegByPhoneReq struct {
 }
 
 type EditMyInfoReq struct {
-	Nickname *string `json:"nickname,optional"`
-	SexEm    *int64  `json:"sexEm,optional"`
-	Avatar   *string `json:"avatar,optional"`
+	Nickname     *string `json:"nickname,optional"`
+	SexEm        *int64  `json:"sexEm,optional"`
+	Avatar       *string `json:"avatar,optional"`
+	GraduateFrom *string `json:"graduateFrom,optional"`
+	BirthDate    *string `json:"birthDate,optional"`
 }
 
 type UserInfoReq struct {

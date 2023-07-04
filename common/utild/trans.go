@@ -1,7 +1,6 @@
 package utild
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -38,72 +37,7 @@ func ArrToMap[data GetKey[k], k comparable](arr ArrT[data]) MapT[k, data] {
 	}
 	return mp
 }
-func getReflectValueToStr(field reflect.Value) (string, error) {
-	switch field.Kind() {
-	case reflect.String:
-		return field.String(), nil
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return strconv.FormatInt(field.Int(), 10), nil
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return strconv.FormatUint(field.Uint(), 10), nil
-	case reflect.Float32, reflect.Float64:
-		return strconv.FormatFloat(field.Float(), 'f', -1, 64), nil
-	case reflect.Ptr:
-		elem := field.Elem()
-		switch elem.Kind() {
-		case reflect.String:
-			return elem.String(), nil
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return strconv.FormatInt(elem.Int(), 10), nil
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return strconv.FormatUint(elem.Uint(), 10), nil
-		case reflect.Float32, reflect.Float64:
-			return strconv.FormatFloat(elem.Float(), 'f', -1, 64), nil
-		default:
-			return "", errors.New("no support type")
-		}
-	}
-	return "", nil
-}
 
-func StructToStrMapExcept(obj any, exceptField ...string) map[string]string {
-	result := make(map[string]string)
-	objValue := reflect.ValueOf(obj)
-	objType := objValue.Type()
-	if objType.Kind() != reflect.Struct {
-		return result
-	}
-	for i := 0; i < objType.NumField(); i++ {
-		field := objValue.Field(i)
-		fieldName := objType.Field(i).Name
-		if !StrInArr(fieldName, exceptField) {
-			v, err := getReflectValueToStr(field)
-			if err == nil {
-				result[fieldName] = v
-			}
-		}
-	}
-	return result
-}
-func StructToStrMapFrom(obj any, targetField ...string) map[string]string {
-	result := make(map[string]string)
-	objValue := reflect.ValueOf(obj)
-	objType := objValue.Type()
-	if objType.Kind() != reflect.Struct {
-		return result
-	}
-	for i := 0; i < objType.NumField(); i++ {
-		field := objValue.Field(i)
-		fieldName := objType.Field(i).Name
-		if StrInArr(fieldName, targetField) {
-			v, err := getReflectValueToStr(field)
-			if err == nil {
-				result[fieldName] = v
-			}
-		}
-	}
-	return result
-}
 func StrToSnake(str string) string {
 	var words []string
 	var start int

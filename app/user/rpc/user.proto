@@ -24,6 +24,8 @@ message EditUserInfoReq {
   optional int64 SexEm = 3;
   optional string Email = 4;
   optional string Avatar = 5;
+  optional string GraduateFrom = 6;
+  optional string BirthDate = 7;
 }
 
 message IdReq {

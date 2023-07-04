@@ -23,7 +23,7 @@ goctl model mysql datasource --ignore-columns="delete_at" -url="${DB_USER}:${$DB
 ### rpc服务创建
 ```
 #在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc message.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0/platTemp
+goctl rpc protoc message.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
 
 ```
 ### 标准表模版

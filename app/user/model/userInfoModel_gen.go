@@ -5,12 +5,10 @@ package model
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/utild"
-	"strconv"
 	"strings"
 	"time"
 
@@ -28,17 +26,16 @@ var (
 
 type (
 	userInfoModel interface {
-		Insert(ctx context.Context, data map[string]string) (sql.Result, error)
-		TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (sql.Result, error)
+		Insert(ctx context.Context, data map[string]string) (int64, error)
+		TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error)
 		FindOne(ctx context.Context, id int64) (*UserInfo, error)
-		Update(ctx context.Context, data map[string]string) error
-		Save(ctx context.Context, data map[string]string) error
-		Delete(ctx context.Context, id int64) error
+		Update(ctx context.Context, data map[string]string) (affectRows int64, err error)
+		Save(ctx context.Context, data map[string]string) (int64, error)
+		Delete(ctx context.Context, id ...int64) (int64, error)
 		Field(field string) *defaultUserInfoModel
 		Alias(alias string) *defaultUserInfoModel
 		WhereStr(whereStr string) *defaultUserInfoModel
 		WhereId(id int) *defaultUserInfoModel
-		WhereMap(whereMap map[string]any) *defaultUserInfoModel
 		WhereRaw(whereStr string, whereData []any) *defaultUserInfoModel
 		Order(order string) *defaultUserInfoModel
 		Plat(id int) *defaultUserInfoModel
@@ -46,9 +43,9 @@ type (
 		CacheFind(ctx context.Context, redis *redisd.Redisd, id ...int64) (*UserInfo, error)
 		Page(ctx context.Context, page int, rows int) ([]*UserInfo, error)
 		List(ctx context.Context) ([]*UserInfo, error)
-		Count(ctx context.Context) int
-		Inc(ctx context.Context, field string, num int) error
-		Dec(ctx context.Context, field string, num int) error
+		Count(ctx context.Context) (int, error)
+		Inc(ctx context.Context, field string, num int) (int64, error)
+		Dec(ctx context.Context, field string, num int) (int64, error)
 	}
 
 	defaultUserInfoModel struct {
@@ -78,7 +75,7 @@ type (
 )
 
 func newUserInfoModel(conn sqlx.SqlConn, platId int64) *defaultUserInfoModel {
-	dao := dao.NewSqlxDao("`user_info`", userInfoRows, false, "delete_at")
+	dao := dao.NewSqlxDao(conn, "`user_info`", userInfoRows, false, "delete_at")
 	return &defaultUserInfoModel{
 		conn:            conn,
 		dao:             dao,
@@ -95,6 +92,7 @@ func (m *defaultUserInfoModel) WhereId(id int) *defaultUserInfoModel {
 }
 
 func (m *defaultUserInfoModel) WhereStr(whereStr string) *defaultUserInfoModel {
+	fmt.Println("进来了")
 	m.dao.WhereStr(whereStr)
 	return m
 }
@@ -116,18 +114,18 @@ func (m *defaultUserInfoModel) Order(order string) *defaultUserInfoModel {
 	return m
 }
 func (m *defaultUserInfoModel) Count(ctx context.Context) (int, error) {
-	return m.dao.Count(m.conn, ctx)
+	return m.dao.Count(ctx)
 }
-func (m *defaultUserInfoModel) Inc(ctx context.Context, field string, num int) error {
+func (m *defaultUserInfoModel) Inc(ctx context.Context, field string, num int) (int64, error) {
 	return m.dao.Inc(ctx, field, num)
 }
-func (m *defaultUserInfoModel) TxInc(tx *sql.Tx, ctx context.Context, field string, num int) error {
+func (m *defaultUserInfoModel) TxInc(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
 	return m.dao.TxInc(tx, ctx, field, num)
 }
-func (m *defaultUserInfoModel) Dec(ctx context.Context, field string, num int) error {
+func (m *defaultUserInfoModel) Dec(ctx context.Context, field string, num int) (int64, error) {
 	return m.dao.Dec(ctx, field, num)
 }
-func (m *defaultUserInfoModel) TxDec(tx *sql.Tx, ctx context.Context, field string, num int) error {
+func (m *defaultUserInfoModel) TxDec(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
 	return m.dao.TxDec(tx, ctx, field, num)
 }
 func (m *defaultUserInfoModel) Plat(id int) *defaultUserInfoModel {
@@ -136,186 +134,57 @@ func (m *defaultUserInfoModel) Plat(id int) *defaultUserInfoModel {
 }
 func (m *defaultUserInfoModel) CacheFind(ctx context.Context, redis *redisd.Redisd, id ...int64) (*UserInfo, error) {
 	resp := &UserInfo{}
-	cacheField := "model_" + m.tableName()
-	cacheKey := strconv.FormatInt(id[0], 10)
-	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
-	err := redis.GetData(cacheField, cacheKey, resp)
-	if err == nil {
-		return resp, nil
-	}
-	resp, err = m.Find(ctx, id[0])
-	fmt.Println(resp, err)
+	data, err := m.dao.CacheFind(ctx, redis, id...)
 	if err != nil {
-		return resp, err
+		return nil, err
 	}
-	if resp.Id != 0 {
-		redis.SetData(cacheField, cacheKey, resp)
-	}
+	utild.SetModelFromMap(data, resp)
 	return resp, nil
 }
 
-func (m *defaultUserInfoModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
+func (m *defaultUserInfoModel) Delete(ctx context.Context, id ...int64) (int64, error) {
+	return m.dao.Delete(ctx, id...)
 }
-
+func (m *defaultUserInfoModel) TxDelete(tx *sql.Tx, ctx context.Context, id ...int64) (int64, error) {
+	return m.dao.TxDelete(tx, ctx, id...)
+}
 func (m *defaultUserInfoModel) Find(ctx context.Context, id ...any) (*UserInfo, error) {
-	defer m.dao.Reinit()
-	var err error
-	if err = m.dao.Err; err != nil {
-		m.dao.Err = nil
+	resp := &UserInfo{}
+	data, err := m.dao.Find(ctx, id...)
+	if err != nil {
 		return nil, err
 	}
-	var resp UserInfo
-	var sql string
-	field := userInfoRows
-	if m.dao.FieldSql != "" {
-		field = m.dao.FieldSql
-	}
-	if len(id) > 0 {
-		if m.dao.WhereSql == "" {
-			m.dao.WhereSql = "1=1"
-		}
-		if m.dao.PlatId != 0 {
-			m.dao.WhereSql = m.dao.WhereSql + fmt.Sprintf(" AND id=%d AND plat_id=%d", id[0], m.dao.PlatId)
-		} else {
-			m.dao.WhereSql = m.dao.WhereSql + fmt.Sprintf(" AND id=%d", id[0])
-		}
-		sql = fmt.Sprintf("select %s from %s where %s limit 1", field, m.table, m.whereSql)
-		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql) //QueryRowCtx 必须字段都覆盖
-	} else {
-		if m.whereSql == "" {
-			m.whereSql = "1=1"
-		}
-		if m.platId != 0 {
-			m.whereSql = m.whereSql + " AND plat_id=" + fmt.Sprintf("%d", m.platId)
-		}
-		sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql+" limit 1", field, m.table, m.aliasSql)
-		err = m.conn.QueryRowPartialCtx(ctx, &resp, sql, m.whereData...)
-	}
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlx.ErrNotFound:
-		return &resp, nil
-	default:
-		return nil, err
-	}
+	utild.SetModelFromMap(data, resp)
+	return resp, nil
 }
 func (m *defaultUserInfoModel) List(ctx context.Context) ([]*UserInfo, error) {
-	defer m.Reinit()
-	var err error
-	if err = m.err; err != nil {
-		m.err = nil
-		return nil, err
-	}
-	var resp []*UserInfo
-	var sql string
-	field := userInfoRows
-	if m.fieldSql != "" {
-		field = m.fieldSql
-	}
-	if m.whereSql == "" {
-		m.whereSql = "1=1"
-	}
-	sql = fmt.Sprintf("select %s from %s %s where "+m.whereSql, field, m.table, m.aliasSql)
-	err = m.conn.QueryRowsPartialCtx(ctx, &resp, sql, m.whereData...)
-	switch err {
-	case nil:
-		return resp, nil
-	case sqlx.ErrNotFound:
-		return resp, nil
-	default:
-		return nil, err
-	}
+	resp := make([]*UserInfo, 0)
+	return resp, nil
 }
 func (m *defaultUserInfoModel) Page(ctx context.Context, page int, rows int) ([]*UserInfo, error) {
-	defer m.Reinit()
-	return nil, nil
+	resp := make([]*UserInfo, 0)
+	return resp, nil
 }
 func (m *defaultUserInfoModel) FindOne(ctx context.Context, id int64) (*UserInfo, error) {
-	query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userInfoRows, m.table)
-	var resp UserInfo
-	err := m.conn.QueryRowCtx(ctx, &resp, query, id)
-	switch err {
-	case nil:
-		return &resp, nil
-	case sqlx.ErrNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
+	resp := &UserInfo{}
+	return resp, nil
 }
 func (m *defaultUserInfoModel) Reinit() {
-	m.whereSql = ""
-	m.fieldSql = ""
-	m.aliasSql = ""
-	m.orderSql = ""
-	m.whereData = make([]any, 0)
-	m.err = nil
+	m.dao.Reinit()
 }
 
-func (m *defaultUserInfoModel) Insert(ctx context.Context, data map[string]string) (sql.Result, error) {
-	return nil, nil
+func (m *defaultUserInfoModel) Insert(ctx context.Context, data map[string]string) (int64, error) {
+	return 0, nil
 }
-func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (sql.Result, error) {
+func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error) {
 
-	return nil, nil
+	return 0, nil
 }
-func (m *defaultUserInfoModel) Update(ctx context.Context, data map[string]string) error {
-	return m.dao.Update(m.conn, ctx, data)
+func (m *defaultUserInfoModel) Update(ctx context.Context, data map[string]string) (int64, error) {
+	return m.dao.Update(ctx, data)
 }
-func (m *defaultUserInfoModel) Save(ctx context.Context, data map[string]string) error {
-	var updateStr string
-	params := make([]any, 0)
-	var id int64
-	var hasId bool
-	for k, v := range data {
-		if k == "Id" {
-			id = utild.AnyToInt64(k)
-			hasId = true
-			continue
-		}
-		updateStr = updateStr + fmt.Sprintf("%s=?,", utild.StrToSnake(k))
-		params = append(params, v)
-	}
-	if hasId == false {
-		return errors.New("save data must need Id")
-	}
-	currData, err := m.Find(ctx, id)
-	if err != nil {
-		return err
-	}
-	if currData.Id == 0 {
-		_, err = m.Insert(ctx, data)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-	if len(updateStr) > 0 {
-		updateStr = updateStr[:len(updateStr)-1]
-	} else {
-		return errors.New("update data is empty")
-	}
-	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
-	whereStr := m.whereSql
-	if whereStr == "" {
-		if id == 0 {
-			return errors.New("update data must need where")
-		} else {
-			whereStr = fmt.Sprintf("id=%d", id)
-		}
-
-	}
-	if m.platId != 0 {
-		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", m.platId)
-	}
-	query := fmt.Sprintf("update %s set %s where %s", m.table, updateStr, whereStr)
-	_, err = m.conn.ExecCtx(ctx, query, params...)
-	m.Reinit()
-	return err
+func (m *defaultUserInfoModel) Save(ctx context.Context, data map[string]string) (int64, error) {
+	return m.dao.Save(ctx, data)
 }
 
 func (m *defaultUserInfoModel) tableName() string {
