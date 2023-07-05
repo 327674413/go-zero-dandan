@@ -1,0 +1,14 @@
+Name: asset-api
+Host: 0.0.0.0
+Port: 8803
+DB:
+  DataSource:
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9803
+  Path: /metrics
+AssetPath:
+  File: ./public/file
+  Img: ./public/img
+  Audio: ./public/img
+  Video: ./public/video

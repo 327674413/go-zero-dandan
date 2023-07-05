@@ -9,21 +9,30 @@
     }
   },
   {
-    "targets": ["host.docker.internal:9805"],
-    "labels": {
-      "job": "user-rpc",
-      "app": "user-rpc",
-      "env": "test",
-      "instance": "host.docker.internal:8805"
-    }
-  },
-  {
     "targets": ["host.docker.internal:9802"],
     "labels": {
       "job": "message-rpc",
       "app": "message-rpc",
       "env": "test",
       "instance": "host.docker.internal:8802"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9803"],
+    "labels": {
+      "job": "asset-api",
+      "app": "asset-api",
+      "env": "test",
+      "instance": "host.docker.internal:8803"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9805"],
+    "labels": {
+      "job": "user-rpc",
+      "app": "user-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8805"
     }
   }
 ]

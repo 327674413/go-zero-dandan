@@ -4,12 +4,12 @@
 ```
 #进user目录执行
 goctl api go -api user.api -dir . -style goZero
-#如果用了自定义模版则输入home路径，在desc使用
-goctl api go -api user.api -dir ../ -style goZero -home ../../../../common/goctl/1.5.0
+#如果用了自定义模版则输入home路径，在desc使用 -dir ../  和 ../../../../common/goctl/1.5.0 
+goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0
 
 #mac电脑可以vim ~/.bash_profile 
 然后加入
-alias gozeroApi='goctl api go -api *.api -dir ../ -style goZero -home ../../../common/goctl/1.5.0'
+alias gozeroApi='goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0'
 ```
 ### 创建user model
 ```
