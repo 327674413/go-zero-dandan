@@ -32,14 +32,13 @@ func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, 
 	if err != nil {
 		return nil, resd.RpcEncodeTempErr(resd.Err)
 	}
-
-	fmt.Println(in.Id, in.GraduateFrom, in.BirthDate)
-	fmt.Println("data：", data)
-	_, err = userInfoModel.Update(l.ctx, data)
+	_, err = userInfoModel.Update(data)
 	/*userModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
 	data := utild.StructToStrMapExcept(*in, "sizeCache", "unknownFields", "state")
 	err := userModel.Update(l.ctx, data)
 	*/
+	find, err := userInfoModel.Find(in.Id)
+	fmt.Println(find)
 	if err != nil {
 		logx.Error(err)
 		return nil, resd.RpcEncodeTempErr(resd.MysqlUpdateErr)

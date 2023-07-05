@@ -7,7 +7,6 @@ import (
 	"database/sql"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
-	"go-zero-dandan/common/utild"
 	"strings"
 	"time"
 
@@ -25,12 +24,12 @@ var (
 
 type (
 	userInfoModel interface {
-		Insert(ctx context.Context, data map[string]string) (int64, error)
-		TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error)
-		FindOne(ctx context.Context, id int64) (*UserInfo, error)
-		Update(ctx context.Context, data map[string]string) (affectRows int64, err error)
-		Save(ctx context.Context, data map[string]string) (int64, error)
-		Delete(ctx context.Context, id ...int64) (int64, error)
+		Insert(data map[string]string) (int64, error)
+		TxInsert(tx *sql.Tx, data map[string]string) (int64, error)
+		FindOne(id int64) (*UserInfo, error)
+		Update(data map[string]string) (affectRows int64, err error)
+		Save(data map[string]string) (int64, error)
+		Delete(id ...int64) (int64, error)
 		Field(field string) *defaultUserInfoModel
 		Alias(alias string) *defaultUserInfoModel
 		WhereStr(whereStr string) *defaultUserInfoModel
@@ -38,13 +37,14 @@ type (
 		WhereRaw(whereStr string, whereData []any) *defaultUserInfoModel
 		Order(order string) *defaultUserInfoModel
 		Plat(id int) *defaultUserInfoModel
-		Find(ctx context.Context, id ...any) (*UserInfo, error)
-		CacheFind(ctx context.Context, redis *redisd.Redisd, id ...int64) (*UserInfo, error)
-		Page(ctx context.Context, page int, rows int) ([]*UserInfo, error)
-		List(ctx context.Context) ([]*UserInfo, error)
-		Count(ctx context.Context) (int, error)
-		Inc(ctx context.Context, field string, num int) (int64, error)
-		Dec(ctx context.Context, field string, num int) (int64, error)
+		Find(id ...any) (*UserInfo, error)
+		CacheFind(redis *redisd.Redisd, id ...int64) (*UserInfo, error)
+		Page(page int, rows int) ([]*UserInfo, error)
+		List() ([]*UserInfo, error)
+		Count() (int, error)
+		Inc(field string, num int) (int64, error)
+		Dec(field string, num int) (int64, error)
+		Ctx(ctx context.Context) *defaultUserInfoModel
 	}
 
 	defaultUserInfoModel struct {
@@ -60,6 +60,7 @@ type (
 		platId          int64
 		whereData       []any
 		err             error
+		ctx             context.Context
 	}
 
 	UserInfo struct {
@@ -84,7 +85,10 @@ func newUserInfoModel(conn sqlx.SqlConn, platId int64) *defaultUserInfoModel {
 		platId:          platId,
 	}
 }
-
+func (m *defaultUserInfoModel) Ctx(ctx context.Context) *defaultUserInfoModel {
+	m.dao.Ctx(ctx)
+	return m
+}
 func (m *defaultUserInfoModel) WhereId(id int) *defaultUserInfoModel {
 	m.dao.WhereId(id)
 	return m
@@ -111,59 +115,57 @@ func (m *defaultUserInfoModel) Order(order string) *defaultUserInfoModel {
 	m.dao.Order(order)
 	return m
 }
-func (m *defaultUserInfoModel) Count(ctx context.Context) (int, error) {
-	return m.dao.Count(ctx)
+func (m *defaultUserInfoModel) Count() (int, error) {
+	return m.dao.Count()
 }
-func (m *defaultUserInfoModel) Inc(ctx context.Context, field string, num int) (int64, error) {
-	return m.dao.Inc(ctx, field, num)
+func (m *defaultUserInfoModel) Inc(field string, num int) (int64, error) {
+	return m.dao.Inc(field, num)
 }
-func (m *defaultUserInfoModel) TxInc(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
-	return m.dao.TxInc(tx, ctx, field, num)
+func (m *defaultUserInfoModel) TxInc(tx *sql.Tx, field string, num int) (int64, error) {
+	return m.dao.TxInc(tx, field, num)
 }
-func (m *defaultUserInfoModel) Dec(ctx context.Context, field string, num int) (int64, error) {
-	return m.dao.Dec(ctx, field, num)
+func (m *defaultUserInfoModel) Dec(field string, num int) (int64, error) {
+	return m.dao.Dec(field, num)
 }
-func (m *defaultUserInfoModel) TxDec(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
-	return m.dao.TxDec(tx, ctx, field, num)
+func (m *defaultUserInfoModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
+	return m.dao.TxDec(tx, field, num)
 }
 func (m *defaultUserInfoModel) Plat(id int) *defaultUserInfoModel {
 
 	return nil
 }
-func (m *defaultUserInfoModel) CacheFind(ctx context.Context, redis *redisd.Redisd, id ...int64) (*UserInfo, error) {
+func (m *defaultUserInfoModel) CacheFind(redis *redisd.Redisd, id ...int64) (*UserInfo, error) {
 	resp := &UserInfo{}
-	data, err := m.dao.CacheFind(ctx, redis, id...)
+	err := m.dao.CacheFind(redis, resp, id...)
 	if err != nil {
 		return nil, err
 	}
-	utild.SetModelFromMap(data, resp)
 	return resp, nil
 }
 
-func (m *defaultUserInfoModel) Delete(ctx context.Context, id ...int64) (int64, error) {
-	return m.dao.Delete(ctx, id...)
+func (m *defaultUserInfoModel) Delete(id ...int64) (int64, error) {
+	return m.dao.Delete(id...)
 }
-func (m *defaultUserInfoModel) TxDelete(tx *sql.Tx, ctx context.Context, id ...int64) (int64, error) {
-	return m.dao.TxDelete(tx, ctx, id...)
+func (m *defaultUserInfoModel) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
+	return m.dao.TxDelete(tx, id...)
 }
-func (m *defaultUserInfoModel) Find(ctx context.Context, id ...any) (*UserInfo, error) {
+func (m *defaultUserInfoModel) Find(id ...any) (*UserInfo, error) {
 	resp := &UserInfo{}
-	data, err := m.dao.Find(ctx, id...)
+	err := m.dao.Find(resp, id...)
 	if err != nil {
 		return nil, err
 	}
-	utild.SetModelFromMap(data, resp)
 	return resp, nil
 }
-func (m *defaultUserInfoModel) List(ctx context.Context) ([]*UserInfo, error) {
+func (m *defaultUserInfoModel) List() ([]*UserInfo, error) {
 	resp := make([]*UserInfo, 0)
 	return resp, nil
 }
-func (m *defaultUserInfoModel) Page(ctx context.Context, page int, rows int) ([]*UserInfo, error) {
+func (m *defaultUserInfoModel) Page(page int, rows int) ([]*UserInfo, error) {
 	resp := make([]*UserInfo, 0)
 	return resp, nil
 }
-func (m *defaultUserInfoModel) FindOne(ctx context.Context, id int64) (*UserInfo, error) {
+func (m *defaultUserInfoModel) FindOne(id int64) (*UserInfo, error) {
 	resp := &UserInfo{}
 	return resp, nil
 }
@@ -171,18 +173,18 @@ func (m *defaultUserInfoModel) Reinit() {
 	m.dao.Reinit()
 }
 
-func (m *defaultUserInfoModel) Insert(ctx context.Context, data map[string]string) (int64, error) {
+func (m *defaultUserInfoModel) Insert(data map[string]string) (int64, error) {
 	return 0, nil
 }
-func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error) {
+func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
 
 	return 0, nil
 }
-func (m *defaultUserInfoModel) Update(ctx context.Context, data map[string]string) (int64, error) {
-	return m.dao.Update(ctx, data)
+func (m *defaultUserInfoModel) Update(data map[string]string) (int64, error) {
+	return m.dao.Update(data)
 }
-func (m *defaultUserInfoModel) Save(ctx context.Context, data map[string]string) (int64, error) {
-	return m.dao.Save(ctx, data)
+func (m *defaultUserInfoModel) Save(data map[string]string) (int64, error) {
+	return m.dao.Save(data)
 }
 
 func (m *defaultUserInfoModel) tableName() string {

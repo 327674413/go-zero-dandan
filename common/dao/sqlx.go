@@ -15,6 +15,7 @@ import (
 // SqlxDao 自用orm
 type SqlxDao struct {
 	conn            sqlx.SqlConn
+	ctx             context.Context
 	table           string
 	defaultRowField string
 	softDeleteField string
@@ -24,6 +25,8 @@ type SqlxDao struct {
 	aliasSql        string
 	orderSql        string
 	platId          int64
+	queryPage       int
+	queryRows       int
 
 	whereData []any
 	err       error
@@ -39,39 +42,44 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 	}
 }
 
+// Ctx 使用上下文执行sql
+func (t *SqlxDao) Ctx(ctx context.Context) *SqlxDao {
+	t.ctx = ctx
+	return t
+}
+
 // Count 查询数量，必须先设置where再使用
-func (t *SqlxDao) Count(ctx context.Context) (int, error) {
+func (t *SqlxDao) Count() (int, error) {
 	return 0, nil
 }
 
 // Inc 对单个字段进行递增，必须先设置where再使用
-func (t *SqlxDao) Inc(ctx context.Context, field string, num int) (int64, error) {
+func (t *SqlxDao) Inc(field string, num int) (int64, error) {
 	return 0, nil
 }
 
-// TxInc 事务用的Inc
-func (t *SqlxDao) TxInc(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
+// TxInc 事务，对单个字段进行递减，必须先设置where再使用
+func (t *SqlxDao) TxInc(tx *sql.Tx, field string, num int) (int64, error) {
 	return 0, nil
 }
 
 // Dec 对单个字段进行递减，必须先设置where再使用
-func (t *SqlxDao) Dec(ctx context.Context, field string, num int) (int64, error) {
+func (t *SqlxDao) Dec(field string, num int) (int64, error) {
 	return 0, nil
 }
 
-// TxDec 事务用的Dec
-func (t *SqlxDao) TxDec(tx *sql.Tx, ctx context.Context, field string, num int) (int64, error) {
+// TxDec 使用事务，对单个字段进行递减，必须先设置where再使用
+func (t *SqlxDao) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return 0, nil
 }
 
-func (t *SqlxDao) Find(ctx context.Context, id ...any) (map[string]string, error) {
+func (t *SqlxDao) Find(targetStructPtr any, id ...any) error {
 	defer t.Reinit()
 	var err error
 	if err = t.err; err != nil {
 		t.err = nil
-		return nil, err
+		return err
 	}
-	var resp map[string]string
 	var sql string
 	field := t.defaultRowField
 	if t.fieldSql != "" {
@@ -87,7 +95,12 @@ func (t *SqlxDao) Find(ctx context.Context, id ...any) (map[string]string, error
 			t.whereSql = t.whereSql + fmt.Sprintf(" AND id=%d", id[0])
 		}
 		sql = fmt.Sprintf("select %s from %s where %s limit 1", field, t.table, t.whereSql)
-		err = t.conn.QueryRowPartialCtx(ctx, &resp, sql) //QueryRowCtx 必须字段都覆盖
+		if t.ctx != nil {
+			err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql) //若用QueryRowCtx 必须字段都覆盖
+		} else {
+			err = t.conn.QueryRowPartial(targetStructPtr, sql)
+		}
+
 	} else {
 		if t.whereSql == "" {
 			t.whereSql = "1=1"
@@ -96,50 +109,99 @@ func (t *SqlxDao) Find(ctx context.Context, id ...any) (map[string]string, error
 			t.whereSql = t.whereSql + " AND plat_id=" + fmt.Sprintf("%d", t.platId)
 		}
 		sql = fmt.Sprintf("select %s from %s %s where "+t.whereSql+" limit 1", field, t.table, t.aliasSql)
-		err = t.conn.QueryRowPartialCtx(ctx, &resp, sql, t.whereData...)
+		if t.ctx != nil {
+			err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
+		} else {
+			err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
+		}
+
 	}
 	switch err {
 	case nil:
-		return resp, nil
+		return nil
 	case sqlx.ErrNotFound:
-		return resp, nil
+		return nil
 	default:
-		return nil, err
+		return err
+	}
+}
+
+// Select 查询所有数据,需传入目标结构体切片的指针
+func (t *SqlxDao) Select(targetStructPtr any) error {
+	defer t.Reinit()
+	var err error
+	if err = t.err; err != nil {
+		t.err = nil
+		return err
+	}
+	var sql string
+	field := t.defaultRowField
+	if t.fieldSql != "" {
+		field = t.fieldSql
+	}
+	if t.whereSql == "" {
+		t.whereSql = "1=1"
+	}
+	sql = fmt.Sprintf("select %s from %s %s where "+t.whereSql, field, t.table, t.aliasSql)
+	if t.ctx != nil {
+		err = t.conn.QueryRowsPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
+	} else {
+		err = t.conn.QueryRowsPartial(targetStructPtr, sql, t.whereData...)
+	}
+	switch err {
+	case nil:
+		return nil
+	case sqlx.ErrNotFound:
+		return nil
+	default:
+		return err
 	}
 }
 
 // CacheFind 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
-func (t *SqlxDao) CacheFind(ctx context.Context, redis *redisd.Redisd, id ...int64) (map[string]string, error) {
+func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any, id ...int64) error {
 	defer t.Reinit()
-	var resp map[string]string
 	cacheField := "model_" + t.table
 	cacheKey := strconv.FormatInt(id[0], 10)
 	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
-	err := redis.GetData(cacheField, cacheKey, resp)
+	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
 	if err == nil {
-		return resp, nil
+		return nil
 	}
-	resp, err = t.Find(ctx, id[0])
+	err = t.Find(&targetStructPtr, id[0])
 	if err != nil {
-		return resp, err
+		return err
 	}
-	if len(resp) == 0 {
-		redis.SetData(cacheField, cacheKey, resp)
-	}
-	return resp, nil
+	// todo::如果没查到，是不是会有问题
+	redis.SetData(cacheField, cacheKey, targetStructPtr)
+	return nil
 }
-func (t *SqlxDao) Insert(ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	query, data := t.prepareInsert(data)
-	sqlRes, err := t.conn.ExecCtx(ctx, query, data)
+	var sqlRes sql.Result
+	var err error
+	if t.ctx != nil {
+		sqlRes, err = t.conn.ExecCtx(t.ctx, query, data)
+	} else {
+		sqlRes, err = t.conn.Exec(query, data)
+	}
+
 	if err != nil {
 		return 0, err
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
 }
-func (t *SqlxDao) TxInsert(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
 	query, data := t.prepareInsert(data)
-	sqlRes, err := tx.ExecContext(ctx, query, data)
+	var sqlRes sql.Result
+	var err error
+	if t.ctx != nil {
+		sqlRes, err = tx.ExecContext(t.ctx, query, data)
+	} else {
+		sqlRes, err = tx.Exec(query, data)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -164,10 +226,17 @@ func (t *SqlxDao) prepareInsert(data map[string]string) (string, map[string]stri
 }
 
 // Delete 优先根据传入的id删除，若未传则where条件必有
-func (t *SqlxDao) Delete(ctx context.Context, id ...int64) (int64, error) {
+func (t *SqlxDao) Delete(id ...int64) (int64, error) {
 	defer t.Reinit()
 	query := fmt.Sprintf("delete from %s where `id` = ?", t.table)
-	sqlRes, err := t.conn.ExecCtx(ctx, query, id)
+	var sqlRes sql.Result
+	var err error
+	if t.ctx != nil {
+		sqlRes, err = t.conn.ExecCtx(t.ctx, query, id)
+	} else {
+		sqlRes, err = t.conn.Exec(query, id)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -176,10 +245,17 @@ func (t *SqlxDao) Delete(ctx context.Context, id ...int64) (int64, error) {
 }
 
 // TxDelete 事务Delete
-func (t *SqlxDao) TxDelete(tx *sql.Tx, ctx context.Context, id ...int64) (int64, error) {
+func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 	defer t.Reinit()
 	query := fmt.Sprintf("delete from %s where `id` = ?", t.table)
-	sqlRes, err := tx.ExecContext(ctx, query, id)
+	var sqlRes sql.Result
+	var err error
+	if t.ctx != nil {
+		sqlRes, err = tx.ExecContext(t.ctx, query, id)
+	} else {
+		sqlRes, err = tx.Exec(query, id)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -187,47 +263,27 @@ func (t *SqlxDao) TxDelete(tx *sql.Tx, ctx context.Context, id ...int64) (int64,
 	return affectedRow, nil
 }
 
-// List 查询所有数据
-func (t *SqlxDao) List(ctx context.Context) ([]map[string]string, error) {
-	defer t.Reinit()
-	var err error
-	if err = t.err; err != nil {
-		t.err = nil
-		return nil, err
-	}
-	var resp []map[string]string
-	var sql string
-	field := t.defaultRowField
-	if t.fieldSql != "" {
-		field = t.fieldSql
-	}
-	if t.whereSql == "" {
-		t.whereSql = "1=1"
-	}
-	sql = fmt.Sprintf("select %s from %s %s where "+t.whereSql, field, t.table, t.aliasSql)
-	err = t.conn.QueryRowsPartialCtx(ctx, &resp, sql, t.whereData...)
-	switch err {
-	case nil:
-		return resp, nil
-	case sqlx.ErrNotFound:
-		return resp, nil
-	default:
-		return nil, err
-	}
-}
-func (t *SqlxDao) Page(ctx context.Context, page int, rows int) ([]map[string]string, error) {
-	defer t.Reinit()
-	return nil, nil
+// Page 设置当前查询第几页，查多少行
+func (t *SqlxDao) Page(page int, rows int) {
+	t.queryPage = page
+	t.queryRows = rows
 }
 
 // Update 必须先设置where或在data中携带id，data中的id优先级高，若带id只能修改单个
-func (t *SqlxDao) Update(ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) Update(data map[string]string) (int64, error) {
 	defer t.Reinit()
 	query, params, err := t.prepareUpdate(data)
 	if err != nil {
 		return 0, err
 	}
-	sqlRes, err := t.conn.ExecCtx(ctx, query, params...)
+
+	var sqlRes sql.Result
+	if t.ctx != nil {
+		sqlRes, err = t.conn.ExecCtx(t.ctx, query, params...)
+	} else {
+		sqlRes, err = t.conn.Exec(query, params...)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -236,13 +292,19 @@ func (t *SqlxDao) Update(ctx context.Context, data map[string]string) (int64, er
 }
 
 // TxUpdate 同Update，事务专用
-func (t *SqlxDao) TxUpdate(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
 	defer t.Reinit()
 	query, params, err := t.prepareUpdate(data)
 	if err != nil {
 		return 0, err
 	}
-	sqlRes, err := tx.ExecContext(ctx, query, params...)
+	var sqlRes sql.Result
+	if t.ctx != nil {
+		sqlRes, err = tx.ExecContext(t.ctx, query, params...)
+	} else {
+		sqlRes, err = tx.Exec(query, params...)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -252,7 +314,7 @@ func (t *SqlxDao) TxUpdate(tx *sql.Tx, ctx context.Context, data map[string]stri
 }
 
 // TxSave 事务用Save
-func (t *SqlxDao) TxSave(tx *sql.Tx, ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
 	var id int64
@@ -269,12 +331,13 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, ctx context.Context, data map[string]string
 	if hasId == false {
 		return 0, errors.New("save data must need id")
 	}
-	currData, err := t.Find(ctx, id)
+	var currData map[string]string
+	err := t.Find(&currData, id)
 	if err != nil {
 		return 0, err
 	}
 	if len(currData) == 0 {
-		_, err = t.TxInsert(tx, ctx, data)
+		_, err = t.TxInsert(tx, data)
 		if err != nil {
 			return 0, err
 		}
@@ -299,7 +362,13 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, ctx context.Context, data map[string]string
 		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", t.platId)
 	}
 	query := fmt.Sprintf("update %s set %s where %s", t.table, updateStr, whereStr)
-	sqlRes, err := tx.ExecContext(ctx, query, params...)
+	var sqlRes sql.Result
+	if t.ctx != nil {
+		sqlRes, err = tx.ExecContext(t.ctx, query, params...)
+	} else {
+		sqlRes, err = tx.Exec(query, params...)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -308,7 +377,7 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, ctx context.Context, data map[string]string
 }
 
 // Save 如果数据存在则修改，不存在则新增，data中必须有id
-func (t *SqlxDao) Save(ctx context.Context, data map[string]string) (int64, error) {
+func (t *SqlxDao) Save(data map[string]string) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
 	var id int64
@@ -325,12 +394,13 @@ func (t *SqlxDao) Save(ctx context.Context, data map[string]string) (int64, erro
 	if hasId == false {
 		return 0, errors.New("save data must need id")
 	}
-	currData, err := t.Find(ctx, id)
+	var currData map[string]string
+	err := t.Find(&currData, id)
 	if err != nil {
 		return 0, err
 	}
 	if len(currData) == 0 {
-		_, err = t.Insert(ctx, data)
+		_, err = t.Insert(data)
 		if err != nil {
 			return 0, err
 		}
@@ -355,7 +425,13 @@ func (t *SqlxDao) Save(ctx context.Context, data map[string]string) (int64, erro
 		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", t.platId)
 	}
 	query := fmt.Sprintf("update %s set %s where %s", t.table, updateStr, whereStr)
-	sqlRes, err := t.conn.ExecCtx(ctx, query, params...)
+	var sqlRes sql.Result
+	if t.ctx != nil {
+		sqlRes, err = t.conn.ExecCtx(t.ctx, query, params...)
+	} else {
+		sqlRes, err = t.conn.Exec(query, params...)
+	}
+
 	if err != nil {
 		return 0, err
 	}
@@ -460,5 +536,8 @@ func (t *SqlxDao) Reinit() {
 	t.aliasSql = ""
 	t.orderSql = ""
 	t.whereData = make([]any, 0)
+	t.queryRows = 0
+	t.queryPage = 0
 	t.err = nil
+	t.ctx = nil
 }
