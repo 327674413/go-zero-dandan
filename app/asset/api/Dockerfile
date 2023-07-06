@@ -15,6 +15,7 @@ ADD go.sum .
 RUN go mod download
 COPY . .
 COPY app/asset/api/etc /app/etc
+COPY common/land /common/land
 RUN go build -ldflags="-s -w" -o /app/asset app/asset/api/asset.go
 
 
@@ -27,5 +28,5 @@ ENV TZ Asia/Shanghai
 WORKDIR /app
 COPY --from=builder /app/asset /app/asset
 COPY --from=builder /app/etc /app/etc
-
+COPY --from=builder /common/land /common/land
 CMD ["./asset", "-f", "etc/asset-api-dev.yaml"]

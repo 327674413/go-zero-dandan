@@ -57,6 +57,37 @@ goctl template init
 goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 
+## 部署说明
+```
+# 1先构建dockerfile，在服务目录运行，得到Dockerfile文件
+goctl docker -go 服务文件.go  
+
+# 2编辑生成的Dockerfile 做几处修改
+（1）修改顶部为FROM golang:1.20.5-alpine AS builder 因为项目用了泛型，版本要高些，另外RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories的目录得用这个版镜像才有
+（2）在COPY地方增加一行：COPY common/land /common/land  因为要把语言包文件复制进去，不然加载不到
+（3）在下面的COPY也要加一行：COPY --from=builder /common/land /common/land 因为是二次构建的
+
+# 3在项目根目录，创建docker-compose文件，service下添加配置
+  asset-api:
+    build:
+      dockerfile: ./app/asset/api/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+    privileged: true
+    ports:
+      - "8803:8803"
+    stdin_open: true
+    tty: true
+    networks:
+      - dandan_net
+    restart: always
+  
+#4 然后运行，如果文件名是别名，则用
+docker-compose -f docker-compose-test.yml up --detach
+
+```
+
+
 ## 约定
 ### 表字段约定
 
