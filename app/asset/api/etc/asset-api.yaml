@@ -12,6 +12,9 @@ AssetPath:
   Img: ./public/img
   Audio: ./public/img
   Video: ./public/video
+Minio:
+  AccessKey: DrQDHu7bPol3SwKLnjHP
+  SecretKey: 8SDmIa2pZGCksOOmSiyIeNDFZ8d2UPPM3jk0bG0d
 Log:
   ServiceName: asset-api
   Level: info

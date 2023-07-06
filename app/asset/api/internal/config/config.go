@@ -10,6 +10,10 @@ type Config struct {
 		Audio string
 		Video string
 	}
+	Minio struct {
+		AccessKey string
+		SecretKey string
+	}
 	DB struct {
 		DataSource string
 	}

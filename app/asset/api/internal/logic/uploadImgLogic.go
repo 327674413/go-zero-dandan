@@ -3,16 +3,12 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logc"
-	"io"
-	"net/http"
-	"os"
-	"path"
-	"path/filepath"
-	"time"
-
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
+	"net/http"
+	"path"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -44,7 +40,7 @@ const maxImgSize = 5 << 20
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
 	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
-	logc.Info(l.ctx, "测试ctx日志")
+	//logc.Info(l.ctx, "测试ctx日志")
 	file, handler, err := r.FormFile("img")
 	if err != nil {
 		fmt.Println(err)
@@ -74,40 +70,69 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		// 文件类型不是图片类型，返回错误信息
 		return nil, resd.Fail("invalid file type")
 	}
-	//判断与生成目录
-	now := time.Now()
-	year, month, day := now.Date()
-	dirName := fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)
-	dirPath := filepath.Join(l.svcCtx.Config.AssetPath.Img, dirName)
-	if err = os.MkdirAll(dirPath, 0755); err != nil {
-		return nil, resd.Fail(err.Error())
-	}
-	//拼接返回的url地址
-	url := ""
-	if r.TLS == nil {
-		url = "http://"
-	} else {
-		url = "https://"
-	}
-	url = url + r.Host + r.URL.Path
-	//获取文件后缀
-	ext := filepath.Ext(handler.Filename)
-	//根据雪花id生成新的文件名
-	newFileName := fmt.Sprintf("%d%s", utild.MakeId(), ext)
-	//获取完整的存储路径
-	savePath := path.Join(dirPath, newFileName)
-	//存储文件
-	tempFile, err := os.Create(savePath)
+	resp = &types.UploadResp{}
+	minioRes, err := l.UploadMinio(r)
 	if err != nil {
-		fmt.Println(err)
 		return nil, resd.Fail(err.Error())
+	} else {
+		resp.Url = minioRes
+		return resp, nil
 	}
-	defer tempFile.Close()
-	io.Copy(tempFile, file)
+	/*
+		//判断与生成目录
+		now := time.Now()
+		year, month, day := now.Date()
+		dirName := fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)
+		dirPath := filepath.Join(l.svcCtx.Config.AssetPath.Img, dirName)
+		if err = os.MkdirAll(dirPath, 0755); err != nil {
+			return nil, resd.Fail(err.Error())
+		}
+		//拼接返回的url地址
+		url := ""
+		if r.TLS == nil {
+			url = "http://"
+		} else {
+			url = "https://"
+		}
+		url = url + r.Host + r.URL.Path
+		//获取文件后缀
+		ext := filepath.Ext(handler.Filename)
+		//根据雪花id生成新的文件名
+		newFileName := fmt.Sprintf("%d%s", utild.MakeId(), ext)
+		//获取完整的存储路径
+		savePath := path.Join(dirPath, newFileName)
+		//存储文件
+		tempFile, err := os.Create(savePath)
+		if err != nil {
+			fmt.Println(err)
+			return nil, resd.Fail(err.Error())
+		}
+		defer tempFile.Close()
+		io.Copy(tempFile, file)
 
-	return &types.UploadResp{
-		Url: url,
-	}, nil
+		return &types.UploadResp{
+			Url: url,
+		}, nil*/
+}
+func (l *UploadImgLogic) UploadMinio(r *http.Request) (string, error) {
+	minioClient, err := minio.New("127.0.0.1:9000", &minio.Options{
+		Creds:  credentials.NewStaticV4(l.svcCtx.Config.Minio.AccessKey, l.svcCtx.Config.Minio.SecretKey, ""),
+		Secure: false,
+	})
+	if err != nil {
+		fmt.Println("是这里错误")
+		return "", err
+	}
+	// 获取文件信息
+	file, fileHeader, err := r.FormFile("img")
+	bucketName := "pic"
+	objectName := fmt.Sprintf("%d%s", utild.MakeId(), path.Ext(fileHeader.Filename))
+	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, file, fileHeader.Size,
+		minio.PutObjectOptions{ContentType: "binary/octet-stream"})
+	if err != nil {
+		return "", err
+	}
+	return "http://localhost/" + bucketName + "/" + objectName, nil
 }
 
 /*

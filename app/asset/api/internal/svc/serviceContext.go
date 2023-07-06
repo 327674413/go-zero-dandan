@@ -9,8 +9,7 @@ import (
 type ServiceContext struct {
 	Config         config.Config
 	LangMiddleware rest.Middleware
-
-	Mode string
+	Mode           string
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
