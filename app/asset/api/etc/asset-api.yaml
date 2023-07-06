@@ -12,3 +12,6 @@ AssetPath:
   Img: ./public/img
   Audio: ./public/img
   Video: ./public/video
+Log:
+  ServiceName: asset-api
+  Level: info

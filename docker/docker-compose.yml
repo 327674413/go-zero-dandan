@@ -196,6 +196,19 @@ services:
       - dandan_net
     depends_on:
     - zookeeper
+  asset-api:
+    build:
+      dockerfile: ../app/asset/api/Dockerfile
+    environment:
+      - TZ=Asia/Shanghai
+    privileged: true
+    ports:
+      - "8803:8803"
+    stdin_open: true
+    tty: true
+    networks:
+      - dandan_net
+    restart: always
 networks:
   dandan_net:
     driver: bridge

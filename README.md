@@ -43,7 +43,12 @@ CREATE TABLE `表名`  (
 #进user目录执行
 go run user.go -f etc/user-api.yaml 
 ```
+### docker-compose启动其他名字配置
+```
+#小写-d好像不行
+docker-compose -f docker-compose-test.yml up --detach
 
+```
 ### 获取模版
 ```
 goctl template init
