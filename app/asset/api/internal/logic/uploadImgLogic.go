@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logc"
 	"io"
 	"net/http"
 	"os"
@@ -43,7 +44,7 @@ const maxImgSize = 5 << 20
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
 	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
-	logx.Info("测试日志进来了")
+	logc.Info(l.ctx, "测试ctx日志")
 	file, handler, err := r.FormFile("img")
 	if err != nil {
 		fmt.Println(err)
