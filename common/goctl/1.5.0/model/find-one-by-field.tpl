@@ -28,3 +28,15 @@ func (m *default{{.upperStartCamelObject}}Model) FindOneBy{{.upperField}}(ctx co
 		return nil, err
 	}
 }{{end}}
+func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId int64) *default{{.upperStartCamelObject}}Model {
+	dao := dao.NewSqlxDao(conn, {{.table}}, {{.lowerStartCamelObject}}Rows, true, "delete_at")
+	return &default{{.upperStartCamelObject}}Model{
+		conn:       conn,
+		dao:        dao,
+		table:      {{.table}},
+		platId:     platId,
+        softDeleteField: "delete_at",
+        whereData:       make([]any, 0),
+
+	}
+}

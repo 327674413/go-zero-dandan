@@ -1,4 +1,4 @@
-Update(ctx context.Context, data map[string]string) error
-TxUpdate(tx *sql.Tx, ctx context.Context, data map[string]string) error
-Save(ctx context.Context, data map[string]string) error
-TxSave(tx *sql.Tx, ctx context.Context, data map[string]string) error
+Update(data map[string]string) (int64,error)
+TxUpdate(tx *sql.Tx, data map[string]string) (int64,error)
+Save(data map[string]string) (int64,error)
+TxSave(tx *sql.Tx, data map[string]string) (int64,error)

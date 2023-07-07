@@ -49,7 +49,7 @@ func (t *SqlxDao) Ctx(ctx context.Context) *SqlxDao {
 }
 
 // Count 查询数量，必须先设置where再使用
-func (t *SqlxDao) Count() (int, error) {
+func (t *SqlxDao) Count() (int64, error) {
 	return 0, nil
 }
 
@@ -177,13 +177,18 @@ func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any, id ...int
 	return nil
 }
 func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
-	query, data := t.prepareInsert(data)
 	var sqlRes sql.Result
 	var err error
+	query, insertData, err := t.prepareInsert(data)
+	fmt.Println("--------", query, insertData, "--------")
+	if err != nil {
+		return 0, err
+	}
+
 	if t.ctx != nil {
-		sqlRes, err = t.conn.ExecCtx(t.ctx, query, data)
+		sqlRes, err = t.conn.ExecCtx(t.ctx, query, insertData...)
 	} else {
-		sqlRes, err = t.conn.Exec(query, data)
+		sqlRes, err = t.conn.Exec(query, insertData...)
 	}
 
 	if err != nil {
@@ -193,13 +198,16 @@ func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	return affectedRow, nil
 }
 func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
-	query, data := t.prepareInsert(data)
 	var sqlRes sql.Result
 	var err error
+	query, insertData, err := t.prepareInsert(data)
+	if err != nil {
+		return 0, err
+	}
 	if t.ctx != nil {
-		sqlRes, err = tx.ExecContext(t.ctx, query, data)
+		sqlRes, err = tx.ExecContext(t.ctx, query, insertData...)
 	} else {
-		sqlRes, err = tx.Exec(query, data)
+		sqlRes, err = tx.Exec(query, insertData...)
 	}
 
 	if err != nil {
@@ -208,21 +216,27 @@ func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
 }
-func (t *SqlxDao) prepareInsert(data map[string]string) (string, map[string]string) {
+func (t *SqlxDao) prepareInsert(data map[string]string) (string, []any, error) {
 	insertFields := ""
 	insertValues := ""
-	insertData := make([]string, 0)
+	insertData := make([]any, 0)
 	for k, v := range data {
 		insertFields = insertFields + k + ","
-		insertValues = insertFields + "?,"
+		insertValues = insertValues + "?,"
 		insertData = append(insertData, v)
 	}
-	query := fmt.Sprintf("insert into %s (%s) values (%s)", t.table, insertFields, insertValues)
+	if len(insertFields) > 0 {
+		insertFields = insertFields[:len(insertFields)-1]
+		insertValues = insertValues[:len(insertValues)-1]
+	} else {
+		return "", nil, errors.New("insert data is empty")
+	}
+	query := fmt.Sprintf("insert into %s (%s,create_at,update_at,plat_id) values (%s,?,?,?)", t.table, insertFields, insertValues)
 	nowStamp := fmt.Sprintf("%d", time.Now().Unix())
-	data["create_at"] = nowStamp
-	data["update_at"] = nowStamp
-	data["plat_id"] = fmt.Sprintf("%d", t.platId)
-	return query, data
+	insertData = append(insertData, nowStamp)
+	insertData = append(insertData, nowStamp)
+	insertData = append(insertData, fmt.Sprintf("%d", t.platId))
+	return query, insertData, nil
 }
 
 // Delete 优先根据传入的id删除，若未传则where条件必有
@@ -478,7 +492,7 @@ func (t *SqlxDao) prepareUpdate(data map[string]string) (string, []any, error) {
 }
 
 // WhereId 根据id设置where，优先级最高，执行后将会覆盖原有条件
-func (t *SqlxDao) WhereId(id int) *SqlxDao {
+func (t *SqlxDao) WhereId(id int64) *SqlxDao {
 	t.whereSql = "id=?"
 	t.whereData = append(t.whereData, id)
 	return t
@@ -526,6 +540,7 @@ func (t *SqlxDao) Order(order string) *SqlxDao {
 
 // Plat 设置应用id
 func (t *SqlxDao) Plat(platId int64) *SqlxDao {
+	t.platId = platId
 	return t
 }
 

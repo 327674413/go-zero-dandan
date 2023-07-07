@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
+	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -29,7 +30,7 @@ type UploadImgLogic struct {
 	lang       *i18n.Localizer
 	platId     int64
 	platClasEm int64
-	fileName   string
+	fileData   *model.AssetMain
 }
 
 func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
@@ -50,15 +51,44 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		return nil, err
 	}
 	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
+	//获取文件，前端传递字段要对应
 	file, handler, err := r.FormFile("img")
 	if err != nil {
 		logc.Error(l.ctx, err)
 		return nil, resd.FailCode(l.lang, resd.ReqFieldRequired, []string{"img"})
 	}
 	defer file.Close()
-	err = l.checkImg(file, handler, r)
+	//检查图片格式、大小等
+	err = l.setFileData(file, handler, r)
 	if err != nil {
 		return nil, err
+	}
+	//检查是否已经存在
+	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn, l.platId)
+	whereStr := fmt.Sprintf("hash='%s'", l.fileData.Hash)
+	find, err := assetMainModel.WhereStr(whereStr).Find()
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.MysqlSelectErr)
+	}
+	if find.Id != 0 {
+		//return nil, resd.FailCode(l.lang, resd.DataExist1, []string{"Image"})
+		resp = &types.UploadResp{}
+		resp.Url = find.Url
+		resp.FileName = find.Name
+		return resp, nil
+	}
+	l.fileData.Id = utild.MakeId()
+	l.fileData.ModeEm = l.svcCtx.Config.AssetMode
+	insertData, err := utild.MakeModelData(l.fileData, "Id,Hash,Name,Mime,SizeNum,SizeText,ModeEm,Ext")
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.Err)
+	}
+	_, err = assetMainModel.Insert(insertData)
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.MysqlInsertErr)
 	}
 	uploadImgStrage := map[int64]func(multipart.File, *multipart.FileHeader, *http.Request, *types.UploadImgReq) (*types.UploadResp, error){
 		constd.AssetModeLocal:  l.UploadImgLocal,
@@ -67,17 +97,43 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		constd.AssetModeOssTx:  l.UploadImgOssTx,
 	}
 	if strateFunc, ok := uploadImgStrage[l.svcCtx.Config.AssetMode]; ok {
-		return strateFunc(file, handler, r, req)
+		resp, err = strateFunc(file, handler, r, req)
 	} else {
-		return l.UploadImgLocal(file, handler, r, req)
+		resp, err = l.UploadImgLocal(file, handler, r, req)
 	}
+	if err != nil {
+		return nil, err
+	}
+	l.fileData.StateEm = constd.AssetStateEmFinish
+	updateData, err := utild.MakeModelData(l.fileData, "Id,Path,StateEm,Url")
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.Err)
+	}
+	_, err = assetMainModel.Update(updateData)
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.MysqlUpdateErr)
+	}
+	return resp, nil
 
 }
-func (l *UploadImgLogic) checkImg(file multipart.File, handler *multipart.FileHeader, r *http.Request) error {
+func (l *UploadImgLogic) setFileData(file multipart.File, handler *multipart.FileHeader, r *http.Request) error {
 	if handler.Size > maxImgSize {
 		// 文件大小超过限制
 		logc.Error(l.ctx, "image size over 5m")
 		return resd.FailCode(l.lang, resd.ImageSizeLimited1, []string{"5M"})
+	}
+	//获取文件hash
+	hash, err := utild.GetFileHashHex(file)
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return resd.FailCode(l.lang, resd.UploadFileFail)
+	}
+	//重新指向文件头，避免上传minio时长度不对
+	if _, err := file.Seek(0, 0); err != nil {
+		logc.Error(l.ctx, err)
+		return resd.FailCode(l.lang, resd.Err)
 	}
 	validImageTypes := map[string]bool{
 		"image/jpeg":    true,
@@ -91,7 +147,7 @@ func (l *UploadImgLogic) checkImg(file multipart.File, handler *multipart.FileHe
 	buffer := make([]byte, 512)
 	if _, err := file.Read(buffer); err != nil {
 		logc.Error(l.ctx, "unsupport image type")
-		return resd.FailCode(l.lang, resd.ImageSizeLimited1, []string{"5M"})
+		return resd.FailCode(l.lang, resd.NotSupportImageType)
 	}
 	// 判断文件 MIME 类型是否为图片类型
 	mime := http.DetectContentType(buffer)
@@ -105,7 +161,14 @@ func (l *UploadImgLogic) checkImg(file multipart.File, handler *multipart.FileHe
 		logc.Error(l.ctx, err)
 		return resd.FailCode(l.lang, resd.Err)
 	}
-	l.fileName = handler.Filename
+	l.fileData = &model.AssetMain{
+		Name:     handler.Filename,
+		Ext:      filepath.Ext(handler.Filename),
+		Hash:     hash,
+		Mime:     mime,
+		SizeNum:  handler.Size,
+		SizeText: utild.FormatFileSize(handler.Size),
+	}
 	return nil
 }
 func (l *UploadImgLogic) UploadImgMinio(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
@@ -114,8 +177,9 @@ func (l *UploadImgLogic) UploadImgMinio(file multipart.File, handler *multipart.
 	if err != nil {
 		return nil, err
 	} else {
+		l.fileData.Url = url
 		resp.Url = url
-		resp.FileName = l.fileName
+		resp.FileName = l.fileData.Name
 		return resp, nil
 	}
 }
@@ -135,24 +199,23 @@ func (l *UploadImgLogic) UploadImgLocal(file multipart.File, handler *multipart.
 		url = "https://"
 	}
 	url = url + r.Host + r.URL.Path
-	//获取文件后缀
-	ext := filepath.Ext(handler.Filename)
 	//根据雪花id生成新的文件名
-	newFileName := fmt.Sprintf("%d%s", utild.MakeId(), ext)
+	newFileName := fmt.Sprintf("%s%s", l.fileData.Hash, l.fileData.Ext)
 	//获取完整的存储路径
 	savePath := path.Join(dirPath, newFileName)
 	//存储文件
 	tempFile, err := os.Create(savePath)
 	if err != nil {
-		fmt.Println(err)
+		logc.Error(l.ctx, err)
 		return nil, resd.Fail(err.Error())
 	}
 	defer tempFile.Close()
 	io.Copy(tempFile, file)
-
+	l.fileData.Path = dirPath
+	l.fileData.Url = url
 	return &types.UploadResp{
 		Url:      url,
-		FileName: l.fileName,
+		FileName: l.fileData.Name,
 	}, nil
 }
 func (l *UploadImgLogic) UploadMinio(file multipart.File, handler *multipart.FileHeader, r *http.Request) (string, error) {
@@ -165,13 +228,14 @@ func (l *UploadImgLogic) UploadMinio(file multipart.File, handler *multipart.Fil
 		return "", resd.FailCode(l.lang, resd.Err)
 	}
 	bucketName := "public"
-	objectName := fmt.Sprintf("img/%d/%s/%d%s", l.platId, getDirName(), utild.MakeId(), path.Ext(handler.Filename))
+	objectName := fmt.Sprintf("img/%d/%s/%s%s", l.platId, getDirName(), l.fileData.Hash, l.fileData.Ext)
 	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, file, handler.Size,
 		minio.PutObjectOptions{ContentType: "binary/octet-stream"})
 	if err != nil {
 		logc.Error(l.ctx, err)
 		return "", resd.FailCode(l.lang, resd.Err)
 	}
+	l.fileData.Path = bucketName + "/" + objectName
 	return "http://" + l.svcCtx.Config.Minio.Address + "/" + bucketName + "/" + objectName, nil
 }
 

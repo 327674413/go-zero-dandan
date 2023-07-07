@@ -32,12 +32,14 @@ const (
 	PlatClasErr                    = 60400002
 	ReqWait                        = 605      //请求太频繁
 	NotFound                       = 606      //信息不存在
-	NotSupportPhoneArea            = 60700001 //暂不支持手机号
-	NotSupportImageType            = 60700002 //图片格式不支持
-	ImageSizeLimited1              = 60700003 //图片超出大小
+	DataExist1                     = 607      //数据已存在
+	NotSupportPhoneArea            = 60800001 //暂不支持手机号
+	NotSupportImageType            = 60800002 //图片格式不支持
 	AccountOrPassWrong             = 62000001 //登录校验失败
 	VerifyCodeWrong                = 62000002
 	VerifyCodeExpired              = 62000003
+	ImageSizeLimited1              = 62000004 //图片超出大小
+	UploadFileFail                 = 62000005 //图片超出大小
 	NotFoundUser                   = 60600001 //用户不存在
 	ReqPhoneErr                    = 60200001
 	ReqGetPhoneVerifyCodeWait      = 60500001 //请求太频繁

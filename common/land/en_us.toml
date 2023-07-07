@@ -15,8 +15,11 @@ RedisGetErr = "Redis get fail"
 NotFound = "Data not found"
 NotFoundUser = "User not found"
 
+DataExist1 = "The {{.Field1}} already exists"
+
 NotSupportPhoneArea =  "Unsupported phone number"
 NotSupportImageType = "Unsupported image type"
+UploadFileFail = "Upload file fail"
 
 ImageSizeLimited1 = "image size is limited to {{.Field1}} or less"
 AccountOrPassWrong = "Account or password is wrong"
@@ -28,7 +31,8 @@ SuccessAsync = "Submit Finish"
 PhoneNumber = "Phone Number"
 SmsTemp ="Sms Template"
 MessageSysConfig = "Message Center Config"
-
+Data = "Data"
+Image = "Image"
 
 
 

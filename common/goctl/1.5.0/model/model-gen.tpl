@@ -11,3 +11,4 @@ package {{.pkg}}
 {{.update}}
 {{.extraMethod}}
 {{.tableName}}
+

@@ -17,10 +17,12 @@ RedisGetErr = "获取缓存失败"
 
 NotFound = "未找到该信息"
 NotFoundUser = "未找到该用户"
+DataExist1 = "该{{.Field1}}已存在"
 
 NotSupportPhoneArea = "暂不支持的手机号码"
 NotSupportImageType = "不支持的图片格式"
 ImageSizeLimited1 = "图片大小不可超过{{.Field1}}"
+UploadFileFail = "上传文件失败"
 
 AccountOrPassWrong = "账号或密码错误"
 VerifyCodeWrong = "验证码错误"
@@ -30,7 +32,8 @@ VerifyCodeExpired = "请先获取验证码"
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
 MessageSysConfig = "消息中心系统参数"
-
+Data = "数据"
+Image = "图片"
 
 
 

@@ -13,6 +13,7 @@ func init() {
 	msg[Auth] = "Auth"
 	msg[AccountOrPassWrong] = "AccountOrPassWrong"
 	msg[ConfigNotInit] = "ConfigNotInit"
+	msg[DataExist1] = "DataExist1"
 	msg[Err] = "Error"
 	msg[ImageSizeLimited1] = "ImageSizeLimited1"
 	msg[NotFound] = "NotFound"
@@ -49,6 +50,7 @@ func init() {
 	msg[ReqParamErr] = "ReqParamErr"
 	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[ReqWait] = "ReqWait"
+	msg[UploadFileFail] = "UploadFileFail"
 	msg[VerifyCodeWrong] = "VerifyCodeWrong"
 	msg[VerifyCodeExpired] = "VerifyCodeExpired"
 
