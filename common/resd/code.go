@@ -33,6 +33,8 @@ const (
 	ReqWait                        = 605      //请求太频繁
 	NotFound                       = 606      //信息不存在
 	NotSupportPhoneArea            = 60700001 //暂不支持手机号
+	NotSupportImageType            = 60700002 //图片格式不支持
+	ImageSizeLimited1              = 60700003 //图片超出大小
 	AccountOrPassWrong             = 62000001 //登录校验失败
 	VerifyCodeWrong                = 62000002
 	VerifyCodeExpired              = 62000003

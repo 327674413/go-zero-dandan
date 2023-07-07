@@ -14,7 +14,11 @@ RedisGetErr = "Redis get fail"
 
 NotFound = "Data not found"
 NotFoundUser = "User not found"
+
 NotSupportPhoneArea =  "Unsupported phone number"
+NotSupportImageType = "Unsupported image type"
+
+ImageSizeLimited1 = "image size is limited to {{.Field1}} or less"
 AccountOrPassWrong = "Account or password is wrong"
 VerifyCodeWrong = "Verify code is wrong"
 VerifyCodeExpired = "Please obtain the verification code first"

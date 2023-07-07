@@ -5,15 +5,21 @@ import (
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/zeromicro/go-zero/core/logc"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
-	"net/http"
-	"path"
-
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"time"
 )
 
 type UploadImgLogic struct {
@@ -23,6 +29,7 @@ type UploadImgLogic struct {
 	lang       *i18n.Localizer
 	platId     int64
 	platClasEm int64
+	fileName   string
 }
 
 func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
@@ -39,17 +46,38 @@ const maxMemorySize = 20 << 20 // 20 MB
 const maxImgSize = 5 << 20
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
-	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
-	//logc.Info(l.ctx, "测试ctx日志")
-	file, handler, err := r.FormFile("img")
-	if err != nil {
-		fmt.Println(err)
+	if err = l.initPlat(); err != nil {
 		return nil, err
 	}
+	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
+	file, handler, err := r.FormFile("img")
+	if err != nil {
+		logc.Error(l.ctx, err)
+		return nil, resd.FailCode(l.lang, resd.ReqFieldRequired, []string{"img"})
+	}
 	defer file.Close()
+	err = l.checkImg(file, handler, r)
+	if err != nil {
+		return nil, err
+	}
+	uploadImgStrage := map[int64]func(multipart.File, *multipart.FileHeader, *http.Request, *types.UploadImgReq) (*types.UploadResp, error){
+		constd.AssetModeLocal:  l.UploadImgLocal,
+		constd.AssetModeMinio:  l.UploadImgMinio,
+		constd.AssetModeOssAli: l.UploadImgOssAli,
+		constd.AssetModeOssTx:  l.UploadImgOssTx,
+	}
+	if strateFunc, ok := uploadImgStrage[l.svcCtx.Config.AssetMode]; ok {
+		return strateFunc(file, handler, r, req)
+	} else {
+		return l.UploadImgLocal(file, handler, r, req)
+	}
+
+}
+func (l *UploadImgLogic) checkImg(file multipart.File, handler *multipart.FileHeader, r *http.Request) error {
 	if handler.Size > maxImgSize {
 		// 文件大小超过限制
-		return nil, resd.Fail("file size must less 5m")
+		logc.Error(l.ctx, "image size over 5m")
+		return resd.FailCode(l.lang, resd.ImageSizeLimited1, []string{"5M"})
 	}
 	validImageTypes := map[string]bool{
 		"image/jpeg":    true,
@@ -61,78 +89,90 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	}
 	// 读取文件前 512 字节
 	buffer := make([]byte, 512)
-	if _, err = file.Read(buffer); err != nil {
-		return nil, resd.Fail("unknow file type")
+	if _, err := file.Read(buffer); err != nil {
+		logc.Error(l.ctx, "unsupport image type")
+		return resd.FailCode(l.lang, resd.ImageSizeLimited1, []string{"5M"})
 	}
 	// 判断文件 MIME 类型是否为图片类型
 	mime := http.DetectContentType(buffer)
 	if !validImageTypes[mime] {
+		logc.Error(l.ctx, "invalid img type")
 		// 文件类型不是图片类型，返回错误信息
-		return nil, resd.Fail("invalid file type")
+		return resd.FailCode(l.lang, resd.NotSupportImageType)
 	}
+	//重新指向文件头，避免上传minio时长度不对
+	if _, err := file.Seek(0, 0); err != nil {
+		logc.Error(l.ctx, err)
+		return resd.FailCode(l.lang, resd.Err)
+	}
+	l.fileName = handler.Filename
+	return nil
+}
+func (l *UploadImgLogic) UploadImgMinio(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
 	resp = &types.UploadResp{}
-	minioRes, err := l.UploadMinio(r)
+	url, err := l.UploadMinio(file, handler, r)
 	if err != nil {
-		return nil, resd.Fail(err.Error())
+		return nil, err
 	} else {
-		resp.Url = minioRes
+		resp.Url = url
+		resp.FileName = l.fileName
 		return resp, nil
 	}
-	/*
-		//判断与生成目录
-		now := time.Now()
-		year, month, day := now.Date()
-		dirName := fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)
-		dirPath := filepath.Join(l.svcCtx.Config.AssetPath.Img, dirName)
-		if err = os.MkdirAll(dirPath, 0755); err != nil {
-			return nil, resd.Fail(err.Error())
-		}
-		//拼接返回的url地址
-		url := ""
-		if r.TLS == nil {
-			url = "http://"
-		} else {
-			url = "https://"
-		}
-		url = url + r.Host + r.URL.Path
-		//获取文件后缀
-		ext := filepath.Ext(handler.Filename)
-		//根据雪花id生成新的文件名
-		newFileName := fmt.Sprintf("%d%s", utild.MakeId(), ext)
-		//获取完整的存储路径
-		savePath := path.Join(dirPath, newFileName)
-		//存储文件
-		tempFile, err := os.Create(savePath)
-		if err != nil {
-			fmt.Println(err)
-			return nil, resd.Fail(err.Error())
-		}
-		defer tempFile.Close()
-		io.Copy(tempFile, file)
-
-		return &types.UploadResp{
-			Url: url,
-		}, nil*/
 }
-func (l *UploadImgLogic) UploadMinio(r *http.Request) (string, error) {
-	minioClient, err := minio.New("127.0.0.1:9000", &minio.Options{
+func (l *UploadImgLogic) UploadImgLocal(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
+
+	//判断与生成目录
+	dirName := getDirName()
+	dirPath := filepath.Join(l.svcCtx.Config.AssetPath.Img, dirName)
+	if err = os.MkdirAll(dirPath, 0755); err != nil {
+		return nil, resd.Fail(err.Error())
+	}
+	//拼接返回的url地址
+	url := ""
+	if r.TLS == nil {
+		url = "http://"
+	} else {
+		url = "https://"
+	}
+	url = url + r.Host + r.URL.Path
+	//获取文件后缀
+	ext := filepath.Ext(handler.Filename)
+	//根据雪花id生成新的文件名
+	newFileName := fmt.Sprintf("%d%s", utild.MakeId(), ext)
+	//获取完整的存储路径
+	savePath := path.Join(dirPath, newFileName)
+	//存储文件
+	tempFile, err := os.Create(savePath)
+	if err != nil {
+		fmt.Println(err)
+		return nil, resd.Fail(err.Error())
+	}
+	defer tempFile.Close()
+	io.Copy(tempFile, file)
+
+	return &types.UploadResp{
+		Url:      url,
+		FileName: l.fileName,
+	}, nil
+}
+func (l *UploadImgLogic) UploadMinio(file multipart.File, handler *multipart.FileHeader, r *http.Request) (string, error) {
+	minioClient, err := minio.New(l.svcCtx.Config.Minio.Address, &minio.Options{
 		Creds:  credentials.NewStaticV4(l.svcCtx.Config.Minio.AccessKey, l.svcCtx.Config.Minio.SecretKey, ""),
 		Secure: false,
 	})
 	if err != nil {
-		fmt.Println("是这里错误")
-		return "", err
+		logc.Error(l.ctx, err)
+		return "", resd.FailCode(l.lang, resd.Err)
 	}
-	// 获取文件信息
-	file, fileHeader, err := r.FormFile("img")
-	bucketName := "pic"
-	objectName := fmt.Sprintf("%d%s", utild.MakeId(), path.Ext(fileHeader.Filename))
-	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, file, fileHeader.Size,
+	bucketName := "public"
+	objectName := fmt.Sprintf("img/%d/%s/%d%s", l.platId, getDirName(), utild.MakeId(), path.Ext(handler.Filename))
+	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, file, handler.Size,
 		minio.PutObjectOptions{ContentType: "binary/octet-stream"})
 	if err != nil {
-		return "", err
+		logc.Error(l.ctx, err)
+		return "", resd.FailCode(l.lang, resd.Err)
 	}
-	return "http://localhost/" + bucketName + "/" + objectName, nil
+	return "http://" + l.svcCtx.Config.Minio.Address + "/" + bucketName + "/" + objectName, nil
 }
 
 /*
@@ -160,16 +200,32 @@ func (l *UploadImgLogic) UploadMinio(r *http.Request) (string, error) {
 		return &types.DownloadImgResp{}, nil
 	}
 */
+
+func (l *UploadImgLogic) UploadImgOssAli(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
+	resp = &types.UploadResp{}
+	return resp, nil
+}
+func (l *UploadImgLogic) UploadImgOssTx(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
+	resp = &types.UploadResp{}
+	return resp, nil
+}
 func (l *UploadImgLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
+		logc.Error(l.ctx, "token not get platClasEm")
 		return resd.FailCode(l.lang, resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
+		logc.Error(l.ctx, "token not get platId")
 		return resd.FailCode(l.lang, resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
+}
+func getDirName() string {
+	now := time.Now()
+	year, month, day := now.Date()
+	return fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)
 }

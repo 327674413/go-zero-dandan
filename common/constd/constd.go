@@ -23,3 +23,10 @@ const (
 const (
 	RedisKeyUserToken = "userToken"
 )
+
+const (
+	AssetModeLocal  = 1
+	AssetModeMinio  = 2
+	AssetModeOssAli = 3
+	AssetModeOssTx  = 4
+)

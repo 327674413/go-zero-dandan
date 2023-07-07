@@ -2,9 +2,10 @@
 package types
 
 type UploadResp struct {
-	Url string `json:"url"`
+	Url      string `json:"url"`
+	FileName string `json:"fileName"`
 }
 
 type UploadImgReq struct {
-	WatermarkFlag int64 `fomr:"watermarkFlag"`
+	WatermarkFlag int64 `form:"watermarkFlag"`
 }

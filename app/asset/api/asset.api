@@ -1,11 +1,14 @@
 type UploadResp {
-	Url string `json:"url"`
+	Url      string `json:"url"`
+	FileName string `json:"fileName"`
 }
 type UploadImgReq {
-	WatermarkFlag int64 `fomr:"watermarkFlag"`
+	WatermarkFlag int64 `form:"watermarkFlag"`
 }
 @server(
+	timeout: 30s
 	middleware: LangMiddleware
+	jwt: Auth
 )
 service asset-api {
 	@handler UploadImg
