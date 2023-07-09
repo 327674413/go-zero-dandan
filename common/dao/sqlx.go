@@ -180,7 +180,6 @@ func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	var sqlRes sql.Result
 	var err error
 	query, insertData, err := t.prepareInsert(data)
-	fmt.Println("--------", query, insertData, "--------")
 	if err != nil {
 		return 0, err
 	}
@@ -505,7 +504,6 @@ func (t *SqlxDao) WhereStr(whereStr string) *SqlxDao {
 	} else {
 		t.whereSql = "(" + whereStr + ")"
 	}
-	fmt.Println(t.whereSql)
 	return t
 }
 

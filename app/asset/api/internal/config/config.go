@@ -9,11 +9,11 @@ type Config struct {
 		AccessExpire int64
 	}
 	AssetMode int64
-	AssetPath struct {
-		File  string
-		Img   string
-		Audio string
-		Video string
+	LocalPath string
+	TxCos     struct {
+		SecretKey        string
+		SecretId         string
+		PublicBucketAddr string
 	}
 	Minio struct {
 		Address   string

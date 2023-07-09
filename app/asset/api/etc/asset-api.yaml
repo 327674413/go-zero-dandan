@@ -11,15 +11,15 @@ Prometheus:
   Port: 9803
   Path: /metrics
 AssetMode: 2 #1本地存储 2minio存储 3阿里云oss 4腾讯云oss
-AssetPath:
-  File: ./public/file
-  Img: ./public/img
-  Audio: ./public/audio
-  Video: ./public/video
+LocalPath: ./public
 Minio:
   Address: 127.0.0.1:9000
   AccessKey: DrQDHu7bPol3SwKLnjHP
   SecretKey: 8SDmIa2pZGCksOOmSiyIeNDFZ8d2UPPM3jk0bG0d
+TxCos:
+  SecretKey:
+  SecretId:
+  PublicBucketAddr:
 Log:
   ServiceName: asset-api
   Level: info

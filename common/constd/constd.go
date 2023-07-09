@@ -27,8 +27,8 @@ const (
 const (
 	AssetModeLocal  = 1
 	AssetModeMinio  = 2
-	AssetModeOssAli = 3
-	AssetModeOssTx  = 4
+	AssetModeAliOss = 3
+	AssetModeTxCos  = 4
 
 	AssetStateEmCreate  = 0 //提交上传
 	AssetStateEmProcess = 1 //上传进行中，未完
