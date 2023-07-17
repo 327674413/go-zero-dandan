@@ -35,6 +35,7 @@ const (
 	DataExist1                     = 607      //数据已存在
 	NotSupportPhoneArea            = 60800001 //暂不支持手机号
 	NotSupportImageType            = 60800002 //图片格式不支持
+	NotSupportFileType             = 60800003
 	AccountOrPassWrong             = 62000001 //登录校验失败
 	VerifyCodeWrong                = 62000002
 	VerifyCodeExpired              = 62000003

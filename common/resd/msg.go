@@ -19,6 +19,7 @@ func init() {
 	msg[NotFound] = "NotFound"
 	msg[NotFoundUser] = "NotFoundUser"
 	msg[NotSupportPhoneArea] = "NotSupportPhoneArea"
+	msg[NotSupportFileType] = "NotSupportFileType"
 	msg[NotSupportImageType] = "NotSupportImageType"
 	msg[MysqlErr] = "MysqlErr"
 	msg[MysqlInsertErr] = "MysqlInsertErr"

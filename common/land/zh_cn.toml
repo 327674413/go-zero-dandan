@@ -20,6 +20,7 @@ NotFoundUser = "未找到该用户"
 DataExist1 = "该{{.Field1}}已存在"
 
 NotSupportPhoneArea = "暂不支持的手机号码"
+NotSupportFileType =  "不支持的文件类型"
 NotSupportImageType = "不支持的图片格式"
 ImageSizeLimited1 = "图片大小不可超过{{.Field1}}"
 UploadFileFail = "上传文件失败"

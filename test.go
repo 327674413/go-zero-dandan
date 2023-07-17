@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/common/utild"
 	"reflect"
 	"strconv"
@@ -10,31 +12,21 @@ import (
 )
 
 func main() {
-
-	/*source := map[string]string{
-		"id":        "12324321312",
-		"name":      "张三",
-		"create_at": "19212422211",
-		"update_at": "0",
+	sqlConn := sqlx.NewMysql("gozero:8a7yNLrsThjw3jra@tcp(81.69.7.120:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai")
+	userInfo := model.NewUserInfoModel(sqlConn, 1)
+	type userInfoData struct {
+		Id int64
 	}
-	targetObj := &struct {
-		Id       int64
-		Name     string
-		CreateAt int64
-		Sex      int64
-	}{Id: 123}
-	MapStrToStruct(source, targetObj)
-	fmt.Println(targetObj)*/
-	createAt := int64(5)
-	source := &struct {
-		Id       int64
-		Name     string
-		CreateAt *int64
-		Sex      *int64
-		EmptyStr string
-	}{Id: 123, Name: "张三", CreateAt: &createAt}
+	data2, _ := userInfo.Find()
 
-	fmt.Println(StructToStrMapFrom3(source, "Id,Name,CreateAt,Sex,else,EmptyStr"))
+	data, _ := userInfo.Order("id DESC").Field("A.id,B.create_at").Alias("A").LeftJoin("user_main B ON A.id=B.id").
+		Page(1, 10).
+		Select()
+	for _, v := range data {
+		fmt.Println("Id:", v.Id)
+	}
+	fmt.Println(data, data2)
+
 }
 func StructToStrMapFrom3(source interface{}, targetDelimiterSeparated string, isEmptySet ...bool) (map[string]string, error) {
 	if targetDelimiterSeparated == "" {

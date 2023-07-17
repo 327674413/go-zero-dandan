@@ -18,6 +18,7 @@ NotFoundUser = "User not found"
 DataExist1 = "The {{.Field1}} already exists"
 
 NotSupportPhoneArea =  "Unsupported phone number"
+NotSupportFileType =  "Unsupported file type"
 NotSupportImageType = "Unsupported image type"
 UploadFileFail = "Upload file fail"
 
