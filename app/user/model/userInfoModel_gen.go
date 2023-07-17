@@ -33,18 +33,21 @@ type (
 		Field(field string) *defaultUserInfoModel
 		Alias(alias string) *defaultUserInfoModel
 		WhereStr(whereStr string) *defaultUserInfoModel
-		WhereId(id int) *defaultUserInfoModel
+		WhereId(id int64) *defaultUserInfoModel
 		WhereRaw(whereStr string, whereData []any) *defaultUserInfoModel
 		Order(order string) *defaultUserInfoModel
-		Plat(id int) *defaultUserInfoModel
-		Find(id ...any) (*UserInfo, error)
+		Plat(id int64) *defaultUserInfoModel
+		Limit(id int64) *defaultUserInfoModel
+		Find() (*UserInfo, error)
+		FindById(int64) (*UserInfo, error)
 		CacheFind(redis *redisd.Redisd, id ...int64) (*UserInfo, error)
-		Page(page int, rows int) ([]*UserInfo, error)
-		List() ([]*UserInfo, error)
-		Count() (int, error)
+		Page(page int64, rows int64) *defaultUserInfoModel
+		Select() ([]*UserInfo, error)
+		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultUserInfoModel
+		LeftJoin(joinStr string) *defaultUserInfoModel
 	}
 
 	defaultUserInfoModel struct {
@@ -76,20 +79,23 @@ type (
 
 func newUserInfoModel(conn sqlx.SqlConn, platId int64) *defaultUserInfoModel {
 	dao := dao.NewSqlxDao(conn, "`user_info`", userInfoRows, false, "delete_at")
+	dao.Plat(platId)
 	return &defaultUserInfoModel{
 		conn:            conn,
 		dao:             dao,
 		table:           "`user_info`",
 		softDeleteField: "delete_at",
-		whereData:       make([]any, 0),
-		platId:          platId,
 	}
+}
+func (m *defaultUserInfoModel) LeftJoin(joinStr string) *defaultUserInfoModel {
+	m.dao.LeftJoin(joinStr)
+	return m
 }
 func (m *defaultUserInfoModel) Ctx(ctx context.Context) *defaultUserInfoModel {
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultUserInfoModel) WhereId(id int) *defaultUserInfoModel {
+func (m *defaultUserInfoModel) WhereId(id int64) *defaultUserInfoModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -115,7 +121,7 @@ func (m *defaultUserInfoModel) Order(order string) *defaultUserInfoModel {
 	m.dao.Order(order)
 	return m
 }
-func (m *defaultUserInfoModel) Count() (int, error) {
+func (m *defaultUserInfoModel) Count() (int64, error) {
 	return m.dao.Count()
 }
 func (m *defaultUserInfoModel) Inc(field string, num int) (int64, error) {
@@ -130,40 +136,62 @@ func (m *defaultUserInfoModel) Dec(field string, num int) (int64, error) {
 func (m *defaultUserInfoModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.TxDec(tx, field, num)
 }
-func (m *defaultUserInfoModel) Plat(id int) *defaultUserInfoModel {
-
-	return nil
+func (m *defaultUserInfoModel) Plat(id int64) *defaultUserInfoModel {
+	m.dao.Plat(id)
+	return m
 }
-func (m *defaultUserInfoModel) CacheFind(redis *redisd.Redisd, id ...int64) (*UserInfo, error) {
+func (m *defaultUserInfoModel) Limit(id int64) *defaultUserInfoModel {
+	m.dao.Limit(id)
+	return m
+}
+func (m *defaultUserInfoModel) CacheFind(redis *redisd.Redisd) (*UserInfo, error) {
 	resp := &UserInfo{}
-	err := m.dao.CacheFind(redis, resp, id...)
+	err := m.dao.CacheFind(redis, resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
-
+func (m *defaultUserInfoModel) CacheFindById(redis *redisd.Redisd, id int64) (*UserInfo, error) {
+	resp := &UserInfo{}
+	err := m.dao.CacheFindById(redis, resp, id)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
 func (m *defaultUserInfoModel) Delete(id ...int64) (int64, error) {
 	return m.dao.Delete(id...)
 }
 func (m *defaultUserInfoModel) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 	return m.dao.TxDelete(tx, id...)
 }
-func (m *defaultUserInfoModel) Find(id ...any) (*UserInfo, error) {
+func (m *defaultUserInfoModel) FindById(id int64) (*UserInfo, error) {
 	resp := &UserInfo{}
-	err := m.dao.Find(resp, id...)
+	err := m.dao.FindById(resp, id)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
-func (m *defaultUserInfoModel) List() ([]*UserInfo, error) {
-	resp := make([]*UserInfo, 0)
-	return resp, nil
+func (m *defaultUserInfoModel) Find() (*UserInfo, error) {
+	resp := &UserInfo{}
+	err := m.dao.Find(resp)
+	return resp, err
 }
-func (m *defaultUserInfoModel) Page(page int, rows int) ([]*UserInfo, error) {
+func (m *defaultUserInfoModel) Select() ([]*UserInfo, error) {
 	resp := make([]*UserInfo, 0)
-	return resp, nil
+	err := m.dao.Select(&resp)
+	return resp, err
+}
+func (m *defaultUserInfoModel) CacheSelect(redis *redisd.Redisd, id int64) ([]*UserInfo, error) {
+	resp := make([]*UserInfo, 0)
+	err := m.dao.CacheSelect(redis, &resp)
+	return resp, err
+}
+func (m *defaultUserInfoModel) Page(page int64, rows int64) *defaultUserInfoModel {
+	m.dao.Page(page, rows)
+	return m
 }
 func (m *defaultUserInfoModel) FindOne(id int64) (*UserInfo, error) {
 	resp := &UserInfo{}

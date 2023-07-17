@@ -6,6 +6,7 @@ import (
 	"github.com/zeromicro/go-zero/core/trace"
 	"go-zero-dandan/app/message/rpc/message"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/resd"
 	"go.opentelemetry.io/otel"
 	oteltrace "go.opentelemetry.io/otel/trace"
 	"strconv"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 

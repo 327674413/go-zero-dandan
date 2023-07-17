@@ -14,11 +14,13 @@ func init() {
 	msg[AccountOrPassWrong] = "AccountOrPassWrong"
 	msg[ConfigNotInit] = "ConfigNotInit"
 	msg[DataExist1] = "DataExist1"
-	msg[Err] = "Error"
-	msg[ImageSizeLimited1] = "ImageSizeLimited1"
+	msg[SysErr] = "SysErr"
+	msg[UploadImageSizeLimited1] = "UploadImageSizeLimited1"
+	msg[UploadFileSizeLimited1] = "UploadFileSizeLimited1"
 	msg[NotFound] = "NotFound"
 	msg[NotFoundUser] = "NotFoundUser"
 	msg[NotSupportPhoneArea] = "NotSupportPhoneArea"
+	msg[NotSupportFileType] = "NotSupportFileType"
 	msg[NotSupportImageType] = "NotSupportImageType"
 	msg[MysqlErr] = "MysqlErr"
 	msg[MysqlInsertErr] = "MysqlInsertErr"
@@ -51,6 +53,7 @@ func init() {
 	msg[ReqPhoneErr] = "ReqPhoneErr"
 	msg[ReqWait] = "ReqWait"
 	msg[UploadFileFail] = "UploadFileFail"
+	msg[UploadImageTypeLimited1] = "UploadImageTypeLimited1"
 	msg[VerifyCodeWrong] = "VerifyCodeWrong"
 	msg[VerifyCodeExpired] = "VerifyCodeExpired"
 
@@ -69,7 +72,7 @@ func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string 
 	if code, ok := msg[msgCode]; ok {
 		return land.Trans(localize, code, m)
 	} else {
-		return land.Trans(localize, msg[Err], m)
+		return land.Trans(localize, msg[SysErr], m)
 	}
 
 }

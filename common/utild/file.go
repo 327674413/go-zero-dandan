@@ -21,8 +21,12 @@ func FormatFileSize(size int64) string {
 
 	// 计算文件大小的单位指数
 	exp := int(math.Log(float64(size)) / math.Log(1024))
+	expSize := int64(math.Pow(1024, float64(exp)))
+	if expSize == 0 {
+		return fmt.Sprintf("%d", expSize)
+	}
 	// 将文件大小转换为指定单位的大小
-	size = size / int64(math.Pow(1024, float64(exp)))
+	size = size / expSize
 
 	// 根据文件大小的单位指数决定使用哪个单位
 	if exp > len(units)-1 {

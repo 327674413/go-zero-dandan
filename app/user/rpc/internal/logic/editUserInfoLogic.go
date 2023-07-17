@@ -28,16 +28,16 @@ func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Edit
 
 func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, error) {
 	userInfoModel := model.NewUserInfoModel(l.svcCtx.SqlConn, l.platId)
-	data, err := utild.MakeModelData(*in, "Id,GraduateFrom,BirthDate", true)
+	data, err := utild.MakeModelData(*in, "Id,GraduateFrom,BirthDate")
 	if err != nil {
-		return nil, resd.RpcEncodeTempErr(resd.Err)
+		return nil, resd.RpcEncodeTempErr(resd.SysErr)
 	}
 	_, err = userInfoModel.Update(data)
 	/*userModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
 	data := utild.StructToStrMapExcept(*in, "sizeCache", "unknownFields", "state")
 	err := userModel.Update(l.ctx, data)
 	*/
-	find, err := userInfoModel.Find(in.Id)
+	find, err := userInfoModel.FindById(in.Id)
 	fmt.Println(find)
 	if err != nil {
 		logx.Error(err)

@@ -3,21 +3,20 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/minio/minio-go/v7"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/storaged"
 	"go-zero-dandan/common/utild"
-	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path"
 	"path/filepath"
 	"time"
 )
@@ -34,19 +33,71 @@ type UploadImgLogic struct {
 
 func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
 	localizer := ctx.Value("lang").(*i18n.Localizer)
-	return &UploadImgLogic{
+	l := &UploadImgLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		lang:   localizer,
 	}
+	l.initPlat()
+	return l
 }
 
 const maxMemorySize = 20 << 20 // 20 MB
 const maxImgSize = 5 << 20
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
-	if err = l.initPlat(); err != nil {
+	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
+	if err != nil {
+		return nil, resd.ApiFail(l.lang, err)
+	}
+	hash, err := uploader.GetHash(r, "img")
+	if err != nil {
+		return l.apiFail(err)
+	}
+	//检查是否已经存在
+	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
+	whereStr := fmt.Sprintf("hash='%s' AND state_em > 1", hash)
+	find, err := assetMainModel.WhereStr(whereStr).Find()
+	//存在，则秒传
+	if err == nil {
+		return &types.UploadResp{
+			Url:      find.Url,
+			FileName: find.Name,
+		}, nil
+	}
+	//查询报错
+	if err != sqlx.ErrNotFound {
+		return l.apiFail(resd.Error(err))
+	}
+	//不存在，则上传
+	res, err := uploader.UploadImg(r)
+	if err != nil {
+		return l.apiFail(err)
+	}
+	assetMainData := &model.AssetMain{
+		Id:       utild.MakeId(),
+		StateEm:  constd.AssetStateEmFinish,
+		Hash:     res.Hash,
+		Name:     res.Name,
+		ModeEm:   l.svcCtx.Config.AssetMode,
+		Mime:     res.Mime,
+		SizeNum:  res.SizeByte,
+		SizeText: res.SizeText,
+		Ext:      res.Ext,
+		Url:      res.Url,
+	}
+
+	data, err := dao.PrepareData(assetMainData)
+	_, err = assetMainModel.Insert(data)
+	if err != nil {
+		return l.apiFail(err)
+	}
+	return &types.UploadResp{
+		Url:      res.Url,
+		FileName: res.Name,
+	}, nil
+	/*if err = l.initPlat(); err != nil {
 		return nil, err
 	}
 	_ = r.ParseMultipartForm(maxMemorySize) //控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
@@ -82,7 +133,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	insertData, err := utild.MakeModelData(l.fileData, "Id,Hash,Name,Mime,SizeNum,SizeText,ModeEm,Ext")
 	if err != nil {
 		logc.Error(l.ctx, err)
-		return nil, resd.FailCode(l.lang, resd.Err)
+		return nil, resd.FailCode(l.lang, resd.SysErr)
 	}
 	_, err = assetMainModel.Insert(insertData)
 	if err != nil {
@@ -107,7 +158,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	updateData, err := utild.MakeModelData(l.fileData, "Id,Path,StateEm,Url")
 	if err != nil {
 		logc.Error(l.ctx, err)
-		return nil, resd.FailCode(l.lang, resd.Err)
+		return nil, resd.FailCode(l.lang, resd.SysErr)
 	}
 	_, err = assetMainModel.Update(updateData)
 	if err != nil {
@@ -115,7 +166,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		return nil, resd.FailCode(l.lang, resd.MysqlUpdateErr)
 	}
 	resp.Url = l.fileData.Url
-	resp.FileName = l.fileData.Name
+	resp.FileName = l.fileData.Name*/
 	return resp, nil
 
 }
@@ -123,7 +174,7 @@ func (l *UploadImgLogic) setFileData(file multipart.File, handler *multipart.Fil
 	if handler.Size > maxImgSize {
 		// 文件大小超过限制
 		logc.Error(l.ctx, "image size over 5m")
-		return resd.FailCode(l.lang, resd.ImageSizeLimited1, []string{"5M"})
+		return resd.FailCode(l.lang, resd.UploadImageSizeLimited1, []string{"5M"})
 	}
 	//获取文件hash
 	hash, err := utild.GetFileHashHex(file)
@@ -134,7 +185,7 @@ func (l *UploadImgLogic) setFileData(file multipart.File, handler *multipart.Fil
 	//重新指向文件头，避免上传minio时长度不对
 	if _, err = file.Seek(0, 0); err != nil {
 		logc.Error(l.ctx, err)
-		return resd.FailCode(l.lang, resd.Err)
+		return resd.FailCode(l.lang, resd.SysErr)
 	}
 	validImageTypes := map[string]bool{
 		"image/jpeg":    true,
@@ -160,7 +211,7 @@ func (l *UploadImgLogic) setFileData(file multipart.File, handler *multipart.Fil
 	//重新指向文件头，避免上传minio时长度不对
 	if _, err = file.Seek(0, 0); err != nil {
 		logc.Error(l.ctx, err)
-		return resd.FailCode(l.lang, resd.Err)
+		return resd.FailCode(l.lang, resd.SysErr)
 	}
 	l.fileData = &model.AssetMain{
 		Name:     handler.Filename,
@@ -171,52 +222,6 @@ func (l *UploadImgLogic) setFileData(file multipart.File, handler *multipart.Fil
 		SizeText: utild.FormatFileSize(handler.Size),
 	}
 	return err
-}
-func (l *UploadImgLogic) UploadImgMinio(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (err error) {
-	bucketName := "public"
-	objectName := fmt.Sprintf("img/%d/%s/%s%s", l.platId, getDirName(), l.fileData.Hash, l.fileData.Ext)
-	_, err = l.svcCtx.Minio.PutObject(context.Background(), bucketName, objectName, file, handler.Size,
-		minio.PutObjectOptions{ContentType: "binary/octet-stream"})
-	if err != nil {
-		logc.Error(l.ctx, err)
-		return resd.FailCode(l.lang, resd.Err)
-	}
-	l.fileData.Path = bucketName + "/" + objectName
-	l.fileData.Url = "http://" + l.svcCtx.Config.Minio.Address + "/" + bucketName + "/" + objectName
-	return nil
-
-}
-func (l *UploadImgLogic) UploadImgLocal(file multipart.File, handler *multipart.FileHeader, r *http.Request, req *types.UploadImgReq) (err error) {
-
-	//判断与生成目录
-	dirName := getDirName()
-	dirPath := filepath.Join(l.svcCtx.Config.LocalPath, "img", dirName)
-	if err = os.MkdirAll(dirPath, 0755); err != nil {
-		return resd.Fail(err.Error())
-	}
-	//拼接返回的url地址
-	url := ""
-	if r.TLS == nil {
-		url = "http://"
-	} else {
-		url = "https://"
-	}
-	url = url + r.Host
-	//根据雪花id生成新的文件名
-	newFileName := fmt.Sprintf("%s%s", l.fileData.Hash, l.fileData.Ext)
-	//获取完整的存储路径
-	savePath := path.Join(dirPath, newFileName)
-	//存储文件
-	tempFile, err := os.Create(savePath)
-	if err != nil {
-		logc.Error(l.ctx, err)
-		return resd.Fail(err.Error())
-	}
-	defer tempFile.Close()
-	io.Copy(tempFile, file)
-	l.fileData.Path = savePath
-	l.fileData.Url = url + "/" + savePath
-	return nil
 }
 
 /*
@@ -264,7 +269,6 @@ func (l *UploadImgLogic) UploadImgTxCos(file multipart.File, handler *multipart.
 		return resd.FailCode(l.lang, resd.UploadFileFail)
 	}
 	l.fileData.Url = l.svcCtx.Config.TxCos.PublicBucketAddr + "/" + objectName
-	l.fileData.Path = objectName
 	return nil
 }
 func (l *UploadImgLogic) initPlat() (err error) {
@@ -286,4 +290,8 @@ func getDirName() string {
 	now := time.Now()
 	year, month, day := now.Date()
 	return fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)
+}
+
+func (l *UploadImgLogic) apiFail(err error) (*types.UploadResp, error) {
+	return nil, resd.ApiFail(l.lang, err)
 }

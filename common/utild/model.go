@@ -3,13 +3,14 @@ package utild
 import (
 	"errors"
 	"fmt"
+	"go-zero-dandan/common/resd"
 	"reflect"
 	"strings"
 )
 
 func MakeModelData(source interface{}, targetDelimiterSeparated string, isEmptySet ...bool) (map[string]string, error) {
 	if targetDelimiterSeparated == "" {
-		return nil, errors.New("delimiter separated target is empty")
+		return nil, resd.NewErr("MakeModelData中targetDelimiterSeparated参数为空")
 	}
 	fields := strings.Split(targetDelimiterSeparated, ",")
 	sourceValues := reflect.ValueOf(source)
@@ -28,18 +29,21 @@ func MakeModelData(source interface{}, targetDelimiterSeparated string, isEmptyS
 	//获取目标字段的集合
 	targets := make(map[string]int)
 	for _, v := range fields {
-		targets[v] = 0
+		//将结构体里的字段转成蛇形，最终都按蛇形匹配
+		targets[StrToSnake(v)] = 0
 	}
 	result := make(map[string]string)
 	//获取目标结构体的属性集合
 	sourceTypes := sourceValues.Type()
+	fmt.Println(targets)
 	//遍历目标结构体所有字段
 	for i := 0; i < sourceValues.NumField(); i++ {
 		//获取结构体的值对象
 		field := sourceValues.Field(i)
 		sourceName := sourceTypes.Field(i).Name
+		//将需要提取的字段也转成蛇形
 		targetName := StrToSnake(sourceName)
-		if _, ok := targets[sourceName]; !ok {
+		if _, ok := targets[targetName]; !ok {
 			continue
 		}
 		switch field.Kind() {

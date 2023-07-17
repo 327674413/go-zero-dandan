@@ -8,10 +8,13 @@ type (
         WhereRaw(whereStr string, whereData []any) *default{{.upperStartCamelObject}}Model
         Order(order string) *default{{.upperStartCamelObject}}Model
         Plat(id int64) *default{{.upperStartCamelObject}}Model
-        Find(id ...any) (*{{.upperStartCamelObject}}, error)
-        CacheFind(redis *redisd.Redisd, id ...int64) (*{{.upperStartCamelObject}}, error)
-        Page(page int, rows int) *default{{.upperStartCamelObject}}Model
+        Find() (*{{.upperStartCamelObject}}, error)
+        FindById(id int64) (*{{.upperStartCamelObject}}, error)
+        CacheFind(redis *redisd.Redisd) (*{{.upperStartCamelObject}}, error)
+        CacheFindById(redis *redisd.Redisd, id int64) (*{{.upperStartCamelObject}}, error)
+        Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model
         Select() ([]*{{.upperStartCamelObject}}, error)
+        CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}}, error)
         Count() (int64, error)
         Inc(field string, num int) (int64, error)
         Dec(field string, num int) (int64, error)

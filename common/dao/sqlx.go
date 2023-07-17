@@ -3,12 +3,11 @@ package dao
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/common/redisd"
+	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
-	"strconv"
 	"time"
 )
 
@@ -20,16 +19,18 @@ type SqlxDao struct {
 	defaultRowField string
 	softDeleteField string
 	softDeletable   bool
-	fieldSql        string
-	whereSql        string
-	aliasSql        string
-	orderSql        string
-	platId          int64
-	queryPage       int
-	queryRows       int
 
-	whereData []any
-	err       error
+	tableAlias string
+	orderSql   string
+	platId     int64
+	queryPage  int64
+	queryRows  int64
+	limitNum   int64
+	joinTables []string
+	whereData  []any
+	fieldSql   string
+	whereSql   string
+	err        error
 }
 
 func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, softDeletable bool, softDeleteField string) *SqlxDao {
@@ -39,6 +40,8 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 		defaultRowField: defaultRowField,
 		softDeletable:   softDeletable,
 		softDeleteField: softDeleteField,
+		whereData:       make([]any, 0),
+		joinTables:      make([]string, 0),
 	}
 }
 
@@ -46,6 +49,27 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 func (t *SqlxDao) Ctx(ctx context.Context) *SqlxDao {
 	t.ctx = ctx
 	return t
+}
+
+// Limit Select时限制数量，如果设置了Page则会被覆盖
+func (t *SqlxDao) Limit(num int64) *SqlxDao {
+	t.limitNum = num
+	return t
+}
+
+// LeftJoin 左联表
+func (t *SqlxDao) LeftJoin(joinStr string) {
+	t.joinTables = append(t.joinTables, joinStr)
+}
+
+// RightJoin 左联表
+func (t *SqlxDao) RightJoin(joinStr string) {
+	t.joinTables = append(t.joinTables, joinStr)
+}
+
+// InnerJoin 左联表
+func (t *SqlxDao) InnerJoin(joinStr string) {
+	t.joinTables = append(t.joinTables, joinStr)
 }
 
 // Count 查询数量，必须先设置where再使用
@@ -72,103 +96,147 @@ func (t *SqlxDao) Dec(field string, num int) (int64, error) {
 func (t *SqlxDao) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return 0, nil
 }
-
-func (t *SqlxDao) Find(targetStructPtr any, id ...any) error {
-	defer t.Reinit()
-	var err error
-	if err = t.err; err != nil {
-		t.err = nil
-		return err
-	}
-	var sql string
+func (t *SqlxDao) FindById(targetStructPtr any, id int64) error {
+	t.whereSql = ""
+	t.WhereId(id)
+	return t.Find(targetStructPtr)
+}
+func (t *SqlxDao) getFieldParam() string {
 	field := t.defaultRowField
 	if t.fieldSql != "" {
 		field = t.fieldSql
 	}
-	if len(id) > 0 {
-		if t.whereSql == "" {
-			t.whereSql = "1=1"
-		}
-		if t.platId != 0 {
-			t.whereSql = t.whereSql + fmt.Sprintf(" AND id=%d AND plat_id=%d", id[0], t.platId)
-		} else {
-			t.whereSql = t.whereSql + fmt.Sprintf(" AND id=%d", id[0])
-		}
-		sql = fmt.Sprintf("select %s from %s where %s limit 1", field, t.table, t.whereSql)
-		if t.ctx != nil {
-			err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql) //若用QueryRowCtx 必须字段都覆盖
-		} else {
-			err = t.conn.QueryRowPartial(targetStructPtr, sql)
-		}
-
-	} else {
-		if t.whereSql == "" {
-			t.whereSql = "1=1"
-		}
-		if t.platId != 0 {
-			t.whereSql = t.whereSql + " AND plat_id=" + fmt.Sprintf("%d", t.platId)
-		}
-		sql = fmt.Sprintf("select %s from %s %s where "+t.whereSql+" limit 1", field, t.table, t.aliasSql)
-		if t.ctx != nil {
-			err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
-		} else {
-			err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
-		}
-
+	return field
+}
+func (t *SqlxDao) getTableParam() string {
+	table := t.table
+	if t.tableAlias != "" {
+		table = table + " " + t.tableAlias
 	}
-	switch err {
-	case nil:
-		return nil
-	case sqlx.ErrNotFound:
-		return nil
-	default:
+	if len(t.joinTables) > 0 {
+		for _, v := range t.joinTables {
+			table = table + " LEFT JOIN " + v
+		}
+	}
+	return table
+}
+
+func (t *SqlxDao) getWhereParam() string {
+	where := t.whereSql
+	if where == "" {
+		where = "1=1"
+	}
+	plat := "plat_id"
+	if t.tableAlias != "" {
+		plat = t.tableAlias + "." + plat
+	}
+	if t.platId != 0 {
+		where = where + "" + fmt.Sprintf(" AND %s=%d", plat, t.platId)
+	}
+	return where
+}
+func (t *SqlxDao) getPageParam() string {
+	if t.queryRows > 0 {
+		if t.queryPage <= 0 {
+			t.queryPage = 1
+		}
+		offset := (t.queryPage - 1) * t.queryRows
+		return fmt.Sprintf("LIMIT %d, %d", offset, t.queryRows)
+	}
+	return ""
+}
+func (t *SqlxDao) validate() (err error) {
+	if err = t.err; err != nil {
+		t.err = nil
 		return err
+	}
+	if len(t.joinTables) > 0 && t.fieldSql == "" {
+		return resd.NewErr("联表查询时必须设置Field")
+	}
+	return nil
+}
+func (t *SqlxDao) Find(targetStructPtr any) error {
+	defer t.Reinit()
+	err := t.validate()
+	if err != nil {
+		return err
+	}
+	fieldParam := t.getFieldParam()
+	tableParam := t.getTableParam()
+	whereParam := t.getWhereParam()
+	if t.orderSql != "" {
+		t.orderSql = " ORDER BY " + t.orderSql
+	}
+	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" limit 1", fieldParam, tableParam)
+	if t.ctx != nil {
+		err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
+	} else {
+		err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
+	}
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return err
+		}
+		return resd.Error(err)
+	} else {
+		return nil
 	}
 }
 
 // Select 查询所有数据,需传入目标结构体切片的指针
 func (t *SqlxDao) Select(targetStructPtr any) error {
 	defer t.Reinit()
-	var err error
-	if err = t.err; err != nil {
-		t.err = nil
+	err := t.validate()
+	if err != nil {
 		return err
 	}
-	var sql string
-	field := t.defaultRowField
-	if t.fieldSql != "" {
-		field = t.fieldSql
+	fieldParam := t.getFieldParam()
+	tableParam := t.getTableParam()
+	whereParam := t.getWhereParam()
+	pageParam := t.getPageParam()
+	if t.orderSql != "" {
+		t.orderSql = " ORDER BY " + t.orderSql
 	}
-	if t.whereSql == "" {
-		t.whereSql = "1=1"
-	}
-	sql = fmt.Sprintf("select %s from %s %s where "+t.whereSql, field, t.table, t.aliasSql)
+	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" "+pageParam, fieldParam, tableParam)
 	if t.ctx != nil {
 		err = t.conn.QueryRowsPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
 	} else {
 		err = t.conn.QueryRowsPartial(targetStructPtr, sql, t.whereData...)
 	}
-	switch err {
-	case nil:
+	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return err
+		}
+		return resd.Error(err)
+	} else {
 		return nil
-	case sqlx.ErrNotFound:
-		return nil
-	default:
-		return err
 	}
 }
 
+// CacheSelect 缓存查数据
+func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
+
+	return nil
+}
+
 // CacheFind 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
-func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any, id ...int64) error {
+func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
+	defer t.Reinit()
+	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
+	return nil
+}
+
+// CacheFindById 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
+func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id int64) error {
 	defer t.Reinit()
 	cacheField := "model_" + t.table
-	cacheKey := strconv.FormatInt(id[0], 10)
-	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
+	cacheKey := fmt.Sprintf("%d", id)
+
 	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
 	if err == nil {
 		return nil
 	}
-	err = t.Find(&targetStructPtr, id[0])
+	err = t.FindById(&targetStructPtr, id)
 	if err != nil {
 		return err
 	}
@@ -191,7 +259,7 @@ func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -210,7 +278,7 @@ func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -219,7 +287,20 @@ func (t *SqlxDao) prepareInsert(data map[string]string) (string, []any, error) {
 	insertFields := ""
 	insertValues := ""
 	insertData := make([]any, 0)
+	hasPlatId := false
 	for k, v := range data {
+		//自动填充字段过滤
+		if k == "create_at" || k == "update_at" {
+			continue
+		}
+		if k == "plat_id" {
+			//如果存在plat_id且非零值，则按目标值来
+			if v != "0" && v != "" {
+				hasPlatId = true
+			} else {
+				continue
+			}
+		}
 		insertFields = insertFields + k + ","
 		insertValues = insertValues + "?,"
 		insertData = append(insertData, v)
@@ -228,13 +309,18 @@ func (t *SqlxDao) prepareInsert(data map[string]string) (string, []any, error) {
 		insertFields = insertFields[:len(insertFields)-1]
 		insertValues = insertValues[:len(insertValues)-1]
 	} else {
-		return "", nil, errors.New("insert data is empty")
+		return "", nil, resd.NewErr("insert data is empty", 4) //这里用了第4层能定位到业务调用代码处，暂不确定是否靠谱
 	}
-	query := fmt.Sprintf("insert into %s (%s,create_at,update_at,plat_id) values (%s,?,?,?)", t.table, insertFields, insertValues)
+	if !hasPlatId && t.platId > 0 {
+		fmt.Println("运行到了")
+		insertFields = insertFields + ",plat_id"
+		insertValues = insertValues + ",?"
+		insertData = append(insertData, t.platId)
+	}
+	query := fmt.Sprintf("insert into %s (%s,create_at,update_at) values (%s,?,?)", t.table, insertFields, insertValues)
 	nowStamp := fmt.Sprintf("%d", time.Now().Unix())
 	insertData = append(insertData, nowStamp)
 	insertData = append(insertData, nowStamp)
-	insertData = append(insertData, fmt.Sprintf("%d", t.platId))
 	return query, insertData, nil
 }
 
@@ -251,7 +337,7 @@ func (t *SqlxDao) Delete(id ...int64) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -270,14 +356,14 @@ func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
 }
 
 // Page 设置当前查询第几页，查多少行
-func (t *SqlxDao) Page(page int, rows int) {
+func (t *SqlxDao) Page(page int64, rows int64) {
 	t.queryPage = page
 	t.queryRows = rows
 }
@@ -298,7 +384,7 @@ func (t *SqlxDao) Update(data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -319,7 +405,7 @@ func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -342,10 +428,10 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
 		params = append(params, v)
 	}
 	if hasId == false {
-		return 0, errors.New("save data must need id")
+		return 0, resd.NewErr("save data must need id")
 	}
 	var currData map[string]string
-	err := t.Find(&currData, id)
+	err := t.FindById(&currData, id)
 	if err != nil {
 		return 0, err
 	}
@@ -359,13 +445,13 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return 0, errors.New("update data is empty")
+		return 0, resd.NewErr("update data is empty")
 	}
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
 		if id == 0 {
-			return 0, errors.New("update data must need where")
+			return 0, resd.NewErr("update data must need where")
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
@@ -383,7 +469,7 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -405,10 +491,10 @@ func (t *SqlxDao) Save(data map[string]string) (int64, error) {
 		params = append(params, v)
 	}
 	if hasId == false {
-		return 0, errors.New("save data must need id")
+		return 0, resd.NewErr("save data must need id")
 	}
 	var currData map[string]string
-	err := t.Find(&currData, id)
+	err := t.FindById(&currData, id)
 	if err != nil {
 		return 0, err
 	}
@@ -422,13 +508,13 @@ func (t *SqlxDao) Save(data map[string]string) (int64, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return 0, errors.New("update data is empty")
+		return 0, resd.NewErr("update data is empty")
 	}
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
 		if id == 0 {
-			return 0, errors.New("update data must need where")
+			return 0, resd.NewErr("update data must need where")
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
@@ -446,7 +532,7 @@ func (t *SqlxDao) Save(data map[string]string) (int64, error) {
 	}
 
 	if err != nil {
-		return 0, err
+		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
@@ -469,7 +555,7 @@ func (t *SqlxDao) prepareUpdate(data map[string]string) (string, []any, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return "", nil, errors.New("update data is empty")
+		return "", nil, resd.NewErr("update data is empty")
 	}
 	//自动添加修改时间字段
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
@@ -480,7 +566,7 @@ func (t *SqlxDao) prepareUpdate(data map[string]string) (string, []any, error) {
 		whereStr = fmt.Sprintf("id=%d", id)
 	} else if whereStr == "" {
 		//若data未带id，则必须给条件，即便全修改也要给条件1=1
-		return "", nil, errors.New("update param where is empty")
+		return "", nil, resd.NewErr("update param where is empty")
 	}
 	// 多应用时自动增加多应用条件
 	if t.platId != 0 {
@@ -520,7 +606,7 @@ func (t *SqlxDao) WhereRaw(whereStr string, whereData []any) *SqlxDao {
 
 // Alias 设置主表别名，当联表查询时，必须通过Field指定字段
 func (t *SqlxDao) Alias(field string) *SqlxDao {
-	t.aliasSql = field
+	t.tableAlias = field
 	return t
 }
 
@@ -532,7 +618,7 @@ func (t *SqlxDao) Field(field string) *SqlxDao {
 
 // Order 设置排序字段
 func (t *SqlxDao) Order(order string) *SqlxDao {
-
+	t.orderSql = order
 	return t
 }
 
@@ -546,7 +632,7 @@ func (t *SqlxDao) Plat(platId int64) *SqlxDao {
 func (t *SqlxDao) Reinit() {
 	t.whereSql = ""
 	t.fieldSql = ""
-	t.aliasSql = ""
+	t.tableAlias = ""
 	t.orderSql = ""
 	t.whereData = make([]any, 0)
 	t.queryRows = 0

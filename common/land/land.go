@@ -14,6 +14,8 @@ var bundle *i18n.Bundle
 func init() {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
+
+	//目前如果要debug要注释这里
 	bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
 	bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
 	LangAccept = map[string]bool{

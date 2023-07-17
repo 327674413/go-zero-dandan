@@ -1,4 +1,6 @@
-Err = "Encountered a small problem, please try again later"
+SysErr1 = "Encountered a small problem"
+
+SysErr = "Encountered a small problem"
 ReqFieldRequired = "{{.Field1}} is required"
 ReqPhoneErr = "Not a correct phone number"
 ReqGetPhoneVerifyCodeWait = "Too many requests for verification code. Please try again later"
@@ -18,10 +20,13 @@ NotFoundUser = "User not found"
 DataExist1 = "The {{.Field1}} already exists"
 
 NotSupportPhoneArea =  "Unsupported phone number"
+NotSupportFileType =  "Unsupported file type"
 NotSupportImageType = "Unsupported image type"
 UploadFileFail = "Upload file fail"
 
-ImageSizeLimited1 = "image size is limited to {{.Field1}} or less"
+UploadImageSizeLimited1 = "image size is limited to {{.Field1}} or less"
+UploadFileSizeLimited1 = "file size is limited to {{.Field1}} or less"
+UploadImageTypeLimited1 = "image type limited {{.Field1}}"
 AccountOrPassWrong = "Account or password is wrong"
 VerifyCodeWrong = "Verify code is wrong"
 VerifyCodeExpired = "Please obtain the verification code first"

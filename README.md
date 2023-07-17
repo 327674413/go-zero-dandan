@@ -87,6 +87,9 @@ docker-compose -f docker-compose-test.yml up --detach
 
 ```
 
+## minio
+web管理地址 http://localhost:9001/
+密码要求8位，docker-compose中有设置，root 12345678
 
 ## 约定
 ### 表字段约定
@@ -110,6 +113,9 @@ docker-compose -f docker-compose-test.yml up --detach
 - 如何获取框架自带的tracer自行使用
 - kafka在docker里必须要添加hosts把容器id放进去，不然找不到地址的问题解决
 - 研究一下gozero的gateway，直接转发rpc，不需要api再定义一遍，不然很多业务，api接口一次结构体，rpc定义一次结构体太难受了
+- 跟部署相关，我一些公共静态文件是放在根目录下的，加载时候用相对路径，导致debug回不对，发布可能也有问题
+- resd优化，多语言如何返回提示，如果内部有封装，内部就调不到lang，直接返回一个err外部无法识别具体报错
+- log在哪写？如果在外面写，提示的行就是外面的，如果里面有很多地方有err，根本不知道哪个地方返回的。但如果写里面，那么ctx传递又是大问题，然后嵌套调用可能又会重复记录
 - 研究goctl，解决：
 - - 部分表是不需要plat_id的，现在生成都会有，需要能自动化处理该问题，现在分成两套模版生成，有点难控制
 - - 一旦模版修改，需要每个文件都要去跑一遍的问题

@@ -39,10 +39,13 @@ type (
 		WhereRaw(whereStr string, whereData []any) *defaultAssetMainModel
 		Order(order string) *defaultAssetMainModel
 		Plat(id int64) *defaultAssetMainModel
-		Find(id ...any) (*AssetMain, error)
-		CacheFind(redis *redisd.Redisd, id ...int64) (*AssetMain, error)
-		Page(page int, rows int) *defaultAssetMainModel
+		Find() (*AssetMain, error)
+		FindById(id int64) (*AssetMain, error)
+		CacheFind(redis *redisd.Redisd) (*AssetMain, error)
+		CacheFindById(redis *redisd.Redisd, id int64) (*AssetMain, error)
+		Page(page int64, rows int64) *defaultAssetMainModel
 		Select() ([]*AssetMain, error)
+		CacheSelect(redis *redisd.Redisd) ([]*AssetMain, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
@@ -76,9 +79,7 @@ type (
 		SizeNum  int64  `db:"size_num"`  // 文件字节
 		SizeText string `db:"size_text"` // 文件大小
 		Ext      string `db:"ext"`       // 文件后缀
-		Path     string `db:"path"`      // 文件路径
 		Url      string `db:"url"`       // 文件链接
-		PlatId   int64  `db:"plat_id"`   // 应用id
 		CreateAt int64  `db:"create_at"` // 创建时间戳
 		UpdateAt int64  `db:"update_at"` // 更新时间戳
 		DeleteAt int64  `db:"delete_at"` // 删除时间戳
@@ -157,22 +158,39 @@ func (m *defaultAssetMainModel) Delete(ctx context.Context, id int64) error {
 	return err
 }
 
-func (m *defaultAssetMainModel) Find(id ...any) (*AssetMain, error) {
+func (m *defaultAssetMainModel) Find() (*AssetMain, error) {
 	resp := &AssetMain{}
-	err := m.dao.Find(resp, id...)
+	err := m.dao.Find(resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
-func (m *defaultAssetMainModel) CacheFind(redis *redisd.Redisd, id ...int64) (*AssetMain, error) {
+func (m *defaultAssetMainModel) FindById(id int64) (*AssetMain, error) {
 	resp := &AssetMain{}
-	err := m.dao.CacheFind(redis, resp, id...)
+	err := m.dao.FindById(resp, id)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+func (m *defaultAssetMainModel) CacheFind(redis *redisd.Redisd) (*AssetMain, error) {
+	resp := &AssetMain{}
+	err := m.dao.CacheFind(redis, resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+func (m *defaultAssetMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*AssetMain, error) {
+	resp := &AssetMain{}
+	err := m.dao.CacheFindById(redis, resp, id)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 func (m *defaultAssetMainModel) Select() ([]*AssetMain, error) {
 	var resp []*AssetMain
 	err := m.dao.Select(resp)
@@ -181,7 +199,15 @@ func (m *defaultAssetMainModel) Select() ([]*AssetMain, error) {
 	}
 	return resp, nil
 }
-func (m *defaultAssetMainModel) Page(page int, rows int) *defaultAssetMainModel {
+func (m *defaultAssetMainModel) CacheSelect(redis *redisd.Redisd) ([]*AssetMain, error) {
+	var resp []*AssetMain
+	err := m.dao.CacheSelect(redis, resp)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+func (m *defaultAssetMainModel) Page(page int64, rows int64) *defaultAssetMainModel {
 	m.dao.Page(page, rows)
 	return m
 }

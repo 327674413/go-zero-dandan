@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"go-zero-dandan/common/resd"
 	"net/http"
 
 	"go-zero-dandan/app/asset/api/internal/svc"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 

@@ -5,13 +5,13 @@ import (
 	"go-zero-dandan/app/user/api/internal/biz"
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/resd"
 
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 

@@ -2,12 +2,11 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/internal/svc"
 	"go-zero-dandan/app/user/rpc/types/pb"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserByTokenLogic struct {
