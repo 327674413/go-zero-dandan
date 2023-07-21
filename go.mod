@@ -22,6 +22,7 @@ require (
 	github.com/ArtisanCloud/PowerLibs/v3 v3.0.8 // indirect
 	github.com/ArtisanCloud/PowerSocialite/v3 v3.0.5 // indirect
 	github.com/ArtisanCloud/PowerWeChat/v3 v3.0.38 // indirect
+	github.com/aliyun/aliyun-oss-go-sdk v2.2.7+incompatible // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

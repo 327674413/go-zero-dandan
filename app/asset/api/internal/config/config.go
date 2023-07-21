@@ -14,12 +14,21 @@ type Config struct {
 		SecretKey        string
 		SecretId         string
 		PublicBucketAddr string
+		Bucket           string
+	}
+	AliOss struct {
+		AccessKeySecret  string
+		AccessKeyId      string
+		PublicBucketAddr string
+		Bucket           string
 	}
 	Minio struct {
 		Address   string
 		AccessKey string
 		SecretKey string
+		Bucket    string
 	}
+
 	DB struct {
 		DataSource string
 	}

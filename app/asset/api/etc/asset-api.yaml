@@ -12,14 +12,18 @@ Prometheus:
   Path: /metrics
 AssetMode: 2 #1本地存储 2minio存储 3阿里云oss 4腾讯云oss
 LocalPath: ./public
-Minio:
+MMinio:
   Address: 127.0.0.1:9000
   AccessKey: DrQDHu7bPol3SwKLnjHP
   SecretKey: 8SDmIa2pZGCksOOmSiyIeNDFZ8d2UPPM3jk0bG0d
-TxCos:
-  SecretKey:
-  SecretId:
-  PublicBucketAddr:
-Log:
-  ServiceName: asset-api
-  Level: info
+  Bucket: public
+  TxCos:
+    SecretKey:
+    SecretId:
+    PublicBucketAddr:
+    Bucket:
+  AliOss:
+    AccessKeyId:
+    AccessKeySecret:
+    PublicBucketAddr:  #阿里云的不要带http，程序里会拼接
+    Bucket:
