@@ -3,6 +3,7 @@ package storaged
 import (
 	"fmt"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild"
 	"io"
 	"net/http"
 	"os"
@@ -116,13 +117,7 @@ func (t *LocalUploader) Download(r *http.Request, pathAndFileName string) error 
 
 func (t *LocalUploader) upload(dirPath string) (err error) {
 	//拼接返回的url地址
-	url := ""
-	if t.Request.TLS == nil {
-		url = "http://"
-	} else {
-		url = "https://"
-	}
-	url = url + t.Request.Host
+	url := utild.GetRequestDomain(t.Request)
 	//根据雪花id生成新的文件名
 	newFileName := fmt.Sprintf("%s%s", t.Result.Hash, t.Result.Ext)
 	//获取完整的存储路径

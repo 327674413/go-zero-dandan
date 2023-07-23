@@ -4,14 +4,21 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-dandan/app/asset/api/internal/logic"
 	"go-zero-dandan/app/asset/api/internal/svc"
+	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/common/resd"
 	"net/http"
 )
 
-func UploadFileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func DownloadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := logic.NewUploadFileLogic(r.Context(), svcCtx)
-		resp, err := l.UploadFile(r)
+		var req types.DownloadReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
+			return
+		}
+
+		l := logic.NewDownloadLogic(r.Context(), svcCtx)
+		resp, err := l.Download(&req, r)
 		if err != nil {
 			httpx.OkJsonCtx(r.Context(), w, err)
 		} else {

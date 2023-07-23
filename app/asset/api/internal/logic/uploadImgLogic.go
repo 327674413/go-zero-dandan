@@ -2,12 +2,16 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
+	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/imgd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/storaged"
@@ -45,7 +49,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	if err != nil {
 		return nil, resd.ApiFail(l.lang, err)
 	}
-	/*hash, err := uploader.GetHash(r, "img")
+	hash, err := uploader.GetHash(r, "img")
 	if err != nil {
 		return l.apiFail(err)
 	}
@@ -63,7 +67,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	//查询报错
 	if err != sqlx.ErrNotFound {
 		return l.apiFail(resd.Error(err))
-	}*/
+	}
 	//不存在，则上传
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
 		Watermark: &imgd.WatermarkConfig{
@@ -75,7 +79,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	if err != nil {
 		return l.apiFail(err)
 	}
-	/*assetMainData := &model.AssetMain{
+	assetMainData := &model.AssetMain{
 		Id:       utild.MakeId(),
 		StateEm:  constd.AssetStateEmFinish,
 		Hash:     res.Hash,
@@ -92,7 +96,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	_, err = assetMainModel.Insert(data)
 	if err != nil {
 		return l.apiFail(err)
-	}*/
+	}
 	return &types.UploadResp{
 		Url:      res.Url,
 		FileName: res.Name,

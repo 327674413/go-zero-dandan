@@ -5,6 +5,13 @@ type UploadResp {
 type UploadImgReq {
 	WatermarkFlag int64 `form:"watermarkFlag"`
 }
+type DownloadReq {
+	Id int64 `form:"id,string"`
+}
+type DownloadResp {
+	Content  []byte `json:"content"`
+	FileName string `json:"fileName"`
+}
 @server(
 	timeout: 30s
 	middleware: LangMiddleware
@@ -13,6 +20,8 @@ type UploadImgReq {
 service asset-api {
 	@handler UploadImg
 	post /uploadImg(UploadImgReq) returns (UploadResp)
-	@handler UploadFile
-	post /uploadFile returns (UploadResp)
+	@handler Upload
+	post /upload returns (UploadResp)
+	@handler Download
+	get /download(DownloadReq) returns (DownloadResp)
 }

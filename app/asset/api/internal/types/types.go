@@ -9,3 +9,12 @@ type UploadResp struct {
 type UploadImgReq struct {
 	WatermarkFlag int64 `form:"watermarkFlag"`
 }
+
+type DownloadReq struct {
+	Id int64 `form:"id,string"`
+}
+
+type DownloadResp struct {
+	Content  []byte `json:"content"`
+	FileName string `json:"fileName"`
+}

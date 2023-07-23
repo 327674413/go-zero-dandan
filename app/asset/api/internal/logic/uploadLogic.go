@@ -2,18 +2,17 @@ package logic
 
 import (
 	"context"
-	"go-zero-dandan/common/resd"
-	"net/http"
 
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
-type UploadFileLogic struct {
+type UploadLogic struct {
 	logx.Logger
 	ctx        context.Context
 	svcCtx     *svc.ServiceContext
@@ -22,9 +21,9 @@ type UploadFileLogic struct {
 	platClasEm int64
 }
 
-func NewUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadFileLogic {
+func NewUploadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadLogic {
 	localizer := ctx.Value("lang").(*i18n.Localizer)
-	return &UploadFileLogic{
+	return &UploadLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
@@ -32,13 +31,13 @@ func NewUploadFileLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Upload
 	}
 }
 
-func (l *UploadFileLogic) UploadFile(r *http.Request) (resp *types.UploadResp, err error) {
+func (l *UploadLogic) Upload() (resp *types.UploadResp, err error) {
 	// todo: add your logic here and delete this line
 
 	return
 }
 
-func (l *UploadFileLogic) initPlat() (err error) {
+func (l *UploadLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
 		return resd.FailCode(l.lang, resd.PlatClasErr)
