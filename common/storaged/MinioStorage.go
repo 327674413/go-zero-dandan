@@ -58,7 +58,7 @@ func (t *MinioStorage) CreateUploader(uploaderConfig *UploaderConfig) (Interface
 	uploader.Result = &UploadResult{}
 	return uploader, nil
 }
-func (t *MinioUploader) UploadImg(r *http.Request) (res *UploadResult, err error) {
+func (t *MinioUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res *UploadResult, err error) {
 	t.Type = FileTypeImage
 	t.Request = r
 	if err = t.processFileGet(); err != nil {
@@ -80,8 +80,9 @@ func (t *MinioUploader) UploadImg(r *http.Request) (res *UploadResult, err error
 	}
 	return t.Result, nil
 }
-func (t *MinioStorage) UploadFile() {
+func (t *MinioUploader) Download(r *http.Request, pathAndFileName string) error {
 
+	return nil
 }
 func (t *MinioUploader) GetHash(r *http.Request, formKey string) (string, error) {
 	return t.getHash(r, formKey)

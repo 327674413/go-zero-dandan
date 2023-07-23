@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"go-zero-dandan/common/imgd"
 	"net/http"
 	"time"
 )
@@ -30,8 +31,34 @@ type InterfaceStorage interface {
 
 // InterfaceUploader 上传器接口
 type InterfaceUploader interface {
-	UploadImg(r *http.Request) (*UploadResult, error)
+	UploadImg(r *http.Request, config *UploadImgConfig) (*UploadResult, error)
+	Download(r *http.Request, path string) error
 	GetHash(r *http.Request, formKey string) (string, error)
+}
+
+// UploadImgResizeType 图片缩放类型
+type UploadImgResizeType string
+
+const (
+	UploadImgResizeTypeCover     UploadImgResizeType = "cover"
+	UploadImgResizeTypeContain   UploadImgResizeType = "contain"
+	UploadImgResizeTypeFill      UploadImgResizeType = "fill"
+	UploadImgResizeTypeWidthFix  UploadImgResizeType = "widthFix"
+	UploadImgResizeTypeHeightFix UploadImgResizeType = "heightFix"
+)
+
+// UploadImgResizeConfig 图片缩放配置
+type UploadImgResizeConfig struct {
+	Height int
+	Width  int
+	Type   UploadImgResizeType
+}
+
+// UploadImgConfig 图片上传配置
+type UploadImgConfig struct {
+	Quality   int                    //图片质量，默认100不压缩
+	Resize    *UploadImgResizeConfig //图片缩放配置
+	Watermark *imgd.WatermarkConfig  //水印配置
 }
 
 // StorageConfig 配置

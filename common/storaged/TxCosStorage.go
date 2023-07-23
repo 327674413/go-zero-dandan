@@ -65,7 +65,7 @@ func (t *TxCosStorage) CreateUploader(uploaderConfig *UploaderConfig) (Interface
 	uploader.Result = &UploadResult{}
 	return uploader, nil
 }
-func (t *TxCosUploader) UploadImg(r *http.Request) (res *UploadResult, err error) {
+func (t *TxCosUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res *UploadResult, err error) {
 	t.Type = FileTypeImage
 	t.Request = r
 	if err = t.processFileGet(); err != nil {
@@ -87,8 +87,9 @@ func (t *TxCosUploader) UploadImg(r *http.Request) (res *UploadResult, err error
 	}
 	return t.Result, nil
 }
-func (t *TxCosStorage) UploadFile() {
+func (t *TxCosUploader) Download(r *http.Request, pathAndFileName string) error {
 
+	return nil
 }
 func (t *TxCosUploader) GetHash(r *http.Request, formKey string) (string, error) {
 	return t.getHash(r, formKey)

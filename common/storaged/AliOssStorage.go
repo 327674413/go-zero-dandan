@@ -8,10 +8,10 @@ import (
 )
 
 // 检查是否实现了工厂接口
-var _ InterfaceUploader = (*MinioUploader)(nil)
+var _ InterfaceUploader = (*AliOssUploader)(nil)
 var _ InterfaceStorage = (*AliOssStorage)(nil)
 
-// AliOssStorage 腾讯云文件管理
+// AliOssStorage 阿里云文件管理
 type AliOssStorage struct {
 	config *StorageConfig
 	client *oss.Client
@@ -53,7 +53,7 @@ func (t *AliOssStorage) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	uploader.Result = &UploadResult{}
 	return uploader, nil
 }
-func (t *AliOssUploader) UploadImg(r *http.Request) (res *UploadResult, err error) {
+func (t *AliOssUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res *UploadResult, err error) {
 	t.Type = FileTypeImage
 	t.Request = r
 	if err = t.processFileGet(); err != nil {
@@ -75,8 +75,9 @@ func (t *AliOssUploader) UploadImg(r *http.Request) (res *UploadResult, err erro
 	}
 	return t.Result, nil
 }
-func (t *AliOssStorage) UploadFile() {
+func (t *AliOssUploader) Download(r *http.Request, pathAndFileName string) error {
 
+	return nil
 }
 func (t *AliOssUploader) GetHash(r *http.Request, formKey string) (string, error) {
 	return t.getHash(r, formKey)
