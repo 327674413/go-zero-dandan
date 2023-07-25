@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// FileType 定义文件类型，不同文件可能会有不同的特殊方法，如图片类型的裁剪、水印操作
 type FileType string
 
 const (
@@ -16,6 +17,8 @@ const (
 	FileTypeVideo FileType = "video"
 	FileTypeFile  FileType = "file"
 )
+
+// 定义支持的渠道，目前支持local本地、minio、阿里云oss、腾讯云cos
 const (
 	ProviderLocal  string = "local"
 	ProviderMinio  string = "minio"
@@ -23,22 +26,42 @@ const (
 	ProviderTxCos  string = "tencent"
 )
 
-// InterfaceStorage 存储接口
-type InterfaceStorage interface {
+// InterfaceFactory 文件管理工厂入口
+type InterfaceFactory interface {
+	// Init 初始化操作
 	Init() error
-	CreateUploader(*UploaderConfig) (InterfaceUploader, error)
+	// CreateUploader 创建上传器
+	CreateUploader(config *UploaderConfig) (InterfaceStorage, error)
+	// CreateDownloader 创建下载器
+	CreateDownloader(config *DownloaderConfig) (InterfaceStorage, error)
 }
 
-// InterfaceUploader 上传器接口
-type InterfaceUploader interface {
+// InterfaceStorage 文件管理器接口
+type InterfaceStorage interface {
+	// Upload 简单文件上传
+	Upload(r *http.Request, config *UploadConfig) (*UploadResult, error)
+	// MultipartUpload 分片上传
+	MultipartUpload(r *http.Request, config *UploadConfig) (*UploadResult, error)
+	// UploadImg 图片上传专用，提供一些图片处理方法
 	UploadImg(r *http.Request, config *UploadImgConfig) (*UploadResult, error)
-	Download(w http.ResponseWriter, path string) error
+	// Download 简单文件下载
+	Download(w http.ResponseWriter, objectName string, fileName ...string) error
+	// MultipartDownload 分片下载
+	MultipartDownload(w http.ResponseWriter, path string) error
+	// GetHash 预先获取上传文件的hash值（sha1）
 	GetHash(r *http.Request, formKey string) (string, error)
 }
 
 // UploadImgResizeType 图片缩放类型
 type UploadImgResizeType string
 
+/*
+cover 能保证撑满目标尺寸，若比例不同，则在长边上会发生截取
+contain 能保证图片完整在目标尺寸中显示，若比例不同，则生成的图片在短边上会有空白
+fill 不保持长宽比例直接缩放，若比例不同，则可能会变形
+widthFix 宽度变成目标尺寸宽度，高度则等比例缩放
+heightFix 高度变成目标尺寸高度，宽度则等比例缩放
+*/
 const (
 	UploadImgResizeTypeCover     UploadImgResizeType = "cover"
 	UploadImgResizeTypeContain   UploadImgResizeType = "contain"
@@ -54,15 +77,22 @@ type UploadImgResizeConfig struct {
 	Type   UploadImgResizeType
 }
 
-// UploadImgConfig 图片上传配置
-type UploadImgConfig struct {
-	Quality   int                    //图片质量，默认100不压缩
-	Resize    *UploadImgResizeConfig //图片缩放配置
-	Watermark *imgd.WatermarkConfig  //水印配置
+// UploadConfig 简单上传配置，预留
+type UploadConfig struct {
 }
 
-// StorageConfig 配置
-type StorageConfig struct {
+// UploadImgConfig 图片上传配置
+type UploadImgConfig struct {
+	//Quality 图片质量，默认100不压缩
+	Quality int
+	//Resize 图片缩放配置
+	Resize *UploadImgResizeConfig
+	//Watermark 水印配置
+	WatermarkConfig *imgd.WatermarkConfig
+}
+
+// ProviderConfig 渠道配置
+type ProviderConfig struct {
 	Provider  string //服务对象
 	Endpoint  string // 端点地址
 	Key       string // 访问Key
@@ -71,6 +101,7 @@ type StorageConfig struct {
 	LocalPath string //本地存储时的路径
 }
 
+// todo::是不是这里没用，为啥阿没有阿里云的
 // StorageSvc 服务依赖
 type StorageSvc struct {
 	MinioClient *minio.Client
@@ -85,16 +116,22 @@ type UploaderConfig struct {
 	FileMimeAccept []string
 }
 
-type UploadRes struct {
-	FileName string
-	Ext      string
-	Mime     string
-	Url      string
-	Hash     string
-	Size     string
-	SizeText string
+// DownloaderConfig 下载文件配置，暂无用，预留
+type DownloaderConfig struct {
 }
 
+// UploadRes 上传结果集对象
+type UploadRes struct {
+	FileName string //文件名称
+	Ext      string //文件后缀，带有点号
+	Mime     string //文件类型
+	Url      string //访问地址
+	Hash     string //sha1哈希值
+	Size     string //文件大小，byte
+	SizeText string //文件大小，格式化处理
+}
+
+// getDirName 根据年-月-日获取文件夹名称
 func getDirName() string {
 	now := time.Now()
 	year, month, day := now.Date()

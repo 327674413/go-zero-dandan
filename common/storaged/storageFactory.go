@@ -1,25 +1,25 @@
 package storaged
 
-// NewStorage 文件工厂入口
-func NewStorage(config *StorageConfig) (storage InterfaceStorage, err error) {
+// NewProvider 文件工厂入口
+func NewProvider(config *ProviderConfig) (provider InterfaceFactory, err error) {
 	if config == nil {
 		panic("未传入文件管理config配置")
 	}
 	switch config.Provider {
 	case ProviderLocal:
-		storage = &LocalStorage{config: config}
+		provider = &LocalProvider{config: config}
 	case ProviderMinio:
-		storage = &MinioStorage{config: config}
+		provider = &MinioProvider{config: config}
 	case ProviderTxCos:
-		storage = &TxCosStorage{config: config}
+		provider = &TxCosProvider{config: config}
 	case ProviderAliOss:
-		storage = &AliOssStorage{config: config}
+		provider = &AliOssProvider{config: config}
 	default:
-		panic("暂不支持的文件管理类型")
+		panic("暂不支持的文件管理渠道")
 	}
-	if err = storage.Init(); err != nil {
+	if err = provider.Init(); err != nil {
 		return nil, err
 	}
-	return storage, nil
+	return provider, nil
 
 }

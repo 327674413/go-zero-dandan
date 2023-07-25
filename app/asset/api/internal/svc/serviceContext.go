@@ -17,7 +17,7 @@ type ServiceContext struct {
 	SqlConn        sqlx.SqlConn
 	Mode           string
 	Minio          *minio.Client
-	Storage        storaged.InterfaceStorage
+	Storage        storaged.InterfaceFactory
 	TxCos          *cos.Client
 }
 
@@ -30,7 +30,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	}
 	var err error
 	if c.AssetMode == constd.AssetModeLocal {
-		svc.Storage, err = storaged.NewStorage(&storaged.StorageConfig{
+		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider:  storaged.ProviderLocal,
 			LocalPath: c.LocalPath,
 		})
@@ -38,7 +38,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			panic(err)
 		}
 	} else if c.AssetMode == constd.AssetModeMinio {
-		svc.Storage, err = storaged.NewStorage(&storaged.StorageConfig{
+		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider: storaged.ProviderMinio,
 			Endpoint: c.Minio.Address,
 			Key:      c.Minio.AccessKey,
@@ -46,7 +46,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			Bucket:   c.Minio.Bucket,
 		})
 	} else if c.AssetMode == constd.AssetModeAliOss {
-		svc.Storage, err = storaged.NewStorage(&storaged.StorageConfig{
+		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider: storaged.ProviderAliOss,
 			Endpoint: c.AliOss.PublicBucketAddr,
 			Key:      c.AliOss.AccessKeyId,
@@ -54,7 +54,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 			Bucket:   c.AliOss.Bucket,
 		})
 	} else if c.AssetMode == constd.AssetModeTxCos {
-		svc.Storage, err = storaged.NewStorage(&storaged.StorageConfig{
+		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider: storaged.ProviderTxCos,
 			Endpoint: c.TxCos.PublicBucketAddr,
 			Key:      c.TxCos.SecretKey,

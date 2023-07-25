@@ -70,7 +70,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	}
 	//不存在，则上传
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
-		Watermark: &imgd.WatermarkConfig{
+		WatermarkConfig: &imgd.WatermarkConfig{
 			Type:     imgd.WatermarkTypeImg,
 			Path:     "public/water_kkzhw.png",
 			Position: imgd.WatermarkPositionContain,

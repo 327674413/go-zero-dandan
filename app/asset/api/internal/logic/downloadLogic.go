@@ -2,15 +2,10 @@ package logic
 
 import (
 	"context"
-	"fmt"
-	"go-zero-dandan/app/asset/model"
-	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/storaged"
-	"net/http"
-	"strings"
-
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
+	"go-zero-dandan/app/asset/model"
+	"net/http"
 
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -43,7 +38,7 @@ func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, 
 	if err != nil {
 		return l.apiFail(err)
 	}
-	domain := utild.GetRequestDomain(r)
+	/*domain := utild.GetRequestDomain(r)
 	objectName := ""
 	if l.svcCtx.Config.AssetMode == constd.AssetModeLocal {
 		objectName = strings.Replace(asset.Url, domain+"/", "", 1)
@@ -53,13 +48,12 @@ func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, 
 		objectName = strings.Replace(asset.Url, l.svcCtx.Config.TxCos.PublicBucketAddr, "", 1)
 	} else if l.svcCtx.Config.AssetMode == constd.AssetModeAliOss {
 		objectName = strings.Replace(asset.Url, "https://danapp."+l.svcCtx.Config.AliOss.PublicBucketAddr+"/", "", 1)
-	}
-	fmt.Println(objectName)
-	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
+	}*/
 	if err != nil {
 		return l.apiFail(err)
 	}
-	return uploader.Download(w, objectName)
+	downloader, _ := l.svcCtx.Storage.CreateDownloader(nil)
+	return downloader.Download(w, asset.Path, asset.Name)
 }
 
 func (l *DownloadLogic) initPlat() (err error) {

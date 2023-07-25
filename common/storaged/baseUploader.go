@@ -126,12 +126,12 @@ func (t *baseUploader) processImg(config *UploadImgConfig) (err error) {
 		//暂无压缩方案，imaging的压缩png会变大
 	}
 	//水印
-	if config.Watermark != nil {
-		if config.Watermark.Type == imgd.WatermarkTypeImg {
-			if config.Watermark.Path == "" {
+	if config.WatermarkConfig != nil {
+		if config.WatermarkConfig.Type == imgd.WatermarkTypeImg {
+			if config.WatermarkConfig.Path == "" {
 				return resd.NewErr("图片水印请传入Path")
 			}
-			imager.WatermarkImg(config.Watermark)
+			imager.WatermarkImg(config.WatermarkConfig)
 
 		}
 	}
