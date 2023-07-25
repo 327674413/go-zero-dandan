@@ -55,7 +55,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	}
 	//检查是否已经存在
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
-	whereStr := fmt.Sprintf("hash='%s' AND state_em > 1", hash)
+	whereStr := fmt.Sprintf("hash='%s' AND state_em > 1 AND mode_em=%d", hash, l.svcCtx.Config.AssetMode)
 	find, err := assetMainModel.WhereStr(whereStr).Find()
 	//存在，则秒传
 	if err == nil {
@@ -90,6 +90,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		SizeText: res.SizeText,
 		Ext:      res.Ext,
 		Url:      res.Url,
+		Path:     res.Path,
 	}
 
 	data, err := dao.PrepareData(assetMainData)

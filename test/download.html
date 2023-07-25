@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>File Download Example</title>
+</head>
+<body>
+    <button onclick="downloadFile()">Download File</button>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        function downloadFile() {
+            // 构造下载请求的配置项
+            const config = {
+                url: 'http://localhost:8803/download?id=69382352022799447',
+                method: 'POST',
+                responseType: 'blob',
+                headers: {
+                    'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
+                }
+            };
+
+            // 发送下载请求
+            axios(config).then(response => {
+                const blob = new Blob([response.data], { type: 'application/octet-stream' });
+                // 创建一个下载链接
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+
+                // 获取文件名
+                let filename = "unknownFile";
+                const contentDisposition = response.headers['content-disposition'];
+                if (contentDisposition) {
+                    const match = contentDisposition.match(/filename="(.+)"/i);
+                    if (match) {
+                        filename = decodeURIComponent(match[1]);
+                    }
+                }
+
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }).catch(error => {
+                console.log('Failed to download file', error);
+            });
+        }
+
+        function getToken() {
+            // 获取用户的认证令牌
+            // ...
+            return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM3Mjg4MTEsImlhdCI6MTY4NzY4MDgxMSwicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.b-4nDvO4yKH4lfnHPHEEcQDWP_KI7f_PxvWkLm5Oc2Y';
+        }
+    </script>
+</body>
+</html>

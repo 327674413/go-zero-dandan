@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"go-zero-dandan/app/asset/model"
+	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/storaged"
 	"net/http"
-	"os"
 	"strings"
 
 	"go-zero-dandan/app/asset/api/internal/svc"
@@ -36,23 +37,29 @@ func NewDownloadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Download
 	}
 }
 
-func (l *DownloadLogic) Download(req *types.DownloadReq, r *http.Request) (resp *types.DownloadResp, err error) {
+func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, r *http.Request) (err error) {
 	assetModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	asset, err := assetModel.FindById(req.Id)
 	if err != nil {
 		return l.apiFail(err)
 	}
 	domain := utild.GetRequestDomain(r)
-	path := strings.Replace(asset.Url, domain+"/", "", 1)
-	content, err := os.ReadFile(path)
+	objectName := ""
+	if l.svcCtx.Config.AssetMode == constd.AssetModeLocal {
+		objectName = strings.Replace(asset.Url, domain+"/", "", 1)
+	} else if l.svcCtx.Config.AssetMode == constd.AssetModeMinio {
+		objectName = strings.Replace(asset.Url, "http://"+l.svcCtx.Config.Minio.Address+"/"+l.svcCtx.Config.Minio.Bucket, "", 1)
+	} else if l.svcCtx.Config.AssetMode == constd.AssetModeTxCos {
+		objectName = strings.Replace(asset.Url, l.svcCtx.Config.TxCos.PublicBucketAddr, "", 1)
+	} else if l.svcCtx.Config.AssetMode == constd.AssetModeAliOss {
+		objectName = strings.Replace(asset.Url, "https://danapp."+l.svcCtx.Config.AliOss.PublicBucketAddr+"/", "", 1)
+	}
+	fmt.Println(objectName)
+	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
 	if err != nil {
 		return l.apiFail(err)
 	}
-	fmt.Println(path)
-	return &types.DownloadResp{
-		Content:  content,
-		FileName: asset.Name,
-	}, nil
+	return uploader.Download(w, objectName)
 }
 
 func (l *DownloadLogic) initPlat() (err error) {
@@ -68,6 +75,6 @@ func (l *DownloadLogic) initPlat() (err error) {
 	l.platClasEm = platClasEm
 	return nil
 }
-func (l *DownloadLogic) apiFail(err error) (*types.DownloadResp, error) {
-	return nil, resd.ApiFail(l.lang, err)
+func (l *DownloadLogic) apiFail(err error) error {
+	return resd.ApiFail(l.lang, err)
 }

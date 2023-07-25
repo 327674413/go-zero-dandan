@@ -80,6 +80,7 @@ type (
 		SizeText string `db:"size_text"` // 文件大小
 		Ext      string `db:"ext"`       // 文件后缀
 		Url      string `db:"url"`       // 文件链接
+		Path     string `db:"path"`      // 存储路径
 		CreateAt int64  `db:"create_at"` // 创建时间戳
 		UpdateAt int64  `db:"update_at"` // 更新时间戳
 		DeleteAt int64  `db:"delete_at"` // 删除时间戳

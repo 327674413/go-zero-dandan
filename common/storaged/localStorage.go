@@ -6,11 +6,10 @@ import (
 	"go-zero-dandan/common/utild"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
-	"strings"
 )
 
 // 检查是否实现了接口
@@ -87,31 +86,20 @@ func (t *LocalUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res
 	}
 	return t.Result, nil
 }
-func (t *LocalUploader) Download(r *http.Request, pathAndFileName string) error {
-	file, err := os.Open(pathAndFileName)
+func (t *LocalUploader) Download(w http.ResponseWriter, path string) error {
+	file, err := os.Open(path)
 	if err != nil {
 		return resd.Error(err)
 	}
 	defer file.Close()
-	fileInfo, err := file.Stat()
-	if err != nil {
-		return resd.Error(err)
-	}
-	fileName := pathAndFileName
-	index := strings.LastIndex(pathAndFileName, "/")
-	if index > 0 {
-		fileName = pathAndFileName[index+1:]
-	}
-	// 设置响应头，让浏览器下载文件
-	w := r.Context().Value("response").(http.ResponseWriter)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", fileName))
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
-	// 将文件内容写入响应
 	_, err = io.Copy(w, file)
 	if err != nil {
 		return resd.Error(err)
 	}
+	// 设置响应头
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", url.PathEscape("蛋蛋.png")))
+	w.Header().Set("Content-Type", "text/plain")
 	return nil
 }
 
@@ -134,6 +122,7 @@ func (t *LocalUploader) upload(dirPath string) (err error) {
 	}
 	defer tempFile.Close()
 	io.Copy(tempFile, t.File)
+	t.Result.Path = savePath
 	t.Result.Url = url + "/" + savePath
 	return nil
 }

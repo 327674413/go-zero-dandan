@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"go-zero-dandan/common/resd"
+	"io"
 	"net/http"
+	"net/url"
 )
 
 // 检查是否实现了工厂接口
@@ -75,8 +77,26 @@ func (t *AliOssUploader) UploadImg(r *http.Request, config *UploadImgConfig) (re
 	}
 	return t.Result, nil
 }
-func (t *AliOssUploader) Download(r *http.Request, pathAndFileName string) error {
-
+func (t *AliOssUploader) Download(w http.ResponseWriter, objectName string) error {
+	bucket, err := t.client.Bucket(t.config.Bucket)
+	if err != nil {
+		return resd.Error(err)
+	}
+	object, err := bucket.GetObject(objectName, nil)
+	if err != nil {
+		return resd.Error(err)
+	}
+	defer object.Close()
+	_, err = io.Copy(w, object)
+	if err != nil {
+		return resd.Error(err)
+	}
+	// 设置响应头
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
+	//w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", url.PathEscape("蛋蛋.png")))
+	//w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Type", "text/plain")
 	return nil
 }
 func (t *AliOssUploader) GetHash(r *http.Request, formKey string) (string, error) {
@@ -92,6 +112,7 @@ func (t *AliOssUploader) upload(objectName string) (err error) {
 	if err != nil {
 		return resd.Error(err)
 	}
+	t.Result.Path = objectName
 	t.Result.Url = "https://" + t.config.Bucket + "." + t.config.Endpoint + "/" + objectName
 	return nil
 }

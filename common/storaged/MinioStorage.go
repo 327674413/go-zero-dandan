@@ -6,7 +6,9 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go-zero-dandan/common/resd"
+	"io"
 	"net/http"
+	"net/url"
 )
 
 // 检查是否实现了工厂接口
@@ -80,8 +82,31 @@ func (t *MinioUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res
 	}
 	return t.Result, nil
 }
-func (t *MinioUploader) Download(r *http.Request, pathAndFileName string) error {
+func (t *MinioUploader) Download(w http.ResponseWriter, objectName string) error {
+	bucketName := t.config.Bucket
+	object, err := t.client.GetObject(context.Background(), bucketName, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return resd.Error(err)
+	}
+	defer object.Close()
+	/*
+		// 获取文件信息
+		fileInfo, err := object.Stat()
+		if err != nil {
+			return err
+		}
+	*/
+	_, err = io.Copy(w, object)
+	if err != nil {
+		return resd.Error(err)
+	}
 
+	// 设置响应头
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
+	//w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", url.PathEscape("蛋蛋.png")))
+	//w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Type", "text/plain")
 	return nil
 }
 func (t *MinioUploader) GetHash(r *http.Request, formKey string) (string, error) {
@@ -94,6 +119,7 @@ func (t *MinioUploader) upload(objectName string) (err error) {
 	if err != nil {
 		return resd.Error(err)
 	}
+	t.Result.Path = objectName
 	t.Result.Url = "http://" + t.config.Endpoint + "/" + bucketName + "/" + objectName
 	return nil
 }

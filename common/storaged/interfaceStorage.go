@@ -32,7 +32,7 @@ type InterfaceStorage interface {
 // InterfaceUploader 上传器接口
 type InterfaceUploader interface {
 	UploadImg(r *http.Request, config *UploadImgConfig) (*UploadResult, error)
-	Download(r *http.Request, path string) error
+	Download(w http.ResponseWriter, path string) error
 	GetHash(r *http.Request, formKey string) (string, error)
 }
 

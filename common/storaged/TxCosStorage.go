@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go-zero-dandan/common/resd"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -87,8 +88,22 @@ func (t *TxCosUploader) UploadImg(r *http.Request, config *UploadImgConfig) (res
 	}
 	return t.Result, nil
 }
-func (t *TxCosUploader) Download(r *http.Request, pathAndFileName string) error {
-
+func (t *TxCosUploader) Download(w http.ResponseWriter, objectName string) error {
+	resObject, err := t.client.Object.Get(context.Background(), objectName, nil)
+	if err != nil {
+		return resd.Error(err)
+	}
+	defer resObject.Body.Close()
+	_, err = io.Copy(w, resObject.Body)
+	if err != nil {
+		return resd.Error(err)
+	}
+	// 设置响应头
+	w.Header().Set("Access-Control-Expose-Headers", "Content-Disposition")
+	//w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", url.PathEscape("蛋蛋.png")))
+	//w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Type", "text/plain")
 	return nil
 }
 func (t *TxCosUploader) GetHash(r *http.Request, formKey string) (string, error) {
@@ -99,6 +114,7 @@ func (t *TxCosUploader) upload(objectName string) (err error) {
 	if err != nil {
 		return resd.Error(err)
 	}
+	t.Result.Path = objectName
 	t.Result.Url = t.config.Endpoint + "/" + objectName
 	return nil
 }

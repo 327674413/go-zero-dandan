@@ -23,5 +23,5 @@ service asset-api {
 	@handler Upload
 	post /upload returns (UploadResp)
 	@handler Download
-	get /download(DownloadReq) returns (DownloadResp)
+	post /download(DownloadReq)
 }
