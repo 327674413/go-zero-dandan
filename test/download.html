@@ -5,54 +5,119 @@
     <title>上传下载测试</title>
 </head>
 <body>
-    <button onclick="downloadFile()">普通流式下载</button>
+<button onclick="downloadFile()">普通文件流式下载</button>
+<p><input type="file" id="fileInput"> <button onclick="multipartUpload()">文件分片上传</button></p>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    function downloadFile() {
+        // 构造下载请求的配置项
+        const normalDownloadConfig = {
+            url: 'http://localhost:8803/download?id=69638574487635031&time='+(Date.now()),
+            method: 'POST',
+            responseType: 'blob',
+            headers: {
+                'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
+            }
+        };
 
-    <button onclick="multipartUpload()">分片上传</button>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        function downloadFile() {
-            // 构造下载请求的配置项
-            const config = {
-                url: 'http://localhost:8803/download?id=69382352022799447',
+        // 发送下载请求
+        axios(normalDownloadConfig).then(response => {
+            const blob = new Blob([response.data], { type: 'application/octet-stream' });
+            // 创建一个下载链接
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+
+            // 获取文件名
+            let filename = "unknownFile";
+            const contentDisposition = response.headers['content-disposition'];
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="(.+)"/i);
+                if (match) {
+                    filename = decodeURIComponent(match[1]);
+                }
+            }
+
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }).catch(error => {
+            console.log('Failed to download file', error);
+        });
+    }
+
+    function getToken() {
+        // 获取用户的认证令牌
+        // ...
+        return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM3Mjg4MTEsImlhdCI6MTY4NzY4MDgxMSwicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.b-4nDvO4yKH4lfnHPHEEcQDWP_KI7f_PxvWkLm5Oc2Y';
+    }
+    var uploadId = "69672461846709335"
+    async function multipartUpload(){
+        const file = fileInput.files[0];
+        // 计算SHA1哈希值
+        const sha1 = await sha1File(file);
+        // 分片上传文件
+        const chunkNum = 5
+        var succNum = 0
+        const chunkSize = Math.ceil(file.size / chunkNum);
+        for (let i = 0; i < chunkNum; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+
+            // 构建FormData对象
+            const formData = new FormData();
+            formData.append('file', chunk);
+            formData.append('sha1', sha1);
+            formData.append('chunkIndex', i);
+            formData.append('uploadId', uploadId);
+            // 发送分片数据到后端
+            await axios({
+                url: 'http://localhost:8803/multipartUpload/send',
                 method: 'POST',
-                responseType: 'blob',
                 headers: {
                     'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
-                }
-            };
-
-            // 发送下载请求
-            axios(config).then(response => {
-                const blob = new Blob([response.data], { type: 'application/octet-stream' });
-                // 创建一个下载链接
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-
-                // 获取文件名
-                let filename = "unknownFile";
-                const contentDisposition = response.headers['content-disposition'];
-                if (contentDisposition) {
-                    const match = contentDisposition.match(/filename="(.+)"/i);
-                    if (match) {
-                        filename = decodeURIComponent(match[1]);
-                    }
+                },
+                data:formData
+            }).then(res=>{
+                if (res.data.result) {
+                    succNum++;
+                    if (succNum >= chunkNum) multipartFinish(uploadId,sha1)
                 }
 
-                link.download = filename;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }).catch(error => {
-                console.log('Failed to download file', error);
-            });
-        }
+            }).catch(err=>{
 
-        function getToken() {
-            // 获取用户的认证令牌
-            // ...
-            return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM3Mjg4MTEsImlhdCI6MTY4NzY4MDgxMSwicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.b-4nDvO4yKH4lfnHPHEEcQDWP_KI7f_PxvWkLm5Oc2Y';
+            })
         }
-    </script>
+    }
+    function multipartFinish(uploadId,sha1){
+        axios({
+            url: 'http://localhost:8803/multipartUpload/complete',
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
+            },
+            data: {
+                fileSha1: sha1,
+                uploadId: uploadId
+            }
+        }).then(res => {
+            console.log(res)
+        }).catch(err=>{
+            console.log(err)
+        })
+    }
+    // 计算文件的SHA1哈希值
+    async function sha1File(file) {
+        const chunkSize = 1024 * 1024;
+        const chunks = Math.ceil(file.size / chunkSize);
+        const crypto = window.crypto || window.msCrypto;
+        const digestBuffer = await crypto.subtle.digest('SHA-1', new Uint8Array(await file.arrayBuffer()));
+        const digestArray = Array.from(new Uint8Array(digestBuffer));
+        const digestHex = digestArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return digestHex;
+    }
+</script>
 </body>
 </html>
