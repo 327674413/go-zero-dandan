@@ -30,6 +30,8 @@ func init() {
 	msg[MysqlStartTransErr] = "MysqlStartTransErr"
 	msg[MysqlCommitErr] = "MysqlCommitErr"
 	msg[MysqlRollbackErr] = "MysqlRollbackErr"
+	msg[MultipartUploadNotComplete] = "MultipartUploadNotComplete"
+	msg[MultipartUploadFileHashRequired] = "MultipartUploadFileHashRequired"
 	msg[Ok] = "Success"
 	msg[OkAsync] = "SuccessAsync"
 	msg[PlatClasErr] = "PlatClasErr"
@@ -54,6 +56,7 @@ func init() {
 	msg[ReqWait] = "ReqWait"
 	msg[UploadFileFail] = "UploadFileFail"
 	msg[UploadImageTypeLimited1] = "UploadImageTypeLimited1"
+	msg[UploadFileTypeLimited1] = "UploadFileTypeLimited1"
 	msg[VerifyCodeWrong] = "VerifyCodeWrong"
 	msg[VerifyCodeExpired] = "VerifyCodeExpired"
 

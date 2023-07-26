@@ -1,6 +1,9 @@
 package config
 
-import "github.com/zeromicro/go-zero/rest"
+import (
+	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/zeromicro/go-zero/rest"
+)
 
 type Config struct {
 	rest.RestConf
@@ -28,8 +31,8 @@ type Config struct {
 		SecretKey string
 		Bucket    string
 	}
-
-	DB struct {
+	RedisConf redis.RedisConf
+	DB        struct {
 		DataSource string
 	}
 }

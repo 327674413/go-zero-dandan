@@ -11,23 +11,28 @@ import (
 )
 
 // Error 返回错误同时记录日志
-func Error(err error) error {
+func Error(err error, errorCode ...int) error {
 	logx.WithCallerSkip(1).Error(err)
-	return Fail(err.Error(), SysErr)
-}
-func NewErr(msg string, skip ...int) error {
-	if len(skip) > 0 {
-		logx.WithCallerSkip(skip[0]).Error(errors.New(msg))
-	} else {
-		logx.WithCallerSkip(1).Error(errors.New(msg))
+	if len(errorCode) > 0 {
+		return Fail(err.Error(), errorCode[0])
 	}
+	return Fail(err.Error(), SysErr)
 
+}
+func NewErr(msg string, errorCode ...int) error {
+	logx.WithCallerSkip(1).Error(errors.New(msg))
+	if len(errorCode) > 0 {
+		return Fail(msg, errorCode[0])
+	}
 	return Fail(msg, SysErr)
 }
 
 // ErrCtx 返回错误同时记录带上下文的日志
-func ErrCtx(ctx context.Context, err error) error {
+func ErrCtx(ctx context.Context, err error, errorCode ...int) error {
 	logx.WithCallerSkip(1).WithContext(ctx).Error(ctx, msg)
+	if len(errorCode) > 0 {
+		return Fail(err.Error(), errorCode[0])
+	}
 	return Fail(err.Error(), SysErr)
 }
 func RpcDecodeErr(rpcError error) (int, string) {

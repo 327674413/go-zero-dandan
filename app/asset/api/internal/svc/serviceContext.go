@@ -3,11 +3,13 @@ package svc
 import (
 	"github.com/minio/minio-go/v7"
 	"github.com/tencentyun/cos-go-sdk-v5"
+	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/rest"
 	"go-zero-dandan/app/asset/api/internal/config"
 	"go-zero-dandan/app/asset/api/internal/middleware"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/storaged"
 )
 
@@ -15,6 +17,7 @@ type ServiceContext struct {
 	Config         config.Config
 	LangMiddleware rest.Middleware
 	SqlConn        sqlx.SqlConn
+	Redis          *redisd.Redisd
 	Mode           string
 	Minio          *minio.Client
 	Storage        storaged.InterfaceFactory
@@ -22,9 +25,12 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	redisConn := redis.MustNewRedis(c.RedisConf)
+	redisdConn := redisd.NewRedisd(redisConn, "asset")
 	svc := &ServiceContext{
 		Config:         c,
 		SqlConn:        sqlx.NewMysql(c.DB.DataSource),
+		Redis:          redisdConn,
 		Mode:           c.Mode,
 		LangMiddleware: middleware.NewLangMiddleware().Handle,
 	}

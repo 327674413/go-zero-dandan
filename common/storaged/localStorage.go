@@ -75,16 +75,129 @@ func (t *LocalStorage) GetHash(r *http.Request, formKey string) (string, error) 
 
 // Upload 简单上传文件
 func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
+	t.Type = FileTypeFile //文件上传方法，强制存储类型文件
+	t.Request = r         //传递请求参数，以免下载方法中需要使用
+	// 根据form key获取文件
+	if err = t.processFileGet(); err != nil {
+		return nil, err
+	}
+	dirPath := ""
+	if config != nil && config.IsMultipart {
+		if config.FileSha1 == "" {
+			return nil, resd.NewErr("分片上传必须提供文件sha1", resd.MultipartUploadFileHashRequired)
+		}
+		fname := fmt.Sprintf("%s_%d", config.FileSha1, config.ChunkIndex)
+		//分片上传放到专属目录，并根据哈希值前2位进行分目录，避免文件太多
+		dirPath = filepath.Join(t.config.LocalPath, "multipart", config.FileSha1[:2])
+		//确保目录存在，744通常用于普通文件
+		if err = os.MkdirAll(dirPath, 0744); err != nil {
+			return nil, err
+		}
+		//上传文件
+		if err = t.uploadMultipart(dirPath + "/" + fname); err != nil {
+			return nil, err
+		}
+	} else {
+		// 获取文件大小和校验
+		if err = t.processFileSize(); err != nil {
+			return nil, err
+		}
+		// 获取文件格式和校验
+		if err = t.processFileType(); err != nil {
+			return nil, err
+		}
+		// 获取文件哈希值
+		if err = t.processFileHash(); err != nil {
+			return nil, err
+		}
+		//普通上传直接按年月日目录
+		dirName := GetDateDir()
+		dirPath = filepath.Join(t.config.LocalPath, "file", dirName)
+		//确保目录存在，744通常用于普通文件
+		if err = os.MkdirAll(dirPath, 0744); err != nil {
+			return nil, err
+		}
+		//上传文件
+		if err = t.upload(dirPath); err != nil {
+			return nil, err
+		}
+	}
 
-	return nil, nil
+	return t.Result, nil
 }
 
 // MultipartUpload 分片上传文件
 func (t *LocalStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
+	/*
+		// 上传的文件路径和文件名
+		filePath := "/path/to/your/file"
+		fileName := filepath.Base(filePath)
+		// 获取已经上传的分片信息
+		uploadID, parts, err := getUploadProgress(fileName)
+		if err != nil {
+			fmt.Println("Failed to get upload progress:", err)
+			return
+		}
+		// 分片上传
+		parts, err = uploadParts(filePath, uploadID, parts)
+		if err != nil {
+			fmt.Println("Failed to upload parts:", err)
+			return
+		}
 
+		// 完成分片上传
+		err = completeMultipartUpload(fileName, uploadID, parts)
+		if err != nil {
+			fmt.Println("Failed to complete multipart upload:", err)
+			return
+		}
+
+		fmt.Println("File uploaded successfully")
+
+		// 删除上传进度信息
+		err = deleteUploadProgress(fileName)
+		if err != nil {
+			fmt.Println("Failed to delete upload progress:", err)
+			return
+		}*/
 	return nil, nil
 }
 
+/*
+// 获取已经上传的分片信息
+func getUploadProgress(fileName string) (string, []Part, error) {
+	progressFileName := fileName + ".progress"
+	if _, err := os.Stat(progressFileName); os.IsNotExist(err) {
+		return "", nil, nil
+	}
+
+	progressFile, err := os.Open(progressFileName)
+	if err != nil {
+		return "", nil, err
+	}
+	defer progressFile.Close()
+
+	var uploadID string
+	var parts []Part
+	_, err = fmt.Fscanln(progressFile, &uploadID)
+	if err != nil {
+		return "", nil, err
+	}
+
+	for {
+		var part Part
+		_, err := fmt.Fscanln(progressFile, &part.Number, &part.Offset, &part.Size, &part.Etag)
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return "", nil, err
+		}
+		parts = append(parts, part)
+	}
+
+	return uploadID, parts, nil
+}
+*/
 // MultipartDownload 分片下载文件
 func (t *LocalStorage) MultipartDownload(w http.ResponseWriter, path string) (err error) {
 
@@ -111,7 +224,7 @@ func (t *LocalStorage) UploadImg(r *http.Request, config *UploadImgConfig) (res 
 	if err = t.processFileHash(); err != nil {
 		return nil, err
 	}
-	dirName := getDirName()                                      //获取年-月-日格式的目录ing成
+	dirName := GetDateDir()                                      //获取年-月-日格式的目录ing成
 	dirPath := filepath.Join(t.config.LocalPath, "img", dirName) //拼接存储目录路径，个人习惯，图片放在img文件夹下
 	//确保目录存在
 	if err = os.MkdirAll(dirPath, 0755); err != nil {
@@ -152,7 +265,7 @@ func (t *LocalStorage) Download(w http.ResponseWriter, objectName string, saveFi
 	return nil
 }
 
-// upload 上传的具体实现
+// upload 普通上传的具体实现
 func (t *LocalStorage) upload(dirPath string) (err error) {
 	//拼接返回的url地址
 	url := utild.GetRequestDomain(t.Request)
@@ -173,5 +286,19 @@ func (t *LocalStorage) upload(dirPath string) (err error) {
 	io.Copy(tempFile, t.File)
 	t.Result.Path = savePath
 	t.Result.Url = url + "/" + savePath
+	return nil
+}
+
+// uploadMultipart 分片上传的具体实现
+func (t *LocalStorage) uploadMultipart(savePath string) (err error) {
+	//存储文件
+	tempFile, err := os.Create(savePath)
+	if err != nil {
+		return err
+	}
+	defer tempFile.Close()
+	//将文件内容写入存储
+	io.Copy(tempFile, t.File)
+	t.Result.Path = savePath
 	return nil
 }

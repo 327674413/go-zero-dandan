@@ -2,10 +2,12 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>File Download Example</title>
+    <title>上传下载测试</title>
 </head>
 <body>
-    <button onclick="downloadFile()">Download File</button>
+    <button onclick="downloadFile()">普通流式下载</button>
+
+    <button onclick="multipartUpload()">分片上传</button>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         function downloadFile() {

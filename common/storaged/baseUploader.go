@@ -168,7 +168,7 @@ func (t *baseUploader) processFileType() (err error) {
 	// 判断文件 MIME 类型是否为图片类型
 	mime := http.DetectContentType(buffer)
 	if _, ok := validImageTypes[mime]; !ok {
-		return resd.Fail("invalid img type", resd.UploadImageTypeLimited1, t.GetLimitedExtStr())
+		return resd.Fail("invalid file type", resd.UploadFileTypeLimited1, t.GetLimitedExtStr())
 	}
 	//重新指向文件头，避免后续操作问题
 	if _, err = t.File.Seek(0, 0); err != nil {

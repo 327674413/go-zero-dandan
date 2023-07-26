@@ -77,8 +77,11 @@ type UploadImgResizeConfig struct {
 	Type   UploadImgResizeType
 }
 
-// UploadConfig 简单上传配置，预留
+// UploadConfig 上传配置，预留
 type UploadConfig struct {
+	IsMultipart bool   //是否分片上传
+	FileSha1    string //文件sha1
+	ChunkIndex  int64  //分片标识，分片上传使用
 }
 
 // UploadImgConfig 图片上传配置
@@ -131,8 +134,8 @@ type UploadRes struct {
 	SizeText string //文件大小，格式化处理
 }
 
-// getDirName 根据年-月-日获取文件夹名称
-func getDirName() string {
+// GetDateDir 根据年-月-日获取文件夹名称
+func GetDateDir() string {
 	now := time.Now()
 	year, month, day := now.Date()
 	return fmt.Sprintf("%04d-%02d-%02d", year, int(month), day)

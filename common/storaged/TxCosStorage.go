@@ -94,9 +94,181 @@ func (t *TxCosStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 
 // MultipartUpload 分片上传文件
 func (t *TxCosStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
+	/*
+		// 上传的文件路径和文件名
+		filePath := "/path/to/your/file"
+		fileName := filepath.Base(filePath)
 
+		// 获取已经上传的分片信息
+		uploadID, parts, err := getUploadProgress(c, fileName)
+		if err != nil {
+			fmt.Println("Failed to get upload progress:", err)
+			return
+		}
+
+		// 分片上传
+		parts, err = uploadParts(c, filePath, uploadID, parts)
+		if err != nil {
+			fmt.Println("Failed to upload parts:", err)
+			return
+		}
+
+		// 完成分片上传
+		err = completeMultipartUpload(c, fileName, uploadID, parts)
+		if err != nil {
+			fmt.Println("Failed to complete multipart upload:", err)
+			return
+		}
+
+		fmt.Println("File uploaded successfully")
+
+		// 删除上传进度信息
+		err = deleteUploadProgress(c, fileName)
+		if err != nil {
+			fmt.Println("Failed to delete upload progress:", err)
+			return
+		}
+	*/
 	return nil, nil
 }
+
+/*
+// 获取已经上传的分片信息
+func getUploadProgress(c *cos.Client, fileName string) (string, []cos.Object, error) {
+	opt := &cos.InitiateMultipartUploadOptions{
+		ObjectPutHeaderOptions: &cos.ObjectPutHeaderOptions{
+			ContentType: "application/octet-stream",
+		},
+	}
+	resp, _, err := c.Object.InitiateMultipartUpload(context.Background(), fileName, opt)
+	if err != nil {
+		return "", nil, err
+	}
+	uploadID := resp.UploadID
+
+	listOpt := &cos.ListPartsOptions{}
+	listResp, _, err := c.Object.ListParts(context.Background(), fileName, uploadID, listOpt)
+	if err != nil {
+		return "", nil, err
+	}
+
+	parts := listResp.Parts
+
+	return uploadID, parts, nil
+}
+
+// 上传分片
+func uploadParts(c *cos.Client, filePath string, uploadID string, parts []cos.Object) ([]cos.Object, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return nil, err
+	}
+
+	partSize := int64(1024 * 1024 * 10) // 10MB
+	partCount := fileInfo.Size()/partSize + 1
+	if fileInfo.Size()%partSize == 0 {
+		partCount--
+	}
+
+	for i := range parts {
+		partNumber := parts[i].PartNumber
+		partOffset := (partNumber - 1) * partSize
+		partLength := min(partSize, fileInfo.Size()-partOffset)
+
+		if parts[i].Size == partLength {
+			fmt.Printf("Part %d already uploaded, skipped\n", partNumber)
+			continue
+		}
+
+		partData := make([]byte, partLength)
+		_, err := file.ReadAt(partData, partOffset)
+		if err != nil && err != io.EOF {
+			return nil, err
+		}
+
+		partEtag, err := uploadPart(c, filePath, uploadID, partNumber, partData)
+		if err != nil {
+			return nil, err
+		}
+
+		parts[i].ETag = partEtag
+		parts[i].Size = partLength
+
+		fmt.Printf("Part %d uploaded, ETag: %s\n", partNumber, partEtag)
+	}
+
+	return parts, nil
+}
+
+// 上传单个分片
+func uploadPart(c *cos.Client, filePath string, uploadID string, partNumber int64, partData []byte) (string, error) {
+	body := strings.NewReader(string(partData))
+	opt := &cos.UploadPartOptions{
+		PartNumber: partNumber,
+		Body:       body,
+	}
+	resp, err := c.Object.UploadPart(context.Background(), filePath, uploadID, opt)
+	if err !=nil {
+		return "", err
+	}
+
+	return resp.Header.Get("Etag"), nil
+}
+
+// 完成分片上传
+func completeMultipartUpload(c *cos.Client, fileName string, uploadID string, parts []cos.Object) error {
+	opt := &cos.CompleteMultipartUploadOptions{
+		Parts: parts,
+	}
+	_, _, err := c.Object.CompleteMultipartUpload(context.Background(), fileName, uploadID, opt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 删除上传进度信息
+func deleteUploadProgress(c *cos.Client, fileName string) error {
+	opt := &cos.AbortMultipartUploadOptions{}
+	_, err := c.Object.AbortMultipartUpload(context.Background(), fileName, "", opt)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 求最小值函数
+func min(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// 计算文件的 MD5 值
+func getFileMD5(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	hash := md5.New()
+	if _, err := io.Copy(hash, file); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(hash.Sum(nil)), nil
+}
+*/
 
 // MultipartDownload 分片下载文件
 func (t *TxCosStorage) MultipartDownload(w http.ResponseWriter, path string) (err error) {
@@ -125,7 +297,7 @@ func (t *TxCosStorage) UploadImg(r *http.Request, config *UploadImgConfig) (res 
 		return nil, err
 	}
 	//拼接存储目录路径，个人习惯，图片放在img文件夹下
-	objectName := fmt.Sprintf("img/%s/%s%s", getDirName(), t.Result.Hash, t.Result.Ext)
+	objectName := fmt.Sprintf("img/%s/%s%s", GetDateDir(), t.Result.Hash, t.Result.Ext)
 	if err = t.upload(objectName); err != nil {
 		return nil, err
 	}

@@ -30,6 +30,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/download",
 					Handler: DownloadHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/multipartUpload/init",
+					Handler: MultipartUploadInitHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/multipartUpload/send",
+					Handler: MultipartUploadSendHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/multipartUpload/complete",
+					Handler: MultipartUploadCompleteHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

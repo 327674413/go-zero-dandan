@@ -32,6 +32,10 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	{{.returnString}}
 }
 
+func (l *{{.logic}}) apiFail(err error) {{.responseType}} {
+	return resd.ApiFail(l.lang, err)
+}
+
 func (l *{{.logic}}) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {

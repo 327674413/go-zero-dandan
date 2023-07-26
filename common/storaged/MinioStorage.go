@@ -119,7 +119,7 @@ func (t *MinioStorage) UploadImg(r *http.Request, config *UploadImgConfig) (res 
 		return nil, err
 	}
 	//拼接存储目录路径，个人习惯，图片放在img文件夹下
-	objectName := fmt.Sprintf("img/%s/%s%s", getDirName(), t.Result.Hash, t.Result.Ext)
+	objectName := fmt.Sprintf("img/%s/%s%s", GetDateDir(), t.Result.Hash, t.Result.Ext)
 	//上传文件
 	if err = t.upload(objectName); err != nil {
 		return nil, err
