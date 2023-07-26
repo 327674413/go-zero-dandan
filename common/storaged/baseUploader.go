@@ -27,12 +27,16 @@ type UploadResult struct {
 type baseUploader struct {
 	MaxFileSize   int64
 	MaxMemorySize int64
+	FormKey       string
 	Request       *http.Request
 	File          multipart.File
 	FileHeader    *multipart.FileHeader
 	Type          FileType
 	AcceptMimes   []string
+	RejectMimes   []string
 	LocalPath     string
+	DirName       string
+	Bucket        string
 	Result        *UploadResult
 }
 
@@ -40,32 +44,27 @@ type baseUploader struct {
 type defaultConfigStruct struct {
 	MaxFileSize   int64
 	MaxMemorySize int64
-	AcceptMimes   []string
+	AcceptMimes   []string //非分片上传使用
+	RejectMimes   []string //分片上传使用
+	DirName       string   //子目录，如图片默认img，文件file
+	FormKey       string   //接收上传的form的key
 }
 
 // 定义默认配置
 var defaultConfig = map[FileType]defaultConfigStruct{
 	FileTypeImage: {MaxFileSize: 5 << 20, MaxMemorySize: 10 << 20, AcceptMimes: []string{
 		"image/jpeg", "image/jpg", "image/png", "image/gif",
-	}},
+	}, DirName: "img", FormKey: "img"},
 	FileTypeFile: {MaxFileSize: 100 << 20, MaxMemorySize: 200 << 20, AcceptMimes: []string{
 		"image/jpeg", "image/jpg", "image/png", "image/gif",
-	}},
+	}, DirName: "file", FormKey: "file"},
+	FileTypeMultipart: {MaxFileSize: 100 << 20, MaxMemorySize: 200 << 20, RejectMimes: []string{}, DirName: "file", FormKey: "file"},
 }
 
 // processFileGet 根据上传器类型，获取对应文件，目前写死图片img，文件file，视频video等
 func (t *baseUploader) processFileGet() (err error) {
-	switch t.Type {
-	case FileTypeImage:
-		_ = t.Request.ParseMultipartForm(20 << 20) //20M,控制表单数据在内存中的存储大小，超过该值，则会自动将表单数据写入磁盘临时文件
-		t.File, t.FileHeader, err = t.Request.FormFile("img")
-	case FileTypeFile:
-		_ = t.Request.ParseMultipartForm(200 << 20) //200M
-		t.File, t.FileHeader, err = t.Request.FormFile("file")
-	default:
-		err = errors.New("unsupported file in file get")
-	}
-
+	_ = t.Request.ParseMultipartForm(t.MaxMemorySize)
+	t.File, t.FileHeader, err = t.Request.FormFile(t.FormKey)
 	return err
 }
 

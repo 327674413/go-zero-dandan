@@ -46,11 +46,11 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 	if err != nil {
 		return l.apiFail(resd.ErrCtx(l.ctx, err))
 	}
-	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile})
+	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile, Bucket: "netdisk"})
 	if err != nil {
 		return l.apiFail(err)
 	}
-	_, err = uploader.Upload(r, &storaged.UploadConfig{IsMultipart: true, FileSha1: fileSha1, ChunkIndex: req.ChunkIndex})
+	_, err = uploader.MultipartUpload(r, &storaged.UploadConfig{IsMultipart: true, FileSha1: fileSha1, ChunkIndex: req.ChunkIndex})
 	if err != nil {
 		return l.apiFail(err)
 	}

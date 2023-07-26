@@ -12,7 +12,6 @@ import (
 	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/dao"
-	"go-zero-dandan/common/imgd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/storaged"
 	"go-zero-dandan/common/utild"
@@ -70,11 +69,11 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	}
 	//不存在，则上传
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
-		WatermarkConfig: &imgd.WatermarkConfig{
+		/*WatermarkConfig: &imgd.WatermarkConfig{
 			Type:     imgd.WatermarkTypeImg,
 			Path:     "public/water_kkzhw.png",
 			Position: imgd.WatermarkPositionContain,
-		},
+		},*/
 	})
 	if err != nil {
 		return l.apiFail(err)
@@ -92,8 +91,13 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		Path:     res.Path,
 	}
-
+	fmt.Println(3333333)
 	data, err := dao.PrepareData(assetMainData)
+	fmt.Println(44444444, err)
+	if err != nil {
+		return l.apiFail(err)
+	}
+
 	_, err = assetMainModel.Insert(data)
 	if err != nil {
 		return l.apiFail(err)
@@ -102,8 +106,6 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		FileName: res.Name,
 	}, nil
-	return resp, nil
-
 }
 
 func (l *UploadImgLogic) initPlat() (err error) {
@@ -123,5 +125,5 @@ func (l *UploadImgLogic) initPlat() (err error) {
 }
 
 func (l *UploadImgLogic) apiFail(err error) (*types.UploadResp, error) {
-	return nil, resd.ApiFail(l.lang, err)
+	return nil, resd.ApiFail(l.lang, resd.Error(err))
 }

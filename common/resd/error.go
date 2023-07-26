@@ -10,9 +10,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// todo::错误返回还要重构，现在还是有点怪
 // Error 返回错误同时记录日志
 func Error(err error, errorCode ...int) error {
-	logx.WithCallerSkip(1).Error(err)
+	if e, ok := err.(*FailInfo); ok {
+		return e
+	}
+	logx.WithCallerSkip(2).Error(err)
 	if len(errorCode) > 0 {
 		return Fail(err.Error(), errorCode[0])
 	}
@@ -29,6 +33,9 @@ func NewErr(msg string, errorCode ...int) error {
 
 // ErrCtx 返回错误同时记录带上下文的日志
 func ErrCtx(ctx context.Context, err error, errorCode ...int) error {
+	if e, ok := err.(*FailInfo); ok {
+		return e
+	}
 	logx.WithCallerSkip(1).WithContext(ctx).Error(ctx, msg)
 	if len(errorCode) > 0 {
 		return Fail(err.Error(), errorCode[0])

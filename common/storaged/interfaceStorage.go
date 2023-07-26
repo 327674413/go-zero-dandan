@@ -13,17 +13,18 @@ import (
 type FileType string
 
 const (
-	FileTypeImage FileType = "img"
-	FileTypeVideo FileType = "video"
-	FileTypeFile  FileType = "file"
+	FileTypeImage     FileType = "img"       //图片
+	FileTypeVideo     FileType = "video"     //视频
+	FileTypeFile      FileType = "file"      //普通文件
+	FileTypeMultipart FileType = "multipart" //分片文件
 )
 
-// 定义支持的渠道，目前支持local本地、minio、阿里云oss、腾讯云cos
+// 定义支持的渠道
 const (
-	ProviderLocal  string = "local"
-	ProviderMinio  string = "minio"
-	ProviderAliOss string = "aliyun"
-	ProviderTxCos  string = "tencent"
+	ProviderLocal  string = "local"   //本地
+	ProviderMinio  string = "minio"   //minio
+	ProviderAliOss string = "aliyun"  //阿里云
+	ProviderTxCos  string = "tencent" //腾讯云
 )
 
 // InterfaceFactory 文件管理工厂入口
@@ -42,6 +43,8 @@ type InterfaceStorage interface {
 	Upload(r *http.Request, config *UploadConfig) (*UploadResult, error)
 	// MultipartUpload 分片上传
 	MultipartUpload(r *http.Request, config *UploadConfig) (*UploadResult, error)
+	// MultipartMerge 分片合并
+	MultipartMerge(fileSha1 string, saveName string, chunkCount int) error
 	// UploadImg 图片上传专用，提供一些图片处理方法
 	UploadImg(r *http.Request, config *UploadImgConfig) (*UploadResult, error)
 	// Download 简单文件下载
@@ -113,10 +116,14 @@ type StorageSvc struct {
 
 // UploaderConfig 上传文件配置
 type UploaderConfig struct {
-	FileType       FileType
-	MaxFileSize    int64 //限制文件大小
-	MaxMemorySize  int64 //限制内存大小
-	FileMimeAccept []string
+	FileType      FileType //todo::讲道理不需要在初始化阶段就先定义，应该可以去掉
+	MaxFileSize   int64    //限制文件大小
+	MaxMemorySize int64    //限制内存大小
+	AcceptMimes   []string //支持接收的文件类型
+	RejectMimes   []string //拒绝接收的文件类型
+	DirName       string   //子目录名称
+	Bucket        string   //桶
+	FormKey       string   //上传form字段
 }
 
 // DownloaderConfig 下载文件配置，暂无用，预留

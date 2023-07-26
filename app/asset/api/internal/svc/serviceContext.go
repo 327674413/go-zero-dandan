@@ -38,7 +38,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	if c.AssetMode == constd.AssetModeLocal {
 		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider:  storaged.ProviderLocal,
-			LocalPath: c.LocalPath,
+			LocalPath: c.Local.Path,
+			Bucket:    c.Local.Bucket,
 		})
 		if err != nil {
 			panic(err)

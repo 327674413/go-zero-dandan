@@ -10,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 )
 
 // 检查是否实现了接口
@@ -57,12 +58,38 @@ func (t *LocalProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	}
 	if uploaderConfig == nil || uploaderConfig.MaxMemorySize == 0 {
 		uploader.MaxMemorySize = defaultConfig[uploaderConfig.FileType].MaxMemorySize
+	} else {
+		uploader.MaxMemorySize = uploaderConfig.MaxMemorySize
 	}
 	if uploaderConfig == nil || uploaderConfig.MaxFileSize == 0 {
 		uploader.MaxFileSize = defaultConfig[uploaderConfig.FileType].MaxFileSize
+	} else {
+		uploader.MaxFileSize = uploaderConfig.MaxFileSize
 	}
-	if uploaderConfig == nil || len(uploaderConfig.FileMimeAccept) == 0 {
+	if uploaderConfig == nil || len(uploaderConfig.AcceptMimes) == 0 {
 		uploader.AcceptMimes = defaultConfig[uploaderConfig.FileType].AcceptMimes
+	} else {
+		uploader.AcceptMimes = uploaderConfig.AcceptMimes
+	}
+	if uploaderConfig == nil || len(uploaderConfig.RejectMimes) == 0 {
+		uploader.RejectMimes = defaultConfig[uploaderConfig.FileType].RejectMimes
+	} else {
+		uploader.RejectMimes = uploaderConfig.RejectMimes
+	}
+	if uploaderConfig == nil || uploaderConfig.DirName == "" {
+		uploader.DirName = defaultConfig[uploaderConfig.FileType].DirName
+	} else {
+		uploader.DirName = uploaderConfig.DirName
+	}
+	if uploaderConfig == nil || uploaderConfig.FormKey == "" {
+		uploader.FormKey = defaultConfig[uploaderConfig.FileType].FormKey
+	} else {
+		uploader.FormKey = uploaderConfig.FormKey
+	}
+	if uploaderConfig == nil || uploaderConfig.Bucket == "" {
+		uploader.Bucket = t.config.Bucket
+	} else {
+		uploader.Bucket = uploaderConfig.Bucket
 	}
 	uploader.Result = &UploadResult{}
 	return uploader, nil
@@ -81,46 +108,28 @@ func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 	if err = t.processFileGet(); err != nil {
 		return nil, err
 	}
-	dirPath := ""
-	if config != nil && config.IsMultipart {
-		if config.FileSha1 == "" {
-			return nil, resd.NewErr("分片上传必须提供文件sha1", resd.MultipartUploadFileHashRequired)
-		}
-		fname := fmt.Sprintf("%s_%d", config.FileSha1, config.ChunkIndex)
-		//分片上传放到专属目录，并根据哈希值前2位进行分目录，避免文件太多
-		dirPath = filepath.Join(t.config.LocalPath, "multipart", config.FileSha1[:2])
-		//确保目录存在，744通常用于普通文件
-		if err = os.MkdirAll(dirPath, 0744); err != nil {
-			return nil, err
-		}
-		//上传文件
-		if err = t.uploadMultipart(dirPath + "/" + fname); err != nil {
-			return nil, err
-		}
-	} else {
-		// 获取文件大小和校验
-		if err = t.processFileSize(); err != nil {
-			return nil, err
-		}
-		// 获取文件格式和校验
-		if err = t.processFileType(); err != nil {
-			return nil, err
-		}
-		// 获取文件哈希值
-		if err = t.processFileHash(); err != nil {
-			return nil, err
-		}
-		//普通上传直接按年月日目录
-		dirName := GetDateDir()
-		dirPath = filepath.Join(t.config.LocalPath, "file", dirName)
-		//确保目录存在，744通常用于普通文件
-		if err = os.MkdirAll(dirPath, 0744); err != nil {
-			return nil, err
-		}
-		//上传文件
-		if err = t.upload(dirPath); err != nil {
-			return nil, err
-		}
+	// 获取文件大小和校验
+	if err = t.processFileSize(); err != nil {
+		return nil, err
+	}
+	// 获取文件格式和校验
+	if err = t.processFileType(); err != nil {
+		return nil, err
+	}
+	// 获取文件哈希值
+	if err = t.processFileHash(); err != nil {
+		return nil, err
+	}
+	//普通上传直接按年月日目录
+	dirName := GetDateDir()
+	dirPath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, dirName)
+	//确保目录存在，744通常用于普通文件
+	if err = os.MkdirAll(dirPath, 0744); err != nil {
+		return nil, err
+	}
+	//上传文件
+	if err = t.upload(dirPath); err != nil {
+		return nil, err
 	}
 
 	return t.Result, nil
@@ -128,76 +137,68 @@ func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 
 // MultipartUpload 分片上传文件
 func (t *LocalStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
-	/*
-		// 上传的文件路径和文件名
-		filePath := "/path/to/your/file"
-		fileName := filepath.Base(filePath)
-		// 获取已经上传的分片信息
-		uploadID, parts, err := getUploadProgress(fileName)
-		if err != nil {
-			fmt.Println("Failed to get upload progress:", err)
-			return
-		}
-		// 分片上传
-		parts, err = uploadParts(filePath, uploadID, parts)
-		if err != nil {
-			fmt.Println("Failed to upload parts:", err)
-			return
-		}
-
-		// 完成分片上传
-		err = completeMultipartUpload(fileName, uploadID, parts)
-		if err != nil {
-			fmt.Println("Failed to complete multipart upload:", err)
-			return
-		}
-
-		fmt.Println("File uploaded successfully")
-
-		// 删除上传进度信息
-		err = deleteUploadProgress(fileName)
-		if err != nil {
-			fmt.Println("Failed to delete upload progress:", err)
-			return
-		}*/
-	return nil, nil
+	fmt.Println("进来了")
+	if config.FileSha1 == "" {
+		return nil, resd.NewErr("分片上传必须提供文件sha1", resd.MultipartUploadFileHashRequired)
+	}
+	t.Type = FileTypeMultipart //文件上传方法，强制存储类型文件
+	t.Request = r              //传递请求参数，以免下载方法中需要使用
+	// 根据form key获取文件
+	if err = t.processFileGet(); err != nil {
+		return nil, err
+	}
+	// 按照文件哈希 + 分片索引作为文件名
+	fname := fmt.Sprintf("%s_%d", config.FileSha1, config.ChunkIndex)
+	//分片上传放到专属目录，并根据哈希值前2位进行分目录，避免文件太多
+	dirPath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, config.FileSha1[:2])
+	//确保目录存在，744通常用于普通文件
+	if err = os.MkdirAll(dirPath, 0744); err != nil {
+		return nil, err
+	}
+	//上传文件
+	if err = t.uploadMultipart(dirPath + "/" + fname); err != nil {
+		return nil, err
+	}
+	return t.Result, nil
 }
 
-/*
-// 获取已经上传的分片信息
-func getUploadProgress(fileName string) (string, []Part, error) {
-	progressFileName := fileName + ".progress"
-	if _, err := os.Stat(progressFileName); os.IsNotExist(err) {
-		return "", nil, nil
-	}
-
-	progressFile, err := os.Open(progressFileName)
+// MultipartMerge 分片上传合并
+func (t *LocalStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
+	// 合并后的文件路径0
+	mergedFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, GetDateDir(), saveName)
+	err := os.MkdirAll(path.Dir(mergedFilePath), 0744)
 	if err != nil {
-		return "", nil, err
+		return resd.Error(err)
 	}
-	defer progressFile.Close()
 
-	var uploadID string
-	var parts []Part
-	_, err = fmt.Fscanln(progressFile, &uploadID)
+	mergedFile, err := os.Create(mergedFilePath)
 	if err != nil {
-		return "", nil, err
+		return resd.Error(err)
 	}
+	defer mergedFile.Close()
+	// 读取每个分块文件数据并加入到合并文件中
+	for i := 0; i < chunkCount; i++ {
+		chunkFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, fileSha1[:2], fileSha1+"_"+strconv.Itoa(i)) // 分块文件路径
+		chunkData, err := os.ReadFile(chunkFilePath)
+		if err != nil {
+			return resd.Error(err)
 
-	for {
-		var part Part
-		_, err := fmt.Fscanln(progressFile, &part.Number, &part.Offset, &part.Size, &part.Etag)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return "", nil, err
 		}
-		parts = append(parts, part)
-	}
 
-	return uploadID, parts, nil
+		_, err = mergedFile.Write(chunkData)
+		if err != nil {
+			return resd.Error(err)
+		}
+
+		// 删除已合并的分块文件
+		err = os.Remove(chunkFilePath)
+		if err != nil {
+			return resd.Error(err)
+		}
+	}
+	return nil
 }
-*/
+
 // MultipartDownload 分片下载文件
 func (t *LocalStorage) MultipartDownload(w http.ResponseWriter, path string) (err error) {
 
@@ -224,8 +225,8 @@ func (t *LocalStorage) UploadImg(r *http.Request, config *UploadImgConfig) (res 
 	if err = t.processFileHash(); err != nil {
 		return nil, err
 	}
-	dirName := GetDateDir()                                      //获取年-月-日格式的目录ing成
-	dirPath := filepath.Join(t.config.LocalPath, "img", dirName) //拼接存储目录路径，个人习惯，图片放在img文件夹下
+	dirName := GetDateDir()                                                    //获取年-月-日格式的目录ing成
+	dirPath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, dirName) //拼接存储目录路径，个人习惯，图片放在img文件夹下
 	//确保目录存在
 	if err = os.MkdirAll(dirPath, 0755); err != nil {
 		return nil, err

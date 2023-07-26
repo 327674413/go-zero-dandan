@@ -6,8 +6,6 @@ import (
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/common/storaged"
-	"os"
-	"path"
 	"strconv"
 	"strings"
 
@@ -43,7 +41,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return l.apiFail(resd.Error(err))
 	}
-	fileHash, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "fileSha1")
+	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "fileSha1")
 	if err != nil {
 		return l.apiFail(resd.Error(err))
 	}
@@ -69,39 +67,17 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		return l.apiFail(resd.NewErr("文件未完全上传", resd.MultipartUploadFileHashRequired))
 	}
 	// 开始合并分块
-	// 合并后的文件路径
-	mergedFilePath := l.svcCtx.Config.LocalPath + "/file/" + storaged.GetDateDir() + "/" + fileHash + ".png"
-	err = os.MkdirAll(path.Dir(mergedFilePath), 0744)
+	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{
+		FileType: storaged.FileTypeMultipart,
+		Bucket:   "netdisk",
+	})
 	if err != nil {
 		return l.apiFail(resd.Error(err))
 	}
-
-	mergedFile, err := os.Create(mergedFilePath)
+	err = uploader.MultipartMerge(fileSha1, "aaa.png", chunkCount)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return l.apiFail(err)
 	}
-	defer mergedFile.Close()
-	// 读取每个分块文件数据并加入到合并文件中
-	for i := 0; i < chunkCount; i++ {
-		chunkFilePath := l.svcCtx.Config.LocalPath + "/multipart/" + fileHash[:2] + "/" + fileHash + "_" + strconv.Itoa(i) // 分块文件路径
-		chunkData, err := os.ReadFile(chunkFilePath)
-		if err != nil {
-			return l.apiFail(resd.Error(err))
-
-		}
-
-		_, err = mergedFile.Write(chunkData)
-		if err != nil {
-			return l.apiFail(resd.Error(err))
-		}
-
-		// 删除已合并的分块文件
-		err = os.Remove(chunkFilePath)
-		if err != nil {
-			return l.apiFail(resd.Error(err))
-		}
-	}
-
 	return &types.MultipartUploadCompleteRes{
 		AssetId: req.UploadId,
 	}, nil

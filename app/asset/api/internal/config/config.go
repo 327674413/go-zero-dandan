@@ -12,8 +12,11 @@ type Config struct {
 		AccessExpire int64
 	}
 	AssetMode int64
-	LocalPath string
-	TxCos     struct {
+	Local     struct {
+		Path   string
+		Bucket string
+	}
+	TxCos struct {
 		SecretKey        string
 		SecretId         string
 		PublicBucketAddr string

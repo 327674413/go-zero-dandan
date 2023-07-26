@@ -64,12 +64,38 @@ func (t *MinioProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	}
 	if uploaderConfig == nil || uploaderConfig.MaxMemorySize == 0 {
 		uploader.MaxMemorySize = defaultConfig[uploaderConfig.FileType].MaxMemorySize
+	} else {
+		uploader.MaxMemorySize = uploaderConfig.MaxMemorySize
 	}
 	if uploaderConfig == nil || uploaderConfig.MaxFileSize == 0 {
 		uploader.MaxFileSize = defaultConfig[uploaderConfig.FileType].MaxFileSize
+	} else {
+		uploader.MaxFileSize = uploaderConfig.MaxFileSize
 	}
-	if uploaderConfig == nil || len(uploaderConfig.FileMimeAccept) == 0 {
+	if uploaderConfig == nil || len(uploaderConfig.AcceptMimes) == 0 {
 		uploader.AcceptMimes = defaultConfig[uploaderConfig.FileType].AcceptMimes
+	} else {
+		uploader.AcceptMimes = uploaderConfig.AcceptMimes
+	}
+	if uploaderConfig == nil || len(uploaderConfig.RejectMimes) == 0 {
+		uploader.RejectMimes = defaultConfig[uploaderConfig.FileType].RejectMimes
+	} else {
+		uploader.RejectMimes = uploaderConfig.RejectMimes
+	}
+	if uploaderConfig == nil || uploaderConfig.DirName == "" {
+		uploader.DirName = defaultConfig[uploaderConfig.FileType].DirName
+	} else {
+		uploader.DirName = uploaderConfig.DirName
+	}
+	if uploaderConfig == nil || uploaderConfig.FormKey == "" {
+		uploader.FormKey = defaultConfig[uploaderConfig.FileType].FormKey
+	} else {
+		uploader.FormKey = uploaderConfig.FormKey
+	}
+	if uploaderConfig == nil || uploaderConfig.Bucket == "" {
+		uploader.Bucket = t.config.Bucket
+	} else {
+		uploader.Bucket = uploaderConfig.Bucket
 	}
 	uploader.Result = &UploadResult{}
 	return uploader, nil
@@ -90,6 +116,11 @@ func (t *MinioStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 func (t *MinioStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 
 	return nil, nil
+}
+
+// MultipartMerge 分片上传合并
+func (t *MinioStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
+	return nil
 }
 
 // MultipartDownload 分片下载文件
