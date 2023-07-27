@@ -13,7 +13,7 @@ func RegByPhoneHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.RegByPhoneReq
 		if err := httpx.Parse(r, &req); err != nil {
-			httpx.OkJsonCtx(r.Context(), w, resd.Fail(err.Error()))
+			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
 			return
 		}
 

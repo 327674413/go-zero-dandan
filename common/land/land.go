@@ -15,15 +15,21 @@ func init() {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 
-	//目前如果要debug要注释这里
-	bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
-	bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
+	//这里如何结偶未想明白
+	_, err := bundle.LoadMessageFile("../../../common/land/en_us.toml")
+	_, err = bundle.LoadMessageFile("../../../common/land/zh_cn.toml")
+	//bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
+	//bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
 	LangAccept = map[string]bool{
 		"en_us": true,
 		"zh_cn": true,
 	}
 	LangCurr = "zh_cn"
-	fmt.Println("-----------------------i18n Init --------------------")
+	if err == nil {
+		fmt.Println("-----------------------i18n Init --------------------")
+	} else {
+		fmt.Println("-----------------------i18n Load lang fail:", err, " --------------------")
+	}
 
 }
 func Set(lang string) *i18n.Localizer {

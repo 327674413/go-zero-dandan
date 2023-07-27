@@ -101,9 +101,9 @@ func (t *MinioProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	return uploader, nil
 }
 
-// GetHash 获取文件sha1哈希值
-func (t *MinioStorage) GetHash(r *http.Request, formKey string) (string, error) {
-	return t.getHash(r, formKey)
+// GetSha1 获取文件sha1哈希值
+func (t *MinioStorage) GetSha1(r *http.Request, formKey string) (string, error) {
+	return t.getSha1(r, formKey)
 }
 
 // Upload 简单上传文件

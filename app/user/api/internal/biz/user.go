@@ -41,15 +41,13 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 	db, _ := t.svcCtx.SqlConn.RawDB()
 	tx, err := db.BeginTx(t.ctx, nil)
 	if err != nil {
-		logx.Error(err)
-		return nil, resd.FailCode(t.lang, resd.MysqlStartTransErr)
+		return nil, resd.Error(err, resd.MysqlStartTransErr)
 	}
 	unionInfo := &model.UserUnion{}
 	unionInfo.Id = utild.MakeId()
 	_, err = unionModel.TxInsert(tx, t.ctx, unionInfo)
 	if err != nil {
-		logx.Error(err)
-		return nil, resd.FailCode(t.lang, resd.MysqlInsertErr)
+		return nil, resd.Error(err, resd.MysqlInsertErr)
 	}
 	userMain := &model.UserMain{
 		Id:        unionInfo.Id,
@@ -61,13 +59,12 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 	userMainModel := model.NewUserMainModel(t.svcCtx.SqlConn, t.platId)
 	_, err = userMainModel.TxInsert(tx, t.ctx, userMain)
 	if err != nil {
-		logx.Error(err)
-		return nil, resd.FailCode(t.lang, resd.MysqlInsertErr)
+		return nil, resd.Error(err)
 	}
 	err = tx.Commit()
 	if err != nil {
 		logx.Error(err)
-		return nil, resd.FailCode(t.lang, resd.MysqlCommitErr)
+		return nil, resd.Error(err)
 	}
 	res = &types.UserInfoResp{}
 	utild.Copy(&res, userMain)
@@ -87,12 +84,12 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err := t.svcCtx.Redis.Set("verifyCode", phone, code, 300)
 	if err != nil {
-		return "", resd.FailCode(t.lang, resd.RedisSetErr)
+		return "", resd.Error(err, resd.RedisSetErr)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
 	err = t.svcCtx.Redis.Set("verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
-		return "", resd.FailCode(t.lang, resd.RedisSetErr)
+		return "", resd.Error(err, resd.RedisSetErr)
 	}
 	if t.svcCtx.Mode == constd.ModeDev {
 		return code, nil
@@ -111,18 +108,18 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code string) error {
 	targetCode, err := t.svcCtx.Redis.Get("verifyCode", phone)
 	if err != nil {
-		return resd.FailCode(t.lang, resd.RedisGetErr)
+		return resd.Error(err)
 	}
 	if targetCode == "" {
-		return resd.FailCode(t.lang, resd.VerifyCodeExpired)
+		return resd.NewErr("验证码失效", resd.VerifyCodeExpired)
 	}
 	if targetCode != code {
-		return resd.FailCode(t.lang, resd.VerifyCodeWrong)
+		return resd.NewErr("验证码失败", resd.VerifyCodeWrong)
 	}
 	_, err = t.svcCtx.Redis.Del("verifyCode", phone)
 
 	if err != nil {
-		return resd.FailCode(t.lang, resd.VerifyCodeExpired)
+		return resd.NewErr("验证码过期", resd.VerifyCodeExpired)
 	}
 	return nil
 }
@@ -131,7 +128,7 @@ func (t *UserBiz) CreateLoginState(userInfo *model.UserMain) (string, error) {
 	token := utild.Sha256(s)
 	err := t.svcCtx.Redis.SetData("userToken", token, userInfo, t.svcCtx.Config.Conf.LoginTokenExSec)
 	if err != nil {
-		return "", resd.FailCode(t.lang, resd.RedisSetUserLoginStateErr)
+		return "", resd.Error(err)
 	}
 	return token, nil
 }
@@ -148,11 +145,11 @@ func (t *UserBiz) EditUserInfo(editUserInfoReq *pb.EditUserInfoReq) error {
 func (t *UserBiz) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(t.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(t.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(t.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(t.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	t.platId = platClasId
 	t.platClasEm = platClasEm

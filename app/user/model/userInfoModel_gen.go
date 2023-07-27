@@ -40,7 +40,7 @@ type (
 		Limit(id int64) *defaultUserInfoModel
 		Find() (*UserInfo, error)
 		FindById(int64) (*UserInfo, error)
-		CacheFind(redis *redisd.Redisd, id ...int64) (*UserInfo, error)
+		CacheFind(redis *redisd.Redisd) (*UserInfo, error)
 		Page(page int64, rows int64) *defaultUserInfoModel
 		Select() ([]*UserInfo, error)
 		Count() (int64, error)

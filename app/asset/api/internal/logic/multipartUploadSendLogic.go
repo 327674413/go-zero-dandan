@@ -37,14 +37,14 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 	redisFieldKey := fmt.Sprintf("multipart:%d", req.UploadID)
 	hasUpload, err := l.svcCtx.Redis.ExistsCtx(l.ctx, redisFieldKey)
 	if err != nil {
-		return l.apiFail(resd.ErrCtx(l.ctx, err))
+		return l.apiFail(resd.ErrorCtx(l.ctx, err))
 	}
 	if hasUpload == false {
 		return l.apiFail(resd.NewErr("该分片上传id不存在"))
 	}
 	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, redisFieldKey, "fileSha1")
 	if err != nil {
-		return l.apiFail(resd.ErrCtx(l.ctx, err))
+		return l.apiFail(resd.ErrorCtx(l.ctx, err))
 	}
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile, Bucket: "netdisk"})
 	if err != nil {
@@ -61,16 +61,16 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 func (l *MultipartUploadSendLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(l.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(l.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
 }
 func (l *MultipartUploadSendLogic) apiFail(err error) (*types.SuccessResp, error) {
-	return nil, resd.ApiFail(l.lang, err)
+	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
 }

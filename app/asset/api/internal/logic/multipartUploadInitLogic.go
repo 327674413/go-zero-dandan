@@ -60,11 +60,11 @@ func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploa
 func (l *MultipartUploadInitLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(l.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(l.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

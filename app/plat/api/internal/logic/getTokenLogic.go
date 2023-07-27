@@ -17,6 +17,7 @@ type GetTokenLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
+	lang   *i18n.Localizer
 }
 
 func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetTokenLogic {
@@ -28,15 +29,14 @@ func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetToken
 }
 
 func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
-	localizer := l.ctx.Value("lang").(*i18n.Localizer)
 	platModel := model.NewPlatMainModel()
 	platMain, err := platModel.WhereRaw("appid = ? and secret = ?", []any{req.Appid, req.Secret}).Find(l.ctx)
 	if err != nil && err != model.ErrNotFound {
-		return nil, resd.FailCode(localizer, resd.MysqlErr)
+		return l.apiFail(err)
 	}
 	resp = &types.GetTokenResp{}
 	if err == model.ErrNotFound {
-		return nil, resd.FailCode(localizer, resd.PlatInvalid)
+		return l.apiFail(resd.NewErr("无效plat", resd.PlatInvalid))
 	} else {
 		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain)
 		resp.ExpireSec = l.svcCtx.Config.Auth.AccessExpire
@@ -54,4 +54,7 @@ func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, pla
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))
+}
+func (l *GetTokenLogic) apiFail(err error) (*types.GetTokenResp, error) {
+	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
 }

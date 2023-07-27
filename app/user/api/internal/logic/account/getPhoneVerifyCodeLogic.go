@@ -46,12 +46,12 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err = l.svcCtx.Redis.Set("verifyCode", phone, code, 300)
 	if err != nil {
-		return nil, resd.FailCode(localizer, resd.RedisSetErr)
+		return nil, resd.Error(err, resd.RedisSetErr)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
 	err = l.svcCtx.Redis.Set("verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
-		return nil, resd.FailCode(localizer, resd.RedisSetErr)
+		return nil, resd.Error(err, resd.RedisSetErr)
 	}
 	resp = &types.SuccessResp{Msg: resd.Msg(localizer, resd.Ok)}
 	if l.svcCtx.Mode == constd.ModeDev {
@@ -75,11 +75,11 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 func (l *GetPhoneVerifyCodeLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(l.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(l.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

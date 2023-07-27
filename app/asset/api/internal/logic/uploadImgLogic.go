@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/asset/api/internal/svc"
@@ -30,31 +29,29 @@ type UploadImgLogic struct {
 
 func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
 	localizer := ctx.Value("lang").(*i18n.Localizer)
-	l := &UploadImgLogic{
+	return &UploadImgLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		lang:   localizer,
 	}
-	l.initPlat()
-	return l
 }
 
-const maxMemorySize = 20 << 20 // 20 MB
-const maxImgSize = 5 << 20
-
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
+	if err = l.initPlat(); err != nil {
+		return l.apiFail(err)
+	}
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
 	if err != nil {
 		return nil, resd.ApiFail(l.lang, err)
 	}
-	hash, err := uploader.GetHash(r, "img")
+	hash, err := uploader.GetSha1(r, "img")
 	if err != nil {
 		return l.apiFail(err)
 	}
 	//检查是否已经存在
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
-	whereStr := fmt.Sprintf("hash='%s' AND state_em > 1 AND mode_em=%d", hash, l.svcCtx.Config.AssetMode)
+	whereStr := fmt.Sprintf("sha1='%s' AND state_em > 1 AND mode_em=%d", hash, l.svcCtx.Config.AssetMode)
 	find, err := assetMainModel.WhereStr(whereStr).Find()
 	//存在，则秒传
 	if err == nil {
@@ -81,7 +78,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	assetMainData := &model.AssetMain{
 		Id:       utild.MakeId(),
 		StateEm:  constd.AssetStateEmFinish,
-		Hash:     res.Hash,
+		Sha1:     res.Hash,
 		Name:     res.Name,
 		ModeEm:   l.svcCtx.Config.AssetMode,
 		Mime:     res.Mime,
@@ -91,9 +88,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		Path:     res.Path,
 	}
-	fmt.Println(3333333)
 	data, err := dao.PrepareData(assetMainData)
-	fmt.Println(44444444, err)
 	if err != nil {
 		return l.apiFail(err)
 	}
@@ -111,13 +106,11 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 func (l *UploadImgLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		logc.Error(l.ctx, "token not get platClasEm")
-		return resd.FailCode(l.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		logc.Error(l.ctx, "token not get platId")
-		return resd.FailCode(l.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm
@@ -125,5 +118,5 @@ func (l *UploadImgLogic) initPlat() (err error) {
 }
 
 func (l *UploadImgLogic) apiFail(err error) (*types.UploadResp, error) {
-	return nil, resd.ApiFail(l.lang, resd.Error(err))
+	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
 }

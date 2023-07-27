@@ -33,11 +33,11 @@ func NewUserBiz(ctx context.Context, svcCtx *svc.ServiceContext) *UserBiz {
 func (t *UserBiz) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(t.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(t.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(t.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(t.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	t.platId = platClasId
 	t.platClasEm = platClasEm

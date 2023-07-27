@@ -72,7 +72,7 @@ type (
 	AssetMain struct {
 		Id       int64  `db:"id"`
 		StateEm  int64  `db:"state_em"`  // 文件状态
-		Hash     string `db:"hash"`      // 哈希值
+		Sha1     string `db:"sha1"`      // 哈希值
 		Name     string `db:"name"`      // 上传时的原始名称
 		ModeEm   int64  `db:"mode_em"`   // 存储模式枚举
 		Mime     string `db:"mime"`      // 文件类型

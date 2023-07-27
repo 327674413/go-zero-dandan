@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"strings"
 )
 
 func GetFileHashHex(file io.Reader) (string, error) {
@@ -17,30 +18,37 @@ func GetFileHashHex(file io.Reader) (string, error) {
 }
 
 func FormatFileSize(size int64) string {
+	// 文件大小的单位列表
 	units := []string{"B", "KB", "MB", "GB", "TB", "PB", "EB"}
 
 	// 计算文件大小的单位指数
-	exp := int(math.Log(float64(size)) / math.Log(1024))
-	expSize := int64(math.Pow(1024, float64(exp)))
+	exp := int(math.Log(float64(size)) / math.Log(1024)) // 计算文件大小的单位指数
+	expSize := int64(math.Pow(1024, float64(exp)))       // 计算当前单位的大小
 	if expSize == 0 {
-		return fmt.Sprintf("%d", expSize)
+		return fmt.Sprintf("%d", expSize) // 文件大小为 0
 	}
 	// 将文件大小转换为指定单位的大小
-	size = size / expSize
+	floatSize := float64(size) / float64(expSize)
 
 	// 根据文件大小的单位指数决定使用哪个单位
 	if exp > len(units)-1 {
-		exp = len(units) - 1
+		exp = len(units) - 1 // 文件大小超出最大单位，使用最大单位
 	}
-	unit := units[exp]
+	unit := units[exp] // 获取当前单位
 
 	// 根据文件大小的单位指数进行舍入和格式化
+	s := ""
 	switch exp {
 	case 0:
-		return fmt.Sprintf("%d%s", size, unit)
-	case 1, 2:
-		return fmt.Sprintf("%.1f%s", float64(size), unit)
+		s = fmt.Sprintf("%f", floatSize) // 文件大小小于 1KB，直接输出整数部分和单位
+	case 1:
+		s = fmt.Sprintf("%.1f", floatSize) // 文件大小在 1KB 和 1MB 之间，保留一位小数
+	case 2, 3, 4:
+		s = fmt.Sprintf("%.2f", floatSize) // 文件大小在 1MB 和 1TB 之间，保留两位小数
 	default:
-		return fmt.Sprintf("%.2f%s", float64(size), unit)
+		s = fmt.Sprintf("%.3f", floatSize) // 文件大小在 1TB 和最大单位之间，保留三位小数
 	}
+	s = strings.TrimRight(s, "0")
+	s = strings.TrimRight(s, ".")
+	return fmt.Sprintf("%s%s", s, unit)
 }

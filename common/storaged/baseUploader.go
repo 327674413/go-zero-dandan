@@ -71,7 +71,7 @@ func (t *baseUploader) processFileGet() (err error) {
 // processFileSize 校验及获取文件大小信息
 func (t *baseUploader) processFileSize() (err error) {
 	if t.FileHeader.Size > t.MaxFileSize {
-		return resd.Fail("file size limited", resd.UploadFileSizeLimited1, utild.FormatFileSize(t.MaxFileSize))
+		return resd.NewErrWithTemp("file size limited", resd.UploadFileSizeLimited1, utild.FormatFileSize(t.MaxFileSize))
 	}
 	t.Result.SizeByte = t.FileHeader.Size
 	t.Result.Name = t.FileHeader.Filename
@@ -136,7 +136,7 @@ func (t *baseUploader) processImg(config *UploadImgConfig) (err error) {
 	}
 	return imager.Output(t.Result.Path)
 }
-func (t *baseUploader) getHash(r *http.Request, formKey string) (string, error) {
+func (t *baseUploader) getSha1(r *http.Request, formKey string) (string, error) {
 	file, _, err := r.FormFile(formKey)
 	if err != nil {
 		return "", resd.Error(err)
@@ -146,7 +146,7 @@ func (t *baseUploader) getHash(r *http.Request, formKey string) (string, error) 
 	if err != nil {
 		return "", resd.Error(err)
 	}
-	//重新指向文件头，避免上传minio时长度不对
+	//重新指向文件头
 	_, err = file.Seek(0, 0)
 	if err != nil {
 		return "", resd.Error(err)
@@ -167,7 +167,7 @@ func (t *baseUploader) processFileType() (err error) {
 	// 判断文件 MIME 类型是否为图片类型
 	mime := http.DetectContentType(buffer)
 	if _, ok := validImageTypes[mime]; !ok {
-		return resd.Fail("invalid file type", resd.UploadFileTypeLimited1, t.GetLimitedExtStr())
+		return resd.NewErrWithTemp("invalid file type", resd.UploadFileTypeLimited1, t.GetLimitedExtStr())
 	}
 	//重新指向文件头，避免后续操作问题
 	if _, err = t.File.Seek(0, 0); err != nil {

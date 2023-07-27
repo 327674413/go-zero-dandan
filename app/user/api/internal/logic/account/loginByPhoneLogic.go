@@ -65,7 +65,7 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
 	userMain, err := userMainModel.WhereRaw("phone=?", []any{phone}).Find(l.ctx)
 	if err != nil {
-		return nil, resd.FailCode(l.lang, resd.MysqlErr)
+		return nil, resd.Error(err, resd.MysqlErr)
 	}
 	resp = &types.UserInfoResp{}
 	if userMain.Id == 0 {
@@ -105,11 +105,11 @@ func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *
 func (l *LoginByPhoneLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.FailCode(l.lang, resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.FailCode(l.lang, resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

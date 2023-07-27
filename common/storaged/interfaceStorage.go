@@ -51,8 +51,8 @@ type InterfaceStorage interface {
 	Download(w http.ResponseWriter, objectName string, fileName ...string) error
 	// MultipartDownload 分片下载
 	MultipartDownload(w http.ResponseWriter, path string) error
-	// GetHash 预先获取上传文件的hash值（sha1）
-	GetHash(r *http.Request, formKey string) (string, error)
+	// GetSha1 预先获取上传文件的hash值（sha1）
+	GetSha1(r *http.Request, formKey string) (string, error)
 }
 
 // UploadImgResizeType 图片缩放类型
