@@ -5,7 +5,7 @@ option go_package = "./pb";
 
 package user;
 
-message UserInfoRpcResp {
+message UserMainInfo {
   int64 Id = 1;
   int64 UnionId = 2;
   int64 StateEm = 3;
@@ -38,6 +38,6 @@ message SuccResp {
   int64 Code= 1;
 }
 service user {
-  rpc getUserByToken(TokenReq) returns(UserInfoRpcResp);
+  rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
 }

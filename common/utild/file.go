@@ -2,13 +2,33 @@ package utild
 
 import (
 	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math"
+	"os"
 	"strings"
 )
 
-func GetFileHashHex(file io.Reader) (string, error) {
+func GetFileSha1ByOsFile(file *os.File) (string, error) {
+	_, err := file.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+
+	sha1Hash := sha1.New()
+	if _, err := io.Copy(sha1Hash, file); err != nil {
+		return "", err
+	}
+
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(sha1Hash.Sum(nil)), nil
+}
+func GetFileSha1ByIoReader(file io.Reader) (string, error) {
 	hash := sha1.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		return "", err

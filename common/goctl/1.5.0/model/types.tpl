@@ -3,9 +3,8 @@ type (
 		{{.method}}
 		Field(field string) *default{{.upperStartCamelObject}}Model
         Alias(alias string) *default{{.upperStartCamelObject}}Model
-        WhereStr(whereStr string) *default{{.upperStartCamelObject}}Model
+        Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model
         WhereId(id int64) *default{{.upperStartCamelObject}}Model
-        WhereRaw(whereStr string, whereData []any) *default{{.upperStartCamelObject}}Model
         Order(order string) *default{{.upperStartCamelObject}}Model
         Plat(id int64) *default{{.upperStartCamelObject}}Model
         Find() (*{{.upperStartCamelObject}}, error)

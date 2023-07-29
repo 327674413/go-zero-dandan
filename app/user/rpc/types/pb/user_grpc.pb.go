@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
-	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserInfoRpcResp, error)
+	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
 }
 
@@ -39,8 +39,8 @@ func NewUserClient(cc grpc.ClientConnInterface) UserClient {
 	return &userClient{cc}
 }
 
-func (c *userClient) GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserInfoRpcResp, error) {
-	out := new(UserInfoRpcResp)
+func (c *userClient) GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error) {
+	out := new(UserMainInfo)
 	err := c.cc.Invoke(ctx, User_GetUserByToken_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (c *userClient) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
-	GetUserByToken(context.Context, *TokenReq) (*UserInfoRpcResp, error)
+	GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error)
 	EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -70,7 +70,7 @@ type UserServer interface {
 type UnimplementedUserServer struct {
 }
 
-func (UnimplementedUserServer) GetUserByToken(context.Context, *TokenReq) (*UserInfoRpcResp, error) {
+func (UnimplementedUserServer) GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserByToken not implemented")
 }
 func (UnimplementedUserServer) EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error) {

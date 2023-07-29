@@ -12,6 +12,7 @@ type {{.logic}} struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	lang   *i18n.Localizer
+	userMainInfo *user.UserMainInfo
 	platId     int64
     platClasEm int64
 }
@@ -36,6 +37,15 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 
 func (l *{{.logic}}) apiFail(err error) {{.responseType}} {
 	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
+}
+
+func (l *{{.logic}}) initUser() (err error) {
+	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
+	if !ok {
+		return resd.NewErr("未配置userInfo中间件", resd.UserMainInfoErr)
+	}
+	l.userMainInfo = userMainInfo
+	return nil
 }
 
 func (l *{{.logic}}) initPlat() (err error) {

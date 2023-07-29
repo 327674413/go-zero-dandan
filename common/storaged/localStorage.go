@@ -95,15 +95,10 @@ func (t *LocalProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	return uploader, nil
 }
 
-// GetSha1 获取文件sha1哈希值
-func (t *LocalStorage) GetSha1(r *http.Request, formKey string) (string, error) {
-	return t.getSha1(r, formKey)
-}
-
 // Upload 简单上传文件
 func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 	t.Type = FileTypeFile //文件上传方法，强制存储类型文件
-	t.Request = r         //传递请求参数，以免下载方法中需要使用
+	t.Request = r         //传递请求参数，以免下载方法中需要使用(目前好像没啥用了)
 	// 根据form key获取文件
 	if err = t.processFileGet(); err != nil {
 		return nil, err
@@ -137,7 +132,6 @@ func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 
 // MultipartUpload 分片上传文件
 func (t *LocalStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
-	fmt.Println("进来了")
 	if config.FileSha1 == "" {
 		return nil, resd.NewErr("分片上传必须提供文件sha1", resd.MultipartUploadFileHashRequired)
 	}
@@ -163,17 +157,17 @@ func (t *LocalStorage) MultipartUpload(r *http.Request, config *UploadConfig) (r
 }
 
 // MultipartMerge 分片上传合并
-func (t *LocalStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
+func (t *LocalStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) (*UploadResult, error) {
 	// 合并后的文件路径0
-	mergedFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, GetDateDir(), saveName)
+	mergedFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, GetDateDir(), fmt.Sprintf("%s%s", fileSha1, filepath.Ext(saveName)))
 	err := os.MkdirAll(path.Dir(mergedFilePath), 0744)
 	if err != nil {
-		return resd.Error(err)
+		return nil, resd.Error(err)
 	}
 
 	mergedFile, err := os.Create(mergedFilePath)
 	if err != nil {
-		return resd.Error(err)
+		return nil, resd.Error(err)
 	}
 	defer mergedFile.Close()
 	// 读取每个分块文件数据并加入到合并文件中
@@ -181,22 +175,50 @@ func (t *LocalStorage) MultipartMerge(fileSha1 string, saveName string, chunkCou
 		chunkFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, fileSha1[:2], fileSha1+"_"+strconv.Itoa(i)) // 分块文件路径
 		chunkData, err := os.ReadFile(chunkFilePath)
 		if err != nil {
-			return resd.Error(err)
+			return nil, resd.Error(err, resd.MergeFileChunkNotFound)
 
 		}
 
 		_, err = mergedFile.Write(chunkData)
 		if err != nil {
-			return resd.Error(err)
-		}
-
-		// 删除已合并的分块文件
-		err = os.Remove(chunkFilePath)
-		if err != nil {
-			return resd.Error(err)
+			return nil, resd.Error(err)
 		}
 	}
-	return nil
+	mergeSha1, err := utild.GetFileSha1ByOsFile(mergedFile)
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+	if mergeSha1 != fileSha1 {
+		return nil, resd.NewErr("合并后文件sha1不相等")
+	}
+	// 删除已合并的分块文件
+	for i := 0; i < chunkCount; i++ {
+		chunkFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, fileSha1[:2], fileSha1+"_"+strconv.Itoa(i)) // 分块文件路径
+		if err != nil {
+			return nil, resd.Error(err)
+
+		}
+		err = os.Remove(chunkFilePath)
+		if err != nil {
+			return nil, resd.Error(err)
+		}
+	}
+	// 获取文件大小
+	mergedFileInfo, err := os.Stat(mergedFilePath)
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+
+	t.Result.Path = mergedFilePath
+	t.Result.Name = saveName
+	t.Result.Url = "http://" + t.config.Endpoint + "/" + saveName
+	t.Result.SizeByte = mergedFileInfo.Size()
+	t.Result.SizeText = utild.FormatFileSize(t.Result.SizeByte)
+	t.Result.Mime, err = t.GetFileMimeByOsFile(mergedFile)
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+	return t.Result, nil
 }
 
 // MultipartDownload 分片下载文件
@@ -268,8 +290,6 @@ func (t *LocalStorage) Download(w http.ResponseWriter, objectName string, saveFi
 
 // upload 普通上传的具体实现
 func (t *LocalStorage) upload(dirPath string) (err error) {
-	//拼接返回的url地址
-	url := utild.GetRequestDomain(t.Request)
 	//根据雪花id生成新的文件名
 	newFileName := fmt.Sprintf("%s%s", t.Result.Hash, t.Result.Ext)
 	//获取完整的存储路径
@@ -286,7 +306,7 @@ func (t *LocalStorage) upload(dirPath string) (err error) {
 	//将文件内容写入存储
 	io.Copy(tempFile, t.File)
 	t.Result.Path = savePath
-	t.Result.Url = url + "/" + savePath
+	t.Result.Url = "http://" + t.config.Endpoint + "/" + savePath
 	return nil
 }
 

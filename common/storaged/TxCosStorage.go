@@ -107,11 +107,6 @@ func (t *TxCosProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	return uploader, nil
 }
 
-// GetSha1 获取文件sha1哈希值
-func (t *TxCosStorage) GetSha1(r *http.Request, formKey string) (string, error) {
-	return t.getSha1(r, formKey)
-}
-
 // Upload 简单上传文件
 func (t *TxCosStorage) Upload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 
@@ -159,8 +154,8 @@ func (t *TxCosStorage) MultipartUpload(r *http.Request, config *UploadConfig) (r
 }
 
 // MultipartMerge 分片上传合并
-func (t *TxCosStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
-	return nil
+func (t *TxCosStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) (*UploadResult, error) {
+	return nil, nil
 }
 
 /*

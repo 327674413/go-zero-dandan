@@ -17,10 +17,10 @@ type (
 	IdReq           = pb.IdReq
 	SuccResp        = pb.SuccResp
 	TokenReq        = pb.TokenReq
-	UserInfoRpcResp = pb.UserInfoRpcResp
+	UserMainInfo    = pb.UserMainInfo
 
 	User interface {
-		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserInfoRpcResp, error)
+		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
 	}
 
@@ -35,7 +35,7 @@ func NewUser(cli zrpc.Client) User {
 	}
 }
 
-func (m *defaultUser) GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserInfoRpcResp, error) {
+func (m *defaultUser) GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.GetUserByToken(ctx, in, opts...)
 }

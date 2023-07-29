@@ -96,11 +96,6 @@ func (t *AliOssProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfa
 	return uploader, nil
 }
 
-// GetSha1 获取文件sha1哈希值
-func (t *AliOssStorage) GetSha1(r *http.Request, formKey string) (string, error) {
-	return t.getSha1(r, formKey)
-}
-
 // Upload 简单上传文件
 func (t *AliOssStorage) Upload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 
@@ -114,8 +109,8 @@ func (t *AliOssStorage) MultipartUpload(r *http.Request, config *UploadConfig) (
 }
 
 // MultipartMerge 分片上传合并
-func (t *AliOssStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
-	return nil
+func (t *AliOssStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) (*UploadResult, error) {
+	return nil, nil
 }
 
 // MultipartDownload 分片下载文件

@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type Config struct {
@@ -13,8 +14,9 @@ type Config struct {
 	}
 	AssetMode int64
 	Local     struct {
-		Path   string
-		Bucket string
+		Path             string
+		Bucket           string
+		PublicBucketAddr string
 	}
 	TxCos struct {
 		SecretKey        string
@@ -29,11 +31,12 @@ type Config struct {
 		Bucket           string
 	}
 	Minio struct {
-		Address   string
-		AccessKey string
-		SecretKey string
-		Bucket    string
+		PublicBucketAddr string
+		AccessKey        string
+		SecretKey        string
+		Bucket           string
 	}
+	UserRpc   zrpc.RpcClientConf
 	RedisConf redis.RedisConf
 	DB        struct {
 		DataSource string

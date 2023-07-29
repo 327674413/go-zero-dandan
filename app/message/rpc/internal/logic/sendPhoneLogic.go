@@ -8,7 +8,9 @@ import (
 	"go-zero-dandan/app/message/model"
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/common/utild/smsd"
@@ -18,6 +20,9 @@ type SendPhoneLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
+	platId       int64
+	platClasEm   int64
+	userMainInfo *user.UserMainInfo
 }
 
 func NewSendPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendPhoneLogic {
@@ -38,7 +43,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 		return nil, err
 	}
 	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
-	smsTemp, err := messageSmsTempModel.CacheFind(l.ctx, l.svcCtx.Redis, in.TempId)
+	smsTemp, err := messageSmsTempModel.Ctx(l.ctx).WhereId(in.TempId).CacheFind(l.svcCtx.Redis)
 	if err != nil {
 		return nil, resd.RpcEncodeSysErr(err.Error())
 	}
@@ -64,8 +69,11 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 		smsSendData.StateEm = 1
 		resp.Code = 200
 	}
+	data, err := dao.PrepareData(smsSendData)
+	if err != nil {
 
-	_, err = messageSmsSendModel.Insert(l.ctx, smsSendData)
+	}
+	_, err = messageSmsSendModel.Insert(data)
 	return resp, nil
 
 }
@@ -96,7 +104,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	}
 	//获取系统短信配置
 	messageSysConfigModel := model.NewMessageSysConfigModel(l.svcCtx.SqlConn)
-	sysConfig, err := messageSysConfigModel.CacheFind(l.ctx, l.svcCtx.Redis, 1)
+	sysConfig, err := messageSysConfigModel.Ctx(l.ctx).WhereId(1).CacheFind(l.svcCtx.Redis)
 	if err != nil {
 		return resd.RpcEncodeSysErr(err.Error())
 	}
@@ -109,7 +117,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 		todayStr := utild.Date("Y-m-d")
 		todayAt := utild.StrToStamp(todayStr)
 		whereStr := fmt.Sprintf("create_at > %d", todayAt)
-		messageSendList, err := messageSmsSendModel.WhereStr(whereStr).List(l.ctx)
+		messageSendList, err := messageSmsSendModel.Ctx(l.ctx).Where(whereStr).Select()
 		if err != nil {
 			return resd.RpcEncodeTempErr(resd.MysqlErr)
 		}
@@ -124,7 +132,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 		fmt.Println("触发了小时查询")
 		hourAt := utild.GetStamp() - 3600
 		whereStr := fmt.Sprintf("create_at > %d", hourAt)
-		messageSendList, err := messageSmsSendModel.WhereStr(whereStr).List(l.ctx)
+		messageSendList, err := messageSmsSendModel.Ctx(l.ctx).Where(whereStr).Select()
 		if err != nil {
 			return resd.RpcEncodeTempErr(resd.MysqlErr)
 		}
@@ -133,5 +141,26 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 			return resd.RpcEncodeTempErr(resd.ReqGetPhoneVerifyCodeHourLimit)
 		}
 	}
+	return nil
+}
+func (l *SendPhoneLogic) initUser() (err error) {
+	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
+	if !ok {
+		return resd.NewErr("未配置userInfo中间件", resd.UserMainInfoErr)
+	}
+	l.userMainInfo = userMainInfo
+	return nil
+}
+func (l *SendPhoneLogic) initPlat() (err error) {
+	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
+	if platClasEm == 0 {
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+	}
+	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
+	if platClasId == 0 {
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+	}
+	l.platId = platClasId
+	l.platClasEm = platClasEm
 	return nil
 }

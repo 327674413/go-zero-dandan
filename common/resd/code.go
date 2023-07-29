@@ -2,18 +2,19 @@ package resd
 
 // 2成功类，5异常类不适合展示给用户，6校验类，7第三方对接类
 const (
-	Ok                              = 200 //成功，直接完成
-	OkAsync                         = 201 //成功，但属于异步交易
-	Auth                            = 400 //权限异常
-	SysErr                          = 500 //系统异常
-	MysqlErr                        = 501 //mysql异常
+	Ok                              = 200   //成功，直接完成
+	OkAsync                         = 201   //成功，但属于异步交易
+	Auth                            = 400   //权限异常
+	SysErr                          = 500   //系统异常
+	UserMainInfoErr                 = 50001 //系统异常
+	MysqlErr                        = 501   //mysql异常
 	MysqlInsertErr                  = 50101
 	MysqlDeleteErr                  = 50102
 	MysqlUpdateErr                  = 50103
 	MysqlSelectErr                  = 50104
-	MysqlStartTransErr              = 50105
-	MysqlCommitErr                  = 50106
-	MysqlRollbackErr                = 50107
+	MysqlStartTransErr              = 50106
+	MysqlCommitErr                  = 50107
+	MysqlRollbackErr                = 50108
 	RedisErr                        = 502 //redis异常
 	RedisSetErr                     = 50201
 	RedisGetErr                     = 50202
@@ -38,6 +39,7 @@ const (
 	NotSupportFileType              = 60800003
 	UploadImageTypeLimited1         = 60800004
 	UploadFileTypeLimited1          = 60800005
+	MergeFileChunkNotFound          = 60901    // 未找到合并的文件分片
 	AccountOrPassWrong              = 62000001 //登录校验失败
 	VerifyCodeWrong                 = 62000002
 	VerifyCodeExpired               = 62000003

@@ -44,15 +44,13 @@ type InterfaceStorage interface {
 	// MultipartUpload 分片上传
 	MultipartUpload(r *http.Request, config *UploadConfig) (*UploadResult, error)
 	// MultipartMerge 分片合并
-	MultipartMerge(fileSha1 string, saveName string, chunkCount int) error
+	MultipartMerge(fileSha1 string, saveName string, chunkCount int) (*UploadResult, error)
 	// UploadImg 图片上传专用，提供一些图片处理方法
 	UploadImg(r *http.Request, config *UploadImgConfig) (*UploadResult, error)
 	// Download 简单文件下载
 	Download(w http.ResponseWriter, objectName string, fileName ...string) error
 	// MultipartDownload 分片下载
 	MultipartDownload(w http.ResponseWriter, path string) error
-	// GetSha1 预先获取上传文件的hash值（sha1）
-	GetSha1(r *http.Request, formKey string) (string, error)
 }
 
 // UploadImgResizeType 图片缩放类型

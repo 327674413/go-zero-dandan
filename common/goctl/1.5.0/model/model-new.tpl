@@ -1,5 +1,5 @@
 func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId int64) *default{{.upperStartCamelObject}}Model {
-	dao := dao.NewSqlxDao(conn, {{.table}}, defaultSelectFields, true, "delete_at")
+	dao := dao.NewSqlxDao(conn, {{.table}}, default{{.upperStartCamelObject}}Fields, true, "delete_at")
 	dao.Plat(platId)
 	return &default{{.upperStartCamelObject}}Model{
 		conn:       conn,
@@ -20,15 +20,11 @@ func (m *default{{.upperStartCamelObject}}Model) WhereId(id int64) *default{{.up
     return m
 }
 
-func (m *default{{.upperStartCamelObject}}Model) WhereStr(whereStr string) *default{{.upperStartCamelObject}}Model {
-	m.dao.WhereStr(whereStr)
+func (m *default{{.upperStartCamelObject}}Model) Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model {
+	m.dao.Where(whereStr, whereData...)
     return m
 }
 
-func (m *default{{.upperStartCamelObject}}Model) WhereRaw(whereStr string, whereData []any) *default{{.upperStartCamelObject}}Model {
-	m.dao.WhereRaw(whereStr, whereData)
-    return m
-}
 func (m *default{{.upperStartCamelObject}}Model) Alias(alias string) *default{{.upperStartCamelObject}}Model {
 	m.dao.Alias(alias)
     return m

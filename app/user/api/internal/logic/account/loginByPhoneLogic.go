@@ -63,7 +63,7 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 		return nil, err
 	}
 	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
-	userMain, err := userMainModel.WhereRaw("phone=?", []any{phone}).Find(l.ctx)
+	userMain, err := userMainModel.Ctx(l.ctx).Where("phone=?", phone).Find()
 	if err != nil {
 		return nil, resd.Error(err, resd.MysqlErr)
 	}

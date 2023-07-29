@@ -24,17 +24,20 @@ type SuccessResp struct {
 }
 
 type MultipartUploadInitReq struct {
+	FileName string `json:"fileName"`
 	FileSha1 string `json:"fileSha1"`
 	FileSize int64  `json:"fileSize"`
 }
 
 type MultipartUploadInitRes struct {
-	UserId     int64  `json:"userId,string"`
-	FileSha1   string `json:"fileSha1"`
-	FileSize   int64  `json:"fileSize"`
-	UploadId   int64  `json:"uploadId,string"`
-	ChunkSize  int64  `json:"chunkSize"`
-	ChunkCount int64  `json:"chunkCount"`
+	UserId        int64   `json:"userId,string,omitempty"`
+	State         int64   `json:"state"`
+	FileSha1      string  `json:"fileSha1"`
+	FileSize      int64   `json:"fileSize"`
+	UploadId      int64   `json:"uploadId,string,omitempty"`
+	ChunkSize     int64   `json:"chunkSize"`
+	ChunkCount    int64   `json:"chunkCount"`
+	ChunkComplete []int64 `json:"chunkComplete"`
 }
 
 type MultipartUploadSendReq struct {
@@ -48,5 +51,5 @@ type MultipartUploadCompleteReq struct {
 }
 
 type MultipartUploadCompleteRes struct {
-	AssetId int64 `form:"assetId,string"`
+	UploadId int64 `form:"uploadId,string"`
 }

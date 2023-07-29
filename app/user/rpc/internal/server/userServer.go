@@ -22,7 +22,7 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-func (s *UserServer) GetUserByToken(ctx context.Context, in *pb.TokenReq) (*pb.UserInfoRpcResp, error) {
+func (s *UserServer) GetUserByToken(ctx context.Context, in *pb.TokenReq) (*pb.UserMainInfo, error) {
 	l := logic.NewGetUserByTokenLogic(ctx, s.svcCtx)
 	return l.GetUserByToken(in)
 }

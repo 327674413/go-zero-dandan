@@ -5,8 +5,10 @@ import (
 	"go-zero-dandan/common/imgd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
+	"mime"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -83,7 +85,7 @@ func (t *baseUploader) processFileSize() (err error) {
 // processFileHash 获取文件哈希
 func (t *baseUploader) processFileHash() (err error) {
 	//获取文件hash
-	t.Result.Hash, err = utild.GetFileHashHex(t.File)
+	t.Result.Hash, err = utild.GetFileSha1ByIoReader(t.File)
 	if err != nil {
 		return err
 	}
@@ -142,7 +144,7 @@ func (t *baseUploader) getSha1(r *http.Request, formKey string) (string, error) 
 		return "", resd.Error(err)
 	}
 	//获取文件hash
-	hash, err := utild.GetFileHashHex(file)
+	hash, err := utild.GetFileSha1ByIoReader(file)
 	if err != nil {
 		return "", resd.Error(err)
 	}
@@ -181,5 +183,29 @@ func (t *baseUploader) GetLimitedExtStr() string {
 }
 
 func (t *baseUploader) ResizeImg() {
+
+}
+
+func (t *baseUploader) GetFileMimeByOsFile(file *os.File) (string, error) {
+	// GetFileMIMEByFile 通过文件对象获取文件的 MIME 类型
+	// 读取文件的前 512 个字节
+	buffer := make([]byte, 512)
+	_, err := file.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		return "", err
+	}
+	// 获取 MIME 类型
+	mimeType := http.DetectContentType(buffer)
+
+	// 如果 DetectContentType 返回的 MIME 类型为 "application/octet-stream"，则再次尝试使用文件名获取 MIME 类型
+	if mimeType == "application/octet-stream" {
+		mimeType = mime.TypeByExtension(filepath.Ext(file.Name()))
+	}
+
+	return mimeType, nil
 
 }

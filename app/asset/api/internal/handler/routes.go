@@ -25,6 +25,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/upload",
 					Handler: UploadHandler(serverCtx),
 				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithTimeout(30000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.LangMiddleware, serverCtx.UserInfoMiddleware, serverCtx.UserTokenMiddleware},
+			[]rest.Route{
 				{
 					Method:  http.MethodPost,
 					Path:    "/download",
@@ -48,6 +58,6 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
-		rest.WithTimeout(30000*time.Millisecond),
+		rest.WithTimeout(999000*time.Millisecond),
 	)
 }

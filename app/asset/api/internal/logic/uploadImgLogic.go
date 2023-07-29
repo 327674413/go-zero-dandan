@@ -2,10 +2,8 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
@@ -45,26 +43,6 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	if err != nil {
 		return nil, resd.ApiFail(l.lang, err)
 	}
-	hash, err := uploader.GetSha1(r, "img")
-	if err != nil {
-		return l.apiFail(err)
-	}
-	//检查是否已经存在
-	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
-	whereStr := fmt.Sprintf("sha1='%s' AND state_em > 1 AND mode_em=%d", hash, l.svcCtx.Config.AssetMode)
-	find, err := assetMainModel.WhereStr(whereStr).Find()
-	//存在，则秒传
-	if err == nil {
-		return &types.UploadResp{
-			Url:      find.Url,
-			FileName: find.Name,
-		}, nil
-	}
-	//查询报错
-	if err != sqlx.ErrNotFound {
-		return l.apiFail(resd.Error(err))
-	}
-	//不存在，则上传
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
 		/*WatermarkConfig: &imgd.WatermarkConfig{
 			Type:     imgd.WatermarkTypeImg,
@@ -92,7 +70,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	if err != nil {
 		return l.apiFail(err)
 	}
-
+	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	_, err = assetMainModel.Insert(data)
 	if err != nil {
 		return l.apiFail(err)

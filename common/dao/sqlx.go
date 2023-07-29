@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// todo::错误返回全部封装， 用resd来包装，这样错误吗就不用每次写了
 // SqlxDao 自用orm
 type SqlxDao struct {
 	conn            sqlx.SqlConn
@@ -43,6 +44,43 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 		whereData:       make([]any, 0),
 		joinTables:      make([]string, 0),
 	}
+}
+
+// StartTrans 开启事务
+func StartTrans(conn sqlx.SqlConn, ctx ...context.Context) (*sql.Tx, error) {
+	var sqlCtx context.Context
+	if len(ctx) > 0 {
+		sqlCtx = ctx[0]
+	} else {
+		sqlCtx = context.Background()
+	}
+	db, err := conn.RawDB()
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+	tx, err := db.BeginTx(sqlCtx, nil)
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+	return tx, nil
+}
+
+// Commit 提交事务
+func Commit(tx *sql.Tx) error {
+	err := tx.Commit()
+	if err != nil {
+		return resd.Error(err)
+	}
+	return nil
+}
+
+// Rollback 回滚事务
+func Rollback(tx *sql.Tx) error {
+	err := tx.Rollback()
+	if err != nil {
+		return resd.Error(err)
+	}
+	return nil
 }
 
 // Ctx 使用上下文执行sql
@@ -312,7 +350,6 @@ func (t *SqlxDao) prepareInsert(data map[string]string) (string, []any, error) {
 		return "", nil, resd.NewErr("insert data is empty", 4) //这里用了第4层能定位到业务调用代码处，暂不确定是否靠谱
 	}
 	if !hasPlatId && t.platId > 0 {
-		fmt.Println("运行到了")
 		insertFields = insertFields + ",plat_id"
 		insertValues = insertValues + ",?"
 		insertData = append(insertData, t.platId)
@@ -583,18 +620,8 @@ func (t *SqlxDao) WhereId(id int64) *SqlxDao {
 	return t
 }
 
-// WhereStr 在原有where条件上拼接一个 AND (条件)，注意sql注入，若有不可靠参数请使用whereRaw,如果是or也是自行用whereRaw拼接
-func (t *SqlxDao) WhereStr(whereStr string) *SqlxDao {
-	if t.whereSql != "" {
-		t.whereSql += "AND (" + whereStr + ")"
-	} else {
-		t.whereSql = "(" + whereStr + ")"
-	}
-	return t
-}
-
-// WhereRaw 通过参数定义where条件，可防sql注入
-func (t *SqlxDao) WhereRaw(whereStr string, whereData []any) *SqlxDao {
+// Where 在原有where条件上拼接一个 AND (条件)，通过？占位，可防sql注入
+func (t *SqlxDao) Where(whereStr string, whereData ...any) *SqlxDao {
 	if t.whereSql != "" {
 		t.whereSql += "AND (" + whereStr + ")"
 	} else {

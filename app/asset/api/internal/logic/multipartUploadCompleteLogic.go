@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
+	"go-zero-dandan/app/asset/model"
+	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/storaged"
 	"strconv"
 	"strings"
@@ -36,7 +38,12 @@ func NewMultipartUploadCompleteLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.MultipartUploadCompleteReq) (*types.MultipartUploadCompleteRes, error) {
 	//先判断是否存在该上传任务
-	uploadKey := fmt.Sprintf("multipart:%d", req.UploadId)
+	netdiskFileModel := model.NewAssetNetdiskFileModel(l.svcCtx.SqlConn)
+	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(req.UploadId)
+	if err != nil {
+		return nil, resd.Error(err, resd.NotFound)
+	}
+	uploadKey := fmt.Sprintf("multipart:%d", uploadTask.Id)
 	chunkCountStr, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "chunkCount")
 	if err != nil {
 		return l.apiFail(resd.Error(err))
@@ -64,7 +71,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	}
 	// 所需分片数量不等于redis中查出来已经完成分片的数量，返回无法满足合并条件
 	if chunkCount != count {
-		return l.apiFail(resd.NewErr("文件未完全上传", resd.MultipartUploadFileHashRequired))
+		return l.apiFail(resd.NewErr("文件未完全上传", resd.MultipartUploadNotComplete))
 	}
 	// 开始合并分块
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{
@@ -74,12 +81,55 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return l.apiFail(resd.Error(err))
 	}
-	err = uploader.MultipartMerge(fileSha1, "aaa.png", chunkCount)
+	mergeRes, err := uploader.MultipartMerge(fileSha1, uploadTask.Name, chunkCount)
 	if err != nil {
 		return l.apiFail(err)
 	}
+	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
+	tx, err := dao.StartTrans(l.svcCtx.SqlConn)
+	if err != nil {
+		return nil, resd.Error(err)
+	}
+	assetId := utild.MakeId()
+	_, err = assetMainModel.TxInsert(tx, map[string]string{
+		"id":        fmt.Sprintf("%d", assetId),
+		"sha1":      uploadTask.Sha1,
+		"name":      uploadTask.Name,
+		"mode_em":   fmt.Sprintf("%d", uploadTask.ModeEm),
+		"size_num":  fmt.Sprintf("%d", uploadTask.SizeNum),
+		"size_text": utild.FormatFileSize(uploadTask.SizeNum),
+		"state_em":  "2",
+		"mime":      mergeRes.Mime,
+		"ext":       uploadTask.Ext,
+		"url":       mergeRes.Url,
+		"path":      mergeRes.Path,
+	})
+	if err != nil {
+		return l.apiFail(resd.Error(err))
+	}
+	_, err = netdiskFileModel.TxUpdate(tx, map[string]string{
+		"id":        fmt.Sprintf("%d", uploadTask.Id),
+		"state_em":  "2",
+		"mime":      uploadTask.Mime,
+		"ext":       uploadTask.Ext,
+		"url":       mergeRes.Url,
+		"path":      mergeRes.Path,
+		"asset_id":  fmt.Sprintf("%d", assetId),
+		"finish_at": fmt.Sprintf("%d", utild.GetStamp()),
+	})
+	if err != nil {
+		return l.apiFail(resd.Error(err))
+	}
+	_, err = l.svcCtx.Redis.DelCtx(l.ctx, "multipart", fmt.Sprintf("%d", uploadTask.Id))
+	if err != nil {
+		return l.apiFail(resd.Error(err))
+	}
+	err = dao.Commit(tx)
+	if err != nil {
+		return l.apiFail(resd.Error(err))
+	}
 	return &types.MultipartUploadCompleteRes{
-		AssetId: req.UploadId,
+		UploadId: req.UploadId,
 	}, nil
 }
 

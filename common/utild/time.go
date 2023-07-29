@@ -9,6 +9,7 @@ import (
 	"time"
 )
 
+// GetStamp 获取当前时间戳
 func GetStamp() int64 {
 	return time.Now().Unix()
 }

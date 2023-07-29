@@ -47,7 +47,7 @@ func Error(err error, errorCode ...int) error {
 	code := SysErr
 	if e, ok := err.(*danError); ok {
 		e.callerSkip = e.callerSkip + 1
-		skip = e.callerSkip + skip
+		//skip = e.callerSkip + skip //目前打算每层都调用，所以不哦那个增加了
 		code = e.Code
 	}
 	logx.WithCallerSkip(skip).Error(err)
@@ -64,7 +64,7 @@ func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
 	code := SysErr
 	if e, ok := err.(*danError); ok {
 		e.callerSkip = e.callerSkip + 1
-		skip = e.callerSkip + skip
+		//skip = e.callerSkip + skip
 		code = e.Code
 	}
 	logx.WithCallerSkip(skip).WithContext(ctx).Error(ctx, msg)
@@ -78,7 +78,7 @@ func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
 func ErrorWithTemp(err error, errorCode int, temps ...string) error {
 	skip := 1
 	if e, ok := err.(*danError); ok {
-		e.callerSkip = e.callerSkip + 1
+		//e.callerSkip = e.callerSkip + 1
 		skip = e.callerSkip + skip
 	}
 	logx.WithCallerSkip(skip).Error(err)
@@ -89,7 +89,7 @@ func ErrorWithTemp(err error, errorCode int, temps ...string) error {
 func ErrorWithTempCtx(ctx context.Context, err error, errorCode int, temps ...string) error {
 	skip := 1
 	if e, ok := err.(*danError); ok {
-		e.callerSkip = e.callerSkip + 1
+		//e.callerSkip = e.callerSkip + 1
 		skip = e.callerSkip + skip
 	}
 	logx.WithCallerSkip(skip).WithContext(ctx).Error(ctx, msg)

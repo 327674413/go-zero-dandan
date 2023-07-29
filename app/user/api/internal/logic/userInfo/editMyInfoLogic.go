@@ -34,7 +34,10 @@ func NewEditMyInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EditMy
 }
 
 func (l *EditMyInfoLogic) EditMyInfo(req *types.EditMyInfoReq) (resp *types.SuccessResp, err error) {
-	userInfo := l.ctx.Value("userInfoRpc").(*user.UserInfoRpcResp)
+	userInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
+	if !ok {
+		return nil, resd.NewErr("获取用户信息失败")
+	}
 	userBiz := biz.NewUserBiz(l.ctx, l.svcCtx)
 	editUserInfo := &pb.EditUserInfoReq{}
 	utild.Copy(&editUserInfo, req)

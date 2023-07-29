@@ -27,6 +27,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	redisConn := redis.MustNewRedis(c.RedisConf)
 	redisdConn := redisd.NewRedisd(redisConn, "user")
+	//todo:: 这里好像不是指针，会有问题么
 	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc))
 	return &ServiceContext{
 		Config:              c,

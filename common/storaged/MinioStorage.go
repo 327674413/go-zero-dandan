@@ -101,11 +101,6 @@ func (t *MinioProvider) CreateUploader(uploaderConfig *UploaderConfig) (Interfac
 	return uploader, nil
 }
 
-// GetSha1 获取文件sha1哈希值
-func (t *MinioStorage) GetSha1(r *http.Request, formKey string) (string, error) {
-	return t.getSha1(r, formKey)
-}
-
 // Upload 简单上传文件
 func (t *MinioStorage) Upload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 
@@ -119,8 +114,8 @@ func (t *MinioStorage) MultipartUpload(r *http.Request, config *UploadConfig) (r
 }
 
 // MultipartMerge 分片上传合并
-func (t *MinioStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) error {
-	return nil
+func (t *MinioStorage) MultipartMerge(fileSha1 string, saveName string, chunkCount int) (*UploadResult, error) {
+	return nil, nil
 }
 
 // MultipartDownload 分片下载文件

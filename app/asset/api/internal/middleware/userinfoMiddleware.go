@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"go-zero-dandan/app/user/rpc/user"
 	"net/http"
 )
@@ -21,6 +22,7 @@ func (m *UserInfoMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		userInfo := &user.UserMainInfo{}
 		userToken := r.Header.Get("Token")
 		var ctx context.Context
+		fmt.Println(userToken)
 		if userToken == "" {
 			ctx = context.WithValue(r.Context(), "userMainInfo", userInfo)
 		} else {

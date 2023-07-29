@@ -28,6 +28,7 @@ UploadImageSizeLimited1 = "image size is limited to {{.Field1}} or less"
 UploadFileSizeLimited1 = "file size is limited to {{.Field1}} or less"
 UploadImageTypeLimited1 = "image type limited {{.Field1}}"
 UploadFileTypeLimited1 = "file type limited {{.Field1}}"
+MergeFileChunkNotFound = "not found merge files"
 
 MultipartUploadFileHashRequired = "multipart upload file sha1 hash is required"
 MultipartUploadNotComplete = "multipart upload file not all complete"

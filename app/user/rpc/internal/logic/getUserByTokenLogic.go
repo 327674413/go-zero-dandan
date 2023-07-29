@@ -23,8 +23,8 @@ func NewGetUserByTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 	}
 }
 
-func (l *GetUserByTokenLogic) GetUserByToken(in *pb.TokenReq) (*pb.UserInfoRpcResp, error) {
-	userInfo := &pb.UserInfoRpcResp{}
+func (l *GetUserByTokenLogic) GetUserByToken(in *pb.TokenReq) (*pb.UserMainInfo, error) {
+	userInfo := &pb.UserMainInfo{}
 	err := l.svcCtx.Redis.GetData(constd.RedisKeyUserToken, in.Token, userInfo)
 	if err != nil {
 		logx.Error(err)

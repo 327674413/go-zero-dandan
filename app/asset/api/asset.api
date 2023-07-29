@@ -19,16 +19,19 @@ type SuccessResp {
 type (
 	// 初始化分块上传
 	MultipartUploadInitReq {
+		FileName string `json:"fileName"`
 		FileSha1 string `json:"fileSha1"`
 		FileSize int64  `json:"fileSize"`
 	}
 	MultipartUploadInitRes {
-		UserId     int64  `json:"userId,string"`
-		FileSha1   string `json:"fileSha1"`
-		FileSize   int64  `json:"fileSize"`
-		UploadId   int64  `json:"uploadId,string"`
-		ChunkSize  int64  `json:"chunkSize"`
-		ChunkCount int64  `json:"chunkCount"`
+		UserId        int64   `json:"userId,string,omitempty"`
+		State         int64   `json:"state"`
+		FileSha1      string  `json:"fileSha1"`
+		FileSize      int64   `json:"fileSize"`
+		UploadId      int64   `json:"uploadId,string,omitempty"`
+		ChunkSize     int64   `json:"chunkSize"`
+		ChunkCount    int64   `json:"chunkCount"`
+		ChunkComplete []int64 `json:"chunkComplete"`
 	}
 	// 上传分块的文件
 	MultipartUploadSendReq {
@@ -43,7 +46,7 @@ type (
 	}
 	// 上传分块的文件
 	MultipartUploadCompleteRes {
-		AssetId int64 `form:"assetId,string"`
+		UploadId int64 `form:"uploadId,string"`
 	}
 )
 
@@ -57,6 +60,14 @@ service asset-api {
 	post /uploadImg(UploadImgReq) returns (UploadResp)
 	@handler Upload
 	post /upload returns (UploadResp)
+}
+
+@server(
+	timeout: 999s
+	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	jwt: Auth
+)
+service asset-api {
 	@handler Download
 	post /download(DownloadReq)
 	@handler MultipartUploadInit

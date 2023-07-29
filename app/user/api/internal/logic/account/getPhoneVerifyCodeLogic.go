@@ -39,7 +39,6 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 }
 
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
-	localizer := l.ctx.Value("lang").(*i18n.Localizer)
 	phone := *req.Phone
 
 	//生成验证码
@@ -53,7 +52,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 	if err != nil {
 		return nil, resd.Error(err, resd.RedisSetErr)
 	}
-	resp = &types.SuccessResp{Msg: resd.Msg(localizer, resd.Ok)}
+	resp = &types.SuccessResp{Msg: resd.Msg(l.lang, resd.Ok)}
 	if l.svcCtx.Mode == constd.ModeDev {
 		fmt.Println("code：", code)
 		return resp, nil
@@ -64,7 +63,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return nil, resd.RpcFail(localizer, rpcErr)
+			return nil, resd.RpcFail(l.lang, rpcErr)
 		}
 		return resp, nil
 	}
