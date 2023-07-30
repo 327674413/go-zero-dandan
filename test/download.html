@@ -6,7 +6,7 @@
 </head>
 <body>
 <button onclick="downloadFile()">普通文件流式下载</button>
-<p><input type="file" id="fileInput"> <button onclick="multipartUpload()">文件分片上传</button></p>
+<p><input type="file" id="fileInput"> <button onclick="multipartInit()">文件分片上传</button></p>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     function downloadFile() {
@@ -16,7 +16,7 @@
             method: 'POST',
             responseType: 'blob',
             headers: {
-                'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
+                'Authorization': 'Bearer ' + getAppToken(), // 添加 Authorization 头
             }
         };
 
@@ -47,21 +47,65 @@
         });
     }
 
-    function getToken() {
-        // 获取用户的认证令牌
-        // ...
+    function getAppToken() {
         return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM3Mjg4MTEsImlhdCI6MTY4NzY4MDgxMSwicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.b-4nDvO4yKH4lfnHPHEEcQDWP_KI7f_PxvWkLm5Oc2Y';
     }
+    function getUserToken(){
+        return '29199dc5b09db582732732be1173d882822818fb4f618dc876527e9e9a2a2cd0'
+    }
     var uploadId = "69672461846709335"
-    async function multipartUpload(){
+    async function multipartInit (){
         const file = fileInput.files[0];
         // 计算SHA1哈希值
         const sha1 = await sha1File(file);
+        const data = {
+            fileSha1: sha1,
+            fileName: file.name,
+            fileSize: file.size
+        }
+        try {
+            axios({
+                url: 'http://localhost:8803/multipartUpload/init',
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + getAppToken(), // 添加 Authorization 头
+                    'Token': getUserToken()
+                },
+                data: data
+            }).then(res => {
+                if (res.data.data.state == 2){
+                    alet('秒传成功')
+                } else if (res.data.data.chunkComplete.length < res.data.data.chunkCount){
+                    multipartUpload(res.data.data.uploadId,res.data.data.fileSha1,res.data.data.chunkCount,res.data.data.chunkComplete,file)
+                } else {
+                    multipartFinish(res.data.data.uploadId,res.data.data.fileSha1)
+                }
+            }).catch(err=>{
+                console.log(err)
+            })
+        } catch (err){
+            console.log('初始化失败',err)
+        }
+
+    }
+    async function multipartUpload(uploadId,sha1,chunkNum,chunkComplete,file){
         // 分片上传文件
-        const chunkNum = 5
         var succNum = 0
         const chunkSize = Math.ceil(file.size / chunkNum);
+        let chunkCompleteObj = {}
+        console.log(11,chunkComplete)
+        chunkComplete.forEach(item=>{
+            chunkCompleteObj[item] = 1
+        })
         for (let i = 0; i < chunkNum; i++) {
+            console.log(222)
+            if (chunkCompleteObj[i]) {
+                if (succNum >= chunkNum) {
+                    return multipartFinish(uploadId,sha1)
+                }
+                continue
+            }
+            console.log(333)
             const start = i * chunkSize;
             const end = Math.min(start + chunkSize, file.size);
             const chunk = file.slice(start, end);
@@ -73,22 +117,27 @@
             formData.append('chunkIndex', i);
             formData.append('uploadId', uploadId);
             // 发送分片数据到后端
-            await axios({
-                url: 'http://localhost:8803/multipartUpload/send',
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
-                },
-                data:formData
-            }).then(res=>{
+            try {
+                var res = await axios({
+                    url: 'http://localhost:8803/multipartUpload/send',
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + getAppToken(), // 添加 Authorization 头
+                        'Token':getUserToken()
+                    },
+                    data:formData
+                })
                 if (res.data.result) {
                     succNum++;
                     if (succNum >= chunkNum) multipartFinish(uploadId,sha1)
+                } else {
+                    alert("上传失败：" + res.data.msg);
+                    break
                 }
-
-            }).catch(err=>{
-
-            })
+            } catch (err) {
+                alert("上传失败：" + err.message);
+                break; // 退出循环
+            }
         }
     }
     function multipartFinish(uploadId,sha1){
@@ -96,7 +145,8 @@
             url: 'http://localhost:8803/multipartUpload/complete',
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + getToken() // 添加 Authorization 头
+                'Authorization': 'Bearer ' + getAppToken(), // 添加 Authorization 头
+                'Token': getUserToken(),
             },
             data: {
                 fileSha1: sha1,
