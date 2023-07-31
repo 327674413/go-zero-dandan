@@ -1,0 +1,18 @@
+Name: im-server
+Host: 0.0.0.0
+Port: 8799
+Mode: dev
+
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+Log:
+  ServiceName: im-server
+  Level: info
+
