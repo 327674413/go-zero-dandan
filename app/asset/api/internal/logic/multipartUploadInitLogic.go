@@ -49,17 +49,17 @@ const (
 
 func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
 	if err = l.initPlat(); err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if err = l.initUser(); err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	netdiskModel := model.NewAssetNetdiskFileModel(l.svcCtx.SqlConn, l.platId)
 	whereStr := fmt.Sprintf("sha1 = ? AND mode_em=%d", l.svcCtx.Config.AssetMode)
 	findFile, err := netdiskModel.Where(whereStr, req.FileSha1).Find()
 	//查询报错
 	if err != nil && err != sqlx.ErrNotFound {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//有找到历史任务，并且状态为未完成
 	if err != sqlx.ErrNotFound && findFile.StateEm < constd.AssetStateEmFinish {
@@ -83,7 +83,7 @@ func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploa
 		fileData["asset_id"] = fmt.Sprintf("%d", findAsset.Id)
 		_, err = netdiskModel.Insert(fileData)
 		if err != nil {
-			return l.apiFail(resd.Error(err))
+			return nil, resd.ErrorCtx(l.ctx, err)
 		}
 		return &types.MultipartUploadInitRes{State: uploadInitStateFinish}, nil
 	}
@@ -94,7 +94,7 @@ func (l *MultipartUploadInitLogic) getTask(findFile *model.AssetNetdiskFile, req
 	assetBiz := biz.NewAssetBiz(l.ctx, l.svcCtx, l.userMainInfo)
 	total, completeChunks, err := assetBiz.GetUploading(findFile.Id)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if total == 0 {
 		return l.addTask(req)
@@ -126,11 +126,11 @@ func (l *MultipartUploadInitLogic) addTask(req *types.MultipartUploadInitReq) (r
 	}
 	addData, err := dao.PrepareDataByTarget(fileInfo, "id,name,originalName,modeEm,sizeNum,sizeText,ext,userId,sha1")
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	_, err = netdiskModel.Insert(addData)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	resp = &types.MultipartUploadInitRes{
 		UserId:        l.userMainInfo.Id,
@@ -145,13 +145,13 @@ func (l *MultipartUploadInitLogic) addTask(req *types.MultipartUploadInitReq) (r
 	redisFieldKey := fmt.Sprintf("multipart:%d", resp.UploadId)
 	// 将分块的信息写入redis
 	if err = l.svcCtx.Redis.HsetCtx(l.ctx, redisFieldKey, "fileSha1", resp.FileSha1); err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if err = l.svcCtx.Redis.HsetCtx(l.ctx, redisFieldKey, "fileSize", fmt.Sprintf("%d", resp.FileSize)); err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if err = l.svcCtx.Redis.HsetCtx(l.ctx, redisFieldKey, "chunkCount", fmt.Sprintf("%d", resp.ChunkCount)); err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return resp, nil
 }
@@ -176,7 +176,4 @@ func (l *MultipartUploadInitLogic) initPlat() (err error) {
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
-}
-func (l *MultipartUploadInitLogic) apiFail(err error) (*types.MultipartUploadInitRes, error) {
-	return nil, resd.ApiFail(l.lang, err)
 }

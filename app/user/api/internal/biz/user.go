@@ -109,7 +109,7 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return "", resd.RpcFail(t.lang, rpcErr)
+			return "", resd.RpcErrDecode(rpcErr)
 		}
 		return code, nil
 	}
@@ -120,7 +120,7 @@ func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code stri
 		return resd.Error(err)
 	}
 	if targetCode == "" {
-		return resd.NewErr("验证码失效", resd.VerifyCodeExpired)
+		return resd.NewErr("redis中无验证码", resd.VerifyCodeExpired)
 	}
 	if targetCode != code {
 		return resd.NewErr("验证码失败", resd.VerifyCodeWrong)
@@ -143,10 +143,9 @@ func (t *UserBiz) CreateLoginState(userInfo *model.UserMain) (string, error) {
 }
 func (t *UserBiz) EditUserInfo(editUserInfoReq *pb.EditUserInfoReq) error {
 	userRpc := t.svcCtx.UserRpc
-	fmt.Println("nickname:", editUserInfoReq.Nickname, "avatar:", editUserInfoReq.Avatar, "email:", editUserInfoReq.Email, "sexEm:", editUserInfoReq.SexEm)
 	_, err := userRpc.EditUserInfo(t.ctx, editUserInfoReq)
 	if err != nil {
-		return resd.RpcFail(t.lang, err)
+		return resd.ErrorCtx(t.ctx, err)
 	}
 	return nil
 }

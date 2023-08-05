@@ -18,7 +18,7 @@ import (
 var (
 	platMainFieldNames          = builder.RawFieldNames(&PlatMain{})
 	platMainRows                = strings.Join(platMainFieldNames, ",")
-	defaultSelectFields         = strings.Join(platMainFieldNames, ",")
+	defaultPlatMainFields       = strings.Join(platMainFieldNames, ",")
 	platMainRowsExpectAutoSet   = strings.Join(stringx.Remove(platMainFieldNames, "`delete_at`"), ",")
 	platMainRowsWithPlaceHolder = strings.Join(stringx.Remove(platMainFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
@@ -84,7 +84,7 @@ type (
 )
 
 func newPlatMainModel(conn sqlx.SqlConn, platId int64) *defaultPlatMainModel {
-	dao := dao.NewSqlxDao(conn, "`plat_main`", defaultSelectFields, true, "delete_at")
+	dao := dao.NewSqlxDao(conn, "`plat_main`", defaultPlatMainFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultPlatMainModel{
 		conn:            conn,

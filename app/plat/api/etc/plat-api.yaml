@@ -1,4 +1,4 @@
-Name: user-api
+Name: plat-api
 Host: 0.0.0.0
 Port: 8800
 DB:
@@ -7,3 +7,11 @@ Env: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 604800
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9800
+  Path: /metrics
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf

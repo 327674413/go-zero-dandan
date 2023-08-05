@@ -45,10 +45,10 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
 	smsTemp, err := messageSmsTempModel.Ctx(l.ctx).WhereId(in.TempId).CacheFind(l.svcCtx.Redis)
 	if err != nil {
-		return nil, resd.RpcEncodeSysErr(err.Error())
+		l.rpcFail(err)
 	}
 	if smsTemp.Id == 0 {
-		return nil, resd.RpcEncodeTempErr(resd.ConfigNotInit, []string{"SmsTemp"})
+		return nil, resd.NewErrWithTempCtx(l.ctx, "未配置短信模版", resd.ConfigNotInit1, "SmsTemp")
 	}
 	content, _ := json.Marshal(in.TempData)
 	smsSendData := &model.MessageSmsSend{
@@ -62,9 +62,9 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
 	resp := &pb.SuccResp{}
 	if err != nil {
-		err = resd.RpcEncodeMsgErr(err.Error(), resd.TrdSmsSendErr)
-		smsSendData.StateEm = -1
 		smsSendData.Err = err.Error()
+		smsSendData.StateEm = -1
+
 	} else {
 		smsSendData.StateEm = 1
 		resp.Code = 200
@@ -81,15 +81,15 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 func (l *SendPhoneLogic) checkReq(in *pb.SendPhoneReq) error {
 	//校验模版id
 	if in.TempId == 0 {
-		return resd.RpcEncodeTempErr(resd.ReqFieldRequired, []string{"TempId"})
+		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired, "TempId")
 	}
 	//校验手机号
 	if utild.CheckIsPhone(in.Phone) == false {
-		return resd.RpcEncodeTempErr(resd.ReqPhoneErr)
+		return resd.NewErrCtx(l.ctx, "手机号格式错误", resd.ReqPhoneErr)
 	}
 	//校验区号
 	if in.PhoneArea != "" && in.PhoneArea != constd.PhoneAreaEmChina {
-		return resd.RpcEncodeTempErr(resd.NotSupportPhoneArea)
+		return resd.NewErrCtx(l.ctx, "不支持的手机区号", resd.NotSupportPhoneArea)
 	}
 	return nil
 }
@@ -97,19 +97,19 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	//校验是否获取太频繁
 	preGet, err := l.svcCtx.Redis.Get("verifyCodeGetAt", phone)
 	if err != nil {
-		return resd.RpcEncodeTempErr(resd.RedisGetErr)
+		return resd.ErrorCtx(l.ctx, err, resd.RedisGetErr)
 	}
 	if preGet != "" {
-		return resd.RpcEncodeTempErr(resd.ReqGetPhoneVerifyCodeWait)
+		return resd.NewErrCtx(l.ctx, "获取验证码太频繁", resd.ReqGetPhoneVerifyCodeWait)
 	}
 	//获取系统短信配置
 	messageSysConfigModel := model.NewMessageSysConfigModel(l.svcCtx.SqlConn)
 	sysConfig, err := messageSysConfigModel.Ctx(l.ctx).WhereId(1).CacheFind(l.svcCtx.Redis)
 	if err != nil {
-		return resd.RpcEncodeSysErr(err.Error())
+		return resd.ErrorCtx(l.ctx, err)
 	}
 	if sysConfig.Id == 0 {
-		return resd.RpcEncodeTempErr(resd.ConfigNotInit, []string{"MessageSysConfig"})
+		return resd.NewErrWithTempCtx(l.ctx, "参数错误", resd.ConfigNotInit1, "MessageSysConfig")
 	}
 
 	//校验每日上限
@@ -119,29 +119,31 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 		whereStr := fmt.Sprintf("create_at > %d", todayAt)
 		messageSendList, err := messageSmsSendModel.Ctx(l.ctx).Where(whereStr).Select()
 		if err != nil {
-			return resd.RpcEncodeTempErr(resd.MysqlErr)
+			return resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr)
 		}
 		dayNum := int64(len(messageSendList))
 		if dayNum >= sysConfig.SmsLimitDayNum {
-			return resd.RpcEncodeTempErr(resd.ReqGetPhoneVerifyCodeDayLimit)
+			return resd.NewErrCtx(l.ctx, "短信获取超日上限", resd.ReqGetPhoneVerifyCodeDayLimit)
 		}
 
 	}
 	//校验小时上限
 	if sysConfig.SmsLimitHourNum > 0 {
-		fmt.Println("触发了小时查询")
 		hourAt := utild.GetStamp() - 3600
 		whereStr := fmt.Sprintf("create_at > %d", hourAt)
 		messageSendList, err := messageSmsSendModel.Ctx(l.ctx).Where(whereStr).Select()
 		if err != nil {
-			return resd.RpcEncodeTempErr(resd.MysqlErr)
+			return resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr)
 		}
 		dayNum := int64(len(messageSendList))
 		if dayNum >= sysConfig.SmsLimitHourNum {
-			return resd.RpcEncodeTempErr(resd.ReqGetPhoneVerifyCodeHourLimit)
+			return resd.NewErrCtx(l.ctx, "短信获取超小时上限", resd.ReqGetPhoneVerifyCodeHourLimit)
 		}
 	}
 	return nil
+}
+func (l *SendPhoneLogic) rpcFail(err error) (*pb.SuccResp, error) {
+	return nil, resd.RpcErrEncode(err)
 }
 func (l *SendPhoneLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)

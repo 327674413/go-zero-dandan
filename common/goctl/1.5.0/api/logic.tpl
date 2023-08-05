@@ -2,7 +2,6 @@ package {{.pkgName}}
 
 import (
 	{{.imports}}
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"go-zero-dandan/common/resd"
     "go-zero-dandan/common/utild"
 )
@@ -11,38 +10,31 @@ type {{.logic}} struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
-	lang   *i18n.Localizer
 	userMainInfo *user.UserMainInfo
 	platId     int64
     platClasEm int64
 }
 
 func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} {
-    localizer := ctx.Value("lang").(*i18n.Localizer)
 	return &{{.logic}}{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		lang:   localizer,
 	}
 }
 
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	if err = l.initPlat(); err != nil {
-    	return l.apiFail(err)
+    	return resd.ErrorCtx(l.ctx,err)
     }
 
 	{{.returnString}}
 }
 
-func (l *{{.logic}}) apiFail(err error) {{.responseType}} {
-	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
-}
-
 func (l *{{.logic}}) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErr("未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx,"未配置userInfo中间件", resd.UserMainInfoErr)
 	}
 	l.userMainInfo = userMainInfo
 	return nil

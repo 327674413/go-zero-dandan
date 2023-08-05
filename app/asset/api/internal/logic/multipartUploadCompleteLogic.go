@@ -46,16 +46,16 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	uploadKey := fmt.Sprintf("multipart:%d", uploadTask.Id)
 	chunkCountStr, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "chunkCount")
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "fileSha1")
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	// 通过 uploadId 查询 Redis 并判断是否所有分块上传完成
 	uploadInfoMap, err := l.svcCtx.Redis.HgetallCtx(l.ctx, uploadKey)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	count := 0
 	// 遍历map
@@ -67,11 +67,11 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	}
 	chunkCount, err := strconv.Atoi(chunkCountStr)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	// 所需分片数量不等于redis中查出来已经完成分片的数量，返回无法满足合并条件
 	if chunkCount != count {
-		return l.apiFail(resd.NewErr("文件未完全上传", resd.MultipartUploadNotComplete))
+		return nil, resd.NewErrCtx(l.ctx, "文件未完全上传", resd.MultipartUploadNotComplete)
 	}
 	// 开始合并分块
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{
@@ -79,11 +79,11 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		Bucket:   "netdisk",
 	})
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	mergeRes, err := uploader.MultipartMerge(fileSha1, uploadTask.Name, chunkCount)
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	tx, err := dao.StartTrans(l.svcCtx.SqlConn)
@@ -105,7 +105,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		"path":      mergeRes.Path,
 	})
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	_, err = netdiskFileModel.TxUpdate(tx, map[string]string{
 		"id":        fmt.Sprintf("%d", uploadTask.Id),
@@ -118,15 +118,15 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		"finish_at": fmt.Sprintf("%d", utild.GetStamp()),
 	})
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	_, err = l.svcCtx.Redis.DelCtx(l.ctx, "multipart", fmt.Sprintf("%d", uploadTask.Id))
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	err = dao.Commit(tx)
 	if err != nil {
-		return l.apiFail(resd.Error(err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.MultipartUploadCompleteRes{
 		UploadId: req.UploadId,
@@ -145,7 +145,4 @@ func (l *MultipartUploadCompleteLogic) initPlat() (err error) {
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
-}
-func (l *MultipartUploadCompleteLogic) apiFail(err error) (*types.MultipartUploadCompleteRes, error) {
-	return nil, resd.ApiFail(l.lang, err)
 }

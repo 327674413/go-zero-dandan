@@ -50,6 +50,3 @@ func (l *UploadLogic) initPlat() (err error) {
 	l.platClasEm = platClasEm
 	return nil
 }
-func (l *UploadLogic) apiFail(err error) (*types.UploadResp, error) {
-	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
-}

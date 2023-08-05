@@ -5,6 +5,8 @@ const (
 	Ok                              = 200   //成功，直接完成
 	OkAsync                         = 201   //成功，但属于异步交易
 	Auth                            = 400   //权限异常
+	AuthPlatErr                     = 40101 // 无效应用
+	AuthUserNotLogin                = 40201 // 用户未登录
 	SysErr                          = 500   //系统异常
 	UserMainInfoErr                 = 50001 //系统异常
 	MysqlErr                        = 501   //mysql异常
@@ -24,10 +26,11 @@ const (
 	RedisSetVerifyCodeIntervalErr   = 502010002
 	RedisSetUserLoginStateErr       = 502010003
 	RedisGetUserTokenErr            = 502020001
+	RpcResDecodeErr                 = 510
 	ReqKeyRequired                  = 600 //未提供主键
 	ReqFieldRequired                = 601 //未提供比必填字段
 	ReqParamErr                     = 602 //请求参数不正确
-	ConfigNotInit                   = 603 //未配置参数
+	ConfigNotInit1                  = 603 //未配置参数
 	PlatInvalid                     = 604 //无效应用
 	PlatIdErr                       = 60400001
 	PlatClasErr                     = 60400002

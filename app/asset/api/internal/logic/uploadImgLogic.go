@@ -26,22 +26,20 @@ type UploadImgLogic struct {
 }
 
 func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
 	return &UploadImgLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		lang:   localizer,
 	}
 }
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
 	if err = l.initPlat(); err != nil {
-		return l.apiFail(err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
 	if err != nil {
-		return nil, resd.ApiFail(l.lang, err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
 		/*WatermarkConfig: &imgd.WatermarkConfig{
@@ -51,7 +49,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		},*/
 	})
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	assetMainData := &model.AssetMain{
 		Id:       utild.MakeId(),
@@ -68,12 +66,12 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	}
 	data, err := dao.PrepareData(assetMainData)
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.Error(err)
 	}
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	_, err = assetMainModel.Insert(data)
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.Error(err)
 	}
 	return &types.UploadResp{
 		Url:      res.Url,
@@ -93,8 +91,4 @@ func (l *UploadImgLogic) initPlat() (err error) {
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
-}
-
-func (l *UploadImgLogic) apiFail(err error) (*types.UploadResp, error) {
-	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
 }

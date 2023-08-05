@@ -52,7 +52,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 	if err != nil {
 		return nil, resd.Error(err, resd.RedisSetErr)
 	}
-	resp = &types.SuccessResp{Msg: resd.Msg(l.lang, resd.Ok)}
+	resp = &types.SuccessResp{Msg: ""}
 	if l.svcCtx.Mode == constd.ModeDev {
 		fmt.Println("code：", code)
 		return resp, nil
@@ -63,7 +63,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return nil, resd.RpcFail(l.lang, rpcErr)
+			return nil, resd.RpcErrDecode(rpcErr)
 		}
 		return resp, nil
 	}

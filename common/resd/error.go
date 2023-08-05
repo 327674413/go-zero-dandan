@@ -2,13 +2,12 @@ package resd
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"strings"
 )
 
 type danError struct {
@@ -60,6 +59,14 @@ func Error(err error, errorCode ...int) error {
 
 // ErrorCtx 对error进行封装返回,带上下文
 func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
+	if r, ok := status.FromError(err); ok { // grpc err错误
+		fmt.Println("1", r.Code())
+		fmt.Println("2", r.Message())
+		fmt.Println("3", r.Err())
+		fmt.Println("4", r.String())
+	} else {
+		fmt.Println("不是rpc")
+	}
 	skip := 1
 	code := SysErr
 	if e, ok := err.(*danError); ok {
@@ -67,7 +74,7 @@ func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
 		//skip = e.callerSkip + skip
 		code = e.Code
 	}
-	logx.WithCallerSkip(skip).WithContext(ctx).Error(ctx, msg)
+	logx.WithCallerSkip(skip).WithContext(ctx).Error(err)
 	if len(errorCode) > 0 {
 		code = errorCode[0]
 	}
@@ -92,7 +99,7 @@ func ErrorWithTempCtx(ctx context.Context, err error, errorCode int, temps ...st
 		//e.callerSkip = e.callerSkip + 1
 		skip = e.callerSkip + skip
 	}
-	logx.WithCallerSkip(skip).WithContext(ctx).Error(ctx, msg)
+	logx.WithCallerSkip(skip).WithContext(ctx).Error(err)
 	return newDanErr(err.Error(), errorCode, temps...)
 }
 
@@ -126,51 +133,50 @@ func NewErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...
 	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
 	return newDanErr(msg, errorCode, temps...)
 }
-func RpcDecodeErr(rpcError error) (int, string) {
+
+// RpcErrDecode 解码
+func RpcErrDecode(rpcError error) error {
 	if r, ok := status.FromError(rpcError); ok { // grpc err错误
-		return int(r.Code()), r.Message()
-	} else {
-		return -1, "rpc err decode error"
-	}
-}
-func RpcEncodeMsgErr(text string, errCode ...int) error {
-	code := 400
-	if len(errCode) > 0 {
-		code = errCode[0]
-	}
-	return status.Error(codes.Code(code), "msg:"+text)
-}
-func RpcEncodeSysErr(text string, errCode ...int) error {
-	code := 500
-	if len(errCode) > 0 {
-		code = errCode[0]
-	}
-	return status.Error(codes.Code(code), "msg:"+text)
-}
-func RpcEncodeTempErr(errCode int, tempData ...[]string) error {
-	var tempD []string
-	if len(tempData) > 0 {
-		tempD = tempData[0]
-	}
-	text, _ := json.Marshal(tempD)
-	return status.Error(codes.Code(errCode), "tmp:"+string(text))
-}
-func RpcFail(localize *i18n.Localizer, rpcError error) error {
-	errCode, text := RpcDecodeErr(rpcError)
-	msgType := text[:4]
-	if msgType == "msg:" {
-		return newDanErr(text[4:], errCode)
-	} else if msgType == "tmp:" {
-		var tempData []string
-		err := json.Unmarshal([]byte(text[4:]), &tempData)
-		if err == nil {
-			return ApiFail(localize, rpcError)
+		res := strings.Split(r.Message(), " ,,,,,, ")
+		if len(res) == 0 {
+			return NewErr("rpc错误内容为空", RpcResDecodeErr)
 		}
-
+		msg := res[0]
+		res = res[1:]
+		return NewErrWithTemp(msg, int(r.Code()), res...)
+	} else {
+		return NewErr("rpc错误解码失败", RpcResDecodeErr)
 	}
-	return newDanErr(text, errCode)
 }
 
+// RpcErrEncode rpc结果报错时用此方法返回，配合RpcError解析，新错误 以及 多模版都通过新建NewErr后再传入
+func RpcErrEncode(err error) error {
+	if err == nil {
+		return nil
+	}
+	code := SysErr
+	res := make([]string, 0)
+	if e, ok := err.(*danError); ok {
+		e.callerSkip = e.callerSkip + 1
+		//skip = e.callerSkip + skip //目前打算每层都调用，所以不哦那个增加了
+		code = e.Code
+		res = append(res, e.Msg)
+		res = append(res, e.temps...)
+	} else {
+		res = append(res, err.Error())
+	}
+	return status.Error(codes.Code(code), strings.Join(res, " ,,,,,, "))
+}
+
+func AssertErr(failErr error) (*danError, bool) {
+	if err, ok := failErr.(*danError); ok {
+		return err, ok
+	} else {
+		return nil, false
+	}
+}
+
+/*
 // ApiFail 按错误内容返回错误信息
 func ApiFail(localize *i18n.Localizer, failErr error) error {
 	if err, ok := failErr.(*danError); ok {
@@ -181,3 +187,4 @@ func ApiFail(localize *i18n.Localizer, failErr error) error {
 	}
 
 }
+*/

@@ -36,7 +36,7 @@ func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, 
 	assetModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	asset, err := assetModel.FindById(req.Id)
 	if err != nil {
-		return l.apiFail(err)
+		return resd.ErrorCtx(l.ctx, err)
 	}
 	/*domain := utild.GetRequestDomain(r)
 	objectName := ""
@@ -50,7 +50,7 @@ func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, 
 		objectName = strings.Replace(asset.Url, "https://danapp."+l.svcCtx.Config.AliOss.PublicBucketAddr+"/", "", 1)
 	}*/
 	if err != nil {
-		return l.apiFail(err)
+		return resd.ErrorCtx(l.ctx, err)
 	}
 	downloader, _ := l.svcCtx.Storage.CreateDownloader(nil)
 	return downloader.Download(w, asset.Path, asset.Name)
@@ -68,7 +68,4 @@ func (l *DownloadLogic) initPlat() (err error) {
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
-}
-func (l *DownloadLogic) apiFail(err error) error {
-	return resd.ApiFail(l.lang, err)
 }

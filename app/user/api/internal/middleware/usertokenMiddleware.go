@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"encoding/json"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"go-zero-dandan/app/user/rpc/user"
+	"go-zero-dandan/common/land"
 	"go-zero-dandan/common/resd"
 	"net/http"
 )
@@ -20,11 +22,8 @@ func (m *UserTokenMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 		if !ok || userInfo.Id == 0 {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"code":   resd.Auth,
-				"result": false,
-				"msg":    "授权失效",
-			})
+			localizer := r.Context().Value("lang").(*i18n.Localizer)
+			json.NewEncoder(w).Encode(resd.NewErrCtx(r.Context(), land.Msg(localizer, resd.AuthUserNotLogin), resd.AuthUserNotLogin))
 			return
 		}
 		next(w, r)

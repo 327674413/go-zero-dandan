@@ -37,22 +37,22 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 	redisFieldKey := fmt.Sprintf("multipart:%d", req.UploadID)
 	hasUpload, err := l.svcCtx.Redis.ExistsCtx(l.ctx, redisFieldKey)
 	if err != nil {
-		return l.apiFail(resd.ErrorCtx(l.ctx, err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if hasUpload == false {
-		return l.apiFail(resd.NewErr("该分片上传id不存在"))
+		return nil, resd.NewErrCtx(l.ctx, "该分片上传id不存在")
 	}
 	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, redisFieldKey, "fileSha1")
 	if err != nil {
-		return l.apiFail(resd.ErrorCtx(l.ctx, err))
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile, Bucket: "netdisk"})
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	_, err = uploader.MultipartUpload(r, &storaged.UploadConfig{IsMultipart: true, FileSha1: fileSha1, ChunkIndex: req.ChunkIndex})
 	if err != nil {
-		return l.apiFail(err)
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	l.svcCtx.Redis.HsetCtx(l.ctx, redisFieldKey, fmt.Sprintf("chunkIndex_%d", req.ChunkIndex), "ok")
 	return &types.SuccessResp{Msg: ""}, nil
@@ -70,7 +70,4 @@ func (l *MultipartUploadSendLogic) initPlat() (err error) {
 	l.platId = platClasId
 	l.platClasEm = platClasEm
 	return nil
-}
-func (l *MultipartUploadSendLogic) apiFail(err error) (*types.SuccessResp, error) {
-	return nil, resd.ApiFail(l.lang, resd.ErrorCtx(l.ctx, err))
 }

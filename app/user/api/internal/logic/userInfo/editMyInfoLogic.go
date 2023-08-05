@@ -2,8 +2,6 @@ package userInfo
 
 import (
 	"context"
-	"fmt"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/api/internal/biz"
 	"go-zero-dandan/app/user/api/internal/svc"
@@ -18,18 +16,15 @@ type EditMyInfoLogic struct {
 	logx.Logger
 	ctx        context.Context
 	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
 	platId     int64
 	platClasEm int64
 }
 
 func NewEditMyInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EditMyInfoLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
 	return &EditMyInfoLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		lang:   localizer,
 	}
 }
 
@@ -42,12 +37,11 @@ func (l *EditMyInfoLogic) EditMyInfo(req *types.EditMyInfoReq) (resp *types.Succ
 	editUserInfo := &pb.EditUserInfoReq{}
 	utild.Copy(&editUserInfo, req)
 	editUserInfo.Id = userInfo.Id
-	fmt.Println(editUserInfo)
 	err = userBiz.EditUserInfo(editUserInfo)
 	if err != nil {
 		return nil, err
 	}
-	return &types.SuccessResp{Msg: resd.Msg(l.lang, resd.Ok)}, nil
+	return &types.SuccessResp{Msg: ""}, nil
 }
 
 func (l *EditMyInfoLogic) initPlat() (err error) {

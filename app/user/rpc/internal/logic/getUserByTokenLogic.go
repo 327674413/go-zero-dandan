@@ -27,8 +27,7 @@ func (l *GetUserByTokenLogic) GetUserByToken(in *pb.TokenReq) (*pb.UserMainInfo,
 	userInfo := &pb.UserMainInfo{}
 	err := l.svcCtx.Redis.GetData(constd.RedisKeyUserToken, in.Token, userInfo)
 	if err != nil {
-		logx.Error(err)
-		return nil, resd.RpcEncodeTempErr(resd.RedisGetUserTokenErr)
+		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.RedisGetUserTokenErr))
 	}
 	return userInfo, nil
 }

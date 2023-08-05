@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go-zero-dandan/common/resd"
 	"golang.org/x/text/language"
 )
 
@@ -14,12 +15,12 @@ var bundle *i18n.Bundle
 func init() {
 	bundle = i18n.NewBundle(language.English)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
-
+	var err error
 	//这里如何结偶未想明白
-	_, err := bundle.LoadMessageFile("../../../common/land/en_us.toml")
-	_, err = bundle.LoadMessageFile("../../../common/land/zh_cn.toml")
-	//bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
-	//bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
+	//_, err = bundle.LoadMessageFile("../../../common/land/en_us.toml")
+	//_, err = bundle.LoadMessageFile("../../../common/land/zh_cn.toml")
+	bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
+	bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
 	LangAccept = map[string]bool{
 		"en_us": true,
 		"zh_cn": true,
@@ -68,4 +69,33 @@ func Trans(localize *i18n.Localizer, temp string, tempData ...map[string]string)
 		},
 		TemplateData: data,
 	})*/
+}
+func Msg(localize *i18n.Localizer, msgCode int, tempDataArr ...[]string) string {
+	tempData := make([]string, 0)
+	if len(tempDataArr) > 0 {
+		tempData = tempDataArr[0]
+	}
+	m := make(map[string]string)
+	for i, v := range tempData {
+		key := "Field" + fmt.Sprint(i+1)
+		m[key] = getMsg(localize, v)
+	}
+	if code, ok := resd.Msg[msgCode]; ok {
+		return Trans(localize, code, m)
+	} else {
+		return Trans(localize, resd.Msg[resd.SysErr], m)
+	}
+
+}
+
+func getMsg(localize *i18n.Localizer, tempCode string, tempData ...map[string]string) string {
+	return Trans(localize, tempCode, tempData...)
+}
+func SuccCode(localize *i18n.Localizer, succCode int, tempData ...[]string) *resd.SuccInfo {
+	var tempD []string
+	if len(tempData) > 0 {
+		tempD = tempData[0]
+	}
+	text := Msg(localize, succCode, tempD)
+	return &resd.SuccInfo{Result: true, Code: 200, Data: map[string]string{"msg": text}}
 }

@@ -17,8 +17,14 @@ func {{.HandlerName}}(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		{{end}}l := {{.LogicName}}.New{{.LogicType}}(r.Context(), svcCtx)
 		{{if .HasResp}}resp, {{end}}err := l.{{.Call}}({{if .HasRequest}}&req{{end}})
-		if err != nil {
-			httpx.OkJsonCtx(r.Context(), w, err)
+		localizer := r.Context().Value("lang").(*i18n.Localizer)
+        if err != nil {
+            if danErr, ok := resd.AssertErr(err); ok {
+                danErr.Msg = land.Msg(localizer, danErr.Code, danErr.GetTemps())
+                httpx.OkJsonCtx(r.Context(), w, danErr)
+            } else {
+                httpx.OkJsonCtx(r.Context(), w, err)
+            }
 		} else {
 			{{if .HasResp}}httpx.OkJsonCtx(r.Context(), w, resd.Succ(resp)){{else}}httpx.Ok(w){{end}}
 		}
