@@ -233,33 +233,33 @@ func (t *LocalStorage) UploadImg(r *http.Request, config *UploadImgConfig) (res 
 	t.Request = r          //传递请求参数，以免下载方法中需要使用
 	// 根据form key获取文件
 	if err = t.processFileGet(); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	// 获取文件大小和校验
 	if err = t.processFileSize(); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	// 获取文件格式和校验
 	if err = t.processFileType(); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	// 获取文件哈希值
 	if err = t.processFileHash(); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	dirName := GetDateDir()                                                    //获取年-月-日格式的目录ing成
 	dirPath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, dirName) //拼接存储目录路径，个人习惯，图片放在img文件夹下
 	//确保目录存在
 	if err = os.MkdirAll(dirPath, 0755); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	//上传文件
 	if err = t.upload(dirPath); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	//对文件进行图片相关的处理
 	if err = t.processImg(config); err != nil {
-		return nil, err
+		return nil, resd.Error(err)
 	}
 	return t.Result, nil
 }

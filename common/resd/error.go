@@ -59,14 +59,6 @@ func Error(err error, errorCode ...int) error {
 
 // ErrorCtx 对error进行封装返回,带上下文
 func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
-	if r, ok := status.FromError(err); ok { // grpc err错误
-		fmt.Println("1", r.Code())
-		fmt.Println("2", r.Message())
-		fmt.Println("3", r.Err())
-		fmt.Println("4", r.String())
-	} else {
-		fmt.Println("不是rpc")
-	}
 	skip := 1
 	code := SysErr
 	if e, ok := err.(*danError); ok {
