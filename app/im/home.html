@@ -3,10 +3,9 @@
 <head>
   <title>Chat Example</title>
   <script type="text/javascript">
+    var conn;
     window.onload = function () {
-      var conn;
       var msg = document.getElementById("msg");
-
       document.getElementById("form").onsubmit = function () {
         if (!conn) {
           return false;
@@ -55,6 +54,7 @@
           }
         };
         conn.onerror = function (evt) {
+          console.error(evt.message,evt.reason,evt.code)
           alert("websocket 连接失败")
         };
       } else {

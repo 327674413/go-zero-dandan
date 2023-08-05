@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/redis"
+	"github.com/go-redis/redis/v8"
+	redisx "github.com/zeromicro/go-zero/core/stores/redis"
 	"strconv"
 )
 
 type Redisd struct {
-	redisConn *redis.Redis
+	redisConn *redisx.Redis
 	prefix    string
 }
 type NotFound struct {
@@ -19,7 +20,7 @@ type NotFound struct {
 func (t *NotFound) Error() string {
 	return fmt.Sprintf("redis key: %s not found", t.Msg)
 }
-func NewRedisd(redisConn *redis.Redis, prefix string) *Redisd {
+func NewRedisd(redisConn *redisx.Redis, prefix string) *Redisd {
 	return &Redisd{
 		redisConn: redisConn,
 		prefix:    prefix,

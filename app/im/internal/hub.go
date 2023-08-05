@@ -20,7 +20,7 @@ type Hub struct {
 	unregister chan *Client
 
 	// 服务中间件
-	svcCtx *svc.ServiceContext
+	svc *svc.ServiceContext
 }
 
 func NewHub(svcCtx *svc.ServiceContext) *Hub {
@@ -29,7 +29,7 @@ func NewHub(svcCtx *svc.ServiceContext) *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
-		svcCtx:     svcCtx,
+		svc:        svcCtx,
 	}
 }
 

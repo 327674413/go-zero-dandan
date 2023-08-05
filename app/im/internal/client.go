@@ -8,6 +8,7 @@ import (
 	"go-zero-dandan/app/user/rpc/types/pb"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -43,6 +44,12 @@ var upgrader = websocket.Upgrader{
 		return true
 	},
 }
+
+// 管理连接关系
+var clientMap = make(map[int64]*Client, 0)
+
+// 读写锁
+var rwLocker sync.RWMutex
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
@@ -128,33 +135,60 @@ func (c *Client) writePump() {
 	}
 }
 
+// Publish 发送redis消息
+func (c *Client) Publish(ctx context.Context, channel string, msg string) error {
+	fmt.Println("Publish……")
+	err := c.hub.svc.Redis.Publish(ctx, channel, msg).Err()
+	return err
+}
+
+// Subscribe 订阅redis消息
+func (c *Client) Subscribe(ctx context.Context, channel string) (string, error) {
+	sub := c.hub.svc.Redis.Subscribe(ctx, channel)
+	msg, err := sub.ReceiveMessage(ctx)
+	fmt.Println("Subscribe……", msg.Payload)
+	return msg.Payload, err
+}
+
 // ServeWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+	//升级socket协议
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		logx.Error(err)
 		return
 	}
+	//创建ctx，后面redis等操作都得用
+	ctx := context.Background()
+	//创建连接端
+	client := &Client{
+		hub:  hub,                        //不知道啥用，感觉集成服务的
+		conn: conn,                       //socket连接
+		send: make(chan []byte, bufSize), //发送数据管道
+	}
+	//除url外，还可以通过Subprotocol: []string{"chat"}来接收
+	//前端用 let sock = new WebSocket('ws://example.com', ['chat', $token])
 	token := r.URL.Query().Get("token")
-	user, err := hub.svcCtx.UserRpc.GetUserByToken(context.Background(), &pb.TokenReq{
+	user, err := hub.svc.UserRpc.GetUserByToken(ctx, &pb.TokenReq{
 		Token: token,
 	})
-
 	if err != nil {
-		logx.Error(err.Error())
-		http.Error(w, "未登录用户", http.StatusUnauthorized) // 返回 401 状态码和错误信息
+		conn.WriteMessage(websocket.CloseMessage, []byte("登录验证失败")) //CloseMessage这个会进onerror
+		//conn.Close() //这个直接断开连接，前端触发onclose
 		return
 	}
-	fmt.Println(user)
-	client := &Client{
-		hub:  hub,
-		conn: conn,
-		send: make(chan []byte, bufSize),
+	if existClient, ok := clientMap[user.Id]; ok {
+		existClient.conn.WriteMessage(websocket.CloseMessage, []byte("您的账号在其他设备登录"))
 	}
-	client.hub.register <- client
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
+	rwLocker.Lock()
+	clientMap[user.Id] = client
+	rwLocker.Unlock()
+
+	client.hub.register <- client //这里不知道啥意义
+
+	//发送消息协程
 	go client.writePump()
+	//获取消息协程
 	go client.readPump()
 }
