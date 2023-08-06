@@ -4,19 +4,18 @@ import (
 	"go-zero-dandan/app/im/internal/svc"
 )
 
-// Hub maintains the set of active clients and broadcasts messages to the
-// clients.
+// Hub 维护在线客户端的集合
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
+	// 注册的客户端。
+	clients map[int64]*Client
 
-	// Inbound messages from the clients.
+	// 从客户端接收的入站消息，暂定为全局广播的管道
 	broadcast chan []byte
 
-	// Register requests from the clients.
+	// 客户端的新连接管道
 	register chan *Client
 
-	// Unregister requests from clients.
+	// 客户端的断开管道
 	unregister chan *Client
 
 	// 服务中间件
@@ -28,7 +27,7 @@ func NewHub(svcCtx *svc.ServiceContext) *Hub {
 		broadcast:  make(chan []byte),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		clients:    make(map[int64]*Client),
 		svc:        svcCtx,
 	}
 }
@@ -36,20 +35,20 @@ func NewHub(svcCtx *svc.ServiceContext) *Hub {
 func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.register:
-			h.clients[client] = true
+		case client := <-h.register: // 接收客户端的新连接请求
+			h.clients[client.userId] = client // 将客户端添加到注册列表中
 		case client := <-h.unregister:
-			if _, ok := h.clients[client]; ok {
-				delete(h.clients, client)
+			if _, ok := h.clients[client.userId]; ok {
+				delete(h.clients, client.userId)
 				close(client.send)
 			}
 		case message := <-h.broadcast:
-			for client := range h.clients {
+			for userId := range h.clients {
 				select {
-				case client.send <- message:
+				case h.clients[userId].send <- message:
 				default:
-					close(client.send)
-					delete(h.clients, client)
+					close(h.clients[userId].send)
+					delete(h.clients, userId)
 				}
 			}
 		}

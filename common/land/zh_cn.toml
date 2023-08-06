@@ -15,6 +15,15 @@ PlatClasErr = "应用类型异常"
 Success="操作成功"
 SuccessAsync="提交完成"
 
+MysqlErr = "数据库操作失败"
+MysqlInsertErr = "数据库插入失败"
+MysqlUpdateErr = "数据库更新失败"
+MysqlSelectErr = "数据库查询失败"
+MysqlDeleteErr = "数据库删除失败"
+MysqlStartTransErr = "数据库开启事务失败"
+MysqlCommitErr = "数据库提交事务失败"
+MysqlRollbackErr = "数据库回滚事务失败"
+
 RedisSetErr = "缓存写入失败"
 RedisGetErr = "获取缓存失败"
 

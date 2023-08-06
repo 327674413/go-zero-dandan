@@ -17,10 +17,10 @@ func init() {
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 	var err error
 	//这里如何结偶未想明白
-	//_, err = bundle.LoadMessageFile("../../../common/land/en_us.toml")
-	//_, err = bundle.LoadMessageFile("../../../common/land/zh_cn.toml")
-	bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
-	bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
+	_, err = bundle.LoadMessageFile("../../../common/land/en_us.toml")
+	_, err = bundle.LoadMessageFile("../../../common/land/zh_cn.toml")
+	//bundle.MustLoadMessageFile("../../../common/land/en_us.toml")
+	//bundle.MustLoadMessageFile("../../../common/land/zh_cn.toml")
 	LangAccept = map[string]bool{
 		"en_us": true,
 		"zh_cn": true,

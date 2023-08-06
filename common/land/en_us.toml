@@ -12,6 +12,18 @@ ConfigNotInit1 = "Not set {{.Field1}}"
 PlatInvalid = "Invalid App"
 PlatIdErr = "Invalid App Id"
 PlatClasErr = "Invalid App Clas"
+
+
+MysqlErr = "Mysql error"
+MysqlInsertErr = "Mysql insert error"
+MysqlUpdateErr = "Mysql update error"
+MysqlSelectErr = "Mysql select error"
+MysqlDeleteErr = "Mysql delete error"
+MysqlStartTransErr = "Mysql start trans error"
+MysqlCommitErr = "Mysql commit trans error"
+MysqlRollbackErr = "Mysql rollback trans error"
+
+
 RedisSetErr = "Redis set fail"
 RedisGetErr = "Redis get fail"
 

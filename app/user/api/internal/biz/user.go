@@ -38,7 +38,7 @@ func NewUserBiz(ctx context.Context, svcCtx *svc.ServiceContext) *UserBiz {
 	return biz
 }
 func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err error) {
-	unionModel := model.NewUserUnionModel(t.svcCtx.SqlConn, t.platId)
+	unionModel := model.NewUserUnionModel(t.svcCtx.SqlConn)
 	db, _ := t.svcCtx.SqlConn.RawDB()
 	tx, err := db.BeginTx(t.ctx, nil)
 	if err != nil {
@@ -132,7 +132,7 @@ func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code stri
 	}
 	return nil
 }
-func (t *UserBiz) CreateLoginState(userInfo *model.UserMain) (string, error) {
+func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error) {
 	s := fmt.Sprintf("%d-%d-%d", userInfo.Id, utild.GetStamp(), utild.Rand(11111, 99999))
 	token := utild.Sha256(s)
 	err := t.svcCtx.Redis.SetData("userToken", token, userInfo, t.svcCtx.Config.Conf.LoginTokenExSec)

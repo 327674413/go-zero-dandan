@@ -19,15 +19,11 @@
       };
 
     };
-    function tapLogin(){
-      var addr = $('#ws-addr')
-      var token = $('#user-token')
-      if (!addr.value) return alert('请输入ws地址')
-      var wsUrl = addr.value
-      if (token.value){
-        wsUrl +=  "?token="+token.value
-      }
-      connect(wsUrl)
+    function tapLogin(token = ""){
+      var addr = $('#ws-addr').value
+      token = token ? token : $('#user-token').value
+      if (!addr) return alert('请输入ws地址')
+      connect(addr + "?token=" + token)
     }
 
     function connect(addr){
@@ -114,6 +110,7 @@
     #login{width:100vmin;height:100vmin;position: absolute;left:50%;top:50%;transform: translate(-50%,-50%);background: #f8f8f8;}
     .login-item{display: flex;align-items: center;padding:.5em 1em;}
     #ws-addr{width:40em;}
+    .login-btn{padding:10px; margin-right:20px;}
   </style>
 </head>
 <body>
@@ -121,7 +118,10 @@
   <p class="login-item">websockt地址：<input type="text" value="ws://localhost:3333/ws" id="ws-addr" /></p>
   <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
   <p class="login-item">
-    <button onclick="tapLogin()">登录</button>
+    <button class="login-btn" onclick="tapLogin()">自定义token登录</button>
+    <button class="login-btn" onclick="tapLogin('e37aa12e6626f56471ebdd080e6b2a744bf17212adfceb69b39d632880043666')">登录用户1</button>
+    <button class="login-btn" onclick="tapLogin('f74027affb7d408c57fe11222974aa2832c35fd51c726cee3d37a3ff7c1e4b70')">登录用户2</button>
+
   </p>
 </div>
 <div id="chat">
