@@ -1,0 +1,10 @@
+Name: im.rpc
+ListenOn: 0.0.0.0:8809
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: im.rpc
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf

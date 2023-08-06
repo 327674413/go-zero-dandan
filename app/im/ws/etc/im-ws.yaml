@@ -1,6 +1,6 @@
-Name: im-server
+Name: im-ws
 Host: 0.0.0.0
-Port: 8799
+Port: 8808
 Mode: dev
 
 UserRpc:
@@ -16,3 +16,12 @@ Log:
   ServiceName: im-server
   Level: info
 
+WebsocketConfig:
+  MaxConnNum: 10000
+  TimeOut: 10
+  MaxMsgLen: 4096
+
+SendMsgRateLimit:
+  Enable: true
+  Seconds: 100
+  Quota: 100

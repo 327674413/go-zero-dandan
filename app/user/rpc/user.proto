@@ -27,6 +27,17 @@ message EditUserInfoReq {
   optional string GraduateFrom = 6;
   optional string BirthDate = 7;
 }
+message UserRelationInfo {
+  int64 FromUserId = 1;
+  int64 ToUserId = 2;
+  string ToUserAvatar =3;
+  int64 RelationEm = 4;
+  int64 CreateAt = 5;
+}
+message GetUserFriendList {
+  repeated UserRelationInfo list = 1;
+}
+
 
 message IdReq {
   int64 Id = 1;
@@ -40,4 +51,5 @@ message SuccResp {
 service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
+  rpc getUserFriendList(IdReq) returns(GetUserFriendList)
 }

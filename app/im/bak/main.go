@@ -7,9 +7,9 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/rest"
-	"go-zero-dandan/app/im/internal"
-	"go-zero-dandan/app/im/internal/config"
-	"go-zero-dandan/app/im/internal/svc"
+	internal2 "go-zero-dandan/app/im/bak/internal"
+	"go-zero-dandan/app/im/bak/internal/config"
+	"go-zero-dandan/app/im/bak/internal/svc"
 	"net/http"
 )
 
@@ -40,7 +40,7 @@ func main() {
 		CpuThreshold: *cpu,
 	})
 	defer engine.Stop()
-	hub := internal.NewHub(svcCtx)
+	hub := internal2.NewHub(svcCtx)
 	go hub.Run()
 	fmt.Printf("websocket runing at %s:%d\n", host, *port)
 	/*engine.AddRoute(rest.Route{
@@ -66,7 +66,7 @@ func main() {
 		Handler: func(w http.ResponseWriter, r *http.Request) {
 			//如果不想让对方连接，可以在这里拒绝，但是websocket的onerror无法收到任何消息体，没法携带错误提示信息
 			//解决方案只能先让对方连接成功，然后发消息给他告诉他失败
-			internal.ServeWs(hub, w, r)
+			internal2.ServeWs(hub, w, r)
 		},
 	})
 

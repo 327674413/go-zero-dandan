@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/im/internal/types"
+	"go-zero-dandan/app/im/bak/internal/types"
 	"go-zero-dandan/app/user/rpc/types/pb"
 	"log"
 	"net/http"

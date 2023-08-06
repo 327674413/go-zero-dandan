@@ -6,7 +6,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/zrpc"
-	"go-zero-dandan/app/im/internal/config"
+	"go-zero-dandan/app/im/bak/internal/config"
 	"go-zero-dandan/app/user/rpc/user"
 )
 

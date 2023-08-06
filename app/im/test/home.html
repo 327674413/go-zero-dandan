@@ -23,7 +23,7 @@
       var addr = $('#ws-addr').value
       token = token ? token : $('#user-token').value
       if (!addr) return alert('请输入ws地址')
-      connect(addr + "?token=" + token)
+      connect(addr + "?platformEm=1&token=" + token)
     }
 
     function connect(addr){
@@ -115,7 +115,7 @@
 </head>
 <body>
 <div id="login">
-  <p class="login-item">websockt地址：<input type="text" value="ws://localhost:3333/ws" id="ws-addr" /></p>
+  <p class="login-item">websockt地址：<input type="text" value="ws://localhost:8808/connection" id="ws-addr" /></p>
   <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
   <p class="login-item">
     <button class="login-btn" onclick="tapLogin()">自定义token登录</button>

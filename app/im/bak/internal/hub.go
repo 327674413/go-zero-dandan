@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"go-zero-dandan/app/im/internal/svc"
+	"go-zero-dandan/app/im/bak/internal/svc"
 )
 
 // Hub 维护在线客户端的集合
