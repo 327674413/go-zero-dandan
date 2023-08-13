@@ -20,8 +20,8 @@ import (
 	"time"
 )
 
-var wsConfigFile = flag.String("w", "etc/im-ws.yaml", "ws rpcconfig file")
-var rpcConfigFile = flag.String("f", "etc/im.yaml", "rpc rpcconfig file")
+var wsConfigFile = flag.String("w", "etc/im-ws-dev.yaml", "ws rpcconfig file")
+var rpcConfigFile = flag.String("f", "etc/im-dev.yaml", "rpc rpcconfig file")
 
 func ws() {
 	flag.Parse()

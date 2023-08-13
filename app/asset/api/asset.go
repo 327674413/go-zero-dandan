@@ -14,7 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/asset-api.yaml", "the config file")
+var configFile = flag.String("f", "etc/asset-api-dev.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -33,7 +33,7 @@ func main() {
 	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
 		//跨域处理
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
+		//w.Header().Set("Access-Control-Allow-Headers", "*") // 这个好像可以不要，已经哟过token作为header解决
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
 		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")

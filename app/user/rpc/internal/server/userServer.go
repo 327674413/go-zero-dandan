@@ -31,3 +31,8 @@ func (s *UserServer) EditUserInfo(ctx context.Context, in *pb.EditUserInfoReq) (
 	l := logic.NewEditUserInfoLogic(ctx, s.svcCtx)
 	return l.EditUserInfo(in)
 }
+
+func (s *UserServer) GetUserFriendList(ctx context.Context, in *pb.IdReq) (*pb.GetUserFriendList, error) {
+	l := logic.NewGetUserFriendListLogic(ctx, s.svcCtx)
+	return l.GetUserFriendList(in)
+}

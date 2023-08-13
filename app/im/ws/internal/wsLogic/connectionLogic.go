@@ -72,7 +72,8 @@ func InitHub(ctx context.Context, svcCtx *wsSvc.ServiceContext) *Hub {
 		},
 	}
 	once.Do(func() {
-		setHub(ws)
+		connectionLogic = ws
+		//setHub(ws)
 	})
 
 	return connectionLogic
@@ -89,10 +90,9 @@ func (l *Hub) Connection(req *wsTypes.ConnectionReq) (*wsTypes.ConnectionRes, er
 	})
 	if err != nil {
 		//conn.WriteMessage(websocket.CloseMessage, []byte("登录验证失败")) //CloseMessage这个会进onerror
-		//conn.Close() //这个直接断开连接，前端触发onclose
+		//conn.Close()                                                //这个直接断开连接，前端触发onclose
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-
 	if existClient := l.GetUserConn(user.Id, req.PlatformEm); existClient != nil {
 		existClient.Conn.WriteMessage(websocket.TextMessage, []byte("您的账号在其他设备登录"))
 		existClient.Conn.Close()
@@ -108,16 +108,15 @@ func (l *Hub) WsUpgrade(userId int64, req *wsTypes.ConnectionReq, w http.Respons
 	newConn := &UserConn{conn, new(sync.Mutex)}
 	userCount++
 	l.addUserConn(userId, req.PlatformEm, newConn)
-	fmt.Println("addUserConn end")
 	go l.readMsg(newConn, userId, req.PlatformEm)
-	fmt.Println("WsUpgrade end")
 	return nil
 }
 
 func (l *Hub) readMsg(conn *UserConn, userId int64, platformEm int64) {
 	for {
 		messageType, msg, err := conn.ReadMessage()
-		conn.WriteMessage(messageType, append([]byte("还给你："), msg...))
+		//todo::这里读取消息，判断消息内容，然后发送消息
+		conn.WriteMessage(messageType, msg)
 		if messageType == websocket.PingMessage {
 			l.sendMsg(l.ctx, conn, "Pong")
 		}

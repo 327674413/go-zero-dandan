@@ -13,12 +13,18 @@
         if (!msg.value) {
           return false;
         }
-        conn.send(msg.value);
+        sendChatText(msg.value);
         msg.value = "";
         return false;
       };
 
     };
+    function sendChatText(text){
+      let data = {text:text,type:'CHAT_TEXT',id:Date.now() + '' + Math.floor(Math.random() * 10) + 10001}
+      conn.send(JSON.stringify(data));
+      data.state = 0;
+      appendSendChatText(data)
+    }
     function tapLogin(token = ""){
       var addr = $('#ws-addr').value
       token = token ? token : $('#user-token').value
@@ -42,12 +48,8 @@
           appendLog(item);
         };
         conn.onmessage = function (evt) {
-          var messages = evt.data.split('\n');
-          for (var i = 0; i < messages.length; i++) {
-            var item = document.createElement("div");
-            item.innerText = messages[i];
-            appendLog(item);
-          }
+         let data = JSON.parse(evt.data);
+          appendRecvChatText(data)
         };
         conn.onerror = function (evt) {
           console.error(evt.message,evt.reason,evt.code)
@@ -56,6 +58,18 @@
       } else {
         alert("浏览器不支持socket连接")
       }
+    }
+    function appendSendChatText(data){
+      var item = document.createElement("div");
+      item.className = 'fr chat-msg-item send'
+      item.innerHTML = '<span class="chat-msg-state">发送中</span><div class="chat-msg-wrapper"><div class="fr chat-msg-name">我</div><div class="fl chat-msg-content">' +data.text +'</div></div><div class="chat-msg-avatar"></div>';
+      appendLog(item);
+    }
+    function appendRecvChatText(data){
+      var item = document.createElement("div");
+      item.className = 'fl chat-msg-item recv'
+      item.innerHTML = '<div class="chat-msg-avatar"></div><div class="chat-msg-wrapper"><div class="fl chat-msg-name">对方名字</div><div class="fl chat-msg-content">' +data.text +'</div></div>';
+      appendLog(item);
     }
     function appendLog(item) {
       var log = document.getElementById("log");
@@ -83,7 +97,7 @@
     }
 
     #log {
-      background: white;
+      background: #f4f4f4;
       margin: 0;
       padding: 0.5em 0.5em 0.5em 0.5em;
       position: absolute;
@@ -104,6 +118,7 @@
       overflow: hidden;
     }
     .fl{display: flex;align-items: center;}
+    .fr{display: flex;align-items: center;justify-content: flex-end;}
     .fc{display: flex;align-items: center;justify-content: center;}
     .fb{display: flex;align-items: center;justify-content: space-between;}
     #chat{width:100vw;height:100vh;display: none;background: gray;}
@@ -111,6 +126,36 @@
     .login-item{display: flex;align-items: center;padding:.5em 1em;}
     #ws-addr{width:40em;}
     .login-btn{padding:10px; margin-right:20px;}
+    .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
+    .chat-msg-name{font-size:14px;color:#8a8a8a;padding:2px;}
+    .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
+    .recv .chat-msg-content{background: #E5E5EA;}
+    .send .chat-msg-content{background: #95EC69;}
+    .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;}
+    .recv .chat-msg-avatar{margin-right:10px;background: #06f;}
+    .send .chat-msg-avatar{margin-left:10px;background: #f60;}
+    .recv .chat-msg-content::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-right: 5px solid #E5E5EA;
+      left: -5px;
+      top: 8px;
+    }
+    .send .chat-msg-content::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 5px solid #95EC69;
+      right: -5px;
+      top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -119,8 +164,8 @@
   <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
   <p class="login-item">
     <button class="login-btn" onclick="tapLogin()">自定义token登录</button>
-    <button class="login-btn" onclick="tapLogin('e37aa12e6626f56471ebdd080e6b2a744bf17212adfceb69b39d632880043666')">登录用户1</button>
-    <button class="login-btn" onclick="tapLogin('f74027affb7d408c57fe11222974aa2832c35fd51c726cee3d37a3ff7c1e4b70')">登录用户2</button>
+    <button class="login-btn" onclick="tapLogin('2b4252c608174611c6179cacab59979fb9ec478bad51a044a6b3f81856af8e81')">登录用户1</button>
+    <button class="login-btn" onclick="tapLogin('fa9703d663c06599a89997a45a4de948c3f4eef7f4555e41b4d5db2c62afd208')">登录用户2</button>
 
   </p>
 </div>

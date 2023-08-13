@@ -135,7 +135,19 @@ func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code stri
 func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error) {
 	s := fmt.Sprintf("%d-%d-%d", userInfo.Id, utild.GetStamp(), utild.Rand(11111, 99999))
 	token := utild.Sha256(s)
-	err := t.svcCtx.Redis.SetData("userToken", token, userInfo, t.svcCtx.Config.Conf.LoginTokenExSec)
+	// 因userInfo的id转json是字符串，rpc取出来转化int64会报错，这里用rpc的结构体来缓存
+	cacheData := &pb.UserMainInfo{
+		Id:        userInfo.Id,
+		UnionId:   userInfo.UnionId,
+		Account:   userInfo.Account,
+		Nickname:  userInfo.Nickname,
+		Phone:     userInfo.Phone,
+		PhoneArea: userInfo.PhoneArea,
+		SexEm:     userInfo.SexEm,
+		Email:     userInfo.Email,
+		Avatar:    userInfo.Avatar,
+	}
+	err := t.svcCtx.Redis.SetData("userToken", token, cacheData, t.svcCtx.Config.Conf.LoginTokenExSec)
 	if err != nil {
 		return "", resd.Error(err)
 	}

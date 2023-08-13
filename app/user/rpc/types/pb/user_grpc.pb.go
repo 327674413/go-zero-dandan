@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_GetUserByToken_FullMethodName = "/user.user/getUserByToken"
-	User_EditUserInfo_FullMethodName   = "/user.user/editUserInfo"
+	User_GetUserByToken_FullMethodName    = "/user.user/getUserByToken"
+	User_EditUserInfo_FullMethodName      = "/user.user/editUserInfo"
+	User_GetUserFriendList_FullMethodName = "/user.user/getUserFriendList"
 )
 
 // UserClient is the client API for User service.
@@ -29,6 +30,7 @@ const (
 type UserClient interface {
 	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
+	GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error)
 }
 
 type userClient struct {
@@ -57,12 +59,22 @@ func (c *userClient) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts
 	return out, nil
 }
 
+func (c *userClient) GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error) {
+	out := new(GetUserFriendList)
+	err := c.cc.Invoke(ctx, User_GetUserFriendList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error)
 	EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error)
+	GetUserFriendList(context.Context, *IdReq) (*GetUserFriendList, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -75,6 +87,9 @@ func (UnimplementedUserServer) GetUserByToken(context.Context, *TokenReq) (*User
 }
 func (UnimplementedUserServer) EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditUserInfo not implemented")
+}
+func (UnimplementedUserServer) GetUserFriendList(context.Context, *IdReq) (*GetUserFriendList, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFriendList not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -125,6 +140,24 @@ func _User_EditUserInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserFriendList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserFriendList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserFriendList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserFriendList(ctx, req.(*IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +172,10 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "editUserInfo",
 			Handler:    _User_EditUserInfo_Handler,
+		},
+		{
+			MethodName: "getUserFriendList",
+			Handler:    _User_GetUserFriendList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

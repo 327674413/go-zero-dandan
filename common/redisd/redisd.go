@@ -242,8 +242,7 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) erro
 	if str == "" {
 		return &NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	}
-	json.Unmarshal([]byte(str), targetStructPointer)
-	return nil
+	return json.Unmarshal([]byte(str), targetStructPointer)
 }
 
 // GetDataCtx 获取数据并且转json,带上下文

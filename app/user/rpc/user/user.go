@@ -13,15 +13,18 @@ import (
 )
 
 type (
-	EditUserInfoReq = pb.EditUserInfoReq
-	IdReq           = pb.IdReq
-	SuccResp        = pb.SuccResp
-	TokenReq        = pb.TokenReq
-	UserMainInfo    = pb.UserMainInfo
+	EditUserInfoReq   = pb.EditUserInfoReq
+	GetUserFriendList = pb.GetUserFriendList
+	IdReq             = pb.IdReq
+	SuccResp          = pb.SuccResp
+	TokenReq          = pb.TokenReq
+	UserMainInfo      = pb.UserMainInfo
+	UserRelationInfo  = pb.UserRelationInfo
 
 	User interface {
 		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
+		GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error)
 	}
 
 	defaultUser struct {
@@ -43,4 +46,9 @@ func (m *defaultUser) GetUserByToken(ctx context.Context, in *TokenReq, opts ...
 func (m *defaultUser) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.EditUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error) {
+	client := pb.NewUserClient(m.cli.Conn())
+	return client.GetUserFriendList(ctx, in, opts...)
 }
