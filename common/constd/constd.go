@@ -15,6 +15,10 @@ const (
 	UserStateEmNormal = 20 //正常
 )
 const (
+	UserCronyTypeEmNormal = 1
+	UserCronyTypeEmBlack  = -1
+)
+const (
 	SexEmUnknow = 0 //未知
 	SexEmMan    = 1 //男
 	SexEmWoman  = 2 //女

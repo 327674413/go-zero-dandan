@@ -32,7 +32,7 @@ func (s *UserServer) EditUserInfo(ctx context.Context, in *pb.EditUserInfoReq) (
 	return l.EditUserInfo(in)
 }
 
-func (s *UserServer) GetUserFriendList(ctx context.Context, in *pb.IdReq) (*pb.GetUserFriendList, error) {
-	l := logic.NewGetUserFriendListLogic(ctx, s.svcCtx)
-	return l.GetUserFriendList(in)
+func (s *UserServer) GetUserCronyList(ctx context.Context, in *pb.IdReq) (*pb.UserCronyList, error) {
+	l := logic.NewGetUserCronyListLogic(ctx, s.svcCtx)
+	return l.GetUserCronyList(in)
 }

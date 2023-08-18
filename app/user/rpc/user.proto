@@ -28,21 +28,23 @@ message EditUserInfoReq {
   optional string BirthDate = 7;
 }
 
-message UserRelationInfo {
-  int64 FromUserId = 1;
-  int64 ToUserId = 2;
-  string ToUserAvatar =3;
-  int64 RelationEm = 4;
-  int64 CreateAt = 5;
+message UserCronyInfo {
+  int64 OwnerUserId = 1;
+  int64 TargetUserId = 2;
+  string OwnerRemark = 3;
+  int64 TypeEm = 4;
+  int64 CreateAt = 6;
+
 }
 
-message GetUserFriendList {
-  repeated UserRelationInfo list = 1;
+message UserCronyList {
+  repeated UserCronyInfo list = 1;
 }
 
 
 message IdReq {
   int64 Id = 1;
+  int64 PlatId = 2;
 }
 message TokenReq {
   string token = 1;
@@ -53,5 +55,5 @@ message SuccResp {
 service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
-  rpc getUserFriendList(IdReq) returns(GetUserFriendList);
+  rpc getUserCronyList(IdReq) returns(UserCronyList);
 }

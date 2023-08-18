@@ -13,18 +13,18 @@ import (
 )
 
 type (
-	EditUserInfoReq   = pb.EditUserInfoReq
-	GetUserFriendList = pb.GetUserFriendList
-	IdReq             = pb.IdReq
-	SuccResp          = pb.SuccResp
-	TokenReq          = pb.TokenReq
-	UserMainInfo      = pb.UserMainInfo
-	UserRelationInfo  = pb.UserRelationInfo
+	EditUserInfoReq = pb.EditUserInfoReq
+	IdReq           = pb.IdReq
+	SuccResp        = pb.SuccResp
+	TokenReq        = pb.TokenReq
+	UserCronyInfo   = pb.UserCronyInfo
+	UserCronyList   = pb.UserCronyList
+	UserMainInfo    = pb.UserMainInfo
 
 	User interface {
 		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
-		GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error)
+		GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error)
 	}
 
 	defaultUser struct {
@@ -48,7 +48,7 @@ func (m *defaultUser) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opt
 	return client.EditUserInfo(ctx, in, opts...)
 }
 
-func (m *defaultUser) GetUserFriendList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GetUserFriendList, error) {
+func (m *defaultUser) GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error) {
 	client := pb.NewUserClient(m.cli.Conn())
-	return client.GetUserFriendList(ctx, in, opts...)
+	return client.GetUserCronyList(ctx, in, opts...)
 }

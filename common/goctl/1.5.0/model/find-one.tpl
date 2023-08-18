@@ -32,15 +32,15 @@ func (m *default{{.upperStartCamelObject}}Model) CacheFindById( redis *redisd.Re
 }
 
 func (m *default{{.upperStartCamelObject}}Model) Select() ([]*{{.upperStartCamelObject}},error) {
-	var resp []*{{.upperStartCamelObject}}
-	err := m.dao.Select(resp)
+	resp := make([]*{{.upperStartCamelObject}},0)
+	err := m.dao.Select(&resp)
     if err != nil {
         return nil, err
     }
     return resp, nil
 }
 func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}},error) {
-	var resp []*{{.upperStartCamelObject}}
+	resp := make([]*{{.upperStartCamelObject}},0)
 	err := m.dao.CacheSelect(redis,resp)
     if err != nil {
         return nil, err
