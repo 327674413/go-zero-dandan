@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	account "go-zero-dandan/app/user/api/internal/handler/account"
+	crony "go-zero-dandan/app/user/api/internal/handler/crony"
 	userInfo "go-zero-dandan/app/user/api/internal/handler/userInfo"
 	"go-zero-dandan/app/user/api/internal/svc"
 
@@ -45,6 +46,21 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/editMyInfo",
 					Handler: userInfo.EditMyInfoHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/user/v1"),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.LangMiddleware, serverCtx.UserInfoMiddleware, serverCtx.UserTokenMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/getMyCronyList",
+					Handler: crony.GetMyCronyListHandler(serverCtx),
 				},
 			}...,
 		),

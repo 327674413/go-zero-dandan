@@ -30,7 +30,7 @@ const (
 type UserClient interface {
 	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
-	GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error)
+	GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error)
 }
 
 type userClient struct {
@@ -59,8 +59,8 @@ func (c *userClient) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts
 	return out, nil
 }
 
-func (c *userClient) GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error) {
-	out := new(UserCronyList)
+func (c *userClient) GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error) {
+	out := new(GetUserCronyListResp)
 	err := c.cc.Invoke(ctx, User_GetUserCronyList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (c *userClient) GetUserCronyList(ctx context.Context, in *IdReq, opts ...gr
 type UserServer interface {
 	GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error)
 	EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error)
-	GetUserCronyList(context.Context, *IdReq) (*UserCronyList, error)
+	GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -88,7 +88,7 @@ func (UnimplementedUserServer) GetUserByToken(context.Context, *TokenReq) (*User
 func (UnimplementedUserServer) EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditUserInfo not implemented")
 }
-func (UnimplementedUserServer) GetUserCronyList(context.Context, *IdReq) (*UserCronyList, error) {
+func (UnimplementedUserServer) GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCronyList not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
@@ -141,7 +141,7 @@ func _User_EditUserInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 }
 
 func _User_GetUserCronyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdReq)
+	in := new(GetUserCronyListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func _User_GetUserCronyList_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: User_GetUserCronyList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserCronyList(ctx, req.(*IdReq))
+		return srv.(UserServer).GetUserCronyList(ctx, req.(*GetUserCronyListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

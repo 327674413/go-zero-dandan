@@ -69,16 +69,21 @@ type (
 	}
 
 	UserCrony struct {
-		Id           int64  `db:"id"`
-		OwnerUserId  int64  `db:"owner_user_id"`
-		TargetUserId int64  `db:"target_user_id"`
-		NameNote     string `db:"name_note"`
-		OwnerRemark  string `db:"owner_remark"`
-		TypeEm       int64  `db:"type_em"`
-		PlatId       int64  `db:"plat_id"`
-		CreateAt     int64  `db:"create_at"`
-		EditAt       int64  `db:"edit_at"`
-		DeleteAt     int64  `db:"delete_at"`
+		Id               int64  `db:"id"`
+		OwnerUserId      int64  `db:"owner_user_id"`      // 归属人id
+		TargetUserId     int64  `db:"target_user_id"`     // 好友id
+		TargetUserName   string `db:"target_user_name"`   // 好友名称
+		TargetUserAvatar string `db:"target_user_avatar"` // 好友头像
+		NameNote         string `db:"name_note"`          // 好友别名
+		Remark           string `db:"remark"`             // 好友备注
+		TypeEm           int64  `db:"type_em"`            // 好友类型
+		GroupId          int64  `db:"group_id"`           // 组别id
+		GroupName        string `db:"group_name"`         // 组别名称
+		TagIds           string `db:"tag_ids"`            // 标签集合id
+		PlatId           int64  `db:"plat_id"`
+		CreateAt         int64  `db:"create_at"`
+		EditAt           int64  `db:"edit_at"`
+		DeleteAt         int64  `db:"delete_at"`
 	}
 )
 

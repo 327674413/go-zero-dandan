@@ -26,27 +26,40 @@ func NewGetUserCronyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 	}
 }
 
-func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.IdReq) (*pb.UserCronyList, error) {
+func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*pb.GetUserCronyListResp, error) {
 	if in.PlatId == 0 {
 		return l.rpcFail(resd.NewErrCtx(l.ctx, "未传入应用标识"))
 	}
+	if in.OwnerUserId == nil || *in.OwnerUserId == 0 {
+		return l.rpcFail(resd.NewErrCtx(l.ctx, "ownerUserId不得为空"))
+	}
 	model := model.NewUserCronyModel(l.svcCtx.SqlConn, in.PlatId)
-	data, _ := model.Ctx(l.ctx).Where("owner_user_id = ? AND type_em = ?", in.Id, constd.UserCronyTypeEmNormal).Select()
+	data, err := model.Ctx(l.ctx).Where("owner_user_id = ? AND type_em = ?", *in.OwnerUserId, constd.UserCronyTypeEmNormal).Select()
+	if err != nil {
+		l.rpcFail(resd.ErrorCtx(l.ctx, err))
+	}
 	list := make([]*pb.UserCronyInfo, 0)
 	// todo::为什么数据库查出来后，不能直接赋值给&pb.UserCronyInfo{}呢，导致这里要人工循环转结构
 	for _, v := range data {
 		d := &pb.UserCronyInfo{
-			OwnerUserId:  v.OwnerUserId,
-			TargetUserId: v.TargetUserId,
-			TypeEm:       v.TypeEm,
-			CreateAt:     v.CreateAt,
-			OwnerRemark:  v.OwnerRemark,
+			Id:               v.Id,
+			OwnerUserId:      v.OwnerUserId,
+			TargetUserId:     v.TargetUserId,
+			TypeEm:           v.TypeEm,
+			CreateAt:         v.CreateAt,
+			Remark:           v.Remark,
+			NameNote:         v.NameNote,
+			TargetUserName:   v.TargetUserName,
+			TargetUserAvatar: v.TargetUserAvatar,
+			GroupId:          v.GroupId,
+			GroupName:        v.GroupName,
+			TagIds:           v.TagIds,
 		}
 		list = append(list, d)
 	}
-	return &pb.UserCronyList{List: list}, nil
+	return &pb.GetUserCronyListResp{List: list}, nil
 }
 
-func (l *GetUserCronyListLogic) rpcFail(err error) (*pb.UserCronyList, error) {
+func (l *GetUserCronyListLogic) rpcFail(err error) (*pb.GetUserCronyListResp, error) {
 	return nil, resd.RpcErrEncode(err)
 }

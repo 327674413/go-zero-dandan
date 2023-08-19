@@ -4,6 +4,7 @@ import (
 	{{.imports}}
 	"go-zero-dandan/common/resd"
     "go-zero-dandan/common/utild"
+    "go-zero-dandan/app/user/rpc/user"
 )
 
 type {{.logic}} struct {

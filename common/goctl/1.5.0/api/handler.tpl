@@ -3,6 +3,8 @@ package {{.PkgName}}
 import (
 	"net/http"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/land"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	{{.ImportPackages}}
 )

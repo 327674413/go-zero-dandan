@@ -65,3 +65,27 @@ type UserInfoResp struct {
 	UpdateAt  int64       `json:"updateAt"`
 	UserToken string      `json:"userToken"`
 }
+
+type GetUserCronyListReq struct {
+	OwnerUserId   int64  `json:"ownerUserId,optional"`
+	OwnerUserName string `json:"ownerName,optional"`
+	GroupId       int64  `json:"groupId,optional"`
+	TypeEms       string `json:"typeEms,optional"`
+	AddStartTime  string `json:"addStartTime,optional"`
+	AddEndTime    string `json:"addEndTime,optional"`
+}
+
+type UserCronyInfo struct {
+	Id               *int64  `json:"id,string,omitempty"`
+	OwnerUserId      *int64  `json:"ownerUserId,string,omitempty"`
+	TargetUserId     *int64  `json:"targetUserId,string,omitempty"`
+	TargetUserName   *string `json:"targetUserName,omitempty"`
+	TargetUserAvatar *string `json:"targetUserAvatar,omitempty"`
+	NameNote         *string `json:"nameNote,omitempty"`
+	Remark           *string `json:"remark,omitempty"`
+}
+
+type GetUserCronyListResp struct {
+	List  []*UserCronyInfo `json:"list"`
+	Total int64            `json:"total,omitempty"`
+}

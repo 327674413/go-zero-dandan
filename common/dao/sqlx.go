@@ -241,10 +241,8 @@ func (t *SqlxDao) Select(targetStructPtr any) error {
 	} else {
 		err = t.conn.QueryRowsPartial(targetStructPtr, sql, t.whereData...)
 	}
+	// select传入的应该是切片指针，似乎往切片写入数据时，没查到也不会进err
 	if err != nil {
-		if err == sqlx.ErrNotFound {
-			return err
-		}
 		return resd.Error(err)
 	} else {
 		return nil

@@ -13,18 +13,19 @@ import (
 )
 
 type (
-	EditUserInfoReq = pb.EditUserInfoReq
-	IdReq           = pb.IdReq
-	SuccResp        = pb.SuccResp
-	TokenReq        = pb.TokenReq
-	UserCronyInfo   = pb.UserCronyInfo
-	UserCronyList   = pb.UserCronyList
-	UserMainInfo    = pb.UserMainInfo
+	EditUserInfoReq      = pb.EditUserInfoReq
+	GetUserCronyListReq  = pb.GetUserCronyListReq
+	GetUserCronyListResp = pb.GetUserCronyListResp
+	IdReq                = pb.IdReq
+	SuccResp             = pb.SuccResp
+	TokenReq             = pb.TokenReq
+	UserCronyInfo        = pb.UserCronyInfo
+	UserMainInfo         = pb.UserMainInfo
 
 	User interface {
 		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
-		GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error)
+		GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error)
 	}
 
 	defaultUser struct {
@@ -48,7 +49,7 @@ func (m *defaultUser) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opt
 	return client.EditUserInfo(ctx, in, opts...)
 }
 
-func (m *defaultUser) GetUserCronyList(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserCronyList, error) {
+func (m *defaultUser) GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.GetUserCronyList(ctx, in, opts...)
 }

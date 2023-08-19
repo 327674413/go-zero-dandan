@@ -31,14 +31,21 @@ message EditUserInfoReq {
 message UserCronyInfo {
   int64 OwnerUserId = 1;
   int64 TargetUserId = 2;
-  string OwnerRemark = 3;
+  string Remark = 3;
   int64 TypeEm = 4;
+  string NameNote = 5;
   int64 CreateAt = 6;
-
+  string TargetUserName = 7;
+  string TargetUserAvatar = 8;
+  string TagIds = 9;
+  int64 GroupId = 10;
+  string GroupName = 11;
+  int64 Id = 12;
 }
 
-message UserCronyList {
+message getUserCronyListResp {
   repeated UserCronyInfo list = 1;
+  optional int64 total = 2;
 }
 
 
@@ -52,8 +59,18 @@ message TokenReq {
 message SuccResp {
   int64 Code= 1;
 }
+message getUserCronyListReq {
+  int64 PlatId = 1;
+  int64 IsNeedTotal = 2;
+  optional int64 OwnerUserId = 3;
+  optional string OwnerUserName = 4;
+  optional int64 GroupId = 5;
+  optional string TypeEms = 6;
+  optional string AddStartTime = 7;
+  optional string AddEndTime = 8;
+}
 service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
-  rpc getUserCronyList(IdReq) returns(UserCronyList);
+  rpc getUserCronyList(getUserCronyListReq) returns(getUserCronyListResp);
 }

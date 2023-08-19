@@ -32,7 +32,13 @@ func main() {
 			"result": false,
 			"msg":    err.Error(),
 		})
-	}))
+	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
+		//跨域处理
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+	}, "*"))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
