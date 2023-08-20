@@ -2,7 +2,6 @@ package crony
 
 import (
 	"context"
-
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 
@@ -34,13 +33,14 @@ func (l *GetMyCronyListLogic) GetMyCronyList(req *types.GetUserCronyListReq) (re
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	data, err := l.svcCtx.UserRpc.GetUserCronyList(l.ctx, &user.GetUserCronyListReq{
-		PlatId:        l.platId,
+		PlatId:        &l.platId,
 		OwnerUserId:   &l.userMainInfo.Id,
-		OwnerUserName: &req.OwnerUserName,
-		GroupId:       &req.GroupId,
-		TypeEms:       &req.TypeEms,
-		AddStartTime:  &req.AddStartTime,
-		AddEndTime:    &req.AddEndTime,
+		OwnerUserName: req.OwnerUserName,
+		GroupId:       req.GroupId,
+		TypeEms:       req.TypeEms,
+		AddStartTime:  req.AddStartTime,
+		AddEndTime:    req.AddEndTime,
+		IsNeedTotal:   req.IsNeedTotal,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
@@ -56,9 +56,13 @@ func (l *GetMyCronyListLogic) GetMyCronyList(req *types.GetUserCronyListReq) (re
 			Remark:           &v.Remark,
 		})
 	}
-	return &types.GetUserCronyListResp{
+	resp = &types.GetUserCronyListResp{
 		List: list,
-	}, nil
+	}
+	if data.Total != nil {
+		resp.Total = data.Total
+	}
+	return resp, nil
 }
 
 func (l *GetMyCronyListLogic) initPlat() (err error) {

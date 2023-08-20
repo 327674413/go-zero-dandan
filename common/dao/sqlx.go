@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/resd"
@@ -171,6 +172,13 @@ func (t *SqlxDao) getWhereParam() string {
 	if t.platId != 0 {
 		where = where + "" + fmt.Sprintf(" AND %s=%d", plat, t.platId)
 	}
+	if t.softDeletable {
+		aliasDelete := ""
+		if t.tableAlias != "" {
+			aliasDelete = t.tableAlias + "."
+		}
+		where = where + "" + fmt.Sprintf(" AND %s%s=0", aliasDelete, t.softDeleteField)
+	}
 	return where
 }
 func (t *SqlxDao) getPageParam() string {
@@ -222,7 +230,7 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 }
 
 // Select 查询所有数据,需传入目标结构体切片的指针
-func (t *SqlxDao) Select(targetStructPtr any) error {
+func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	defer t.Reinit()
 	err := t.validate()
 	if err != nil {
@@ -241,12 +249,20 @@ func (t *SqlxDao) Select(targetStructPtr any) error {
 	} else {
 		err = t.conn.QueryRowsPartial(targetStructPtr, sql, t.whereData...)
 	}
+	if len(totalPtr) > 0 {
+		sql = fmt.Sprintf("select COUNT(*) from %s where "+whereParam, tableParam)
+		if t.ctx != nil {
+			err = t.conn.QueryRowPartialCtx(t.ctx, totalPtr[0], sql, t.whereData...)
+		} else {
+			err = t.conn.QueryRowPartial(totalPtr[0], sql, t.whereData...)
+		}
+	}
 	// select传入的应该是切片指针，似乎往切片写入数据时，没查到也不会进err
 	if err != nil {
+		logc.Error(t.ctx, fmt.Sprintf("【error sql】 : %s , 【data】 : %v", sql, t.whereData))
 		return resd.Error(err)
-	} else {
-		return nil
 	}
+	return nil
 }
 
 // CacheSelect 缓存查数据

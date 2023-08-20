@@ -60,8 +60,8 @@ message SuccResp {
   int64 Code= 1;
 }
 message getUserCronyListReq {
-  int64 PlatId = 1;
-  int64 IsNeedTotal = 2;
+  optional int64 PlatId = 1;
+  optional int64 IsNeedTotal = 2;
   optional int64 OwnerUserId = 3;
   optional string OwnerUserName = 4;
   optional int64 GroupId = 5;

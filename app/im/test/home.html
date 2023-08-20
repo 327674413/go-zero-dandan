@@ -44,7 +44,7 @@
           item.innerHTML = "<b>连接成功</b>";
           appendLog(item);
           //这里可能要放到onmessage了收到登录成功的消息后再处理
-          post("http://localhost:8801/user/v1/getMyCronyList").then(res=>{
+          post("http://localhost:8801/user/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
             console.log(res)
           })
         }

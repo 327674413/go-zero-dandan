@@ -39,6 +39,15 @@ func (m *default{{.upperStartCamelObject}}Model) Select() ([]*{{.upperStartCamel
     }
     return resp, nil
 }
+func (m *default{{.upperStartCamelObject}}Model) SelectWithTotal() ([]*{{.upperStartCamelObject}},int64,error) {
+	resp := make([]*{{.upperStartCamelObject}},0)
+	var total int64
+	err := m.dao.Select(&resp,&total)
+    if err != nil {
+        return nil,0, err
+    }
+    return resp, total,nil
+}
 func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}},error) {
 	resp := make([]*{{.upperStartCamelObject}},0)
 	err := m.dao.CacheSelect(redis,resp)
@@ -47,6 +56,7 @@ func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redis
     }
     return resp, nil
 }
+
 func (m *default{{.upperStartCamelObject}}Model) Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model {
     m.dao.Page(page,rows)
     return m

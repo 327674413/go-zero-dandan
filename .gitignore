@@ -10,6 +10,7 @@
 data/*
 !data/.gitkeep
 *-dev.yaml
+*-dev.yml
 app/asset/api/public
 private.md
 # gitlab ci

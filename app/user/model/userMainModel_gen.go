@@ -44,6 +44,7 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*UserMain, error)
 		Page(page int64, rows int64) *defaultUserMainModel
 		Select() ([]*UserMain, error)
+		SelectWithTotal() ([]*UserMain, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*UserMain, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
@@ -190,21 +191,31 @@ func (m *defaultUserMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*U
 }
 
 func (m *defaultUserMainModel) Select() ([]*UserMain, error) {
-	var resp []*UserMain
-	err := m.dao.Select(resp)
+	resp := make([]*UserMain, 0)
+	err := m.dao.Select(&resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+func (m *defaultUserMainModel) SelectWithTotal() ([]*UserMain, int64, error) {
+	resp := make([]*UserMain, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
+}
 func (m *defaultUserMainModel) CacheSelect(redis *redisd.Redisd) ([]*UserMain, error) {
-	var resp []*UserMain
+	resp := make([]*UserMain, 0)
 	err := m.dao.CacheSelect(redis, resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+
 func (m *defaultUserMainModel) Page(page int64, rows int64) *defaultUserMainModel {
 	m.dao.Page(page, rows)
 	return m

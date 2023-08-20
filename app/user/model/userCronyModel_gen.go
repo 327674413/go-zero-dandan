@@ -44,6 +44,7 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*UserCrony, error)
 		Page(page int64, rows int64) *defaultUserCronyModel
 		Select() ([]*UserCrony, error)
+		SelectWithTotal() ([]*UserCrony, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*UserCrony, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
@@ -196,6 +197,15 @@ func (m *defaultUserCronyModel) Select() ([]*UserCrony, error) {
 	}
 	return resp, nil
 }
+func (m *defaultUserCronyModel) SelectWithTotal() ([]*UserCrony, int64, error) {
+	resp := make([]*UserCrony, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
+}
 func (m *defaultUserCronyModel) CacheSelect(redis *redisd.Redisd) ([]*UserCrony, error) {
 	resp := make([]*UserCrony, 0)
 	err := m.dao.CacheSelect(redis, resp)
@@ -204,6 +214,7 @@ func (m *defaultUserCronyModel) CacheSelect(redis *redisd.Redisd) ([]*UserCrony,
 	}
 	return resp, nil
 }
+
 func (m *defaultUserCronyModel) Page(page int64, rows int64) *defaultUserCronyModel {
 	m.dao.Page(page, rows)
 	return m

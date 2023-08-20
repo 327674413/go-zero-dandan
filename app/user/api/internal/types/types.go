@@ -67,12 +67,13 @@ type UserInfoResp struct {
 }
 
 type GetUserCronyListReq struct {
-	OwnerUserId   int64  `json:"ownerUserId,optional"`
-	OwnerUserName string `json:"ownerName,optional"`
-	GroupId       int64  `json:"groupId,optional"`
-	TypeEms       string `json:"typeEms,optional"`
-	AddStartTime  string `json:"addStartTime,optional"`
-	AddEndTime    string `json:"addEndTime,optional"`
+	IsNeedTotal   *int64  `json:"isNeedTotal,optional"`
+	OwnerUserId   *int64  `json:"ownerUserId,optional"`
+	OwnerUserName *string `json:"ownerName,optional"`
+	GroupId       *int64  `json:"groupId,optional"`
+	TypeEms       *string `json:"typeEms,optional"`
+	AddStartTime  *string `json:"addStartTime,optional"`
+	AddEndTime    *string `json:"addEndTime,optional"`
 }
 
 type UserCronyInfo struct {
@@ -87,5 +88,5 @@ type UserCronyInfo struct {
 
 type GetUserCronyListResp struct {
 	List  []*UserCronyInfo `json:"list"`
-	Total int64            `json:"total,omitempty"`
+	Total *int64           `json:"total,omitempty"`
 }

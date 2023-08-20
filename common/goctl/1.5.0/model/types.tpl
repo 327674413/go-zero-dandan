@@ -13,6 +13,7 @@ type (
         CacheFindById(redis *redisd.Redisd, id int64) (*{{.upperStartCamelObject}}, error)
         Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model
         Select() ([]*{{.upperStartCamelObject}}, error)
+        SelectWithTotal() ([]*{{.upperStartCamelObject}}, int64, error)
         CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}}, error)
         Count() (int64, error)
         Inc(field string, num int) (int64, error)

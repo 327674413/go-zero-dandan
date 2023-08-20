@@ -27,16 +27,23 @@ func NewGetUserCronyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*pb.GetUserCronyListResp, error) {
-	if in.PlatId == 0 {
+	if in.PlatId == nil || *in.PlatId == 0 {
 		return l.rpcFail(resd.NewErrCtx(l.ctx, "未传入应用标识"))
 	}
 	if in.OwnerUserId == nil || *in.OwnerUserId == 0 {
 		return l.rpcFail(resd.NewErrCtx(l.ctx, "ownerUserId不得为空"))
 	}
-	model := model.NewUserCronyModel(l.svcCtx.SqlConn, in.PlatId)
-	data, err := model.Ctx(l.ctx).Where("owner_user_id = ? AND type_em = ?", *in.OwnerUserId, constd.UserCronyTypeEmNormal).Select()
+	userCronyModel := model.NewUserCronyModel(l.svcCtx.SqlConn, *in.PlatId)
+	var err error
+	var data []*model.UserCrony
+	var total int64
+	if in.IsNeedTotal != nil && *in.IsNeedTotal == 1 {
+		data, total, err = userCronyModel.Ctx(l.ctx).Where("owner_user_id = ? AND type_em = ?", *in.OwnerUserId, constd.UserCronyTypeEmNormal).SelectWithTotal()
+	} else {
+		data, err = userCronyModel.Ctx(l.ctx).Where("owner_user_id = ? AND type_em = ?", *in.OwnerUserId, constd.UserCronyTypeEmNormal).Select()
+	}
 	if err != nil {
-		l.rpcFail(resd.ErrorCtx(l.ctx, err))
+		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
 	}
 	list := make([]*pb.UserCronyInfo, 0)
 	// todo::为什么数据库查出来后，不能直接赋值给&pb.UserCronyInfo{}呢，导致这里要人工循环转结构
@@ -57,7 +64,11 @@ func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*p
 		}
 		list = append(list, d)
 	}
-	return &pb.GetUserCronyListResp{List: list}, nil
+	resp := &pb.GetUserCronyListResp{List: list}
+	if in.IsNeedTotal != nil && *in.IsNeedTotal == 1 {
+		resp.Total = &total
+	}
+	return resp, nil
 }
 
 func (l *GetUserCronyListLogic) rpcFail(err error) (*pb.GetUserCronyListResp, error) {
