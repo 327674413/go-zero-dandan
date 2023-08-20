@@ -3,11 +3,11 @@ package logic
 import (
 	"context"
 	"go-zero-dandan/app/user/model"
-	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/resd"
-
 	"go-zero-dandan/app/user/rpc/internal/svc"
 	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,26 +45,11 @@ func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*p
 	if err != nil {
 		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
 	}
-	list := make([]*pb.UserCronyInfo, 0)
-	// todo::为什么数据库查出来后，不能直接赋值给&pb.UserCronyInfo{}呢，导致这里要人工循环转结构
-	for _, v := range data {
-		d := &pb.UserCronyInfo{
-			Id:               v.Id,
-			OwnerUserId:      v.OwnerUserId,
-			TargetUserId:     v.TargetUserId,
-			TypeEm:           v.TypeEm,
-			CreateAt:         v.CreateAt,
-			Remark:           v.Remark,
-			NameNote:         v.NameNote,
-			TargetUserName:   v.TargetUserName,
-			TargetUserAvatar: v.TargetUserAvatar,
-			GroupId:          v.GroupId,
-			GroupName:        v.GroupName,
-			TagIds:           v.TagIds,
-		}
-		list = append(list, d)
+	resp := &pb.GetUserCronyListResp{}
+	err = utild.Copy(&resp.List, data)
+	if err != nil {
+		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
 	}
-	resp := &pb.GetUserCronyListResp{List: list}
 	if in.IsNeedTotal != nil && *in.IsNeedTotal == 1 {
 		resp.Total = &total
 	}

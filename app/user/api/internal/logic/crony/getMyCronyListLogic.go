@@ -45,7 +45,7 @@ func (l *GetMyCronyListLogic) GetMyCronyList(req *types.GetUserCronyListReq) (re
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	list := make([]*types.UserCronyInfo, 0)
+	/*list := make([]*types.UserCronyInfo, 0)
 	for _, v := range data.List {
 		list = append(list, &types.UserCronyInfo{
 			Id:               &v.Id,
@@ -55,9 +55,11 @@ func (l *GetMyCronyListLogic) GetMyCronyList(req *types.GetUserCronyListReq) (re
 			TargetUserAvatar: &v.TargetUserAvatar,
 			Remark:           &v.Remark,
 		})
-	}
-	resp = &types.GetUserCronyListResp{
-		List: list,
+	}*/
+	resp = &types.GetUserCronyListResp{}
+	err = utild.Copy(&resp.List, data.List)
+	if err != nil {
+		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if data.Total != nil {
 		resp.Total = data.Total

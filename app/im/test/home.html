@@ -38,20 +38,25 @@
       if (window["WebSocket"]) {
         conn = new WebSocket(addr);
         conn.onopen = function(){
-          $('#chat').style.display = "block"
+          $('#chat').style.display = "flex"
           $('#login').style.display = "none"
           var item = document.createElement("div");
           item.innerHTML = "<b>连接成功</b>";
-          appendLog(item);
+          appendChat(item);
           //这里可能要放到onmessage了收到登录成功的消息后再处理
           post("http://localhost:8801/user/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
-            console.log(res)
+            let str = ""
+            res.data.list.forEach(item=>{
+              console.log(item)
+              str += `<div class="crony-item">${item.targetUserName}</div>`
+            })
+            document.getElementById('crony-list').innerHTML = str
           })
         }
         conn.onclose = function (evt) {
           var item = document.createElement("div");
           item.innerHTML = "<b>Connection closed.</b>";
-          appendLog(item);
+          appendChat(item);
         };
         conn.onmessage = function (evt) {
          let data = JSON.parse(evt.data);
@@ -69,20 +74,20 @@
       var item = document.createElement("div");
       item.className = 'fr chat-msg-item send'
       item.innerHTML = '<span class="chat-msg-state">发送中</span><div class="chat-msg-wrapper"><div class="fr chat-msg-name">我</div><div class="fl chat-msg-content">' +data.text +'</div></div><div class="chat-msg-avatar"></div>';
-      appendLog(item);
+      appendChat(item);
     }
     function appendRecvChatText(data){
       var item = document.createElement("div");
       item.className = 'fl chat-msg-item recv'
       item.innerHTML = '<div class="chat-msg-avatar"></div><div class="chat-msg-wrapper"><div class="fl chat-msg-name">对方名字</div><div class="fl chat-msg-content">' +data.text +'</div></div>';
-      appendLog(item);
+      appendChat(item);
     }
-    function appendLog(item) {
-      var log = document.getElementById("log");
-      var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-      log.appendChild(item);
+    function appendChat(item) {
+      var chat = document.getElementById("chat-content");
+      var doScroll = chat.scrollTop > chat.scrollHeight - chat.clientHeight - 1;
+      chat.appendChild(item);
       if (doScroll) {
-        log.scrollTop = log.scrollHeight - log.clientHeight;
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
       }
     }
     function $(selector){
@@ -124,16 +129,13 @@
       height: 100%;
     }
 
-    #log {
+    #chat-content {
       background: #f4f4f4;
-      margin: 0;
+      margin: 10px;
       padding: 0.5em 0.5em 0.5em 0.5em;
-      position: absolute;
-      top: 0.5em;
-      left: 0.5em;
-      right: 0.5em;
-      bottom: 3em;
       overflow: auto;
+      width:100%;
+      height:90%;
     }
 
     #form {
@@ -149,7 +151,7 @@
     .fr{display: flex;align-items: center;justify-content: flex-end;}
     .fc{display: flex;align-items: center;justify-content: center;}
     .fb{display: flex;align-items: center;justify-content: space-between;}
-    #chat{width:100vw;height:100vh;display: none;background: gray;}
+    #chat{width:100vw;height:100vh;display: none;background: gray;align-items: flex-start;}
     #login{width:100vmin;height:100vmin;position: absolute;left:50%;top:50%;transform: translate(-50%,-50%);background: #f8f8f8;}
     .login-item{display: flex;align-items: center;padding:.5em 1em;}
     #ws-addr{width:40em;}
@@ -184,6 +186,11 @@
       right: -5px;
       top: 8px;
     }
+    .chat-crony{flex:0 0 150px;background: #f4f4f4;margin:10px;}
+    .crony-title{background: #ff6600;color:#fff;padding:5px;}
+    .crony-list{padding:5px;}
+
+    .crony-item:hover{cursor: pointer;text-decoration: underline;color:#ff6600;}
   </style>
 </head>
 <body>
@@ -192,13 +199,33 @@
   <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
   <p class="login-item">
     <button class="login-btn" onclick="tapLogin()">自定义token登录</button>
-    <button class="login-btn" onclick="tapLogin('2b4252c608174611c6179cacab59979fb9ec478bad51a044a6b3f81856af8e81')">登录用户1</button>
-    <button class="login-btn" onclick="tapLogin('fa9703d663c06599a89997a45a4de948c3f4eef7f4555e41b4d5db2c62afd208')">登录用户2</button>
+    <button class="login-btn" onclick="tapLogin('17fad3f466f971f0595fa9a2c442a4219cfab202acbe5cd5f3521f7edd273187')">登录用户96</button>
+    <button class="login-btn" onclick="tapLogin('27612c99538633fc430848054d106a40f43afc897ca12be097ad7eadd8169e8a')">登录用户95</button>
 
   </p>
 </div>
-<div id="chat">
-  <div id="log"></div>
+<div id="chat" class="fl">
+  <div class="chat-crony">
+    <div class="crony">
+      <div class="fc crony-title">我的好友</div>
+      <div class="crony-list" id="crony-list">
+
+      </div>
+    </div>
+    <div class="crony">
+      <div class="fc crony-title">我的群组</div>
+      <div class="crony-list">
+        <div class="crony-item">群名</div>
+      </div>
+    </div>
+    <div class="crony">
+      <div class="fc crony-title">客服列表</div>
+      <div class="crony-list">
+        <div class="crony-item">客服名</div>
+      </div>
+    </div>
+  </div>
+  <div id="chat-content"></div>
   <form id="form">
     <input type="submit" value="Send" />
     <input type="text" id="msg" size="64" autofocus />
