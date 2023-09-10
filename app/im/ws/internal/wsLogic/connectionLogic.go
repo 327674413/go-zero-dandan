@@ -2,8 +2,10 @@ package wsLogic
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
+	"github.com/zeromicro/go-zero/core/logc"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/ws/internal/wsSvc"
 	"go-zero-dandan/app/im/ws/internal/wsTypes"
@@ -116,9 +118,14 @@ func (l *Hub) readMsg(conn *UserConn, userId int64, platformEm int64) {
 	for {
 		messageType, msg, err := conn.ReadMessage()
 		//todo::这里读取消息，判断消息内容，然后发送消息
-		conn.WriteMessage(messageType, msg)
+		s := &wsTypes.Message{}
 		if messageType == websocket.PingMessage {
 			l.sendMsg(l.ctx, conn, "Pong")
+		} else if messageType == websocket.TextMessage {
+			json.Unmarshal(msg, &s)
+			if s.TypeEm == wsTypes.MsgTypeEmChat {
+				l.ChatTextHandler(s, conn)
+			}
 		}
 		if err != nil {
 			//uid, platform := l.getUserUid(conn)
@@ -139,16 +146,55 @@ func (l *Hub) readMsg(conn *UserConn, userId int64, platformEm int64) {
 		})*/
 	}
 }
+func (l *Hub) ChatTextHandler(message *wsTypes.Message, fromUserConn *UserConn) {
+	switch message.TargetTypeEm {
+	case wsTypes.TargetTypeEmCrony:
+		if userConns, ok := l.wsUserToConn[message.TargetId]; ok {
+			//在线消息
+			sendByte, err := json.Marshal(message)
+			if err != nil {
+				logc.Error(l.ctx, err)
+				return
+			}
+			sendState := false
+			for platform, v := range userConns {
+				err = l.SendMsgToUser(l.ctx, v, sendByte, platform)
+				if err == nil {
+					sendState = true
+				}
+			}
+			if sendState {
+				l.responseChatSucc(message, fromUserConn)
+			}
 
-func (l *Hub) SendMsgToUser(ctx context.Context, conn *UserConn, bMsg []byte, RecvPlatForm, RecvID string) (ResultCode int64) {
+		} else {
+			fmt.Println("进来了3")
+			//离线消息
+		}
+
+	}
+	//获取目标对象的conn
+
+}
+
+// responseChatSucc 回复发送状态
+func (l *Hub) responseChatSucc(message *wsTypes.Message, conn *UserConn) error {
+	byte, _ := json.Marshal(&wsTypes.MessageResp{
+		Code:    message.Code,
+		StateEm: wsTypes.ChatMsgStateEmSent,
+		ErrCode: 0,
+		TypeEm:  wsTypes.MsgTypeEmChatResp,
+	})
+	fmt.Println("触发发送状态回复")
+	l.writeMsg(conn, websocket.TextMessage, byte)
+	return nil
+}
+func (l *Hub) SendMsgToUser(ctx context.Context, conn *UserConn, bMsg []byte, platformEm int64) error {
 	fmt.Println("SendMsgToUser start")
-	err := l.writeMsg(conn, websocket.BinaryMessage, bMsg)
+	err := l.writeMsg(conn, websocket.TextMessage, bMsg)
 	if err != nil {
-		logx.WithContext(ctx).Error("send msg to user err ", "", "err ", err.Error())
-		ResultCode = -2
-		return ResultCode
+		return resd.NewErrCtx(l.ctx, err.Error())
 	} else {
-		ResultCode = 0
-		return ResultCode
+		return nil
 	}
 }

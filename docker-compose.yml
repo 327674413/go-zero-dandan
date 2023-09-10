@@ -212,6 +212,20 @@ services:
     networks:
       - dandan_net
     restart: always
+
+  kong-database:
+    image: postgres:9.6
+    container_name: kong-database
+    networks:
+      - dandan-net
+    ports:
+      - 5432:5432
+    volumes:
+      - kong-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=kong
+      - POSTGRES_PASSWORD=kong
+
 networks:
   dandan_net:
     driver: bridge

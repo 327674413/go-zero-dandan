@@ -21,7 +21,7 @@
 
     };
     function sendChatText(text){
-      let data = {text:text,type:'CHAT_TEXT',id:Date.now() + '' + Math.floor(Math.random() * 10) + 10001}
+      let data = {content:text,typeEm:'CHAT',code:Date.now() + '' + Math.floor(Math.random() * 10) + 10001,targetTypeEm:'crony',targetId:targetUser.targetUserId}
       conn.send(JSON.stringify(data));
       data.state = 0;
       appendSendChatText(data)
@@ -33,24 +33,23 @@
       userToken = token
       connect(addr + "?platformEm=1&token=" + token)
     }
-
+    var cronyList = []
+    var targetUser = {}
     function connect(addr){
       if (window["WebSocket"]) {
         conn = new WebSocket(addr);
         conn.onopen = function(){
           $('#chat').style.display = "flex"
           $('#login').style.display = "none"
-          var item = document.createElement("div");
-          item.innerHTML = "<b>连接成功</b>";
-          appendChat(item);
+          console.log('连接成功')
           //这里可能要放到onmessage了收到登录成功的消息后再处理
           post("http://localhost:8801/user/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
             let str = ""
-            res.data.list.forEach(item=>{
-              console.log(item)
-              str += `<div class="crony-item">${item.targetUserName}</div>`
+            res.data.list.forEach((item,index)=>{
+              str += `<div class="crony-item" onclick="tapCrony(${index})">${item.targetUserName}</div>`
             })
             document.getElementById('crony-list').innerHTML = str
+            cronyList = res.data.list
           })
         }
         conn.onclose = function (evt) {
@@ -59,8 +58,16 @@
           appendChat(item);
         };
         conn.onmessage = function (evt) {
-         let data = JSON.parse(evt.data);
-          appendRecvChatText(data)
+          let data = JSON.parse(evt.data);
+          console.log(data)
+          switch (data.typeEm) {
+            case "CHAT":
+              appendRecvChatText(data)
+              break
+            case "CHAT_RESP":
+              chatRespHandler(data)
+          }
+
         };
         conn.onerror = function (evt) {
           console.error(evt.message,evt.reason,evt.code)
@@ -70,18 +77,35 @@
         alert("浏览器不支持socket连接")
       }
     }
+    function tapCrony(index){
+      targetUser = cronyList[index];
+      $('#chat-target').innerHTML = '当前对话好友：'+targetUser.targetUserName
+      $('#form').style.display = 'block'
+
+    }
+    function chatRespHandler(data){
+      let list = document.querySelectorAll('.chat-msg-state')
+      for (let i = 0; i < list.length; i++){
+        console.log(list[i])
+        if (list[i].dataset.code == data.code){
+          list[i].innerHTML = '未读'
+          list[i].style = "color:#808080;"
+        }
+      }
+    }
     function appendSendChatText(data){
       var item = document.createElement("div");
       item.className = 'fr chat-msg-item send'
-      item.innerHTML = '<span class="chat-msg-state">发送中</span><div class="chat-msg-wrapper"><div class="fr chat-msg-name">我</div><div class="fl chat-msg-content">' +data.text +'</div></div><div class="chat-msg-avatar"></div>';
+      item.innerHTML = '<span class="chat-msg-state" data-code="'+ data.code +'">发送中</span><div class="chat-msg-wrapper"><div class="fr chat-msg-name">我</div><div class="fl chat-msg-content">' +data.content +'</div></div><div class="chat-msg-avatar"></div>';
       appendChat(item);
     }
     function appendRecvChatText(data){
       var item = document.createElement("div");
       item.className = 'fl chat-msg-item recv'
-      item.innerHTML = '<div class="chat-msg-avatar"></div><div class="chat-msg-wrapper"><div class="fl chat-msg-name">对方名字</div><div class="fl chat-msg-content">' +data.text +'</div></div>';
+      item.innerHTML = '<div class="chat-msg-avatar"></div><div class="chat-msg-wrapper"><div class="fl chat-msg-name">对方名字</div><div class="fl chat-msg-content">' +data.content +'</div></div>';
       appendChat(item);
     }
+
     function appendChat(item) {
       var chat = document.getElementById("chat-content");
       var doScroll = chat.scrollTop > chat.scrollHeight - chat.clientHeight - 1;
@@ -99,7 +123,7 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.setRequestHeader("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTM3Mjg4MTEsImlhdCI6MTY4NzY4MDgxMSwicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.b-4nDvO4yKH4lfnHPHEEcQDWP_KI7f_PxvWkLm5Oc2Y");
+        xhr.setRequestHeader("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAyOTE5MzMsImlhdCI6MTY5NDI0MzkzMywicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.hxs6r-gixs7OmgTxMj48atPScMJu6q7PoEYp1jPGcvA");
         xhr.setRequestHeader("Token", userToken);
         xhr.onreadystatechange = function() {
           if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -191,6 +215,7 @@
     .crony-list{padding:5px;}
 
     .crony-item:hover{cursor: pointer;text-decoration: underline;color:#ff6600;}
+    #chat-target{background: #0066ff;color:#fff;padding:5px;}
   </style>
 </head>
 <body>
@@ -225,8 +250,10 @@
       </div>
     </div>
   </div>
-  <div id="chat-content"></div>
-  <form id="form">
+  <div id="chat-content">
+    <div id="chat-target"></div>
+  </div>
+  <form id="form" style="display: none;">
     <input type="submit" value="Send" />
     <input type="text" id="msg" size="64" autofocus />
   </form>

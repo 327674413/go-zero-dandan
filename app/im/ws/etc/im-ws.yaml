@@ -8,6 +8,10 @@ UserRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+Kafka:
+  Addrs:
+    - 127.0.0.1:9092
+  Topic: chat
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node
