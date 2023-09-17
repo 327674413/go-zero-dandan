@@ -63,7 +63,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return nil, resd.RpcErrDecode(rpcErr)
+			return nil, resd.ErrorCtx(l.ctx, rpcErr)
 		}
 		return resp, nil
 	}

@@ -109,7 +109,7 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
-			return "", resd.RpcErrDecode(rpcErr)
+			return "", resd.Error(rpcErr)
 		}
 		return code, nil
 	}

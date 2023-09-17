@@ -11,6 +11,7 @@ import (
 	"go-zero-dandan/app/asset/api/internal/middleware"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/interceptor"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/storaged"
 )
@@ -32,7 +33,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	redisConn := redis.MustNewRedis(c.RedisConf)
 	redisdConn := redisd.NewRedisd(redisConn, "asset")
-	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc))
+	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
 	svc := &ServiceContext{
 		Config:              c,
 		SqlConn:             sqlx.NewMysql(c.DB.DataSource),

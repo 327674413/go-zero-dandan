@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/config"
 	"go-zero-dandan/app/user/api/internal/middleware"
 	"go-zero-dandan/app/user/rpc/user"
+	"go-zero-dandan/common/interceptor"
 	"go-zero-dandan/common/redisd"
 )
 
@@ -27,12 +28,11 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	redisConn := redis.MustNewRedis(c.RedisConf)
 	redisdConn := redisd.NewRedisd(redisConn, "user")
-	//todo:: 这里好像不是指针，会有问题么
-	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc))
+	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
 	return &ServiceContext{
 		Config:              c,
 		SqlConn:             sqlx.NewMysql(c.DB.DataSource),
-		MessageRpc:          message.NewMessage(zrpc.MustNewClient(c.MessageRpc)),
+		MessageRpc:          message.NewMessage(zrpc.MustNewClient(c.MessageRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor()))),
 		UserRpc:             UserRpc,
 		LangMiddleware:      middleware.NewLangMiddleware().Handle,
 		UserTokenMiddleware: middleware.NewUserTokenMiddleware().Handle,
