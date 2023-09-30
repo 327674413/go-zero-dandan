@@ -12,7 +12,8 @@ service user-api {
 	post /loginByPhone(LoginByPhoneReq) returns (UserInfoResp)
 	@handler getPhoneVerifyCode
 	post /getPhoneVerifyCode(GetPhoneVerifyCodeReq) returns (SuccessResp)
-	
+	@handler loginByWxappCode
+	post /loginByWxappCode(LoginByWxappCodeReq) returns (LoginByWxappCodeResp)
 }
 
 @server(

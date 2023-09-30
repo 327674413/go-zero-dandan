@@ -24,6 +24,28 @@ type RegByPhoneReq struct {
 	PortEm    *int64  `json:"portEm"`
 }
 
+type LoginByWxappCodeReq struct {
+	Code string `json:"code"`
+}
+
+type LoginByWxappCodeResp struct {
+	UserInfo      *UserInfoResp      `json:"userInfo"`
+	WxappUserInfo *WxappUserInfoResp `json:"wxappUserInfo"`
+}
+
+type WxappUserInfoResp struct {
+	Id     int64  `json:"id,string"`
+	Openid string `json:"openid"`
+}
+
+type GetWxappOpenidReq struct {
+	Code string `json:"code"`
+}
+
+type GetWxappOpenidResp struct {
+	Openid string `json:"openid"`
+}
+
 type EditMyInfoReq struct {
 	Nickname     *string `json:"nickname,optional"`
 	SexEm        *int64  `json:"sexEm,optional"`

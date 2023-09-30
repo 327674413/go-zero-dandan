@@ -17,6 +17,27 @@ type RegByPhoneReq {
 	OtpCode *string `json:"otpCode"`
 	PortEm  *int64  `json:"portEm"`
 }
+type (
+	LoginByWxappCodeReq{
+		Code string `json:"code"`
+	}
+	LoginByWxappCodeResp {
+		UserInfo *UserInfoResp `json:"userInfo"`
+		WxappUserInfo *WxappUserInfoResp `json:"wxappUserInfo"`
+	}
+)
+type WxappUserInfoResp {
+	Id int64 `json:"id,string"`
+	Openid string `json:"openid"`
+}
+type (
+	GetWxappOpenidReq{
+		Code string `json:"code"`
+	}
+	GetWxappOpenidResp{
+		Openid string `json:"openid"`
+	}
+)
 type EditMyInfoReq{
 	Nickname *string `json:"nickname,optional"`
 	SexEm *int64 `json:"sexEm,optional"`
