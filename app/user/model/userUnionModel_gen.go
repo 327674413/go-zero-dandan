@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultUserUnionModel
 		WhereId(id int64) *defaultUserUnionModel
 		Order(order string) *defaultUserUnionModel
+		Limit(num int64) *defaultUserUnionModel
 		Plat(id int64) *defaultUserUnionModel
 		Find() (*UserUnion, error)
 		FindById(id int64) (*UserUnion, error)
@@ -113,6 +114,10 @@ func (m *defaultUserUnionModel) Field(field string) *defaultUserUnionModel {
 }
 func (m *defaultUserUnionModel) Order(order string) *defaultUserUnionModel {
 	m.dao.Order(order)
+	return m
+}
+func (m *defaultUserUnionModel) Limit(num int64) *defaultUserUnionModel {
+	m.dao.Limit(num)
 	return m
 }
 func (m *defaultUserUnionModel) Count() (int64, error) {

@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultUserMainModel
 		WhereId(id int64) *defaultUserMainModel
 		Order(order string) *defaultUserMainModel
+		Limit(num int64) *defaultUserMainModel
 		Plat(id int64) *defaultUserMainModel
 		Find() (*UserMain, error)
 		FindById(id int64) (*UserMain, error)
@@ -125,6 +126,10 @@ func (m *defaultUserMainModel) Field(field string) *defaultUserMainModel {
 }
 func (m *defaultUserMainModel) Order(order string) *defaultUserMainModel {
 	m.dao.Order(order)
+	return m
+}
+func (m *defaultUserMainModel) Limit(num int64) *defaultUserMainModel {
+	m.dao.Limit(num)
 	return m
 }
 func (m *defaultUserMainModel) Count() (int64, error) {

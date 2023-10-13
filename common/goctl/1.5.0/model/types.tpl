@@ -6,6 +6,7 @@ type (
         Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model
         WhereId(id int64) *default{{.upperStartCamelObject}}Model
         Order(order string) *default{{.upperStartCamelObject}}Model
+        Limit(num int64) *default{{.upperStartCamelObject}}Model
         Plat(id int64) *default{{.upperStartCamelObject}}Model
         Find() (*{{.upperStartCamelObject}}, error)
         FindById(id int64) (*{{.upperStartCamelObject}}, error)

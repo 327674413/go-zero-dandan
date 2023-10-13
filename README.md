@@ -38,7 +38,7 @@ CREATE TABLE `表名`  (
     PRIMARY KEY (`id`)
 );
 ```
-###启动user api
+### 启动user api
 ```
 #进user目录执行
 go run user.go -f etc/user-api.yaml 
@@ -58,6 +58,14 @@ goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 
 ## 部署说明
+
+### 普通应用部署
+```
+#在目录下执行：
+GOOS=linux GOARCH=amd64 go build -o fileName
+```
+
+### Docker部署
 ```
 # 1先构建dockerfile，在服务目录运行，得到Dockerfile文件
 goctl docker -go 服务文件.go  

@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultUserCronyModel
 		WhereId(id int64) *defaultUserCronyModel
 		Order(order string) *defaultUserCronyModel
+		Limit(num int64) *defaultUserCronyModel
 		Plat(id int64) *defaultUserCronyModel
 		Find() (*UserCrony, error)
 		FindById(id int64) (*UserCrony, error)
@@ -124,6 +125,10 @@ func (m *defaultUserCronyModel) Field(field string) *defaultUserCronyModel {
 }
 func (m *defaultUserCronyModel) Order(order string) *defaultUserCronyModel {
 	m.dao.Order(order)
+	return m
+}
+func (m *defaultUserCronyModel) Limit(num int64) *defaultUserCronyModel {
+	m.dao.Limit(num)
 	return m
 }
 func (m *defaultUserCronyModel) Count() (int64, error) {

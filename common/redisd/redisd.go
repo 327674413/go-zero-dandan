@@ -167,7 +167,7 @@ func (t *Redisd) HsetCtx(ctx context.Context, field string, key string, data str
 
 }
 
-// Get 获取值
+// Get 获取值, 单个时key用id，多个时key可以用list、info之类的字符串标识
 func (t *Redisd) Get(field string, key string) (string, error) {
 	str, err := t.redisConn.Get(t.prefix + ":" + field + ":" + key)
 	if err != nil && err != redis.Nil {
@@ -181,7 +181,7 @@ func (t *Redisd) Get(field string, key string) (string, error) {
 	}
 }
 
-// GetCtx 获取值，带上下文
+// GetCtx 获取值，带上下文, 单个时key用id，多个时key可以用list、info之类的字符串标识
 func (t *Redisd) GetCtx(ctx context.Context, field string, key string) (string, error) {
 	str, err := t.redisConn.GetCtx(ctx, t.prefix+":"+field+":"+key)
 	if err != nil && err != redis.Nil {
@@ -323,4 +323,8 @@ func (t *Redisd) SetExSecCtx(ctx context.Context, field string, key string, expi
 	} else {
 		return err
 	}
+}
+
+func (t *Redisd) Redisx() *redisx.Redis {
+	return t.redisConn
 }

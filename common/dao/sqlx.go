@@ -92,8 +92,7 @@ func (t *SqlxDao) Ctx(ctx context.Context) *SqlxDao {
 
 // Limit Select时限制数量，如果设置了Page则会被覆盖
 func (t *SqlxDao) Limit(num int64) *SqlxDao {
-	t.limitNum = num
-	return t
+	return t.Page(1, num)
 }
 
 // LeftJoin 左联表
@@ -414,9 +413,10 @@ func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 }
 
 // Page 设置当前查询第几页，查多少行
-func (t *SqlxDao) Page(page int64, rows int64) {
+func (t *SqlxDao) Page(page int64, rows int64) *SqlxDao {
 	t.queryPage = page
 	t.queryRows = rows
+	return t
 }
 
 // Update 必须先设置where或在data中携带id，data中的id优先级高，若带id只能修改单个

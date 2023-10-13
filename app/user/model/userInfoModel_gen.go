@@ -9,7 +9,6 @@ import (
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"strings"
-	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -38,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultUserInfoModel
 		WhereId(id int64) *defaultUserInfoModel
 		Order(order string) *defaultUserInfoModel
+		Limit(num int64) *defaultUserInfoModel
 		Plat(id int64) *defaultUserInfoModel
 		Find() (*UserInfo, error)
 		FindById(id int64) (*UserInfo, error)
@@ -117,6 +117,10 @@ func (m *defaultUserInfoModel) Field(field string) *defaultUserInfoModel {
 }
 func (m *defaultUserInfoModel) Order(order string) *defaultUserInfoModel {
 	m.dao.Order(order)
+	return m
+}
+func (m *defaultUserInfoModel) Limit(num int64) *defaultUserInfoModel {
+	m.dao.Limit(num)
 	return m
 }
 func (m *defaultUserInfoModel) Count() (int64, error) {

@@ -37,6 +37,10 @@ func (m *default{{.upperStartCamelObject}}Model) Order(order string) *default{{.
     m.dao.Order(order)
 	return m
 }
+func (m *default{{.upperStartCamelObject}}Model) Limit(num int64) *default{{.upperStartCamelObject}}Model {
+    m.dao.Limit(num)
+	return m
+}
 func (m *default{{.upperStartCamelObject}}Model) Count() (int64, error) {
     return m.dao.Count()
 }
