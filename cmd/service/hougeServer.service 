@@ -1,0 +1,16 @@
+[Unit]
+Description=HouGeServer Service
+After=network.target
+
+[Service]
+ExecStart=/opt/app/houge/hougeServer
+WorkingDirectory=/opt/app/houge
+User=hougeServer
+Group=hougeServer
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=hougeServer
+
+[Install]
+WantedBy=multi-user.target
