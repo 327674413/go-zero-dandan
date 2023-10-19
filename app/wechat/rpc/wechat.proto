@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package wechat;
+
+message AuthByCodeReq {
+  string Code = 1;
+}
+
+message AuthByCodeResp {
+  string AccessToken = 1;
+  string Openid = 2;
+  string Unionid = 3;
+}
+
+service user {
+  rpc wxpubAuthByCode(AuthByCodeReq) returns(AuthByCodeResp);
+}

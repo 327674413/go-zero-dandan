@@ -43,12 +43,12 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 
 	//生成验证码
 	code := strconv.Itoa(utild.Rand(1000, 9999))
-	err = l.svcCtx.Redis.Set("verifyCode", phone, code, 300)
+	err = l.svcCtx.Redis.SetExCtx(l.ctx, "verifyCode", phone, code, 300)
 	if err != nil {
 		return nil, resd.Error(err, resd.RedisSetErr)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
-	err = l.svcCtx.Redis.Set("verifyCodeGetAt", phone, currAt, 60)
+	err = l.svcCtx.Redis.SetExCtx(l.ctx, "verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
 		return nil, resd.Error(err, resd.RedisSetErr)
 	}
@@ -68,7 +68,6 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 		return resp, nil
 	}
 
-	return resp, nil
 }
 
 func (l *GetPhoneVerifyCodeLogic) initPlat() (err error) {

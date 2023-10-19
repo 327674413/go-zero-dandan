@@ -91,12 +91,12 @@ func (t *UserBiz) RegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err
 func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, error) {
 	//生成验证码
 	code := strconv.Itoa(utild.Rand(1000, 9999))
-	err := t.svcCtx.Redis.Set("verifyCode", phone, code, 300)
+	err := t.svcCtx.Redis.SetExCtx(t.ctx, "verifyCode", phone, code, 300)
 	if err != nil {
 		return "", resd.Error(err, resd.RedisSetErr)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
-	err = t.svcCtx.Redis.Set("verifyCodeGetAt", phone, currAt, 60)
+	err = t.svcCtx.Redis.SetExCtx(t.ctx, "verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
 		return "", resd.Error(err, resd.RedisSetErr)
 	}
@@ -147,7 +147,7 @@ func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error)
 		Email:     userInfo.Email,
 		Avatar:    userInfo.Avatar,
 	}
-	err := t.svcCtx.Redis.SetData("userToken", token, cacheData, t.svcCtx.Config.Conf.LoginTokenExSec)
+	err := t.svcCtx.Redis.SetDataExCtx(t.ctx, "userToken", token, cacheData, t.svcCtx.Config.Conf.LoginTokenExSec)
 	if err != nil {
 		return "", resd.Error(err)
 	}

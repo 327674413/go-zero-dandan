@@ -1,5 +1,14 @@
 [
   {
+    "targets": ["host.docker.internal:9800"],
+    "labels": {
+      "job": "plat-api",
+      "app": "plat-api",
+      "env": "test",
+      "instance": "host.docker.internal:8800"
+    }
+  },
+  {
     "targets": ["host.docker.internal:9801"],
     "labels": {
       "job": "user-api",
@@ -27,6 +36,15 @@
     }
   },
   {
+    "targets": ["host.docker.internal:9804"],
+    "labels": {
+      "job": "wechat-api",
+      "app": "wechat-api",
+      "env": "test",
+      "instance": "host.docker.internal:8804"
+    }
+  },
+  {
     "targets": ["host.docker.internal:9805"],
     "labels": {
       "job": "user-rpc",
@@ -34,5 +52,6 @@
       "env": "test",
       "instance": "host.docker.internal:8805"
     }
-  }
+  },
+
 ]

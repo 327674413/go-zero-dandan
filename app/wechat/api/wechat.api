@@ -1,0 +1,53 @@
+type WxpubReq {
+	Appid string `json:"appid"`
+}
+type (
+	JssdkBuildReq {
+		Url         *string  `json:"url"`
+		JsApiList   []string `json:"jsApiList"`
+		OpenTagList []string `json:"openTagList"`
+	}
+	JssdkBuildResp {
+		AppId       string   `json:"appId"`
+		Beta        bool     `json:"beta"`
+		Debug       bool     `json:"debug"`
+		JsApiList   []string `json:"jsApiList"`
+		NonceStr    string   `json:"nonceStr"`
+		OpenTagList []string `json:"openTagList"`
+		Signature   string   `json:"signature"`
+		Timestamp   int64    `json:"timestamp"`
+		Url         string   `json:"url"`
+	}
+)
+type (
+	AuthByCodeReq {
+		Code string `json:"code"`
+	}
+	AuthByCodeResp {
+		AccessToken string `json:"accessToken"`
+		Openid      string `json:"openid"`
+		Unionid     string `json:"unionid"`
+	}
+)
+@server(
+	timeout: 30s
+	middleware: LangMiddleware
+	group: wxpub
+)
+service wechat-api {
+	@handler Service
+	get /service(WxpubReq) returns (string)
+}
+
+@server(
+	timeout: 30s
+	middleware: LangMiddleware
+	jwt: Auth
+	group: wxpub
+)
+service wechat-api {
+	@handler JssdkBuild
+	post /jssdkBuild(JssdkBuildReq) returns (JssdkBuildResp)
+	@handler AuthByCode
+	post /authByCode(AuthByCodeReq) returns (AuthByCodeResp)
+}

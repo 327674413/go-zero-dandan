@@ -3,7 +3,8 @@
 ### 编辑user.api后重新生成代码
 ```
 #进user目录执行
-goctl api go -api user.api -dir . -style goZero
+goctl api go -api user.api -dir . -style goZero 
+
 #如果用了自定义模版则输入home路径，在desc使用 -dir ../  和 ../../../../common/goctl/1.5.0 
 goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0
 
@@ -119,6 +120,8 @@ web管理地址 http://localhost:9001/
 然后执行：etcdctl get --prefix "" --keys-only=true
 
 # Todo
+- 如果h5请求添加了自定义头，还是会跨域，只能用官方默认支持的AccessToken, Token 作为自定义头
+- 远程自动上传，删除文件好像不会触发
 - common/resd汇总的msg.go拆分成代码生成和手工两部分，对于错误提示可以用代码生成批处理
 - 接管httpx.Parse，解决不能同时支持数字和字符串数字的问题以及转化失败报错英文的问题
 - 研究一下APISIX  和 kong ，实现统一的网关入口，做黑名单等事务

@@ -65,6 +65,7 @@ Image = "Image"
 
 
 
+
 [MyUnreadEmails]
 description = "The number of unread emails I have"
 one = "I have {{.PluralCount}} unread email."

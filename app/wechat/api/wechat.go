@@ -5,16 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/asset/api/internal/config"
-	"go-zero-dandan/app/asset/api/internal/handler"
-	"go-zero-dandan/app/asset/api/internal/svc"
+	"go-zero-dandan/app/wechat/api/internal/config"
+	"go-zero-dandan/app/wechat/api/internal/handler"
+	"go-zero-dandan/app/wechat/api/internal/svc"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/asset-api-dev.yaml", "the config file")
+var configFile = flag.String("f", "etc/wechat-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -30,15 +30,9 @@ func main() {
 			"result": false,
 			"msg":    err.Error(),
 		})
-	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
-		//跨域处理
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-	}, "*"))
+	}), rest.WithCors())
 	defer server.Stop()
+
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	logx.DisableStat() //去掉定时出现的控制台打印
