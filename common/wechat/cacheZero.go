@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/redis"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/resd"
 	"time"
@@ -32,12 +31,15 @@ func NewPowerWechatCache(redisd *redisd.Redisd) *PowerWechatCache {
 }
 func (t *PowerWechatCache) Get(key string, ptrValue interface{}) (returnValue interface{}, err error) {
 	b, err := t.Redis.Get("power", key)
-	if err == redis.Nil {
+	if b == "" {
 		return nil, ErrCacheMiss
 	}
 	err = json.Unmarshal([]byte(b), &ptrValue)
+	if err != nil {
+		return returnValue, resd.Error(err)
+	}
 	returnValue = ptrValue
-	return returnValue, resd.Error(err)
+	return returnValue, nil
 }
 
 func (t *PowerWechatCache) Set(key string, value interface{}, expires time.Duration) error {
@@ -46,7 +48,7 @@ func (t *PowerWechatCache) Set(key string, value interface{}, expires time.Durat
 		return resd.Error(err)
 	}
 	if expires > 0 {
-		return t.Redis.SetEx("power", key, string(mValue), int(expires))
+		return t.Redis.SetEx("power", key, string(mValue), int(expires.Seconds()))
 	} else {
 		return t.Redis.Set("power", key, string(mValue))
 	}
@@ -89,7 +91,7 @@ func (t *PowerWechatCache) AddNX(key string, value interface{}, ttl time.Duratio
 		logx.Error(err)
 		return false
 	}
-	err = t.Redis.SetNx("power", key, str, int(ttl))
+	err = t.Redis.SetNx("power", key, str, int(ttl.Seconds()))
 
 	if err != nil {
 		logx.Error(err)
@@ -112,7 +114,7 @@ func (t *PowerWechatCache) SetEx(key string, value interface{}, expires time.Dur
 	if err != nil {
 		return resd.Error(err)
 	}
-	return t.Redis.SetEx("power", key, string(mValue), int(expires))
+	return t.Redis.SetEx("power", key, string(mValue), int(expires.Seconds()))
 
 }
 func (t *PowerWechatCache) Remember(key string, ttl time.Duration, callback func() (interface{}, error)) (obj interface{}, err error) {

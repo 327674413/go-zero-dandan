@@ -2,7 +2,7 @@ version: '3'
 services:
   Etcd:
     container_name: etcd3
-    image: bitnami/etcd:${ETCD_VERSION}
+    image: bitnami/etcd:3.5.7
     deploy:
       replicas: 1
       restart_policy:
@@ -11,9 +11,9 @@ services:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
     volumes:
-      - ${ETCD_DIR}/data:/bitnami/etcd/data
+      - ${DATA_DIR}/etcd:/bitnami/etcd/data
     ports:
-      - ${ETCD_PORT}:2379
+      - 2379:2379
       - 2380:2380
     networks:
       - dandan_net
@@ -52,8 +52,8 @@ services:
       # 时区上海 - Time zone Shanghai (Change if needed)
       TZ: Asia/Shanghai
     volumes:
-      - ${PROMETHEUS_CONF_DIR}/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
-      - ${PROMETHEUS_CONF_DIR}/targets.json:/opt/bitnami/prometheus/conf/targets.json
+      - ${CONF_DIR}/prometheus/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+      - ${CONF_DIR}/prometheus/targets.json:/opt/bitnami/prometheus/conf/targets.json
     restart: always
     #user: root
     ports:
@@ -212,7 +212,32 @@ services:
     networks:
       - dandan_net
     restart: always
-
+  mysql:
+    image: mysql:8.1
+    container_name: mysql
+    environment:
+      # 时区上海 - Time zone Shanghai (Change if needed)
+      TZ: Asia/Shanghai
+      # root 密码 - root password
+      MYSQL_ROOT_PASSWORD: 8a7yNLrsThjw3jra
+    ports:
+      - 3306:3306
+    volumes:
+      # 数据挂载 - Data mounting
+      - ./data/mysql/data:/var/lib/mysql
+      # 日志
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
+    privileged: true
+    restart: always
+    networks:
+      - dandan_net
 networks:
   dandan_net:
     driver: bridge
