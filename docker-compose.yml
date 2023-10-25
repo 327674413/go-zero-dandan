@@ -11,7 +11,7 @@ services:
       - ALLOW_NONE_AUTHENTICATION=yes
     privileged: true
     volumes:
-      - ${DATA_DIR}/etcd:/bitnami/etcd/data
+      - ${DATA_DIR}/etcd:/opt/bitnami/etcd/data
     ports:
       - 2379:2379
       - 2380:2380
@@ -55,7 +55,7 @@ services:
       - ${CONF_DIR}/prometheus/prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
       - ${CONF_DIR}/prometheus/targets.json:/opt/bitnami/prometheus/conf/targets.json
     restart: always
-    #user: root
+    user: root
     ports:
       - 9090:9090
     networks:
@@ -67,7 +67,7 @@ services:
     image: grafana/grafana:10.0.0
     container_name: grafana
     hostname: grafana
-    #user: root
+    user: root
     environment:
     # 时区上海 - Time zone Shanghai (Change if needed)
       TZ: Asia/Shanghai
@@ -103,8 +103,9 @@ services:
       - dandan_net
   elasticsearch:
     container_name: elasticsearch
-    #image: elasticsearch:8.8.0
-    image: elasticsearch:7.13.1
+    #image: elasticsearch:8.8.0 #这个版本跟jaeger没配成功
+    image: elasticsearch:7.13.1 #如果起不来，报错权限问题，需要手动对挂载目录给权限，比如 chmod 777 ./docker/data/elasticsearch/data
+    user: root
     volumes:
       - ./docker/data/elasticsearch/data:/usr/share/elasticsearch/data
     environment:
@@ -146,14 +147,14 @@ services:
     depends_on:
       - kafka
   #消费kafka中filebeat收集的数据输出到es - The data output collected by FileBeat in Kafka is output to ES
+  #不能加user: root，不然反而会有提示
   go-stash:
-    #image: kevinwan/go-stash:1.0.8 # if you "macOs intel" or "linux amd"
-    image: kevinwan/go-stash:1.0.8-arm64
+    #image: kevinwan/go-stash:1.0.8 #linxu amd用
+    image: kevinwan/go-stash:1.0.8-arm64 #mac arm 用
     container_name: go-stash
     environment:
       # 时区上海 - Time zone Shanghai (Change if needed)
       TZ: Asia/Shanghai
-    #user: root
     restart: always
     volumes:
       - ./docker/conf/go-stash:/app/etc
@@ -189,9 +190,10 @@ services:
       - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
       - TZ=Asia/Shanghai
     restart: always
+    user: root
     volumes:
       #- /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/data/kafka:/bitnami/kafka
+      - ./docker/data/kafka:/opt/bitnami/kafka
     networks:
       - dandan_net
     depends_on:
@@ -224,7 +226,7 @@ services:
       - 3306:3306
     volumes:
       # 数据挂载 - Data mounting
-      - ./data/mysql/data:/var/lib/mysql
+      - ./docker/data/mysql/data:/var/lib/mysql
       # 日志
     command:
       # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)

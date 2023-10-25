@@ -10,5 +10,9 @@ type Config struct {
 	Db struct {
 		DataSource string
 	}
-	RedisConf redis.RedisConf
+	RedisConf       redis.RedisConf
+	KafkaPusherConf struct {
+		Addrs []string
+		Topic string
+	}
 }

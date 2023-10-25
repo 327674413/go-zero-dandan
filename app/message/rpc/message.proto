@@ -21,4 +21,5 @@ message SuccResp{
 
 service message {
   rpc sendPhone(SendPhoneReq) returns(SuccResp);
+  rpc sendSMSAsync(SendPhoneReq) returns(SuccResp);
 }
