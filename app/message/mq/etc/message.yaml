@@ -1,0 +1,19 @@
+Name: message-mq
+Host: 0.0.0.0
+Port: 8806
+Mode: dev
+
+KqConsumerConf:
+  Name: message-kq-consumer
+  Brokers:
+    - 127.0.1:9092
+  Group: group-message-sms
+  Topic: message-sms
+  Offset: first
+  Consumers: 1
+  Processors: 1
+
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9806
+  Path: /metrics

@@ -2,7 +2,7 @@ package test
 
 import (
 	"bufio"
-	"go-zero-dandan/app/nat/helper"
+	"go-zero-dandan/cmd/nat/helper"
 	"io"
 	"log"
 	"net"

@@ -9,10 +9,7 @@ import (
 )
 
 func main() {
-	url := "https://rf.xing-ao.cn/api/ProjectRiffle/getCompanyList"
-	//url := "https://riffle.mzwjc.com/api/ProjectRiffle/getCompanyList"
-	//url := "https://riffle.mzwjc.com/getCompanyList"
-	//url := "https://riffle.mzwjc.com/api/ProjectRiffle/getCompanyList"
+	url := ""
 	concurrency := 100 // 并发数
 
 	var wg sync.WaitGroup

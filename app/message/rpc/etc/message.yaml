@@ -7,6 +7,10 @@ Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: message.rpc
+KafkaPusherConf:
+  Addrs:
+    - 127.0.0.1:9092
+  Topic: message-sms
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node

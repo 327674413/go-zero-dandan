@@ -53,5 +53,14 @@
       "instance": "host.docker.internal:8805"
     }
   },
+  {
+    "targets": ["host.docker.internal:9806"],
+    "labels": {
+      "job": "message-mq",
+      "app": "message-mq",
+      "env": "test",
+      "instance": "host.docker.internal:8806"
+    }
+  }
 
 ]

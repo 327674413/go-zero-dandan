@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"go-zero-dandan/app/nat/conf"
+	"go-zero-dandan/cmd/nat/conf"
 	"log"
 	"net"
 	"time"

@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"go-zero-dandan/app/nat/conf"
-	"go-zero-dandan/app/nat/helper"
+	"go-zero-dandan/cmd/nat/conf"
+	"go-zero-dandan/cmd/nat/helper"
 	"io"
 	"log"
 	"net"

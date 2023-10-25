@@ -26,3 +26,8 @@ func (s *MessageServer) SendPhone(ctx context.Context, in *pb.SendPhoneReq) (*pb
 	l := logic.NewSendPhoneLogic(ctx, s.svcCtx)
 	return l.SendPhone(in)
 }
+
+func (s *MessageServer) SendSMSAsync(ctx context.Context, in *pb.SendPhoneReq) (*pb.SuccResp, error) {
+	l := logic.NewSendSMSAsyncLogic(ctx, s.svcCtx)
+	return l.SendSMSAsync(in)
+}

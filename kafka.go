@@ -72,7 +72,7 @@ func producer() {
 	defer client.Close()
 	// 发送消息
 	pid, offset, err := client.SendMessage(&sarama.ProducerMessage{
-		Topic: "dandan-log",
+		Topic: "message-sms",
 		Value: sarama.StringEncoder("{\"@timestamp\":\"2023-06-17T23:49:31.553+08:00\",\"caller\":\"logic/getPhoneVerifyCodeLogic.go:38\",\"content\":\"测试日志\",\"level\":\"error\"}"),
 	})
 	if err != nil {

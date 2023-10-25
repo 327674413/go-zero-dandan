@@ -18,6 +18,7 @@ type (
 
 	Message interface {
 		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
+		SendSMSAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
 	}
 
 	defaultMessage struct {
@@ -34,4 +35,9 @@ func NewMessage(cli zrpc.Client) Message {
 func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
 	client := pb.NewMessageClient(m.cli.Conn())
 	return client.SendPhone(ctx, in, opts...)
+}
+
+func (m *defaultMessage) SendSMSAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
+	client := pb.NewMessageClient(m.cli.Conn())
+	return client.SendSMSAsync(ctx, in, opts...)
 }
