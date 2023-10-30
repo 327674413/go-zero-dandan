@@ -180,24 +180,24 @@ services:
   #消息队列 - Message queue
   kafka:
     container_name: kafka
-    image: bitnami/kafka:3.4.0
+    image: bitnami/kafka:3.5.1
     ports:
       - 9092:9092
     environment:
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_ADVERTISED_HOST_NAME=kafka
-      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
       - TZ=Asia/Shanghai
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@<your_host>:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094 #需要在etc/hosts里加上kafka这个别名
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
     restart: always
     user: root
     volumes:
-      #- /var/run/docker.sock:/var/run/docker.sock
-      - ./docker/data/kafka:/opt/bitnami/kafka
+      - ./docker/data/kafka:/bitnami/kafka
     networks:
       - dandan_net
-    depends_on:
-    - zookeeper
   #分布式文件存储
   minio:
     container_name: minio
@@ -214,18 +214,33 @@ services:
     networks:
       - dandan_net
     restart: always
+  canal:
+    image: canal/canal-server:v1.1.7
+    container_name: canal
+    ports:
+      - 11111:11111 #canal默认端口号，一般不用改，除非端口冲突
+    volumes:
+      - ./docker/conf/canal/canal.properties:/home/admin/canal-server/conf/canal.properties
+      - ./docker/conf/canal/instance.properties:/home/admin/canal-server/conf/example/instance.properties
+      - ./docker/data/canal/logs:/home/admin/canal-server/logs
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+    networks:
+      - dandan_net
   mysql:
     image: mysql:8.1
     container_name: mysql
     environment:
-      # 时区上海 - Time zone Shanghai (Change if needed)
       TZ: Asia/Shanghai
-      # root 密码 - root password
-      MYSQL_ROOT_PASSWORD: 8a7yNLrsThjw3jra
+      MYSQL_ROOT_PASSWORD: 8a7yNLrsThjw3jra # root 密码 - root password
     ports:
       - 3306:3306
     volumes:
       # 数据挂载 - Data mounting
+      - ./docker/conf/mysql/my.cnf:/etc/my.cnf
       - ./docker/data/mysql/data:/var/lib/mysql
       # 日志
     command:
@@ -244,5 +259,7 @@ networks:
   dandan_net:
     driver: bridge
     ipam:
+      driver: default
       config:
         - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
