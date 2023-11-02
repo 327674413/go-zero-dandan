@@ -61,6 +61,33 @@
       "env": "test",
       "instance": "host.docker.internal:8806"
     }
+  },
+  {
+    "targets": ["host.docker.internal:9820"],
+    "labels": {
+      "job": "goods-api",
+      "app": "goods-api",
+      "env": "test",
+      "instance": "host.docker.internal:8820"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9821"],
+    "labels": {
+      "job": "goods-rpc",
+      "app": "goods-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8821"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9822"],
+    "labels": {
+      "job": "goods-mq",
+      "app": "goods-mq",
+      "env": "test",
+      "instance": "host.docker.internal:8822"
+    }
   }
 
 ]

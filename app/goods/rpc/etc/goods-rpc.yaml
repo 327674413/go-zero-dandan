@@ -1,0 +1,22 @@
+Name: goods.rpc
+ListenOn: 0.0.0.0:8821
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: goods.rpc
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9820
+  Path: /metrics
+Telemetry:
+  Name: goods-rpc
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+Log:
+  ServiceName: goods-rpc
+  Level: info

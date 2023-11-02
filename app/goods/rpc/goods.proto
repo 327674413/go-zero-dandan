@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package goods;
+
+import "desc/main.proto";
+
+service goods {
+  rpc getOne(IdReq) returns(GoodsInfo);
+  rpc getPage(GetPageReq) returns(GetPageResp);
+  rpc getPageWithTotal(GetPageReq) returns(GetPageWithTotalResp);
+}

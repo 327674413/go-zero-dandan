@@ -35,7 +35,7 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if req.Url == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少url", resd.ReqFieldRequired, "url")
+		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少url", resd.ReqFieldRequired1, "url")
 	}
 	wxpubApp := wechat.NewWxpub(l.ctx, &wechat.WxpubConf{
 		Appid:  "wx6ba0f04a081a54e5",

@@ -26,7 +26,7 @@ func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} 
 
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	if err = l.initPlat(); err != nil {
-    	return resd.ErrorCtx(l.ctx,err)
+    	return nil,resd.ErrorCtx(l.ctx,err)
     }
 
 	{{.returnString}}

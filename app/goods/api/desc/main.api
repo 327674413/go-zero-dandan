@@ -1,0 +1,34 @@
+type GoodsInfo {
+	Id int64 `json:"id,string"`
+	Name string `json:"name"`
+	Spec string `json:"spec"`
+	Cover string `json:"cover"`
+	SellPrice int64 `json:"sellPrice"`
+	StoreQty int64 `json:"storeQty"`
+	State int64 `json:"state"`
+	IsSpecial int64 `json:"state"`
+	UnitId int64 `json:"unitId,string"`
+	UnitName int64 `json:"unitName"`
+	PlatId int64 `json:"platId,string"`
+}
+type IdReq{
+	Id *int64 `json:"id,string,optional"`
+}
+type (
+	GetPageReq {
+		Page int64 `json:"page,optional"`
+		Size int64 `json:"size,optional"`
+		Sort string `json:"sort,optional"`
+	}
+	GetPageResp {
+		Page int64 `json:"page"`
+		Size int64 `json:"size"`
+		List []GoodsInfo `json:"list"`
+	}
+	GetPageWithTotalResp {
+		Page int64 `json:"page"`
+		Size int64 `json:"size"`
+		List []GoodsInfo `json:"list"`
+		Total int64 `json:"total"`
+	}
+)

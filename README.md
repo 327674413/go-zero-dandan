@@ -57,6 +57,9 @@ goctl template init
 #然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api(用*就会该目录下所有.api文件)
 goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
+## 开发说明
+- api的请求入参，目前是用框架的httpx解析邪恶，所以参数可选得用optional
+- api的返回值，如果想让返回的内容为nil时不会返回，则用omitempty
 
 ## 部署说明
 
@@ -101,6 +104,10 @@ web管理地址 http://localhost:9001/
 密码要求8位，docker-compose中有设置，root 12345678
 
 ## 约定
+## 接口约定
+- getOne 查询单个信息
+- getPage 查询列表，分页
+- getList 查询列表，所有
 ### 表字段约定
 
 | 后缀    | 字段类型 | 数据类型     | 备注            |

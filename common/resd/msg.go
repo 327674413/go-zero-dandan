@@ -44,7 +44,7 @@ func init() {
 	Msg[RedisSetUserLoginStateErr] = "RedisSetErr"
 	Msg[RedisGetErr] = "RedisGetErr"
 	Msg[RedisGetUserTokenErr] = "RedisGetErr"
-	Msg[ReqFieldRequired] = "ReqFieldRequired"
+	Msg[ReqFieldRequired1] = "ReqFieldRequired1"
 	Msg[ReqGetPhoneVerifyCodeWait] = "ReqGetPhoneVerifyCodeWait"
 	Msg[ReqGetPhoneVerifyCodeDayLimit] = "ReqGetPhoneVerifyCodeDayLimit"
 	Msg[ReqGetPhoneVerifyCodeHourLimit] = "ReqGetPhoneVerifyCodeHourLimit"

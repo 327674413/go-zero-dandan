@@ -28,7 +28,7 @@ const (
 	RedisGetUserTokenErr            = 502020001
 	RpcResDecodeErr                 = 510
 	ReqKeyRequired                  = 600 //未提供主键
-	ReqFieldRequired                = 601 //未提供比必填字段
+	ReqFieldRequired1               = 601 //未提供比必填字段
 	ReqParamErr                     = 602 //请求参数不正确
 	ConfigNotInit1                  = 603 //未配置参数
 	PlatInvalid                     = 604 //无效应用

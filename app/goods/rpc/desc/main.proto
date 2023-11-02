@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package goods;
+
+message GoodsInfo {
+  int64 Id = 1;
+  string Name = 2;
+  string Spec = 3;
+  string Cover = 4;
+  int64 SellPrice = 5;
+  int64 StoreQty = 6;
+  int64 State = 7;
+  int64 IsSpecial = 8;
+  int64 UnitId = 9;
+  int64 UnitName = 10;
+  int64 PlatId = 11;
+}
+
+message IdReq {
+  int64 Id = 1;
+  int64 PlatId = 2;
+}
+
+message GetPageReq {
+  int64 Page = 1;
+  int64 Size = 2;
+  string Sort = 3;
+}
+
+message GetPageResp {
+  int64 Page = 1;
+  int64 Size = 2;
+  repeated GoodsInfo list = 3;
+}
+
+message GetPageWithTotalResp {
+  int64 Page = 1;
+  int64 Size = 2;
+  repeated GoodsInfo list = 3;
+  int64 Total = 4;
+}
+
+message SuccResp {
+  int64 Code= 1;
+}
+
+   

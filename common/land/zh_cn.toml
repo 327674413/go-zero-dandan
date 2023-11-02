@@ -3,6 +3,7 @@ AuthUserNotLogin = "您还未登录"
 AuthPlatErr = "无效应用"
 SysErr = "遇到了点小问题"
 
+ReqFieldRequired1 = "缺少参数：{{.Field1}}"
 ReqPhoneErr = "请输入正确的手机号码"
 ReqGetPhoneVerifyCodeWait="获取验证码太频繁，请稍后再试"
 ReqGetPhoneVerifyCodeDayLimit="今日获取短信超出上限，请明日再试"
@@ -52,13 +53,13 @@ AccountOrPassWrong = "账号或密码错误"
 VerifyCodeWrong = "验证码错误"
 VerifyCodeExpired = "请先获取验证码"
 
-ReqFieldRequired = "{{.Field1}}不能为空"
+ReqFieldRequired1 = "{{.Field1}}不能为空"
 PhoneNumber = "手机号码"
 SmsTemp ="短信模版"
 MessageSysConfig = "消息中心系统参数"
 Data = "数据"
 Image = "图片"
-
+Id = "id"
 
 
 

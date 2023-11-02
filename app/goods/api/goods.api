@@ -1,0 +1,18 @@
+import (
+	"desc/main.api"
+)
+@server(
+	timeout: 30s
+	middleware: LangMiddleware,UserInfoMiddleware
+	jwt: Auth
+	group: goodsInfo
+	prefix: goods/v1
+)
+service goods-api {
+	@handler getOne
+	post /getOne(IdReq) returns (GoodsInfo)
+	@handler getPage
+	post /getPage(GetPageReq) returns (GetPageResp)
+	@handler getPageWithTotal
+	post /getPageWithTotal(GetPageReq) returns (GetPageWithTotalResp)
+}

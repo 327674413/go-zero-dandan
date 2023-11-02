@@ -1,0 +1,31 @@
+Name: goods-api
+Host: 0.0.0.0
+Port: 8820
+DB:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Auth:
+  AccessSecret: "dandandandandandandandan"
+  AccessExpire: 6048000
+GoodsRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: goods.rpc
+  NonBlock: true
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9820
+  Path: /metrics
+Telemetry:
+  Name: goods-api
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
+Log:
+  ServiceName: goods-api
+  Level: info
+

@@ -81,7 +81,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 func (l *SendPhoneLogic) checkReq(in *pb.SendPhoneReq) error {
 	//校验模版id
 	if in.TempId == 0 {
-		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired, "TempId")
+		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired1, "TempId")
 	}
 	//校验手机号
 	if utild.CheckIsPhone(in.Phone) == false {

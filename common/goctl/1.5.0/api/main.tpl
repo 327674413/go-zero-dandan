@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
     "github.com/zeromicro/go-zero/core/logx"
-    "go-zero-dandan/app/{{.serviceName}}/global"
 	{{.importPackages}}
 )
 
@@ -15,8 +14,16 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-    global.Config = c //自定义应用内全局的配置参数，在其他文件里使用
-	server := rest.MustNewServer(c.RestConf)
+	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
+    		// 将错误对象转换为 JSON 格式，并写入响应
+    		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+    		w.WriteHeader(200)
+    		json.NewEncoder(w).Encode(map[string]interface{}{
+    			"code":   401,
+    			"result": false,
+    			"msg":    err.Error(),
+    		})
+    	}), rest.WithCors())
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)

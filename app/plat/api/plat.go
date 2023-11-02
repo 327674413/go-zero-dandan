@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/plat/api/global"
 	"go-zero-dandan/app/plat/api/internal/config"
 	"go-zero-dandan/app/plat/api/internal/handler"
 	"go-zero-dandan/app/plat/api/internal/svc"
@@ -20,7 +19,6 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	global.Config = c //自定义应用内全局的配置参数，在其他文件里使用
 	server := rest.MustNewServer(c.RestConf)
 	defer server.Stop()
 
