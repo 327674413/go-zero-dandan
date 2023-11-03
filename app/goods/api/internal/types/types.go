@@ -11,7 +11,7 @@ type GoodsInfo struct {
 	State     int64  `json:"state"`
 	IsSpecial int64  `json:"state"`
 	UnitId    int64  `json:"unitId,string"`
-	UnitName  int64  `json:"unitName"`
+	UnitName  string `json:"unitName"`
 	PlatId    int64  `json:"platId,string"`
 }
 

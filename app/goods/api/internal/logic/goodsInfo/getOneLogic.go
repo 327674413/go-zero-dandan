@@ -46,7 +46,7 @@ func (l *GetOneLogic) GetOne(req *types.IdReq) (resp *types.GoodsInfo, err error
 		State:     0,
 		IsSpecial: 0,
 		UnitId:    0,
-		UnitName:  0,
+		UnitName:  "",
 		PlatId:    0,
 	}
 	return resp, nil

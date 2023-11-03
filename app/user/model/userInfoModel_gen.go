@@ -52,6 +52,7 @@ type (
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultUserInfoModel
 		Reinit() *defaultUserInfoModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultUserInfoModel struct {
@@ -146,7 +147,9 @@ func (m *defaultUserInfoModel) Reinit() *defaultUserInfoModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultUserInfoModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultUserInfoModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -205,7 +208,7 @@ func (m *defaultUserInfoModel) SelectWithTotal() ([]*UserInfo, int64, error) {
 }
 func (m *defaultUserInfoModel) CacheSelect(redis *redisd.Redisd) ([]*UserInfo, error) {
 	resp := make([]*UserInfo, 0)
-	err := m.dao.CacheSelect(redis, resp)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}

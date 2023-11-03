@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultAssetNetdiskFileModel
 		WhereId(id int64) *defaultAssetNetdiskFileModel
 		Order(order string) *defaultAssetNetdiskFileModel
+		Limit(num int64) *defaultAssetNetdiskFileModel
 		Plat(id int64) *defaultAssetNetdiskFileModel
 		Find() (*AssetNetdiskFile, error)
 		FindById(id int64) (*AssetNetdiskFile, error)
@@ -44,12 +45,14 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*AssetNetdiskFile, error)
 		Page(page int64, rows int64) *defaultAssetNetdiskFileModel
 		Select() ([]*AssetNetdiskFile, error)
+		SelectWithTotal() ([]*AssetNetdiskFile, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*AssetNetdiskFile, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultAssetNetdiskFileModel
 		Reinit() *defaultAssetNetdiskFileModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultAssetNetdiskFileModel struct {
@@ -133,6 +136,10 @@ func (m *defaultAssetNetdiskFileModel) Order(order string) *defaultAssetNetdiskF
 	m.dao.Order(order)
 	return m
 }
+func (m *defaultAssetNetdiskFileModel) Limit(num int64) *defaultAssetNetdiskFileModel {
+	m.dao.Limit(num)
+	return m
+}
 func (m *defaultAssetNetdiskFileModel) Count() (int64, error) {
 	return m.dao.Count()
 }
@@ -156,7 +163,9 @@ func (m *defaultAssetNetdiskFileModel) Reinit() *defaultAssetNetdiskFileModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultAssetNetdiskFileModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultAssetNetdiskFileModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -197,21 +206,31 @@ func (m *defaultAssetNetdiskFileModel) CacheFindById(redis *redisd.Redisd, id in
 }
 
 func (m *defaultAssetNetdiskFileModel) Select() ([]*AssetNetdiskFile, error) {
-	var resp []*AssetNetdiskFile
-	err := m.dao.Select(resp)
+	resp := make([]*AssetNetdiskFile, 0)
+	err := m.dao.Select(&resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
+}
+func (m *defaultAssetNetdiskFileModel) SelectWithTotal() ([]*AssetNetdiskFile, int64, error) {
+	resp := make([]*AssetNetdiskFile, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
 }
 func (m *defaultAssetNetdiskFileModel) CacheSelect(redis *redisd.Redisd) ([]*AssetNetdiskFile, error) {
-	var resp []*AssetNetdiskFile
-	err := m.dao.CacheSelect(redis, resp)
+	resp := make([]*AssetNetdiskFile, 0)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+
 func (m *defaultAssetNetdiskFileModel) Page(page int64, rows int64) *defaultAssetNetdiskFileModel {
 	m.dao.Page(page, rows)
 	return m

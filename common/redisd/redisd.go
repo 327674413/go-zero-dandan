@@ -351,6 +351,18 @@ func (t *Redisd) SetExCtx(ctx context.Context, field string, key string, value s
 	return t.redisConn.SetexCtx(ctx, t.prefix+":"+field+":"+key, value, expireSec)
 }
 
+// DelKeyByPrefix 使用eval方式删除执行前缀的key
+func (t *Redisd) DelKeyByPrefix(keyPrefix string) (any, error) {
+	script := `
+		local keys = redis.call("KEYS", ARGV[1])
+		for i = 1, #keys do
+			redis.call("DEL", keys[i])
+		end
+		return #keys
+	`
+	args := []interface{}{t.prefix + ":" + keyPrefix}
+	return t.redisConn.Eval(script, []string{}, args...)
+}
 func (t *Redisd) Redisx() *redisx.Redis {
 	return t.redisConn
 }

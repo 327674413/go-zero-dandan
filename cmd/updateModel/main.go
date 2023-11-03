@@ -21,6 +21,10 @@ type Config struct {
 var config Config
 var commands = []Command{
 	{Path: path.Join(rootPath, "user/model"), Tables: []string{"user_crony", "user_info", "user_main", "user_union"}},
+	{Path: path.Join(rootPath, "goods/model"), Tables: []string{"goods_main"}},
+	{Path: path.Join(rootPath, "asset/model"), Tables: []string{"asset_main", "asset_netdisk_file"}},
+	{Path: path.Join(rootPath, "message/model"), Tables: []string{"message_sms_send", "message_sms_temp", "message_sys_config"}},
+	{Path: path.Join(rootPath, "plat/model"), Tables: []string{"plat_main"}},
 }
 
 const rootPath = "/Users/yelin/go_dev/project/src/go-zero-dandan/app"

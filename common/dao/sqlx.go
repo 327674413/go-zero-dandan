@@ -9,41 +9,49 @@ import (
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
+	"strings"
 	"time"
 )
 
 // todo::错误返回全部封装， 用resd来包装，这样错误吗就不用每次写了
 // SqlxDao 自用orm
 type SqlxDao struct {
-	conn            sqlx.SqlConn
-	ctx             context.Context
-	table           string
-	defaultRowField string
-	softDeleteField string
-	softDeletable   bool
+	conn             sqlx.SqlConn
+	ctx              context.Context
+	table            string
+	defaultRowField  string
+	defaultQueryRows int64
+	softDeleteField  string
+	softDeletable    bool
 
-	tableAlias string
-	orderSql   string
-	platId     int64
-	queryPage  int64
-	queryRows  int64
-	limitNum   int64
-	joinTables []string
-	whereData  []any
-	fieldSql   string
-	whereSql   string
-	err        error
+	tableAlias         string
+	orderSql           string
+	platId             int64
+	queryPage          int64
+	queryRows          int64
+	limitNum           int64
+	joinTables         []string
+	whereData          []any
+	fieldSql           string
+	whereSql           string
+	lastSql            string
+	err                error
+	emptyQueryCacheSec int //开启缓存，未查到数据时，空数据的缓存秒数
+	defaultCacheSec    int
 }
 
 func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, softDeletable bool, softDeleteField string) *SqlxDao {
 	return &SqlxDao{
-		conn:            conn,
-		table:           tableName,
-		defaultRowField: defaultRowField,
-		softDeletable:   softDeletable,
-		softDeleteField: softDeleteField,
-		whereData:       make([]any, 0),
-		joinTables:      make([]string, 0),
+		conn:               conn,
+		table:              tableName,
+		defaultRowField:    defaultRowField,
+		softDeletable:      softDeletable,
+		softDeleteField:    softDeleteField,
+		whereData:          make([]any, 0),
+		joinTables:         make([]string, 0),
+		defaultQueryRows:   10,
+		emptyQueryCacheSec: 0,
+		defaultCacheSec:    0, //默认0，永久不失效
 	}
 }
 
@@ -181,14 +189,15 @@ func (t *SqlxDao) getWhereParam() string {
 	return where
 }
 func (t *SqlxDao) getPageParam() string {
-	if t.queryRows > 0 {
-		if t.queryPage <= 0 {
-			t.queryPage = 1
-		}
-		offset := (t.queryPage - 1) * t.queryRows
-		return fmt.Sprintf("LIMIT %d, %d", offset, t.queryRows)
+	queryRows := t.queryRows
+	if t.queryRows == 0 {
+		queryRows = t.defaultQueryRows
 	}
-	return ""
+	if t.queryPage <= 0 {
+		t.queryPage = 1
+	}
+	offset := (t.queryPage - 1) * t.queryRows
+	return fmt.Sprintf("LIMIT %d, %d", offset, queryRows)
 }
 func (t *SqlxDao) validate() (err error) {
 	if err = t.err; err != nil {
@@ -218,6 +227,7 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	} else {
 		err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
 	}
+	t.lastSql = sql
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return err
@@ -239,14 +249,20 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	tableParam := t.getTableParam()
 	whereParam := t.getWhereParam()
 	pageParam := t.getPageParam()
+	orderSql := ""
 	if t.orderSql != "" {
-		t.orderSql = " ORDER BY " + t.orderSql
+		orderSql = " ORDER BY " + t.orderSql
 	}
-	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" "+pageParam, fieldParam, tableParam)
+	sql := fmt.Sprintf("select %s from %s where "+whereParam+orderSql+" "+pageParam, fieldParam, tableParam)
 	if t.ctx != nil {
 		err = t.conn.QueryRowsPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
 	} else {
 		err = t.conn.QueryRowsPartial(targetStructPtr, sql, t.whereData...)
+	}
+	// select传入的应该是切片指针，似乎往切片写入数据时，没查到也不会进err
+	if err != nil {
+		logc.Error(t.ctx, fmt.Sprintf("【error sql】 : %s , 【data】 : %v", sql, t.whereData))
+		return resd.Error(err)
 	}
 	if len(totalPtr) > 0 {
 		sql = fmt.Sprintf("select COUNT(*) from %s where "+whereParam, tableParam)
@@ -256,17 +272,37 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 			err = t.conn.QueryRowPartial(totalPtr[0], sql, t.whereData...)
 		}
 	}
-	// select传入的应该是切片指针，似乎往切片写入数据时，没查到也不会进err
-	if err != nil {
-		logc.Error(t.ctx, fmt.Sprintf("【error sql】 : %s , 【data】 : %v", sql, t.whereData))
-		return resd.Error(err)
-	}
 	return nil
+}
+func (t *SqlxDao) getSelectCacheKey() (cacheField string, cacheKey string) {
+	page := t.getPageParam()
+	cacheField = t.getCachePrefixField()
+	cacheKey = fmt.Sprintf("%s_%s_%s_%s", t.whereSql, fmt.Sprint(t.whereData), t.orderSql, page)
+	return cacheField, cacheKey
 }
 
 // CacheSelect 缓存查数据
 func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
-
+	defer t.Reinit()
+	if targetStructPtr == nil {
+		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
+	}
+	cacheField, cacheKey := t.getSelectCacheKey()
+	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
+	if err == nil {
+		return nil
+	}
+	err = t.Select(targetStructPtr)
+	if err != nil {
+		return resd.Error(err)
+	}
+	if fmt.Sprint(targetStructPtr) != "&[]" {
+		//有查到数据，按默认缓存走
+		redis.SetDataEx(cacheField, cacheKey, targetStructPtr, t.defaultCacheSec)
+	} else if t.emptyQueryCacheSec > 0 {
+		//没查到数据，且需要设置空数据缓存，避免持续打到数据库中
+		redis.SetDataEx(cacheField, cacheKey, targetStructPtr, t.emptyQueryCacheSec)
+	}
 	return nil
 }
 
@@ -278,12 +314,17 @@ func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 }
 
 // CacheFindById 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
-func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id int64) error {
+func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id int64) (err error) {
 	defer t.Reinit()
-	cacheField := "model_" + t.table
+	cacheField := t.getCachePrefixField()
 	cacheKey := fmt.Sprintf("%d", id)
 
-	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
+	if t.ctx == nil {
+		err = redis.GetData(cacheField, cacheKey, targetStructPtr)
+	} else {
+		err = redis.GetDataCtx(t.ctx, cacheField, cacheKey, targetStructPtr)
+	}
+
 	if err == nil {
 		return nil
 	}
@@ -292,8 +333,26 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id in
 		return err
 	}
 	// todo::如果没查到，是不是会有问题
-	redis.SetData(cacheField, cacheKey, targetStructPtr)
+	if t.ctx == nil {
+		redis.SetData(cacheField, cacheKey, targetStructPtr)
+	} else {
+		redis.SetDataCtx(t.ctx, cacheField, cacheKey, targetStructPtr)
+	}
+
 	return nil
+}
+
+// ClearCache 清空自带缓存
+func (t *SqlxDao) ClearCache(redis *redisd.Redisd) (delNum int64, err error) {
+	result, err := redis.DelKeyByPrefix(t.getCachePrefixField() + "*")
+	if err != nil {
+		return 0, resd.ErrorCtx(t.ctx, err)
+	}
+	num, ok := result.(int64)
+	if ok {
+		delNum = num
+	}
+	return delNum, nil
 }
 func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	var sqlRes sql.Result
@@ -669,6 +728,11 @@ func (t *SqlxDao) Plat(platId int64) *SqlxDao {
 	return t
 }
 
+// GetLastSql 获取最后查询的sql,暂未实现获取
+func (t *SqlxDao) GetLastSql() string {
+	return t.lastSql
+}
+
 // Reinit 每次执行完数据库操作后恢复初始化，保证不干扰下次使用
 func (t *SqlxDao) Reinit() {
 	t.whereSql = ""
@@ -680,4 +744,13 @@ func (t *SqlxDao) Reinit() {
 	t.queryPage = 0
 	t.err = nil
 	t.ctx = nil
+}
+
+// Conn 获取当前的sqlx.SqlConn
+func (t *SqlxDao) Conn() sqlx.SqlConn {
+	return t.conn
+}
+
+func (t *SqlxDao) getCachePrefixField() string {
+	return "model_" + strings.Replace(t.table, "`", "", -1)
 }

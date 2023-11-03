@@ -12,7 +12,11 @@ KqConsumerConf:
   Offset: first
   Consumers: 1
   Processors: 1
-
+EsConf:
+  Addresses:
+    - http://localhost:9200/
+  Username: elastic
+  Password: HLmVfh-0Pr*YX5x4JSFl
 Prometheus:
   Host: 127.0.0.1
   Port: 9806

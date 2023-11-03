@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultMessageSysConfigModel
 		WhereId(id int64) *defaultMessageSysConfigModel
 		Order(order string) *defaultMessageSysConfigModel
+		Limit(num int64) *defaultMessageSysConfigModel
 		Plat(id int64) *defaultMessageSysConfigModel
 		Find() (*MessageSysConfig, error)
 		FindById(id int64) (*MessageSysConfig, error)
@@ -44,12 +45,14 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*MessageSysConfig, error)
 		Page(page int64, rows int64) *defaultMessageSysConfigModel
 		Select() ([]*MessageSysConfig, error)
+		SelectWithTotal() ([]*MessageSysConfig, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*MessageSysConfig, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultMessageSysConfigModel
 		Reinit() *defaultMessageSysConfigModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultMessageSysConfigModel struct {
@@ -116,6 +119,10 @@ func (m *defaultMessageSysConfigModel) Order(order string) *defaultMessageSysCon
 	m.dao.Order(order)
 	return m
 }
+func (m *defaultMessageSysConfigModel) Limit(num int64) *defaultMessageSysConfigModel {
+	m.dao.Limit(num)
+	return m
+}
 func (m *defaultMessageSysConfigModel) Count() (int64, error) {
 	return m.dao.Count()
 }
@@ -139,7 +146,9 @@ func (m *defaultMessageSysConfigModel) Reinit() *defaultMessageSysConfigModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultMessageSysConfigModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultMessageSysConfigModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -180,21 +189,31 @@ func (m *defaultMessageSysConfigModel) CacheFindById(redis *redisd.Redisd, id in
 }
 
 func (m *defaultMessageSysConfigModel) Select() ([]*MessageSysConfig, error) {
-	var resp []*MessageSysConfig
-	err := m.dao.Select(resp)
+	resp := make([]*MessageSysConfig, 0)
+	err := m.dao.Select(&resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
+}
+func (m *defaultMessageSysConfigModel) SelectWithTotal() ([]*MessageSysConfig, int64, error) {
+	resp := make([]*MessageSysConfig, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
 }
 func (m *defaultMessageSysConfigModel) CacheSelect(redis *redisd.Redisd) ([]*MessageSysConfig, error) {
-	var resp []*MessageSysConfig
-	err := m.dao.CacheSelect(redis, resp)
+	resp := make([]*MessageSysConfig, 0)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+
 func (m *defaultMessageSysConfigModel) Page(page int64, rows int64) *defaultMessageSysConfigModel {
 	m.dao.Page(page, rows)
 	return m

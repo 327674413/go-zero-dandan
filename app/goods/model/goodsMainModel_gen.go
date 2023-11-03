@@ -52,6 +52,7 @@ type (
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultGoodsMainModel
 		Reinit() *defaultGoodsMainModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultGoodsMainModel struct {
@@ -72,6 +73,7 @@ type (
 
 	GoodsMain struct {
 		Id        int64  `db:"id"`
+		Code      string `db:"code"`       // 商品编号
 		Name      string `db:"name"`       // 商品名称
 		Spec      string `db:"spec"`       // 商品规格
 		Cover     string `db:"cover"`      // 商品封面
@@ -79,7 +81,7 @@ type (
 		StoreQty  int64  `db:"store_qty"`  // 当前库存
 		State     int64  `db:"state"`      // 0未上架，1上架
 		IsSpecial int64  `db:"is_special"` // 是否活动专用的特殊商品
-		UnidId    int64  `db:"unid_id"`    // 单位
+		UnitId    int64  `db:"unit_id"`    // 单位
 		UnitName  string `db:"unit_name"`  // 单位名称
 		PlatId    int64  `db:"plat_id"`
 		CreateAt  int64  `db:"create_at"`
@@ -153,7 +155,9 @@ func (m *defaultGoodsMainModel) Reinit() *defaultGoodsMainModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultGoodsMainModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultGoodsMainModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -212,7 +216,7 @@ func (m *defaultGoodsMainModel) SelectWithTotal() ([]*GoodsMain, int64, error) {
 }
 func (m *defaultGoodsMainModel) CacheSelect(redis *redisd.Redisd) ([]*GoodsMain, error) {
 	resp := make([]*GoodsMain, 0)
-	err := m.dao.CacheSelect(redis, resp)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}

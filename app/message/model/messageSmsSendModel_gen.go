@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultMessageSmsSendModel
 		WhereId(id int64) *defaultMessageSmsSendModel
 		Order(order string) *defaultMessageSmsSendModel
+		Limit(num int64) *defaultMessageSmsSendModel
 		Plat(id int64) *defaultMessageSmsSendModel
 		Find() (*MessageSmsSend, error)
 		FindById(id int64) (*MessageSmsSend, error)
@@ -44,12 +45,14 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*MessageSmsSend, error)
 		Page(page int64, rows int64) *defaultMessageSmsSendModel
 		Select() ([]*MessageSmsSend, error)
+		SelectWithTotal() ([]*MessageSmsSend, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*MessageSmsSend, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultMessageSmsSendModel
 		Reinit() *defaultMessageSmsSendModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultMessageSmsSendModel struct {
@@ -120,6 +123,10 @@ func (m *defaultMessageSmsSendModel) Order(order string) *defaultMessageSmsSendM
 	m.dao.Order(order)
 	return m
 }
+func (m *defaultMessageSmsSendModel) Limit(num int64) *defaultMessageSmsSendModel {
+	m.dao.Limit(num)
+	return m
+}
 func (m *defaultMessageSmsSendModel) Count() (int64, error) {
 	return m.dao.Count()
 }
@@ -143,7 +150,9 @@ func (m *defaultMessageSmsSendModel) Reinit() *defaultMessageSmsSendModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultMessageSmsSendModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -184,21 +193,31 @@ func (m *defaultMessageSmsSendModel) CacheFindById(redis *redisd.Redisd, id int6
 }
 
 func (m *defaultMessageSmsSendModel) Select() ([]*MessageSmsSend, error) {
-	var resp []*MessageSmsSend
-	err := m.dao.Select(resp)
+	resp := make([]*MessageSmsSend, 0)
+	err := m.dao.Select(&resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
+}
+func (m *defaultMessageSmsSendModel) SelectWithTotal() ([]*MessageSmsSend, int64, error) {
+	resp := make([]*MessageSmsSend, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
 }
 func (m *defaultMessageSmsSendModel) CacheSelect(redis *redisd.Redisd) ([]*MessageSmsSend, error) {
-	var resp []*MessageSmsSend
-	err := m.dao.CacheSelect(redis, resp)
+	resp := make([]*MessageSmsSend, 0)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+
 func (m *defaultMessageSmsSendModel) Page(page int64, rows int64) *defaultMessageSmsSendModel {
 	m.dao.Page(page, rows)
 	return m

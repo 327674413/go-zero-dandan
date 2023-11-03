@@ -4,13 +4,15 @@ Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: goods.rpc
+DB:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node
   Pass: G62m50oigInC30sf
 Prometheus:
   Host: 127.0.0.1
-  Port: 9820
+  Port: 9821
   Path: /metrics
 Telemetry:
   Name: goods-rpc

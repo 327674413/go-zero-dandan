@@ -50,7 +50,7 @@ func (m *default{{.upperStartCamelObject}}Model) SelectWithTotal() ([]*{{.upperS
 }
 func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}},error) {
 	resp := make([]*{{.upperStartCamelObject}},0)
-	err := m.dao.CacheSelect(redis,resp)
+	err := m.dao.CacheSelect(redis,&resp)
     if err != nil {
         return nil, err
     }

@@ -107,6 +107,7 @@ services:
     image: elasticsearch:7.13.1 #如果起不来，报错权限问题，需要手动对挂载目录给权限，比如 chmod 777 ./docker/data/elasticsearch/data
     user: root
     volumes:
+      #- ./docker/conf/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - ./docker/data/elasticsearch/data:/usr/share/elasticsearch/data
     environment:
       - TZ=Asia/Shanghai

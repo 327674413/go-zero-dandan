@@ -8,4 +8,9 @@ import (
 type Config struct {
 	service.ServiceConf
 	KqConsumerConf kq.KqConf
+	EsConf         struct {
+		Addresses []string
+		Username  string
+		Password  string
+	}
 }

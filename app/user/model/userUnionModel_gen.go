@@ -52,6 +52,7 @@ type (
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultUserUnionModel
 		Reinit() *defaultUserUnionModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultUserUnionModel struct {
@@ -143,7 +144,9 @@ func (m *defaultUserUnionModel) Reinit() *defaultUserUnionModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultUserUnionModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultUserUnionModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -202,7 +205,7 @@ func (m *defaultUserUnionModel) SelectWithTotal() ([]*UserUnion, int64, error) {
 }
 func (m *defaultUserUnionModel) CacheSelect(redis *redisd.Redisd) ([]*UserUnion, error) {
 	resp := make([]*UserUnion, 0)
-	err := m.dao.CacheSelect(redis, resp)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}

@@ -2,9 +2,9 @@ package goodsInfo
 
 import (
 	"context"
-
 	"go-zero-dandan/app/goods/api/internal/svc"
 	"go-zero-dandan/app/goods/api/internal/types"
+	"go-zero-dandan/app/goods/rpc/types/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
@@ -33,8 +33,37 @@ func (l *GetPageLogic) GetPage(req *types.GetPageReq) (resp *types.GetPageResp, 
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-
-	return
+	list, err := l.svcCtx.GoodsRpc.GetPage(l.ctx, &pb.GetPageReq{
+		Page:   req.Page,
+		Size:   req.Size,
+		Sort:   req.Sort,
+		PlatId: l.platId,
+	})
+	if err != nil {
+		return nil, resd.ErrorCtx(l.ctx, err)
+	}
+	goodsList := make([]types.GoodsInfo, 0)
+	for _, item := range list.List {
+		goodsList = append(goodsList, types.GoodsInfo{
+			Id:        item.Id,
+			Name:      item.Name,
+			Spec:      item.Spec,
+			Cover:     item.Cover,
+			SellPrice: item.SellPrice,
+			StoreQty:  item.StoreQty,
+			State:     item.State,
+			IsSpecial: item.IsSpecial,
+			UnitId:    item.UnitId,
+			UnitName:  item.UnitName,
+			PlatId:    item.PlatId,
+		})
+	}
+	resp = &types.GetPageResp{
+		Page: list.Page,
+		Size: list.Size,
+		List: goodsList,
+	}
+	return resp, nil
 }
 
 func (l *GetPageLogic) initUser() (err error) {

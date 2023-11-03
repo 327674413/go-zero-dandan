@@ -21,6 +21,7 @@ type (
         Dec(field string, num int) (int64, error)
         Ctx(ctx context.Context) *default{{.upperStartCamelObject}}Model
         Reinit() *default{{.upperStartCamelObject}}Model
+        Dao() *dao.SqlxDao
 	}
 
 	default{{.upperStartCamelObject}}Model struct {

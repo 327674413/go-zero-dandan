@@ -52,6 +52,7 @@ type (
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultUserCronyModel
 		Reinit() *defaultUserCronyModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultUserCronyModel struct {
@@ -154,7 +155,9 @@ func (m *defaultUserCronyModel) Reinit() *defaultUserCronyModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultUserCronyModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultUserCronyModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -213,7 +216,7 @@ func (m *defaultUserCronyModel) SelectWithTotal() ([]*UserCrony, int64, error) {
 }
 func (m *defaultUserCronyModel) CacheSelect(redis *redisd.Redisd) ([]*UserCrony, error) {
 	resp := make([]*UserCrony, 0)
-	err := m.dao.CacheSelect(redis, resp)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}

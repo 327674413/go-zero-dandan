@@ -37,6 +37,7 @@ type (
 		Where(whereStr string, whereData ...any) *defaultPlatMainModel
 		WhereId(id int64) *defaultPlatMainModel
 		Order(order string) *defaultPlatMainModel
+		Limit(num int64) *defaultPlatMainModel
 		Plat(id int64) *defaultPlatMainModel
 		Find() (*PlatMain, error)
 		FindById(id int64) (*PlatMain, error)
@@ -44,12 +45,14 @@ type (
 		CacheFindById(redis *redisd.Redisd, id int64) (*PlatMain, error)
 		Page(page int64, rows int64) *defaultPlatMainModel
 		Select() ([]*PlatMain, error)
+		SelectWithTotal() ([]*PlatMain, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*PlatMain, error)
 		Count() (int64, error)
 		Inc(field string, num int) (int64, error)
 		Dec(field string, num int) (int64, error)
 		Ctx(ctx context.Context) *defaultPlatMainModel
 		Reinit() *defaultPlatMainModel
+		Dao() *dao.SqlxDao
 	}
 
 	defaultPlatMainModel struct {
@@ -121,6 +124,10 @@ func (m *defaultPlatMainModel) Order(order string) *defaultPlatMainModel {
 	m.dao.Order(order)
 	return m
 }
+func (m *defaultPlatMainModel) Limit(num int64) *defaultPlatMainModel {
+	m.dao.Limit(num)
+	return m
+}
 func (m *defaultPlatMainModel) Count() (int64, error) {
 	return m.dao.Count()
 }
@@ -144,7 +151,9 @@ func (m *defaultPlatMainModel) Reinit() *defaultPlatMainModel {
 	m.dao.Reinit()
 	return m
 }
-
+func (m *defaultPlatMainModel) Dao() *dao.SqlDao {
+	return m.dao
+}
 func (m *defaultPlatMainModel) Delete(ctx context.Context, id int64) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
@@ -185,21 +194,31 @@ func (m *defaultPlatMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*P
 }
 
 func (m *defaultPlatMainModel) Select() ([]*PlatMain, error) {
-	var resp []*PlatMain
-	err := m.dao.Select(resp)
+	resp := make([]*PlatMain, 0)
+	err := m.dao.Select(&resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
+}
+func (m *defaultPlatMainModel) SelectWithTotal() ([]*PlatMain, int64, error) {
+	resp := make([]*PlatMain, 0)
+	var total int64
+	err := m.dao.Select(&resp, &total)
+	if err != nil {
+		return nil, 0, err
+	}
+	return resp, total, nil
 }
 func (m *defaultPlatMainModel) CacheSelect(redis *redisd.Redisd) ([]*PlatMain, error) {
-	var resp []*PlatMain
-	err := m.dao.CacheSelect(redis, resp)
+	resp := make([]*PlatMain, 0)
+	err := m.dao.CacheSelect(redis, &resp)
 	if err != nil {
 		return nil, err
 	}
 	return resp, nil
 }
+
 func (m *defaultPlatMainModel) Page(page int64, rows int64) *defaultPlatMainModel {
 	m.dao.Page(page, rows)
 	return m
