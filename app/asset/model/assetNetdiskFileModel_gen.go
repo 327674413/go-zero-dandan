@@ -163,7 +163,7 @@ func (m *defaultAssetNetdiskFileModel) Reinit() *defaultAssetNetdiskFileModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultAssetNetdiskFileModel) Dao() *dao.SqlDao {
+func (m *defaultAssetNetdiskFileModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultAssetNetdiskFileModel) Delete(ctx context.Context, id int64) error {

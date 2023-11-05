@@ -146,7 +146,7 @@ func (m *defaultMessageSysConfigModel) Reinit() *defaultMessageSysConfigModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultMessageSysConfigModel) Dao() *dao.SqlDao {
+func (m *defaultMessageSysConfigModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultMessageSysConfigModel) Delete(ctx context.Context, id int64) error {

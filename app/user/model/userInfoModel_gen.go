@@ -147,7 +147,7 @@ func (m *defaultUserInfoModel) Reinit() *defaultUserInfoModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultUserInfoModel) Dao() *dao.SqlDao {
+func (m *defaultUserInfoModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultUserInfoModel) Delete(ctx context.Context, id int64) error {

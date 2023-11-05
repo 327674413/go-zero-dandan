@@ -155,7 +155,7 @@ func (m *defaultGoodsMainModel) Reinit() *defaultGoodsMainModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultGoodsMainModel) Dao() *dao.SqlDao {
+func (m *defaultGoodsMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultGoodsMainModel) Delete(ctx context.Context, id int64) error {

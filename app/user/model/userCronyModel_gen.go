@@ -155,7 +155,7 @@ func (m *defaultUserCronyModel) Reinit() *defaultUserCronyModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultUserCronyModel) Dao() *dao.SqlDao {
+func (m *defaultUserCronyModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultUserCronyModel) Delete(ctx context.Context, id int64) error {

@@ -154,7 +154,7 @@ func (m *defaultAssetMainModel) Reinit() *defaultAssetMainModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultAssetMainModel) Dao() *dao.SqlDao {
+func (m *defaultAssetMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultAssetMainModel) Delete(ctx context.Context, id int64) error {

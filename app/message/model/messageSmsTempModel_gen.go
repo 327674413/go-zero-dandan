@@ -152,7 +152,7 @@ func (m *defaultMessageSmsTempModel) Reinit() *defaultMessageSmsTempModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultMessageSmsTempModel) Dao() *dao.SqlDao {
+func (m *defaultMessageSmsTempModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultMessageSmsTempModel) Delete(ctx context.Context, id int64) error {

@@ -144,7 +144,7 @@ func (m *defaultUserUnionModel) Reinit() *defaultUserUnionModel {
 	m.dao.Reinit()
 	return m
 }
-func (m *defaultUserUnionModel) Dao() *dao.SqlDao {
+func (m *defaultUserUnionModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
 func (m *defaultUserUnionModel) Delete(ctx context.Context, id int64) error {

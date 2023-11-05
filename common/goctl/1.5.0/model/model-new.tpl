@@ -64,6 +64,6 @@ func (m *default{{.upperStartCamelObject}}Model) Reinit() *default{{.upperStartC
 	m.dao.Reinit()
 	return m
 }
-func (m *default{{.upperStartCamelObject}}Model) Dao() *dao.SqlDao {
+func (m *default{{.upperStartCamelObject}}Model) Dao() *dao.SqlxDao {
 	return m.dao
 }
