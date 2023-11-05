@@ -59,9 +59,10 @@ func (l *GetPageLogic) GetPage(req *types.GetPageReq) (resp *types.GetPageResp, 
 		})
 	}
 	resp = &types.GetPageResp{
-		Page: list.Page,
-		Size: list.Size,
-		List: goodsList,
+		Page:    list.Page,
+		Size:    list.Size,
+		IsCache: list.IsCache,
+		List:    goodsList,
 	}
 	return resp, nil
 }

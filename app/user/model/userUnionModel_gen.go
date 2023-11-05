@@ -212,8 +212,8 @@ func (m *defaultUserUnionModel) CacheSelect(redis *redisd.Redisd) ([]*UserUnion,
 	return resp, nil
 }
 
-func (m *defaultUserUnionModel) Page(page int64, rows int64) *defaultUserUnionModel {
-	m.dao.Page(page, rows)
+func (m *defaultUserUnionModel) Page(page int64, size int64) *defaultUserUnionModel {
+	m.dao.Page(page, size)
 	return m
 }
 

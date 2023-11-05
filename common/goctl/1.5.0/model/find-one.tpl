@@ -57,7 +57,7 @@ func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redis
     return resp, nil
 }
 
-func (m *default{{.upperStartCamelObject}}Model) Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model {
-    m.dao.Page(page,rows)
+func (m *default{{.upperStartCamelObject}}Model) Page(page int64, size int64) *default{{.upperStartCamelObject}}Model {
+    m.dao.Page(page,size)
     return m
 }

@@ -83,6 +83,7 @@ type (
 		IsSpecial int64  `db:"is_special"` // 是否活动专用的特殊商品
 		UnitId    int64  `db:"unit_id"`    // 单位
 		UnitName  string `db:"unit_name"`  // 单位名称
+		ViewNum   int64  `db:"view_num"`   // 浏览数量
 		PlatId    int64  `db:"plat_id"`
 		CreateAt  int64  `db:"create_at"`
 		EditAt    int64  `db:"edit_at"`
@@ -223,8 +224,8 @@ func (m *defaultGoodsMainModel) CacheSelect(redis *redisd.Redisd) ([]*GoodsMain,
 	return resp, nil
 }
 
-func (m *defaultGoodsMainModel) Page(page int64, rows int64) *defaultGoodsMainModel {
-	m.dao.Page(page, rows)
+func (m *defaultGoodsMainModel) Page(page int64, size int64) *defaultGoodsMainModel {
+	m.dao.Page(page, size)
 	return m
 }
 

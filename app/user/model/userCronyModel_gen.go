@@ -223,8 +223,8 @@ func (m *defaultUserCronyModel) CacheSelect(redis *redisd.Redisd) ([]*UserCrony,
 	return resp, nil
 }
 
-func (m *defaultUserCronyModel) Page(page int64, rows int64) *defaultUserCronyModel {
-	m.dao.Page(page, rows)
+func (m *defaultUserCronyModel) Page(page int64, size int64) *defaultUserCronyModel {
+	m.dao.Page(page, size)
 	return m
 }
 

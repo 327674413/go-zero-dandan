@@ -220,8 +220,8 @@ func (m *defaultMessageSmsTempModel) CacheSelect(redis *redisd.Redisd) ([]*Messa
 	return resp, nil
 }
 
-func (m *defaultMessageSmsTempModel) Page(page int64, rows int64) *defaultMessageSmsTempModel {
-	m.dao.Page(page, rows)
+func (m *defaultMessageSmsTempModel) Page(page int64, size int64) *defaultMessageSmsTempModel {
+	m.dao.Page(page, size)
 	return m
 }
 

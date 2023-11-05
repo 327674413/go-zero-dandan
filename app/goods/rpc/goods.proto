@@ -38,6 +38,7 @@ message GetPageResp {
   int64 Page = 1;
   int64 Size = 2;
   repeated GoodsInfo list = 3;
+  bool IsCache = 4;
 }
 
 message GetPageWithTotalResp {
@@ -45,6 +46,7 @@ message GetPageWithTotalResp {
   int64 Size = 2;
   repeated GoodsInfo list = 3;
   int64 Total = 4;
+  bool IsCache = 5;
 }
 
 message SuccResp {

@@ -26,14 +26,16 @@ type GetPageReq struct {
 }
 
 type GetPageResp struct {
-	Page int64       `json:"page"`
-	Size int64       `json:"size"`
-	List []GoodsInfo `json:"list"`
+	IsCache bool        `json:"isCache"`
+	Page    int64       `json:"page"`
+	Size    int64       `json:"size"`
+	List    []GoodsInfo `json:"list"`
 }
 
 type GetPageWithTotalResp struct {
-	Page  int64       `json:"page"`
-	Size  int64       `json:"size"`
-	List  []GoodsInfo `json:"list"`
-	Total int64       `json:"total"`
+	IsCache bool        `json:"isCache"`
+	Page    int64       `json:"page"`
+	Size    int64       `json:"size"`
+	Total   int64       `json:"total"`
+	List    []GoodsInfo `json:"list"`
 }

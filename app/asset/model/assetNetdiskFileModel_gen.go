@@ -231,8 +231,8 @@ func (m *defaultAssetNetdiskFileModel) CacheSelect(redis *redisd.Redisd) ([]*Ass
 	return resp, nil
 }
 
-func (m *defaultAssetNetdiskFileModel) Page(page int64, rows int64) *defaultAssetNetdiskFileModel {
-	m.dao.Page(page, rows)
+func (m *defaultAssetNetdiskFileModel) Page(page int64, size int64) *defaultAssetNetdiskFileModel {
+	m.dao.Page(page, size)
 	return m
 }
 

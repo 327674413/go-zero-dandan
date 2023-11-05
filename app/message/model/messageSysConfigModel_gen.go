@@ -214,8 +214,8 @@ func (m *defaultMessageSysConfigModel) CacheSelect(redis *redisd.Redisd) ([]*Mes
 	return resp, nil
 }
 
-func (m *defaultMessageSysConfigModel) Page(page int64, rows int64) *defaultMessageSysConfigModel {
-	m.dao.Page(page, rows)
+func (m *defaultMessageSysConfigModel) Page(page int64, size int64) *defaultMessageSysConfigModel {
+	m.dao.Page(page, size)
 	return m
 }
 

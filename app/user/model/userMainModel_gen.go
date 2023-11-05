@@ -224,8 +224,8 @@ func (m *defaultUserMainModel) CacheSelect(redis *redisd.Redisd) ([]*UserMain, e
 	return resp, nil
 }
 
-func (m *defaultUserMainModel) Page(page int64, rows int64) *defaultUserMainModel {
-	m.dao.Page(page, rows)
+func (m *defaultUserMainModel) Page(page int64, size int64) *defaultUserMainModel {
+	m.dao.Page(page, size)
 	return m
 }
 

@@ -27,11 +27,14 @@ func NewGetPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPageLo
 func (l *GetPageLogic) GetPage(in *pb.GetPageReq) (*pb.GetPageResp, error) {
 	page := in.Page
 	size := in.Size
+	sort := in.Sort
 	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
-	list, err := goodsModel.Ctx(l.ctx).Page(in.Page, in.Size).CacheSelect(l.svcCtx.Redis)
+	list, err := goodsModel.Ctx(l.ctx).Page(page, size).Order(sort).CacheSelect(l.svcCtx.Redis)
 	if err != nil {
 		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err))
 	}
+	page, size = goodsModel.Dao().GetLastQueryPageAndSize()
+	isCache := goodsModel.Dao().GetLastQueryIsCache()
 	goodsList := make([]*pb.GoodsInfo, 0)
 	for _, item := range list {
 		goodsList = append(goodsList, &pb.GoodsInfo{
@@ -49,8 +52,9 @@ func (l *GetPageLogic) GetPage(in *pb.GetPageReq) (*pb.GetPageResp, error) {
 		})
 	}
 	return &pb.GetPageResp{
-		Page: page,
-		Size: size,
-		List: goodsList,
+		Page:    page,
+		Size:    size,
+		List:    goodsList,
+		IsCache: isCache,
 	}, nil
 }

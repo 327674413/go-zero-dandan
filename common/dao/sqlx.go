@@ -20,7 +20,7 @@ type SqlxDao struct {
 	ctx              context.Context
 	table            string
 	defaultRowField  string
-	defaultQueryRows int64
+	defaultQuerySize int64
 	softDeleteField  string
 	softDeletable    bool
 
@@ -28,13 +28,16 @@ type SqlxDao struct {
 	orderSql           string
 	platId             int64
 	queryPage          int64
-	queryRows          int64
+	querySize          int64
 	limitNum           int64
 	joinTables         []string
 	whereData          []any
 	fieldSql           string
 	whereSql           string
-	lastSql            string
+	lastQuerySql       string
+	lastQueryPage      int64
+	lastQuerySize      int64
+	lastQueryIsCache   bool
 	err                error
 	emptyQueryCacheSec int //开启缓存，未查到数据时，空数据的缓存秒数
 	defaultCacheSec    int
@@ -49,7 +52,7 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 		softDeleteField:    softDeleteField,
 		whereData:          make([]any, 0),
 		joinTables:         make([]string, 0),
-		defaultQueryRows:   10,
+		defaultQuerySize:   10,
 		emptyQueryCacheSec: 0,
 		defaultCacheSec:    0, //默认0，永久不失效
 	}
@@ -189,15 +192,14 @@ func (t *SqlxDao) getWhereParam() string {
 	return where
 }
 func (t *SqlxDao) getPageParam() string {
-	queryRows := t.queryRows
-	if t.queryRows == 0 {
-		queryRows = t.defaultQueryRows
+	if t.querySize == 0 {
+		t.querySize = t.defaultQuerySize
 	}
 	if t.queryPage <= 0 {
 		t.queryPage = 1
 	}
-	offset := (t.queryPage - 1) * t.queryRows
-	return fmt.Sprintf("LIMIT %d, %d", offset, queryRows)
+	offset := (t.queryPage - 1) * t.querySize
+	return fmt.Sprintf("LIMIT %d, %d", offset, t.querySize)
 }
 func (t *SqlxDao) validate() (err error) {
 	if err = t.err; err != nil {
@@ -227,7 +229,6 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	} else {
 		err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
 	}
-	t.lastSql = sql
 	if err != nil {
 		if err == sqlx.ErrNotFound {
 			return err
@@ -264,6 +265,10 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 		logc.Error(t.ctx, fmt.Sprintf("【error sql】 : %s , 【data】 : %v", sql, t.whereData))
 		return resd.Error(err)
 	}
+	t.lastQuerySql = sql //Todo::这里不是真实执行的sql，不知道怎么获取
+	t.lastQueryPage = t.queryPage
+	t.lastQuerySize = t.querySize
+	t.lastQueryIsCache = false
 	if len(totalPtr) > 0 {
 		sql = fmt.Sprintf("select COUNT(*) from %s where "+whereParam, tableParam)
 		if t.ctx != nil {
@@ -275,9 +280,14 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	return nil
 }
 func (t *SqlxDao) getSelectCacheKey() (cacheField string, cacheKey string) {
-	page := t.getPageParam()
 	cacheField = t.getCachePrefixField()
-	cacheKey = fmt.Sprintf("%s_%s_%s_%s", t.whereSql, fmt.Sprint(t.whereData), t.orderSql, page)
+	if t.queryPage > 0 {
+		page := t.getPageParam()
+		cacheKey = fmt.Sprintf("%s_%s_%s_%s", t.whereSql, fmt.Sprint(t.whereData), t.orderSql, page)
+	} else {
+		cacheKey = fmt.Sprintf("%s_%s_%s", t.whereSql, fmt.Sprint(t.whereData), t.orderSql)
+	}
+
 	return cacheField, cacheKey
 }
 
@@ -290,6 +300,9 @@ func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 	cacheField, cacheKey := t.getSelectCacheKey()
 	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
 	if err == nil {
+		t.lastQueryPage = t.queryPage
+		t.lastQuerySize = t.querySize
+		t.lastQueryIsCache = true
 		return nil
 	}
 	err = t.Select(targetStructPtr)
@@ -310,6 +323,7 @@ func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 	defer t.Reinit()
 	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
+	t.lastQueryIsCache = true
 	return nil
 }
 
@@ -326,6 +340,7 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id in
 	}
 
 	if err == nil {
+		t.lastQueryIsCache = true
 		return nil
 	}
 	err = t.FindById(&targetStructPtr, id)
@@ -472,9 +487,9 @@ func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 }
 
 // Page 设置当前查询第几页，查多少行
-func (t *SqlxDao) Page(page int64, rows int64) *SqlxDao {
+func (t *SqlxDao) Page(page int64, size int64) *SqlxDao {
 	t.queryPage = page
-	t.queryRows = rows
+	t.querySize = size
 	return t
 }
 
@@ -728,9 +743,19 @@ func (t *SqlxDao) Plat(platId int64) *SqlxDao {
 	return t
 }
 
-// GetLastSql 获取最后查询的sql,暂未实现获取
-func (t *SqlxDao) GetLastSql() string {
-	return t.lastSql
+// GetLastQuerySql 获取最后查询的sql,暂未实现获取
+func (t *SqlxDao) GetLastQuerySql() string {
+	return t.lastQuerySql
+}
+
+// GetLastQueryPageAndSize 获取最后查询的分页页码 和 条数
+func (t *SqlxDao) GetLastQueryPageAndSize() (page int64, size int64) {
+	return t.lastQueryPage, t.lastQuerySize
+}
+
+// GetLastQueryIsCache 获取最后查询的分页页码 和 条数
+func (t *SqlxDao) GetLastQueryIsCache() bool {
+	return t.lastQueryIsCache
 }
 
 // Reinit 每次执行完数据库操作后恢复初始化，保证不干扰下次使用
@@ -740,7 +765,7 @@ func (t *SqlxDao) Reinit() {
 	t.tableAlias = ""
 	t.orderSql = ""
 	t.whereData = make([]any, 0)
-	t.queryRows = 0
+	t.querySize = 0
 	t.queryPage = 0
 	t.err = nil
 	t.ctx = nil
