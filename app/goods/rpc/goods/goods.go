@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	GetHotPageReq        = pb.GetHotPageReq
 	GetPageReq           = pb.GetPageReq
 	GetPageResp          = pb.GetPageResp
 	GetPageWithTotalResp = pb.GetPageWithTotalResp

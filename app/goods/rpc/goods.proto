@@ -32,6 +32,13 @@ message GetPageReq {
   int64 Size = 2;
   string Sort = 3;
   int64 PlatId = 4;
+  int64 totalFlag = 5;
+}
+
+message GetHotPageReq {
+  int64 Page = 1;
+  int64 Size = 2;
+  int64 PlatId = 3;
 }
 
 message GetPageResp {
@@ -39,15 +46,9 @@ message GetPageResp {
   int64 Size = 2;
   repeated GoodsInfo list = 3;
   bool IsCache = 4;
+  optional int64 Total = 5;
 }
 
-message GetPageWithTotalResp {
-  int64 Page = 1;
-  int64 Size = 2;
-  repeated GoodsInfo list = 3;
-  int64 Total = 4;
-  bool IsCache = 5;
-}
 
 message SuccResp {
   int64 Code= 1;
@@ -56,5 +57,4 @@ message SuccResp {
 service goods {
   rpc getOne(IdReq) returns(GoodsInfo);
   rpc getPage(GetPageReq) returns(GetPageResp);
-  rpc getPageWithTotal(GetPageReq) returns(GetPageWithTotalResp);
 }
