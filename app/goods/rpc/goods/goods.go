@@ -13,18 +13,18 @@ import (
 )
 
 type (
-	GetHotPageReq        = pb.GetHotPageReq
-	GetPageReq           = pb.GetPageReq
-	GetPageResp          = pb.GetPageResp
-	GetPageWithTotalResp = pb.GetPageWithTotalResp
-	GoodsInfo            = pb.GoodsInfo
-	IdReq                = pb.IdReq
-	SuccResp             = pb.SuccResp
+	GetHotPageByCursorReq = pb.GetHotPageByCursorReq
+	GetPageByCursorResp   = pb.GetPageByCursorResp
+	GetPageReq            = pb.GetPageReq
+	GetPageResp           = pb.GetPageResp
+	GoodsInfo             = pb.GoodsInfo
+	IdReq                 = pb.IdReq
+	SuccResp              = pb.SuccResp
 
 	Goods interface {
 		GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GoodsInfo, error)
 		GetPage(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageResp, error)
-		GetPageWithTotal(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageWithTotalResp, error)
+		GetHotPageByCursor(ctx context.Context, in *GetHotPageByCursorReq, opts ...grpc.CallOption) (*GetPageByCursorResp, error)
 	}
 
 	defaultGoods struct {
@@ -48,7 +48,7 @@ func (m *defaultGoods) GetPage(ctx context.Context, in *GetPageReq, opts ...grpc
 	return client.GetPage(ctx, in, opts...)
 }
 
-func (m *defaultGoods) GetPageWithTotal(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageWithTotalResp, error) {
+func (m *defaultGoods) GetHotPageByCursor(ctx context.Context, in *GetHotPageByCursorReq, opts ...grpc.CallOption) (*GetPageByCursorResp, error) {
 	client := pb.NewGoodsClient(m.cli.Conn())
-	return client.GetPageWithTotal(ctx, in, opts...)
+	return client.GetHotPageByCursor(ctx, in, opts...)
 }

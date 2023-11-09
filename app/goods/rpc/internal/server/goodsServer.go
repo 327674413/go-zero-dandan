@@ -32,7 +32,7 @@ func (s *GoodsServer) GetPage(ctx context.Context, in *pb.GetPageReq) (*pb.GetPa
 	return l.GetPage(in)
 }
 
-func (s *GoodsServer) GetPageWithTotal(ctx context.Context, in *pb.GetPageReq) (*pb.GetPageWithTotalResp, error) {
-	l := logic.NewGetPageWithTotalLogic(ctx, s.svcCtx)
-	return l.GetPageWithTotal(in)
+func (s *GoodsServer) GetHotPageByCursor(ctx context.Context, in *pb.GetHotPageByCursorReq) (*pb.GetPageByCursorResp, error) {
+	l := logic.NewGetHotPageByCursorLogic(ctx, s.svcCtx)
+	return l.GetHotPageByCursor(in)
 }

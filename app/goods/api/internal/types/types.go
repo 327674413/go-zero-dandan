@@ -20,9 +20,15 @@ type IdReq struct {
 }
 
 type GetPageReq struct {
-	Page int64  `json:"page,optional"`
-	Size int64  `json:"size,optional"`
-	Sort string `json:"sort,optional"`
+	Page      int64  `json:"page,optional"`
+	Size      int64  `json:"size,optional"`
+	Sort      string `json:"sort,optional"`
+	TotalFlag *int64 `json:"totalFlag,optional"`
+}
+
+type GetHotPageReq struct {
+	Page int64 `json:"page,optional"`
+	Size int64 `json:"size,optional"`
 }
 
 type GetPageResp struct {

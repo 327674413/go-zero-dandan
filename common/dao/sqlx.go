@@ -322,8 +322,26 @@ func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 // CacheFind 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
 func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 	defer t.Reinit()
-	// todo::需要把where条件一起放进去作为key，这样就能支持更多的自动缓存查询
-	t.lastQueryIsCache = true
+	if targetStructPtr == nil {
+		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
+	}
+	cacheField, cacheKey := t.getSelectCacheKey()
+	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
+	if err == nil {
+		t.lastQueryIsCache = true
+		return nil
+	}
+	err = t.Find(targetStructPtr)
+	if err != nil && err != sqlx.ErrNotFound {
+		return resd.Error(err)
+	}
+	if err == nil {
+		//有查到数据，按默认缓存走
+		redis.SetDataEx(cacheField, cacheKey, targetStructPtr, t.defaultCacheSec)
+	} else if t.emptyQueryCacheSec > 0 {
+		//没查到数据，且需要设置空数据缓存，避免持续打到数据库中
+		redis.SetDataEx(cacheField, cacheKey, targetStructPtr, t.emptyQueryCacheSec)
+	}
 	return nil
 }
 

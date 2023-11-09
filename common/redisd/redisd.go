@@ -30,12 +30,12 @@ func NewRedisd(redisConn *redisx.Redis, prefix string) *Redisd {
 
 // Set 设置值
 func (t *Redisd) Set(field string, key string, str string) error {
-	return t.redisConn.Set(t.prefix+":"+field+":"+key, str)
+	return t.redisConn.Set(t.FieldKey(field, key), str)
 }
 
 // SetCtx 设置值,带上下文
 func (t *Redisd) SetCtx(ctx context.Context, field string, key string, str string) error {
-	return t.redisConn.SetCtx(ctx, t.prefix+":"+field+":"+key, str)
+	return t.redisConn.SetCtx(ctx, t.FieldKey(field, key), str)
 }
 
 // SetNx 不存在则设置值
@@ -43,9 +43,9 @@ func (t *Redisd) SetNx(field string, key string, str string, expireSec ...int) e
 	var res bool
 	var err error
 	if len(expireSec) > 0 {
-		res, err = t.redisConn.SetnxEx(t.prefix+":"+field+":"+key, str, expireSec[0])
+		res, err = t.redisConn.SetnxEx(t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		res, err = t.redisConn.Setnx(t.prefix+":"+field+":"+key, str)
+		res, err = t.redisConn.Setnx(t.FieldKey(field, key), str)
 	}
 	if err != nil {
 		return err
@@ -60,9 +60,9 @@ func (t *Redisd) SetNxCtx(ctx context.Context, field string, key string, str str
 	var res bool
 	var err error
 	if len(expireSec) > 0 {
-		res, err = t.redisConn.SetnxExCtx(ctx, t.prefix+":"+field+":"+key, str, expireSec[0])
+		res, err = t.redisConn.SetnxExCtx(ctx, t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		res, err = t.redisConn.SetnxCtx(ctx, t.prefix+":"+field+":"+key, str)
+		res, err = t.redisConn.SetnxCtx(ctx, t.FieldKey(field, key), str)
 	}
 	if err != nil {
 		return err
@@ -101,9 +101,9 @@ func (t *Redisd) Inc(field string, key string, num int, expireSec ...int) error 
 	oldNum = oldNum + num
 	str := fmt.Sprintf("%d", oldNum)
 	if len(expireSec) > 0 {
-		return t.redisConn.Setex(t.prefix+":"+field+":"+key, str, expireSec[0])
+		return t.redisConn.Setex(t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		return t.redisConn.Set(t.prefix+":"+field+":"+key, str)
+		return t.redisConn.Set(t.FieldKey(field, key), str)
 	}
 
 }
@@ -121,9 +121,9 @@ func (t *Redisd) IncCtx(ctx context.Context, field string, key string, num int, 
 	oldNum = oldNum + num
 	str := fmt.Sprintf("%d", oldNum)
 	if len(expireSec) > 0 {
-		return t.redisConn.SetexCtx(ctx, t.prefix+":"+field+":"+key, str, expireSec[0])
+		return t.redisConn.SetexCtx(ctx, t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		return t.redisConn.SetCtx(ctx, t.prefix+":"+field+":"+key, str)
+		return t.redisConn.SetCtx(ctx, t.FieldKey(field, key), str)
 	}
 
 }
@@ -141,9 +141,9 @@ func (t *Redisd) Dec(field string, key string, num int, expireSec ...int) error 
 	oldNum = oldNum - num
 	str := fmt.Sprintf("%d", oldNum)
 	if len(expireSec) > 0 {
-		return t.redisConn.Setex(t.prefix+":"+field+":"+key, str, expireSec[0])
+		return t.redisConn.Setex(t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		return t.redisConn.Set(t.prefix+":"+field+":"+key, str)
+		return t.redisConn.Set(t.FieldKey(field, key), str)
 	}
 
 }
@@ -161,9 +161,9 @@ func (t *Redisd) DecCtx(ctx context.Context, field string, key string, num int, 
 	oldNum = oldNum - num
 	str := fmt.Sprintf("%d", oldNum)
 	if len(expireSec) > 0 {
-		return t.redisConn.SetexCtx(ctx, t.prefix+":"+field+":"+key, str, expireSec[0])
+		return t.redisConn.SetexCtx(ctx, t.FieldKey(field, key), str, expireSec[0])
 	} else {
-		return t.redisConn.SetCtx(ctx, t.prefix+":"+field+":"+key, str)
+		return t.redisConn.SetCtx(ctx, t.FieldKey(field, key), str)
 	}
 
 }
@@ -204,7 +204,7 @@ func (t *Redisd) Get(field string, key string) (string, error) {
 
 // GetCtx 获取值，带上下文, 单个时key用id，多个时key可以用list、info之类的字符串标识
 func (t *Redisd) GetCtx(ctx context.Context, field string, key string) (string, error) {
-	str, err := t.redisConn.GetCtx(ctx, t.prefix+":"+field+":"+key)
+	str, err := t.redisConn.GetCtx(ctx, t.FieldKey(field, key))
 	if err != nil && err != redis.Nil {
 		//报错返回错误信息
 		return "", err
@@ -234,6 +234,36 @@ func (t *Redisd) Hgetall(field string, key string) (map[string]string, error) {
 // HgetallCtx 获取哈希值全部，带上下文
 func (t *Redisd) HgetallCtx(ctx context.Context, field string) (map[string]string, error) {
 	return t.redisConn.HgetallCtx(ctx, t.prefix+":"+field)
+}
+
+// Zadd zadd方法
+func (t *Redisd) Zadd(field string, key string, score int64, value string) (bool, error) {
+	return t.redisConn.Zadd(t.FieldKey(field, key), score, value)
+}
+
+// ZaddCtx zadd方法,带ctx
+func (t *Redisd) ZaddCtx(ctx context.Context, field string, key string, score int64, value string) (bool, error) {
+	return t.redisConn.ZaddCtx(ctx, t.FieldKey(field, key), score, value)
+}
+
+// CursorPageDescCtx 游标降序分页，带ctx
+func (t *Redisd) CursorPageDescCtx(ctx context.Context, field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), 0, cursor, 0, size)
+}
+
+// CursorPageAsc 游标升序分页
+func (t *Redisd) CursorPageAsc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), cursor, 0, 0, size)
+}
+
+// CursorPageAscCtx 游标升序分页，带ctx
+func (t *Redisd) CursorPageAscCtx(ctx context.Context, field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), cursor, 0, 0, size)
+}
+
+// CursorPageDesc 游标降序分页
+func (t *Redisd) CursorPageDesc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, cursor, 0, size)
 }
 
 // SetData 将数据转成json设置
@@ -343,12 +373,22 @@ func (t *Redisd) HgetData(field string, key string, targetStructPointer any) err
 
 // SetEx 设置带过期时间的值
 func (t *Redisd) SetEx(field string, key string, value string, expireSec int) error {
-	return t.redisConn.Setex(t.prefix+":"+field+":"+key, value, expireSec)
+	return t.redisConn.Setex(t.FieldKey(field, key), value, expireSec)
 }
 
 // SetExCtx 设置带过期时间的值，带上下文
 func (t *Redisd) SetExCtx(ctx context.Context, field string, key string, value string, expireSec int) error {
-	return t.redisConn.SetexCtx(ctx, t.prefix+":"+field+":"+key, value, expireSec)
+	return t.redisConn.SetexCtx(ctx, t.FieldKey(field, key), value, expireSec)
+}
+
+// Expire 给缓存续期
+func (t *Redisd) Expire(field string, key string, expireSec int) error {
+	return t.redisConn.Expire(t.FieldKey(field, key), expireSec)
+}
+
+// ExpireCtx 给缓存续期，带上下文
+func (t *Redisd) ExpireCtx(ctx context.Context, field string, key string, expireSec int) error {
+	return t.redisConn.ExpireCtx(ctx, t.FieldKey(field, key), expireSec)
 }
 
 // DelKeyByPrefix 使用eval方式删除执行前缀的key
@@ -363,6 +403,31 @@ func (t *Redisd) DelKeyByPrefix(keyPrefix string) (any, error) {
 	args := []interface{}{t.prefix + ":" + keyPrefix}
 	return t.redisConn.Eval(script, []string{}, args...)
 }
-func (t *Redisd) Redisx() *redisx.Redis {
+
+// DelKeyByPrefixCtx 使用eval方式删除执行前缀的key，带上下文
+func (t *Redisd) DelKeyByPrefixCtx(ctx context.Context, keyPrefix string) (any, error) {
+	script := `
+		local keys = redis.call("KEYS", ARGV[1])
+		for i = 1, #keys do
+			redis.call("DEL", keys[i])
+		end
+		return #keys
+	`
+	args := []interface{}{t.prefix + ":" + keyPrefix}
+	return t.redisConn.EvalCtx(ctx, script, []string{}, args...)
+}
+func (t *Redisd) Client() *redisx.Redis {
 	return t.redisConn
+}
+
+func (t *Redisd) FieldKey(field string, key string) string {
+	k := t.prefix
+	if field != "" {
+		k = k + ":" + field
+	}
+	if key != "" {
+		k = k + ":" + key
+	}
+	return k
+
 }

@@ -19,6 +19,11 @@ type (
 		Page int64 `json:"page,optional"`
 		Size int64 `json:"size,optional"`
 		Sort string `json:"sort,optional"`
+		TotalFlag *int64 `json:"totalFlag,optional"`
+	}
+	GetHotPageReq {
+		Page int64 `json:"page,optional"`
+		Size int64 `json:"size,optional"`
 	}
 	GetPageResp {
 		IsCache bool `json:"isCache"`

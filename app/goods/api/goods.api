@@ -13,6 +13,6 @@ service goods-api {
 	post /getOne(IdReq) returns (GoodsInfo)
 	@handler getPage
 	post /getPage(GetPageReq) returns (GetPageResp)
-	@handler getPageWithTotal
-	post /getPageWithTotal(GetPageReq) returns (GetPageWithTotalResp)
+	@handler getHotPage
+	post /getHotPage(GetHotPageReq) returns (GetPageResp)
 }

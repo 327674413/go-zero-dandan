@@ -20,6 +20,7 @@ message GoodsInfo {
   int64 UnitId = 9;
   string UnitName = 10;
   int64 PlatId = 11;
+  int64 ViewNum = 12;
 }
 
 message IdReq {
@@ -32,13 +33,14 @@ message GetPageReq {
   int64 Size = 2;
   string Sort = 3;
   int64 PlatId = 4;
-  int64 totalFlag = 5;
+  int64 TotalFlag = 5;
 }
 
-message GetHotPageReq {
-  int64 Page = 1;
+message GetHotPageByCursorReq {
   int64 Size = 2;
   int64 PlatId = 3;
+  int64 Cursor = 4;
+  int64 LastId = 5;
 }
 
 message GetPageResp {
@@ -47,14 +49,26 @@ message GetPageResp {
   repeated GoodsInfo list = 3;
   bool IsCache = 4;
   optional int64 Total = 5;
+  optional int64 LastId = 6;
+  optional int64 cursor = 7;
+  optional bool IsEnd = 8;
 }
+message GetPageByCursorResp {
+  int64 Size = 1;
+  bool IsCache = 2;
+  optional bool IsEnd = 3;
+  optional int64 LastId = 4;
+  optional int64 cursor = 5;
+  repeated GoodsInfo list = 6;
 
+}
 
 message SuccResp {
   int64 Code= 1;
 }
 
 service goods {
-  rpc getOne(IdReq) returns(GoodsInfo);
-  rpc getPage(GetPageReq) returns(GetPageResp);
+  rpc GetOne(IdReq) returns(GoodsInfo);
+  rpc GetPage(GetPageReq) returns(GetPageResp);
+  rpc GetHotPageByCursor(GetHotPageByCursorReq) returns(GetPageByCursorResp);
 }

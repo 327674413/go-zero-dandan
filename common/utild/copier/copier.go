@@ -1,4 +1,4 @@
-package utild
+package copier
 
 import (
 	"database/sql"

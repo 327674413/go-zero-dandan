@@ -58,9 +58,9 @@ goctl template init
 goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 ## 开发说明
-- api的请求入参，目前是用框架的httpx解析邪恶，所以参数可选得用optional
+- api的请求入参，目前是用框架的httpx解析，所以参数可选得用optional
 - api的返回值，如果想让返回的内容为nil时不会返回，则用omitempty
-
+- 对于接口中，非必填的字段，都建议用指针类型，既明确是可选参数，又可以判断前端是否有传
 ## 部署说明
 
 ### 普通应用部署

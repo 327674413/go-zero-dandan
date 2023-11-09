@@ -5,13 +5,15 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/goods/rpc/internal/config"
 	"go-zero-dandan/common/redisd"
+	"golang.org/x/sync/singleflight"
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	Mode    string
-	Redis   *redisd.Redisd
-	SqlConn sqlx.SqlConn
+	Config            config.Config
+	Mode              string
+	Redis             *redisd.Redisd
+	SqlConn           sqlx.SqlConn
+	SingleFlightGroup singleflight.Group
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {

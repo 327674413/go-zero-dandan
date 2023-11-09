@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Goods_GetOne_FullMethodName           = "/goods.goods/getOne"
-	Goods_GetPage_FullMethodName          = "/goods.goods/getPage"
-	Goods_GetPageWithTotal_FullMethodName = "/goods.goods/getPageWithTotal"
+	Goods_GetOne_FullMethodName             = "/goods.goods/GetOne"
+	Goods_GetPage_FullMethodName            = "/goods.goods/GetPage"
+	Goods_GetHotPageByCursor_FullMethodName = "/goods.goods/GetHotPageByCursor"
 )
 
 // GoodsClient is the client API for Goods service.
@@ -30,7 +30,7 @@ const (
 type GoodsClient interface {
 	GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GoodsInfo, error)
 	GetPage(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageResp, error)
-	GetPageWithTotal(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageWithTotalResp, error)
+	GetHotPageByCursor(ctx context.Context, in *GetHotPageByCursorReq, opts ...grpc.CallOption) (*GetPageByCursorResp, error)
 }
 
 type goodsClient struct {
@@ -59,9 +59,9 @@ func (c *goodsClient) GetPage(ctx context.Context, in *GetPageReq, opts ...grpc.
 	return out, nil
 }
 
-func (c *goodsClient) GetPageWithTotal(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageWithTotalResp, error) {
-	out := new(GetPageWithTotalResp)
-	err := c.cc.Invoke(ctx, Goods_GetPageWithTotal_FullMethodName, in, out, opts...)
+func (c *goodsClient) GetHotPageByCursor(ctx context.Context, in *GetHotPageByCursorReq, opts ...grpc.CallOption) (*GetPageByCursorResp, error) {
+	out := new(GetPageByCursorResp)
+	err := c.cc.Invoke(ctx, Goods_GetHotPageByCursor_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (c *goodsClient) GetPageWithTotal(ctx context.Context, in *GetPageReq, opts
 type GoodsServer interface {
 	GetOne(context.Context, *IdReq) (*GoodsInfo, error)
 	GetPage(context.Context, *GetPageReq) (*GetPageResp, error)
-	GetPageWithTotal(context.Context, *GetPageReq) (*GetPageWithTotalResp, error)
+	GetHotPageByCursor(context.Context, *GetHotPageByCursorReq) (*GetPageByCursorResp, error)
 	mustEmbedUnimplementedGoodsServer()
 }
 
@@ -88,8 +88,8 @@ func (UnimplementedGoodsServer) GetOne(context.Context, *IdReq) (*GoodsInfo, err
 func (UnimplementedGoodsServer) GetPage(context.Context, *GetPageReq) (*GetPageResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPage not implemented")
 }
-func (UnimplementedGoodsServer) GetPageWithTotal(context.Context, *GetPageReq) (*GetPageWithTotalResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPageWithTotal not implemented")
+func (UnimplementedGoodsServer) GetHotPageByCursor(context.Context, *GetHotPageByCursorReq) (*GetPageByCursorResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetHotPageByCursor not implemented")
 }
 func (UnimplementedGoodsServer) mustEmbedUnimplementedGoodsServer() {}
 
@@ -140,20 +140,20 @@ func _Goods_GetPage_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Goods_GetPageWithTotal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetPageReq)
+func _Goods_GetHotPageByCursor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHotPageByCursorReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsServer).GetPageWithTotal(ctx, in)
+		return srv.(GoodsServer).GetHotPageByCursor(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Goods_GetPageWithTotal_FullMethodName,
+		FullMethod: Goods_GetHotPageByCursor_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsServer).GetPageWithTotal(ctx, req.(*GetPageReq))
+		return srv.(GoodsServer).GetHotPageByCursor(ctx, req.(*GetHotPageByCursorReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -166,16 +166,16 @@ var Goods_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "getOne",
+			MethodName: "GetOne",
 			Handler:    _Goods_GetOne_Handler,
 		},
 		{
-			MethodName: "getPage",
+			MethodName: "GetPage",
 			Handler:    _Goods_GetPage_Handler,
 		},
 		{
-			MethodName: "getPageWithTotal",
-			Handler:    _Goods_GetPageWithTotal_Handler,
+			MethodName: "GetHotPageByCursor",
+			Handler:    _Goods_GetHotPageByCursor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

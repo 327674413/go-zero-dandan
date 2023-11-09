@@ -11,16 +11,16 @@ import (
 	"net/http"
 )
 
-func GetPageWithTotalHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GetHotPageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GetPageReq
+		var req types.GetHotPageReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
 			return
 		}
 
-		l := goodsInfo.NewGetPageWithTotalLogic(r.Context(), svcCtx)
-		resp, err := l.GetPageWithTotal(&req)
+		l := goodsInfo.NewGetHotPageLogic(r.Context(), svcCtx)
+		resp, err := l.GetHotPage(&req)
 		if err != nil {
 			if danErr, ok := resd.AssertErr(err); ok {
 				localizer, ok := r.Context().Value("lang").(*i18n.Localizer)
