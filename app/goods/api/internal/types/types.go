@@ -12,6 +12,7 @@ type GoodsInfo struct {
 	IsSpecial int64  `json:"state"`
 	UnitId    int64  `json:"unitId,string"`
 	UnitName  string `json:"unitName"`
+	ViewNum   int64  `json:"viewNum"`
 	PlatId    int64  `json:"platId,string"`
 }
 
@@ -26,22 +27,24 @@ type GetPageReq struct {
 	TotalFlag *int64 `json:"totalFlag,optional"`
 }
 
-type GetHotPageReq struct {
-	Page int64 `json:"page,optional"`
-	Size int64 `json:"size,optional"`
-}
-
 type GetPageResp struct {
-	IsCache bool        `json:"isCache"`
-	Page    int64       `json:"page"`
-	Size    int64       `json:"size"`
-	List    []GoodsInfo `json:"list"`
+	IsCache bool         `json:"isCache"`
+	Page    int64        `json:"page"`
+	Size    int64        `json:"size"`
+	List    []*GoodsInfo `json:"list"`
 }
 
-type GetPageWithTotalResp struct {
-	IsCache bool        `json:"isCache"`
-	Page    int64       `json:"page"`
-	Size    int64       `json:"size"`
-	Total   int64       `json:"total"`
-	List    []GoodsInfo `json:"list"`
+type GetHotPageByCursorReq struct {
+	Cursor int64 `json:"cursor,optional"`
+	Size   int64 `json:"size,optional"`
+	LastId int64 `json:"lastId,optional"`
+}
+
+type GetHotPageByCursorResp struct {
+	IsCache bool         `json:"isCache"`
+	IsEnd   bool         `json:"isEnd"`
+	Cursor  int64        `json:"cursor"`
+	LastId  int64        `json:"lastId"`
+	Size    int64        `json:"size"`
+	List    []*GoodsInfo `json:"list"`
 }

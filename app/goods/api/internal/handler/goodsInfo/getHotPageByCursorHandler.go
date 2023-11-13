@@ -11,16 +11,16 @@ import (
 	"net/http"
 )
 
-func GetHotPageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GetHotPageByCursorHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GetHotPageReq
+		var req types.GetHotPageByCursorReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
 			return
 		}
 
-		l := goodsInfo.NewGetHotPageLogic(r.Context(), svcCtx)
-		resp, err := l.GetHotPage(&req)
+		l := goodsInfo.NewGetHotPageByCursorLogic(r.Context(), svcCtx)
+		resp, err := l.GetHotPageByCursor(&req)
 		if err != nil {
 			if danErr, ok := resd.AssertErr(err); ok {
 				localizer, ok := r.Context().Value("lang").(*i18n.Localizer)

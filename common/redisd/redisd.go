@@ -251,6 +251,11 @@ func (t *Redisd) CursorPageDescCtx(ctx context.Context, field string, key string
 	return t.redisConn.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), 0, cursor, 0, size)
 }
 
+// CursorPageDesc 游标降序分页
+func (t *Redisd) CursorPageDesc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, cursor, 0, size)
+}
+
 // CursorPageAsc 游标升序分页
 func (t *Redisd) CursorPageAsc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
 	return t.redisConn.ZrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), cursor, 0, 0, size)
@@ -259,11 +264,6 @@ func (t *Redisd) CursorPageAsc(field string, key string, cursor int64, size int)
 // CursorPageAscCtx 游标升序分页，带ctx
 func (t *Redisd) CursorPageAscCtx(ctx context.Context, field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
 	return t.redisConn.ZrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), cursor, 0, 0, size)
-}
-
-// CursorPageDesc 游标降序分页
-func (t *Redisd) CursorPageDesc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
-	return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, cursor, 0, size)
 }
 
 // SetData 将数据转成json设置

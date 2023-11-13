@@ -361,7 +361,7 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id in
 		t.lastQueryIsCache = true
 		return nil
 	}
-	err = t.FindById(&targetStructPtr, id)
+	err = t.FindById(targetStructPtr, id)
 	if err != nil {
 		return err
 	}
@@ -369,6 +369,7 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id in
 	if t.ctx == nil {
 		redis.SetData(cacheField, cacheKey, targetStructPtr)
 	} else {
+
 		redis.SetDataCtx(t.ctx, cacheField, cacheKey, targetStructPtr)
 	}
 

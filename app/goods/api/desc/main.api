@@ -9,6 +9,7 @@ type GoodsInfo {
 	IsSpecial int64 `json:"state"`
 	UnitId int64 `json:"unitId,string"`
 	UnitName string `json:"unitName"`
+	ViewNum int64 `json:"viewNum"`
 	PlatId int64 `json:"platId,string"`
 }
 type IdReq{
@@ -21,22 +22,24 @@ type (
 		Sort string `json:"sort,optional"`
 		TotalFlag *int64 `json:"totalFlag,optional"`
 	}
-	GetHotPageReq {
-		Page int64 `json:"page,optional"`
-		Size int64 `json:"size,optional"`
-	}
 	GetPageResp {
 		IsCache bool `json:"isCache"`
 		Page int64 `json:"page"`
 		Size int64 `json:"size"`
-		List []GoodsInfo `json:"list"`
+		List []*GoodsInfo `json:"list"`
 	}
-	GetPageWithTotalResp {
+	GetHotPageByCursorReq {
+		Cursor int64 `json:"cursor,optional"`
+		Size int64 `json:"size,optional"`
+		LastId int64 `json:"lastId,optional"`
+	}
+	GetHotPageByCursorResp {
 		IsCache bool `json:"isCache"`
-		Page int64 `json:"page"`
+		IsEnd bool `json:"isEnd"`
+		Cursor int64 `json:"cursor"`
+		LastId int64 `json:"lastId"`
 		Size int64 `json:"size"`
-		Total int64 `json:"total"`
-		List []GoodsInfo `json:"list"`
-
+		List []*GoodsInfo `json:"list"`
 	}
+
 )

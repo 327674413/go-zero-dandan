@@ -56,9 +56,9 @@ message GetPageResp {
 message GetPageByCursorResp {
   int64 Size = 1;
   bool IsCache = 2;
-  optional bool IsEnd = 3;
-  optional int64 LastId = 4;
-  optional int64 cursor = 5;
+  bool IsEnd = 3;
+  int64 LastId = 4;
+  int64 cursor = 5;
   repeated GoodsInfo list = 6;
 
 }

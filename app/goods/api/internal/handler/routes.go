@@ -28,8 +28,8 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/getHotPage",
-					Handler: goodsInfo.GetHotPageHandler(serverCtx),
+					Path:    "/getHotPageByCursor",
+					Handler: goodsInfo.GetHotPageByCursorHandler(serverCtx),
 				},
 			}...,
 		),

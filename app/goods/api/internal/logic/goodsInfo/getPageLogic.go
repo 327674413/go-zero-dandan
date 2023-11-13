@@ -42,9 +42,9 @@ func (l *GetPageLogic) GetPage(req *types.GetPageReq) (resp *types.GetPageResp, 
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	goodsList := make([]types.GoodsInfo, 0)
+	goodsList := make([]*types.GoodsInfo, 0)
 	for _, item := range list.List {
-		goodsList = append(goodsList, types.GoodsInfo{
+		goodsList = append(goodsList, &types.GoodsInfo{
 			Id:        item.Id,
 			Name:      item.Name,
 			Spec:      item.Spec,

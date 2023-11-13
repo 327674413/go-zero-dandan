@@ -2,10 +2,10 @@ package goodsInfo
 
 import (
 	"context"
+	"go-zero-dandan/app/goods/rpc/types/pb"
+
 	"go-zero-dandan/app/goods/api/internal/svc"
 	"go-zero-dandan/app/goods/api/internal/types"
-	"go-zero-dandan/app/goods/rpc/types/pb"
-	"go-zero-dandan/common/utild/copier"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
@@ -13,7 +13,7 @@ import (
 	"go-zero-dandan/common/utild"
 )
 
-type GetHotPageLogic struct {
+type GetHotPageByCursorLogic struct {
 	logx.Logger
 	ctx          context.Context
 	svcCtx       *svc.ServiceContext
@@ -22,35 +22,55 @@ type GetHotPageLogic struct {
 	platClasEm   int64
 }
 
-func NewGetHotPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageLogic {
-	return &GetHotPageLogic{
+func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageByCursorLogic {
+	return &GetHotPageByCursorLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *GetHotPageLogic) GetHotPage(req *types.GetHotPageReq) (resp *types.GetPageResp, err error) {
+func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCursorReq) (resp *types.GetHotPageByCursorResp, err error) {
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	list, err := l.svcCtx.GoodsRpc.GetHotPage(l.ctx, &pb.GetHotPageReq{
-		Page:   req.Page,
+	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &pb.GetHotPageByCursorReq{
 		Size:   req.Size,
 		PlatId: l.platId,
+		Cursor: req.Cursor,
+		LastId: req.LastId,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	resp = &types.GetPageResp{}
-	err = copier.Copy(&resp, list)
-	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+	goodses := make([]*types.GoodsInfo, 0)
+	for _, item := range pageData.List {
+		goodses = append(goodses, &types.GoodsInfo{
+			Id:        item.Id,
+			Name:      item.Name,
+			Spec:      item.Spec,
+			Cover:     item.Cover,
+			SellPrice: item.SellPrice,
+			StoreQty:  item.StoreQty,
+			State:     item.State,
+			IsSpecial: item.IsSpecial,
+			UnitId:    item.UnitId,
+			UnitName:  item.UnitName,
+			PlatId:    item.PlatId,
+			ViewNum:   item.ViewNum,
+		})
 	}
-	return
+	return &types.GetHotPageByCursorResp{
+		IsCache: pageData.IsCache,
+		IsEnd:   pageData.IsEnd,
+		Cursor:  pageData.Cursor,
+		LastId:  pageData.LastId,
+		Size:    pageData.Size,
+		List:    goodses,
+	}, nil
 }
 
-func (l *GetHotPageLogic) initUser() (err error) {
+func (l *GetHotPageByCursorLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
 		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
@@ -59,7 +79,7 @@ func (l *GetHotPageLogic) initUser() (err error) {
 	return nil
 }
 
-func (l *GetHotPageLogic) initPlat() (err error) {
+func (l *GetHotPageByCursorLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
