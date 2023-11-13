@@ -37,8 +37,8 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCurs
 	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &pb.GetHotPageByCursorReq{
 		Size:   req.Size,
 		PlatId: l.platId,
+		Page:   req.Page,
 		Cursor: req.Cursor,
-		LastId: req.LastId,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)

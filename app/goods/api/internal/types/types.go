@@ -37,7 +37,7 @@ type GetPageResp struct {
 type GetHotPageByCursorReq struct {
 	Cursor int64 `json:"cursor,optional"`
 	Size   int64 `json:"size,optional"`
-	LastId int64 `json:"lastId,optional"`
+	Page   int64 `json:"page,optional"`
 }
 
 type GetHotPageByCursorResp struct {

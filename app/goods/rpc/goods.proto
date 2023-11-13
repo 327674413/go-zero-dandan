@@ -37,6 +37,7 @@ message GetPageReq {
 }
 
 message GetHotPageByCursorReq {
+  int64 Page = 1;
   int64 Size = 2;
   int64 PlatId = 3;
   int64 Cursor = 4;
@@ -50,7 +51,7 @@ message GetPageResp {
   bool IsCache = 4;
   optional int64 Total = 5;
   optional int64 LastId = 6;
-  optional int64 cursor = 7;
+  optional int64 Cursor = 7;
   optional bool IsEnd = 8;
 }
 message GetPageByCursorResp {

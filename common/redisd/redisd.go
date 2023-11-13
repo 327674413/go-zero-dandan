@@ -246,19 +246,32 @@ func (t *Redisd) ZaddCtx(ctx context.Context, field string, key string, score in
 	return t.redisConn.ZaddCtx(ctx, t.FieldKey(field, key), score, value)
 }
 
-// CursorPageDescCtx 游标降序分页，带ctx
-func (t *Redisd) CursorPageDescCtx(ctx context.Context, field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
-	return t.redisConn.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), 0, cursor, 0, size)
+// ZpageCtx 根据zadd数据进行score分页，带ctx
+func (t *Redisd) ZpageCtx(ctx context.Context, field string, key string, page int, size int, isDesc bool) ([]redisx.Pair, error) {
+	if isDesc {
+		return t.redisConn.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), 0, 9999999999, page-1, size)
+	} else {
+		return t.redisConn.ZrangebyscoreWithScoresAndLimitCtx(ctx, t.FieldKey(field, key), 0, 9999999999, page-1, size)
+	}
+}
+
+// Zpage 根据zadd数据进行score分页
+func (t *Redisd) Zpage(field string, key string, page int, size int, isDesc bool) ([]redisx.Pair, error) {
+	if isDesc {
+		return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, 9999999999, page-1, size)
+	} else {
+		return t.redisConn.ZrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, 9999999999, page-1, size)
+	}
 }
 
 // CursorPageDesc 游标降序分页
-func (t *Redisd) CursorPageDesc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
-	return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, cursor, 0, size)
+func (t *Redisd) CursorPageDesc(field string, key string, page int, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrevrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, 9999999999, page-1, size)
 }
 
 // CursorPageAsc 游标升序分页
-func (t *Redisd) CursorPageAsc(field string, key string, cursor int64, size int) ([]redisx.Pair, error) {
-	return t.redisConn.ZrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), cursor, 0, 0, size)
+func (t *Redisd) CursorPageAsc(field string, key string, page int, size int) ([]redisx.Pair, error) {
+	return t.redisConn.ZrangebyscoreWithScoresAndLimit(t.FieldKey(field, key), 0, 9999999999, page-1, size)
 }
 
 // CursorPageAscCtx 游标升序分页，带ctx

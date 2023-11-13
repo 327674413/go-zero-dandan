@@ -25,11 +25,13 @@ type GetHotPageByCursorLogic struct {
 }
 
 const (
-	defaultCacheGoodsNum   = 200
-	defaultCursor          = math.MaxInt32
+	defaultCacheGoodsNum   = 5
+	defaultPageSize        = 10
+	maxPageSize            = 100
 	redisKeyHotViewGoodses = "HotViewByCursor"
 	defaultCacheExpireSec  = 3600
-	defaultPageSize        = 2
+	defaultCursor          = math.MaxInt32 //倒序找，默认的最大值
+	endFlagId              = -1            //倒序找，最后一条用-1来判断
 )
 
 func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageByCursorLogic {
@@ -40,24 +42,26 @@ func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
+// 这个方式缺陷还挺多：在边界时只能返回缓存剩余数据，导致数量不满足分页要求 和 关联引发的系列问题；当然在高并发和加载更多时可能可以忽略
+
 func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorReq) (*pb.GetPageByCursorResp, error) {
-	reqSize := in.Size
-	if reqSize == 0 {
-		reqSize = defaultPageSize
+	if in.Size == 0 {
+		in.Size = defaultPageSize
 	}
-	reqCursor := in.Cursor
-	cacheSize := reqSize
-	if reqCursor == 0 {
-		//如果没传则代表从第一页开始查
-		reqCursor = defaultCursor
-	} else {
-		cacheSize = cacheSize + 1
+	if in.Size > maxPageSize {
+		in.Size = maxPageSize
+	}
+	if in.Page <= 0 {
+		in.Page = 1
+	}
+	if in.Cursor == 0 {
+		in.Cursor = defaultCursor
 	}
 	//先尝试从缓存中获取数据
-	ids, _ := l.getCacheIds(reqCursor, cacheSize)
+	ids, _ := l.getCacheIds(in.Page, in.Size)
 	var (
 		currCacheData      []*model.GoodsMain
-		lastId, respCursor int64
+		respCursor, lastId int64
 		isCache, isEnd     bool
 	)
 	currPageGoodses := make([]*pb.GoodsInfo, 0)
@@ -66,7 +70,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		fmt.Println("ids：", ids)
 		//存在缓存
 		isCache = true
-		if ids[len(ids)-1] == -1 {
+		if ids[len(ids)-1] == endFlagId {
 			//没有数据，最后一页
 			isEnd = true
 		}
@@ -103,15 +107,13 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 			if err != nil {
 				return nil, resd.ErrorCtx(l.ctx, err)
 			}
-			var curr int64
-			if isExistCache == true {
-				//存在key，只能是按需加载，用请求的cursor
-				curr = in.Cursor
-			} else {
+			curr := in.Cursor
+			if !isExistCache || curr == 0 {
 				//不存在key，代表从无到有初始化，应该走默认的第一页数据的cursor
+				//存在key，只能是按需加载，用请求的cursor
 				curr = defaultCursor
 			}
-			return goodsModel.Order("view_num DESC").Where("view_num < ?", curr).Limit(defaultCacheGoodsNum).Select()
+			return goodsModel.Order("view_num DESC").Where("view_num <= ?", curr).Limit(defaultCacheGoodsNum).Select()
 		})
 		if err != nil || v == nil {
 			return nil, resd.ErrorCtx(l.ctx, err)
@@ -146,22 +148,15 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 	if len(currPageGoodses) > 0 {
 		//如果有数据，获取最后一条数据id，给前端下次请求时作为cursor带上
 		lastData := currPageGoodses[len(currPageGoodses)-1]
-		lastId = lastData.Id
 		respCursor = lastData.ViewNum
-		for k, item := range currPageGoodses {
-			fmt.Println(item.ViewNum, reqCursor, item.Id, in.LastId)
-			if item.ViewNum == reqCursor && item.Id == in.LastId {
-				currPageGoodses = currPageGoodses[k:]
-				break
-			}
-		}
+		lastId = lastData.Id
 	}
 	if !isCache {
 		//不是缓存，则异步写入缓存
 		threading.GoSafe(func() {
 			if len(currCacheData) < defaultCacheGoodsNum && len(currCacheData) > 0 {
-				//有数据 且小于默认缓存数量，代表所有数据已经全部缓存了，写入一个-1缓存，识别已经最后一条
-				currCacheData = append(currCacheData, &model.GoodsMain{Id: -1})
+				//有数据 且小于默认缓存数量，代表所有数据已经全部缓存了，写入一个-1作为缓存，识别已经最后一条
+				currCacheData = append(currCacheData, &model.GoodsMain{Id: endFlagId})
 			}
 			err := l.addListCache(currCacheData)
 			if err != nil {
@@ -170,7 +165,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		})
 	}
 	return &pb.GetPageByCursorResp{
-		Size:    reqSize,
+		Size:    in.Size,
 		List:    currPageGoodses,
 		IsCache: isCache,
 		IsEnd:   isEnd,
@@ -178,7 +173,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		LastId:  lastId,
 	}, nil
 }
-func (l *GetHotPageByCursorLogic) getCacheIds(cursor, size int64) ([]int64, error) {
+func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]int64, error) {
 	isExist, err := l.svcCtx.Redis.Exists(redisKeyHotViewGoodses)
 	if err != nil {
 		//保证能查到，缓存异常不处理
@@ -188,7 +183,7 @@ func (l *GetHotPageByCursorLogic) getCacheIds(cursor, size int64) ([]int64, erro
 		//err = l.svcCtx.Redis.ExpireCtx(l.ctx, "hotView", "", 7200)
 	}
 	// zrevrange 是高到低，所以分页时，cursor要放到max里，也就是这里的stop， page是计算偏移量的，游标分页不需要，从cursor开始获取目标行数即可， 如果低到高应该是放到start里，确认，待定
-	pair, err := l.svcCtx.Redis.CursorPageDescCtx(l.ctx, redisKeyHotViewGoodses, "", cursor, int(size))
+	pair, err := l.svcCtx.Redis.ZpageCtx(l.ctx, redisKeyHotViewGoodses, "", int(page), int(size), true)
 	ids := make([]int64, 0)
 	for _, item := range pair {
 		id, err := strconv.ParseInt(item.Key, 10, 64)
