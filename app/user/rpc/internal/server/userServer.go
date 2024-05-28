@@ -36,3 +36,28 @@ func (s *UserServer) GetUserCronyList(ctx context.Context, in *pb.GetUserCronyLi
 	l := logic.NewGetUserCronyListLogic(ctx, s.svcCtx)
 	return l.GetUserCronyList(in)
 }
+
+func (s *UserServer) RegByAccount(ctx context.Context, in *pb.RegByAccountReq) (*pb.LoginResp, error) {
+	l := logic.NewRegByAccountLogic(ctx, s.svcCtx)
+	return l.RegByAccount(in)
+}
+
+func (s *UserServer) GetUserById(ctx context.Context, in *pb.IdReq) (*pb.UserMainInfo, error) {
+	l := logic.NewGetUserByIdLogic(ctx, s.svcCtx)
+	return l.GetUserById(in)
+}
+
+func (s *UserServer) GetUserPage(ctx context.Context, in *pb.GetUserPageReq) (*pb.GetUserPageResp, error) {
+	l := logic.NewGetUserPageLogic(ctx, s.svcCtx)
+	return l.GetUserPage(in)
+}
+
+func (s *UserServer) SearchUser(ctx context.Context, in *pb.SearchUserReq) (*pb.SearchUserResp, error) {
+	l := logic.NewSearchUserLogic(ctx, s.svcCtx)
+	return l.SearchUser(in)
+}
+
+func (s *UserServer) BindUnionUser(ctx context.Context, in *pb.BindUnionUserReq) (*pb.BindUnionUserResp, error) {
+	l := logic.NewBindUnionUserLogic(ctx, s.svcCtx)
+	return l.BindUnionUser(in)
+}

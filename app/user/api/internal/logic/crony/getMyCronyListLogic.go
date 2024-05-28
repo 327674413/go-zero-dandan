@@ -4,6 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
+	"go-zero-dandan/common/utild/copier"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
@@ -57,7 +58,7 @@ func (l *GetMyCronyListLogic) GetMyCronyList(req *types.GetUserCronyListReq) (re
 		})
 	}*/
 	resp = &types.GetUserCronyListResp{}
-	err = utild.Copy(&resp.List, data.List)
+	err = copier.Copy(&resp.List, data.List)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}

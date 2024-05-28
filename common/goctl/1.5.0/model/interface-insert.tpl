@@ -1,2 +1,2 @@
-Insert( data map[string]string) (int64,error)
-TxInsert(tx *sql.Tx,data map[string]string) (int64,error)
+Insert(data *{{.upperStartCamelObject}}) (int64,error)
+TxInsert(tx *sql.Tx,data *{{.upperStartCamelObject}}) (int64,error)

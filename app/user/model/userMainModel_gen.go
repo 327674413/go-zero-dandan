@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -25,12 +26,12 @@ var (
 
 type (
 	userMainModel interface {
-		Insert(data map[string]string) (int64, error)
-		TxInsert(tx *sql.Tx, data map[string]string) (int64, error)
-		Update(data map[string]string) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]string) (int64, error)
-		Save(data map[string]string) (int64, error)
-		TxSave(tx *sql.Tx, data map[string]string) (int64, error)
+		Insert(data *UserMain) (int64, error)
+		TxInsert(tx *sql.Tx, data *UserMain) (int64, error)
+		Update(data map[string]any) (int64, error)
+		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
+		Save(data *UserMain) (int64, error)
+		TxSave(tx *sql.Tx, data *UserMain) (int64, error)
 		Delete(ctx context.Context, id int64) error
 		Field(field string) *defaultUserMainModel
 		Alias(alias string) *defaultUserMainModel
@@ -169,6 +170,9 @@ func (m *defaultUserMainModel) Find() (*UserMain, error) {
 	resp := &UserMain{}
 	err := m.dao.Find(resp)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -177,6 +181,9 @@ func (m *defaultUserMainModel) FindById(id int64) (*UserMain, error) {
 	resp := &UserMain{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -229,26 +236,48 @@ func (m *defaultUserMainModel) Page(page int64, size int64) *defaultUserMainMode
 	return m
 }
 
-func (m *defaultUserMainModel) Insert(data map[string]string) (int64, error) {
-	return m.dao.Insert(data)
+func (m *defaultUserMainModel) Insert(data *UserMain) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Insert(insertData)
 }
-func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.TxInsert(tx, data)
+func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, data *UserMain) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultUserMainModel) Update(data map[string]string) (int64, error) {
+func (m *defaultUserMainModel) Update(data map[string]any) (int64, error) {
 	return m.dao.Update(data)
 }
-func (m *defaultUserMainModel) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
+func (m *defaultUserMainModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultUserMainModel) Save(data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultUserMainModel) Save(data *UserMain) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
-func (m *defaultUserMainModel) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultUserMainModel) TxSave(tx *sql.Tx, data *UserMain) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
 
 func (m *defaultUserMainModel) tableName() string {
 	return m.table
+}
+
+// forGoctl 避免有的model没有time.Time类型时，goctl生成模版会因引入未使用的包而报错
+func (m *defaultUserMainModel) forGoctl() {
+	t := time.Time{}
+	fmt.Println(t)
 }

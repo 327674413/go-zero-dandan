@@ -1,12 +1,15 @@
 AuthUserNotLogin = "You are not login"
 AuthPlatErr = "invalid App"
-
 SysErr = "Encountered a small problem"
+
+CopierErr = "copy data trans error"
+
 ReqFieldRequired1 = "Param {{.Field1}} is required"
 ReqPhoneErr = "Not a correct phone number"
 ReqGetPhoneVerifyCodeWait = "Too many requests for verification code. Please try again later"
 ReqGetPhoneVerifyCodeDayLimit="Too many requests for verification code today. Please try again tomorrow."
 ReqGetPhoneVerifyCodeHourLimit="Too many requests for verification in a hour. Please try again later."
+ReqParamFormatErr1 = "{{.Field1}} does not meet the requirements"
 
 ConfigNotInit1 = "Not set {{.Field1}}"
 PlatInvalid = "Invalid App"
@@ -58,9 +61,9 @@ SmsTemp ="Sms Template"
 MessageSysConfig = "Message Center Config"
 Data = "Data"
 Image = "Image"
-Id = "id"
-
-
+Id = "Id"
+Account = "Account"
+Password = "Password"
 
 
 

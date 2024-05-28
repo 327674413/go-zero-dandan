@@ -10,6 +10,7 @@ import (
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/utild/copier"
 )
 
 type EditMyInfoLogic struct {
@@ -35,7 +36,7 @@ func (l *EditMyInfoLogic) EditMyInfo(req *types.EditMyInfoReq) (resp *types.Succ
 	}
 	userBiz := biz.NewUserBiz(l.ctx, l.svcCtx)
 	editUserInfo := &pb.EditUserInfoReq{}
-	utild.Copy(&editUserInfo, req)
+	copier.Copy(&editUserInfo, req)
 	editUserInfo.Id = userInfo.Id
 	err = userBiz.EditUserInfo(editUserInfo)
 	if err != nil {

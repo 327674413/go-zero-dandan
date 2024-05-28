@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -25,12 +26,12 @@ var (
 
 type (
 	messageSysConfigModel interface {
-		Insert(data map[string]string) (int64, error)
-		TxInsert(tx *sql.Tx, data map[string]string) (int64, error)
-		Update(data map[string]string) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]string) (int64, error)
-		Save(data map[string]string) (int64, error)
-		TxSave(tx *sql.Tx, data map[string]string) (int64, error)
+		Insert(data *MessageSysConfig) (int64, error)
+		TxInsert(tx *sql.Tx, data *MessageSysConfig) (int64, error)
+		Update(data map[string]any) (int64, error)
+		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
+		Save(data *MessageSysConfig) (int64, error)
+		TxSave(tx *sql.Tx, data *MessageSysConfig) (int64, error)
 		Delete(ctx context.Context, id int64) error
 		Field(field string) *defaultMessageSysConfigModel
 		Alias(alias string) *defaultMessageSysConfigModel
@@ -159,6 +160,9 @@ func (m *defaultMessageSysConfigModel) Find() (*MessageSysConfig, error) {
 	resp := &MessageSysConfig{}
 	err := m.dao.Find(resp)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -167,6 +171,9 @@ func (m *defaultMessageSysConfigModel) FindById(id int64) (*MessageSysConfig, er
 	resp := &MessageSysConfig{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -219,26 +226,48 @@ func (m *defaultMessageSysConfigModel) Page(page int64, size int64) *defaultMess
 	return m
 }
 
-func (m *defaultMessageSysConfigModel) Insert(data map[string]string) (int64, error) {
-	return m.dao.Insert(data)
+func (m *defaultMessageSysConfigModel) Insert(data *MessageSysConfig) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.TxInsert(tx, data)
+func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConfig) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultMessageSysConfigModel) Update(data map[string]string) (int64, error) {
+func (m *defaultMessageSysConfigModel) Update(data map[string]any) (int64, error) {
 	return m.dao.Update(data)
 }
-func (m *defaultMessageSysConfigModel) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
+func (m *defaultMessageSysConfigModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultMessageSysConfigModel) Save(data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultMessageSysConfigModel) Save(data *MessageSysConfig) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
-func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
 
 func (m *defaultMessageSysConfigModel) tableName() string {
 	return m.table
+}
+
+// forGoctl 避免有的model没有time.Time类型时，goctl生成模版会因引入未使用的包而报错
+func (m *defaultMessageSysConfigModel) forGoctl() {
+	t := time.Time{}
+	fmt.Println(t)
 }

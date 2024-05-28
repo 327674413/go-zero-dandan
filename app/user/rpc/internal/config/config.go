@@ -11,4 +11,7 @@ type Config struct {
 		DataSource string
 	}
 	RedisConf redis.RedisConf
+	Conf      struct {
+		LoginTokenExSec int
+	}
 }

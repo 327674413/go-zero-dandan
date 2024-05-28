@@ -11,9 +11,9 @@ import (
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/app/user/rpc/types/pb"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/utild/copier"
 	"strconv"
 )
 
@@ -46,11 +46,7 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 	}
 	unionInfo := &model.UserUnion{}
 	unionInfo.Id = utild.MakeId()
-	data, err := dao.PrepareData(unionInfo)
-	if err != nil {
-		return nil, resd.Error(err)
-	}
-	_, err = unionModel.Ctx(t.ctx).TxInsert(tx, data)
+	_, err = unionModel.Ctx(t.ctx).TxInsert(tx, unionInfo)
 	if err != nil {
 		return nil, resd.Error(err, resd.MysqlInsertErr)
 	}
@@ -62,11 +58,10 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 		PhoneArea: regInfo.PhoneArea,
 	}
 	userMainModel := model.NewUserMainModel(t.svcCtx.SqlConn, t.platId)
-	data, err = dao.PrepareData(userMain)
 	if err != nil {
 		return nil, resd.Error(err)
 	}
-	_, err = userMainModel.Ctx(t.ctx).TxInsert(tx, data)
+	_, err = userMainModel.Ctx(t.ctx).TxInsert(tx, userMain)
 	if err != nil {
 		return nil, resd.Error(err)
 	}
@@ -76,7 +71,7 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 		return nil, resd.Error(err)
 	}
 	res = &types.UserInfoResp{}
-	utild.Copy(&res, userMain)
+	copier.Copy(&res, userMain)
 	return res, nil
 }
 func (t *UserBiz) RegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err error) {

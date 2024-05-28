@@ -12,7 +12,7 @@ const (
 	PlatClasEmMall = 1
 )
 const (
-	UserStateEmNormal = 20 //正常
+	UserStateEmNormal = 2 //正常
 )
 const (
 	UserCronyTypeEmNormal = 1

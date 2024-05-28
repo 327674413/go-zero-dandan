@@ -7,7 +7,7 @@ import (
 	"go-zero-dandan/app/user/rpc/types/pb"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/utild/copier"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -46,7 +46,7 @@ func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*p
 		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
 	}
 	resp := &pb.GetUserCronyListResp{}
-	err = utild.Copy(&resp.List, data)
+	err = copier.Copy(&resp.List, data)
 	if err != nil {
 		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
 	}

@@ -57,5 +57,6 @@ func init() {
 	Msg[UploadFileTypeLimited1] = "UploadFileTypeLimited1"
 	Msg[VerifyCodeWrong] = "VerifyCodeWrong"
 	Msg[VerifyCodeExpired] = "VerifyCodeExpired"
+	Msg[CopierErr] = "CopierErr"
 
 }

@@ -7,6 +7,7 @@ import (
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild/copier"
 
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
@@ -82,7 +83,7 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 		resp, err = userBiz.RegByPhone(&regInfo)
 	} else {
 		//已注册
-		utild.Copy(&resp, userMain)
+		copier.Copy(&resp, userMain)
 	}
 	token, err := userBiz.CreateLoginState(resp)
 	if err != nil {

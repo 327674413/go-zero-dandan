@@ -9,7 +9,7 @@ import (
 )
 
 // PrepareData 根据结构体转成model使用的map
-func PrepareData(source interface{}) (map[string]string, error) {
+func PrepareData(source interface{}) (map[string]any, error) {
 	sourceValues, err := processSource(source)
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func PrepareData(source interface{}) (map[string]string, error) {
 	//获取目标结构体的属性集合
 	sourceTypes := sourceValues.Type()
 	//遍历目标结构体所有字段
-	result := make(map[string]string)
+	result := make(map[string]any)
 	for i := 0; i < sourceValues.NumField(); i++ {
 		//获取结构体的值对象
 		field := sourceValues.Field(i)
@@ -46,7 +46,7 @@ func PrepareData(source interface{}) (map[string]string, error) {
 }
 
 // PrepareDataByTarget 根据结构体、目标字段生成写入model的数据
-func PrepareDataByTarget(source interface{}, targetDelimiterSeparated string, isEmptySet ...bool) (map[string]string, error) {
+func PrepareDataByTarget(source interface{}, targetDelimiterSeparated string, isEmptySet ...bool) (map[string]any, error) {
 	if targetDelimiterSeparated == "" {
 		return nil, resd.NewErr("PrepareDataByTarget中targetDelimiterSeparated参数为空")
 	}
@@ -64,7 +64,7 @@ func PrepareDataByTarget(source interface{}, targetDelimiterSeparated string, is
 	//获取目标结构体的属性集合
 	sourceTypes := sourceValues.Type()
 	//遍历目标结构体所有字段
-	result := make(map[string]string)
+	result := make(map[string]any)
 	for i := 0; i < sourceValues.NumField(); i++ {
 		//获取结构体的值对象
 		field := sourceValues.Field(i)

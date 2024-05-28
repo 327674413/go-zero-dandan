@@ -114,13 +114,13 @@ func NewErrCtx(ctx context.Context, msg string, errorCode ...int) error {
 	return newDanErr(msg, code)
 }
 
-// NewErrWithTemp 创建新的error，带模版
+// NewErrWithTemp 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量
 func NewErrWithTemp(msg string, errorCode int, temps ...string) error {
 	logx.WithCallerSkip(1).Error(errors.New(msg))
 	return newDanErr(msg, errorCode, temps...)
 }
 
-// NewErrWithTempCtx 创建新的error，带模版，带上下文
+// NewErrWithTempCtx 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量，带上下文
 func NewErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...string) error {
 	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
 	return newDanErr(msg, errorCode, temps...)

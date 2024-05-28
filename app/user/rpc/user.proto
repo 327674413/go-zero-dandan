@@ -5,6 +5,80 @@ option go_package = "./pb";
 
 package user;
 
+message SearchUserReq{
+  int64 PlatId = 1;
+  int64 Page = 2;
+  int64 Size = 3;
+  optional int64 NeedPageCount = 4;
+  optional int64 NeedTotal = 5;
+  optional string Account = 6;
+  optional string Phone = 7;
+  optional string Email = 8;
+  optional string Nickname = 9;
+}
+message SearchUserResp{
+  int64 Page = 1;
+  int64 Size = 2;
+  bool IsCache = 3;
+  optional int64 Total = 4;
+  optional int64 PageCount = 5;
+  repeated UserMainInfo List = 6;
+}
+message BindUnionUserReq{
+  int64 UserId = 1;
+  int64 BindClasEm = 2;
+  optional string Account = 3;
+  optional string Phone = 4;
+}
+message BindUnionUserResp{
+  int64 UnionId = 1;
+}
+message LoginByAccountReq {
+  int64 PlatId = 1;
+  string  Account = 2;
+  string  Password = 3;
+}
+message RegByAccountReq {
+  int64 PlatId = 1;
+  string  Account = 2;
+  string  Password = 3;
+  optional string Nickname = 5;
+  optional string Phone = 6;
+  optional string PhoneArea = 7;
+  optional int64 SexEm = 8;
+  optional string Email = 9;
+  optional string Avatar = 10;
+  int64 IsLogin = 11;
+}
+message GetUserPageReq {
+  int64 Page = 1;
+  int64 Size = 2;
+  int64 PlatId = 3;
+  optional int64 Cursor = 4;
+  optional int64 LastId = 5;
+  optional string Account = 6;
+  optional string Nickname = 7;
+  optional string Phone = 8;
+  repeated int64 ids = 9;
+  optional string Email = 10;
+}
+message GetUserPageResp{
+  int64 Page = 1;
+  int64 Size = 2;
+  bool IsCache = 3;
+  optional int64 Total = 6;
+  optional int64 LastId = 7;
+  optional int64 Cursor = 8;
+  optional bool IsEnd = 9;
+  repeated UserMainInfo List = 10;
+
+}
+message LoginResp{
+  int64 Id = 1;
+  string Token = 2;
+  int64 ExpireAt = 3;
+  UserMainInfo UserInfo = 4;
+}
 message UserMainInfo {
   int64 Id = 1;
   int64 UnionId = 2;
@@ -16,6 +90,7 @@ message UserMainInfo {
   int64 SexEm = 8;
   string Email = 9;
   string Avatar = 10;
+  int64 PlatId = 11;
 }
 
 message EditUserInfoReq {
@@ -26,6 +101,7 @@ message EditUserInfoReq {
   optional string Avatar = 5;
   optional string GraduateFrom = 6;
   optional string BirthDate = 7;
+  int64 PlatId = 8;
 }
 
 message UserCronyInfo {
@@ -42,6 +118,7 @@ message UserCronyInfo {
   string GroupName = 11;
   int64 Id = 12;
 }
+
 
 message getUserCronyListResp {
   repeated UserCronyInfo list = 1;
@@ -73,4 +150,12 @@ service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
   rpc getUserCronyList(getUserCronyListReq) returns(getUserCronyListResp);
+
+  rpc RegByAccount(RegByAccountReq) returns (LoginResp);
+  rpc GetUserById(IdReq) returns (UserMainInfo);
+  rpc GetUserPage(GetUserPageReq) returns (GetUserPageResp);
+
+  rpc SearchUser(SearchUserReq) returns (SearchUserResp);
+
+  rpc BindUnionUser(BindUnionUserReq) returns (BindUnionUserResp);
 }

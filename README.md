@@ -58,9 +58,13 @@ goctl template init
 goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
 ## 开发说明
+### 接口相关
 - api的请求入参，目前是用框架的httpx解析，所以参数可选得用optional
 - api的返回值，如果想让返回的内容为nil时不会返回，则用omitempty
 - 对于接口中，非必填的字段，都建议用指针类型，既明确是可选参数，又可以判断前端是否有传
+
+### 数据库相关
+- 单条数据查询，未查到的err也是nil，按照数据非nil则正常，如果是nil可以直接笼统报错未找到数据，但如果未找到需要新增时，则额外判断err是不是nil，是nil就是没数据可新增，非nil则是sql操作报错，异常报错
 ## 部署说明
 
 ### 普通应用部署

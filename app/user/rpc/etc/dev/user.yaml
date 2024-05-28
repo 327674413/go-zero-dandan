@@ -1,0 +1,34 @@
+Name: user.rpc
+ListenOn: 0.0.0.0:8085
+Etcd:
+  Hosts:
+  - 124.222.198.229:2379
+  Key: user.rpc
+DB:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Mode: dev
+Conf:
+  LoginTokenExSec: 60480
+MessageRpc:
+  Etcd:
+    Hosts:
+      - 124.222.198.229:2379
+    Key: message.rpc
+UserRpc:
+  Etcd:
+    Hosts:
+      - 124.222.198.229:2379
+    Key: user.rpc
+RedisConf:
+  Host: 124.222.198.229:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+Prometheus:
+  Host: 124.222.198.229
+  Port: 9805
+  Path: /metrics
+Telemetry:
+  Name: user-api
+  Endpoint: http://124.222.198.229:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger

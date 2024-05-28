@@ -223,8 +223,13 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	if t.orderSql != "" {
 		t.orderSql = " ORDER BY " + t.orderSql
 	}
+	checkParamsNum := strings.Count(whereParam, "?")
+	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
+		return resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
+	}
 	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" limit 1", fieldParam, tableParam)
 	if t.ctx != nil {
+		fmt.Println(sql, t.whereData)
 		err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
 	} else {
 		err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
@@ -253,6 +258,10 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	orderSql := ""
 	if t.orderSql != "" {
 		orderSql = " ORDER BY " + t.orderSql
+	}
+	checkParamsNum := strings.Count(whereParam, "?")
+	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
+		return resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
 	}
 	sql := fmt.Sprintf("select %s from %s where "+whereParam+orderSql+" "+pageParam, fieldParam, tableParam)
 	if t.ctx != nil {
@@ -388,7 +397,7 @@ func (t *SqlxDao) ClearCache(redis *redisd.Redisd) (delNum int64, err error) {
 	}
 	return delNum, nil
 }
-func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
+func (t *SqlxDao) Insert(data map[string]any) (int64, error) {
 	var sqlRes sql.Result
 	var err error
 	query, insertData, err := t.prepareInsert(data)
@@ -408,7 +417,7 @@ func (t *SqlxDao) Insert(data map[string]string) (int64, error) {
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
 }
-func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]any) (int64, error) {
 	var sqlRes sql.Result
 	var err error
 	query, insertData, err := t.prepareInsert(data)
@@ -427,7 +436,7 @@ func (t *SqlxDao) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
 	affectedRow, _ := sqlRes.RowsAffected()
 	return affectedRow, nil
 }
-func (t *SqlxDao) prepareInsert(data map[string]string) (string, []any, error) {
+func (t *SqlxDao) prepareInsert(data map[string]any) (string, []any, error) {
 	insertFields := ""
 	insertValues := ""
 	insertData := make([]any, 0)
@@ -513,7 +522,7 @@ func (t *SqlxDao) Page(page int64, size int64) *SqlxDao {
 }
 
 // Update 必须先设置where或在data中携带id，data中的id优先级高，若带id只能修改单个
-func (t *SqlxDao) Update(data map[string]string) (int64, error) {
+func (t *SqlxDao) Update(data map[string]any) (int64, error) {
 	defer t.Reinit()
 	query, params, err := t.prepareUpdate(data)
 	if err != nil {
@@ -535,7 +544,7 @@ func (t *SqlxDao) Update(data map[string]string) (int64, error) {
 }
 
 // TxUpdate 同Update，事务专用
-func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 	defer t.Reinit()
 	query, params, err := t.prepareUpdate(data)
 	if err != nil {
@@ -557,7 +566,7 @@ func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
 }
 
 // TxSave 事务用Save
-func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
+func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
 	var id int64
@@ -620,7 +629,7 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
 }
 
 // Save 如果数据存在则修改，不存在则新增，data中必须有id
-func (t *SqlxDao) Save(data map[string]string) (int64, error) {
+func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
 	var id int64
@@ -683,7 +692,7 @@ func (t *SqlxDao) Save(data map[string]string) (int64, error) {
 }
 
 // prepareUpdate 内部封装，让事务和非事务公共代码复用
-func (t *SqlxDao) prepareUpdate(data map[string]string) (string, []any, error) {
+func (t *SqlxDao) prepareUpdate(data map[string]any) (string, []any, error) {
 	//构造修改内容部分的sql
 	var updateStr string
 	params := make([]any, 0)

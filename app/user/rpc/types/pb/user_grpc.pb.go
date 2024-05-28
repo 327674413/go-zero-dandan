@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.19.4
-// source: user.proto
+// source: app/user/rpc/user.proto
 
 package pb
 
@@ -22,6 +22,11 @@ const (
 	User_GetUserByToken_FullMethodName   = "/user.user/getUserByToken"
 	User_EditUserInfo_FullMethodName     = "/user.user/editUserInfo"
 	User_GetUserCronyList_FullMethodName = "/user.user/getUserCronyList"
+	User_RegByAccount_FullMethodName     = "/user.user/RegByAccount"
+	User_GetUserById_FullMethodName      = "/user.user/GetUserById"
+	User_GetUserPage_FullMethodName      = "/user.user/GetUserPage"
+	User_SearchUser_FullMethodName       = "/user.user/SearchUser"
+	User_BindUnionUser_FullMethodName    = "/user.user/BindUnionUser"
 )
 
 // UserClient is the client API for User service.
@@ -31,6 +36,11 @@ type UserClient interface {
 	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
 	GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error)
+	RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error)
+	GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error)
+	GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error)
+	SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
+	BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error)
 }
 
 type userClient struct {
@@ -68,6 +78,51 @@ func (c *userClient) GetUserCronyList(ctx context.Context, in *GetUserCronyListR
 	return out, nil
 }
 
+func (c *userClient) RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error) {
+	out := new(LoginResp)
+	err := c.cc.Invoke(ctx, User_RegByAccount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error) {
+	out := new(UserMainInfo)
+	err := c.cc.Invoke(ctx, User_GetUserById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error) {
+	out := new(GetUserPageResp)
+	err := c.cc.Invoke(ctx, User_GetUserPage_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
+	out := new(SearchUserResp)
+	err := c.cc.Invoke(ctx, User_SearchUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error) {
+	out := new(BindUnionUserResp)
+	err := c.cc.Invoke(ctx, User_BindUnionUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -75,6 +130,11 @@ type UserServer interface {
 	GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error)
 	EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error)
 	GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error)
+	RegByAccount(context.Context, *RegByAccountReq) (*LoginResp, error)
+	GetUserById(context.Context, *IdReq) (*UserMainInfo, error)
+	GetUserPage(context.Context, *GetUserPageReq) (*GetUserPageResp, error)
+	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
+	BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -90,6 +150,21 @@ func (UnimplementedUserServer) EditUserInfo(context.Context, *EditUserInfoReq) (
 }
 func (UnimplementedUserServer) GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserCronyList not implemented")
+}
+func (UnimplementedUserServer) RegByAccount(context.Context, *RegByAccountReq) (*LoginResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegByAccount not implemented")
+}
+func (UnimplementedUserServer) GetUserById(context.Context, *IdReq) (*UserMainInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserById not implemented")
+}
+func (UnimplementedUserServer) GetUserPage(context.Context, *GetUserPageReq) (*GetUserPageResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserPage not implemented")
+}
+func (UnimplementedUserServer) SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
+}
+func (UnimplementedUserServer) BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BindUnionUser not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -158,6 +233,96 @@ func _User_GetUserCronyList_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_RegByAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegByAccountReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).RegByAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_RegByAccount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).RegByAccount(ctx, req.(*RegByAccountReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserById(ctx, req.(*IdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetUserPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserPageReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserPage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserPage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserPage(ctx, req.(*GetUserPageReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).SearchUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_SearchUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).SearchUser(ctx, req.(*SearchUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_BindUnionUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindUnionUserReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).BindUnionUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_BindUnionUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).BindUnionUser(ctx, req.(*BindUnionUserReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -177,7 +342,27 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "getUserCronyList",
 			Handler:    _User_GetUserCronyList_Handler,
 		},
+		{
+			MethodName: "RegByAccount",
+			Handler:    _User_RegByAccount_Handler,
+		},
+		{
+			MethodName: "GetUserById",
+			Handler:    _User_GetUserById_Handler,
+		},
+		{
+			MethodName: "GetUserPage",
+			Handler:    _User_GetUserPage_Handler,
+		},
+		{
+			MethodName: "SearchUser",
+			Handler:    _User_SearchUser_Handler,
+		},
+		{
+			MethodName: "BindUnionUser",
+			Handler:    _User_BindUnionUser_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "user.proto",
+	Metadata: "app/user/rpc/user.proto",
 }

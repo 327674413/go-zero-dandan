@@ -2,6 +2,9 @@ func (m *default{{.upperStartCamelObject}}Model) Find() (*{{.upperStartCamelObje
 	resp := &{{.upperStartCamelObject}}{}
 	err := m.dao.Find(resp)
     if err != nil {
+        if err == sqlx.ErrNotFound {
+            return nil,nil
+        }
         return nil, err
     }
     return resp, nil
@@ -9,7 +12,10 @@ func (m *default{{.upperStartCamelObject}}Model) Find() (*{{.upperStartCamelObje
 func (m *default{{.upperStartCamelObject}}Model) FindById(id int64) (*{{.upperStartCamelObject}}, error) {
 	resp := &{{.upperStartCamelObject}}{}
 	err := m.dao.FindById(resp,id)
-    if err != nil {
+	if err != nil {
+        if err == sqlx.ErrNotFound {
+            return nil,nil
+        }
         return nil, err
     }
     return resp, nil

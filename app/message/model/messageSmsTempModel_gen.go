@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -25,12 +26,12 @@ var (
 
 type (
 	messageSmsTempModel interface {
-		Insert(data map[string]string) (int64, error)
-		TxInsert(tx *sql.Tx, data map[string]string) (int64, error)
-		Update(data map[string]string) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]string) (int64, error)
-		Save(data map[string]string) (int64, error)
-		TxSave(tx *sql.Tx, data map[string]string) (int64, error)
+		Insert(data *MessageSmsTemp) (int64, error)
+		TxInsert(tx *sql.Tx, data *MessageSmsTemp) (int64, error)
+		Update(data map[string]any) (int64, error)
+		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
+		Save(data *MessageSmsTemp) (int64, error)
+		TxSave(tx *sql.Tx, data *MessageSmsTemp) (int64, error)
 		Delete(ctx context.Context, id int64) error
 		Field(field string) *defaultMessageSmsTempModel
 		Alias(alias string) *defaultMessageSmsTempModel
@@ -165,6 +166,9 @@ func (m *defaultMessageSmsTempModel) Find() (*MessageSmsTemp, error) {
 	resp := &MessageSmsTemp{}
 	err := m.dao.Find(resp)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -173,6 +177,9 @@ func (m *defaultMessageSmsTempModel) FindById(id int64) (*MessageSmsTemp, error)
 	resp := &MessageSmsTemp{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -225,26 +232,48 @@ func (m *defaultMessageSmsTempModel) Page(page int64, size int64) *defaultMessag
 	return m
 }
 
-func (m *defaultMessageSmsTempModel) Insert(data map[string]string) (int64, error) {
-	return m.dao.Insert(data)
+func (m *defaultMessageSmsTempModel) Insert(data *MessageSmsTemp) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSmsTempModel) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.TxInsert(tx, data)
+func (m *defaultMessageSmsTempModel) TxInsert(tx *sql.Tx, data *MessageSmsTemp) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultMessageSmsTempModel) Update(data map[string]string) (int64, error) {
+func (m *defaultMessageSmsTempModel) Update(data map[string]any) (int64, error) {
 	return m.dao.Update(data)
 }
-func (m *defaultMessageSmsTempModel) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
+func (m *defaultMessageSmsTempModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultMessageSmsTempModel) Save(data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultMessageSmsTempModel) Save(data *MessageSmsTemp) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
-func (m *defaultMessageSmsTempModel) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultMessageSmsTempModel) TxSave(tx *sql.Tx, data *MessageSmsTemp) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
 
 func (m *defaultMessageSmsTempModel) tableName() string {
 	return m.table
+}
+
+// forGoctl 避免有的model没有time.Time类型时，goctl生成模版会因引入未使用的包而报错
+func (m *defaultMessageSmsTempModel) forGoctl() {
+	t := time.Time{}
+	fmt.Println(t)
 }

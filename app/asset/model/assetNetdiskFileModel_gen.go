@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/redisd"
 	"strings"
+	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/builder"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -25,12 +26,12 @@ var (
 
 type (
 	assetNetdiskFileModel interface {
-		Insert(data map[string]string) (int64, error)
-		TxInsert(tx *sql.Tx, data map[string]string) (int64, error)
-		Update(data map[string]string) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]string) (int64, error)
-		Save(data map[string]string) (int64, error)
-		TxSave(tx *sql.Tx, data map[string]string) (int64, error)
+		Insert(data *AssetNetdiskFile) (int64, error)
+		TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (int64, error)
+		Update(data map[string]any) (int64, error)
+		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
+		Save(data *AssetNetdiskFile) (int64, error)
+		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (int64, error)
 		Delete(ctx context.Context, id int64) error
 		Field(field string) *defaultAssetNetdiskFileModel
 		Alias(alias string) *defaultAssetNetdiskFileModel
@@ -176,6 +177,9 @@ func (m *defaultAssetNetdiskFileModel) Find() (*AssetNetdiskFile, error) {
 	resp := &AssetNetdiskFile{}
 	err := m.dao.Find(resp)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -184,6 +188,9 @@ func (m *defaultAssetNetdiskFileModel) FindById(id int64) (*AssetNetdiskFile, er
 	resp := &AssetNetdiskFile{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
+		if err == sqlx.ErrNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 	return resp, nil
@@ -236,26 +243,48 @@ func (m *defaultAssetNetdiskFileModel) Page(page int64, size int64) *defaultAsse
 	return m
 }
 
-func (m *defaultAssetNetdiskFileModel) Insert(data map[string]string) (int64, error) {
-	return m.dao.Insert(data)
+func (m *defaultAssetNetdiskFileModel) Insert(data *AssetNetdiskFile) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Insert(insertData)
 }
-func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.TxInsert(tx, data)
+func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (int64, error) {
+	insertData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultAssetNetdiskFileModel) Update(data map[string]string) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) Update(data map[string]any) (int64, error) {
 	return m.dao.Update(data)
 }
-func (m *defaultAssetNetdiskFileModel) TxUpdate(tx *sql.Tx, data map[string]string) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultAssetNetdiskFileModel) Save(data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultAssetNetdiskFileModel) Save(data *AssetNetdiskFile) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
-func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data map[string]string) (int64, error) {
-	return m.dao.Save(data)
+func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile) (int64, error) {
+	saveData, err := dao.PrepareData(data)
+	if err != nil {
+		return 0, err
+	}
+	return m.dao.Save(saveData)
 }
 
 func (m *defaultAssetNetdiskFileModel) tableName() string {
 	return m.table
+}
+
+// forGoctl 避免有的model没有time.Time类型时，goctl生成模版会因引入未使用的包而报错
+func (m *defaultAssetNetdiskFileModel) forGoctl() {
+	t := time.Time{}
+	fmt.Println(t)
 }
