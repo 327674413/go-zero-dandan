@@ -1,0 +1,21 @@
+Name: task.mq
+ListenOn: 0.0.0.0:8823
+Mode: dev
+MsgChatTransfer:
+  Name: MsgChatTransfer
+  Brokers:
+    - 127.0.0.1:9092
+  Group: kafka
+  Topic: msgChatTransfer
+  Offset: first
+  Consumers: 1
+Mongo:
+  Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
+  Db: chat
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+Ws:
+  Host: 127.0.0.1:8808
+  SysToken: "123456"

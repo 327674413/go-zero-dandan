@@ -10,7 +10,6 @@ import (
 	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/dao"
 	"math"
 	"path/filepath"
 
@@ -74,14 +73,23 @@ func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploa
 	if err == sqlx.ErrNotFound {
 		return l.addTask(req)
 	} else {
-		fileData, err := dao.PrepareDataByTarget(findAsset, "sha1,mode_em,size_num,size_text,state_em,mime,ext,url,path")
-		fileData["name"] = req.FileName
-		fileData["original_name"] = req.FileName
-		fileData["finish_at"] = fmt.Sprintf("%d", utild.GetStamp())
-		fileData["id"] = fmt.Sprintf("%d", utild.MakeId())
-		fileData["user_id"] = fmt.Sprintf("%d", l.userMainInfo.Id)
-		fileData["asset_id"] = fmt.Sprintf("%d", findAsset.Id)
-		_, err = netdiskModel.Insert(fileData)
+		assetData := &model.AssetNetdiskFile{}
+		assetData.Sha1 = findAsset.Sha1
+		assetData.ModeEm = findAsset.ModeEm
+		assetData.SizeNum = findAsset.SizeNum
+		assetData.SizeText = findAsset.SizeText
+		assetData.StateEm = findAsset.StateEm
+		assetData.Mime = findAsset.Mime
+		assetData.Ext = findAsset.Ext
+		assetData.Url = findAsset.Url
+		assetData.Path = findAsset.Path
+		assetData.Name = req.FileName
+		assetData.OriginalName = req.FileName
+		assetData.FinishAt = utild.GetStamp()
+		assetData.Id = utild.MakeId()
+		assetData.UserId = l.userMainInfo.Id
+		assetData.AssetId = findAsset.Id
+		_, err = netdiskModel.Insert(assetData)
 		if err != nil {
 			return nil, resd.ErrorCtx(l.ctx, err)
 		}
@@ -113,7 +121,7 @@ func (l *MultipartUploadInitLogic) getTask(findFile *model.AssetNetdiskFile, req
 }
 func (l *MultipartUploadInitLogic) addTask(req *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
 	netdiskModel := model.NewAssetNetdiskFileModel(l.svcCtx.SqlConn, l.platId)
-	fileInfo := model.AssetNetdiskFile{
+	fileInfo := &model.AssetNetdiskFile{
 		Id:           utild.MakeId(),
 		Name:         req.FileName,
 		OriginalName: req.FileName,
@@ -124,11 +132,10 @@ func (l *MultipartUploadInitLogic) addTask(req *types.MultipartUploadInitReq) (r
 		UserId:       l.userMainInfo.Id,
 		Sha1:         req.FileSha1,
 	}
-	addData, err := dao.PrepareDataByTarget(fileInfo, "id,name,originalName,modeEm,sizeNum,sizeText,ext,userId,sha1")
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = netdiskModel.Insert(addData)
+	_, err = netdiskModel.Insert(fileInfo)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}

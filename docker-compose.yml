@@ -190,7 +190,8 @@ services:
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@<your_host>:9093
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094 #需要在etc/hosts里加上kafka这个别名
+      #- KAFKA_CFG_ADVERTISED_LISTENERS=INSIDE://127.0.0.1:9092 #有个教程说用宿主机ip，但没试过是否能解决要加别名的问题
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://kafka:9094 #需要在etc/hosts里加上kafka 容器id这个别名
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
     restart: always
@@ -256,6 +257,21 @@ services:
     restart: always
     networks:
       - dandan_net
+  mongo:
+    image: mongo:4.2.1
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 8a7yNLrsThjw3jra
+    ports:
+      - 27017:27017
+    volumes:
+      - ./docker/data/mongo/data:/data/db
+      - ./docker/data/mongo/logs:/var/log/mongodb  # 挂载日志目录
+    restart: always
+    privileged: true
+    networks:
+      dandan_net:
 networks:
   dandan_net:
     driver: bridge

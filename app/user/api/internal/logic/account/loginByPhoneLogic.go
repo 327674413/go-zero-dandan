@@ -2,7 +2,6 @@ package account
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/user/api/internal/biz"
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/common/constd"
@@ -69,11 +68,11 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 
 	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
 	userMain, err := userMainModel.Ctx(l.ctx).Where("phone=?", phone).Find()
-	if err != nil && err != sqlx.ErrNotFound {
+	if err != nil {
 		return nil, resd.Error(err, resd.MysqlErr)
 	}
 	resp = &types.UserInfoResp{}
-	if err == sqlx.ErrNotFound {
+	if userMain == nil {
 		//未注册
 		regInfo := biz.UserRegInfo{
 			Id:        utild.MakeId(),

@@ -20,6 +20,12 @@ goctl model mysql ddl --src user.sql --dir . -style goZero -home ../../../common
 #或者直接连接数据库创建
 goctl model mysql datasource --ignore-columns="delete_at" -url="${DB_USER}:${$DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}" -table="${DB_TABLE}" . -style goZero -home ../../../common/goctl/1.5.0
 ```
+### 创建mongo的model
+```
+#在根目录下执行，往im/ws/model目录下生成chatlog的model
+goctl model mongo -style goZero --type chatlog --dir ./app/im/ws/model
+
+```
 
 ### rpc服务创建
 ```
@@ -48,7 +54,12 @@ go run user.go -f etc/user-api.yaml
 ```
 #小写-d好像不行
 docker-compose -f docker-compose-test.yml up --detach
+```
 
+### kafka测试发消息
+```
+#往docker里的kafka测试发消息
+docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic msgChatTransfer
 ```
 ### 获取模版
 ```

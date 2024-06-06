@@ -32,7 +32,6 @@ func main() {
 		})
 	}), rest.WithCors())
 	defer server.Stop()
-
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	logx.DisableStat() //去掉定时出现的控制台打印

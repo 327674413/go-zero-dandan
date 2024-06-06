@@ -88,6 +88,15 @@
       "env": "test",
       "instance": "host.docker.internal:8822"
     }
+  },
+  {
+    "targets": ["host.docker.internal:9823"],
+    "labels": {
+      "job": "task-mq",
+      "app": "task-mq",
+      "env": "test",
+      "instance": "host.docker.internal:8823"
+    }
   }
 
 ]

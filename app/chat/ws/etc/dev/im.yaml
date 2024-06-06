@@ -1,0 +1,41 @@
+Name: im-ws
+Host: 0.0.0.0
+Port: 8808
+Mode: dev
+ListenOn: 0.0.0.0:8808
+Auth:
+  AccessSecret: "dandandandandandandandan"
+  AccessExpire: 6048000
+Ws:
+  SysToken: "123456"
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+Mongo:
+  Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
+  Db: chat
+MsgChatTransfer:
+  Topic: msgChatTransfer
+  Addrs:
+    - 127.0.0.1:9092
+#Brokers:
+#  - 127.0.0.1:9092
+#RedisConf:
+#  Host: 127.0.0.1:6379
+#  Type: node
+#  Pass: G62m50oigInC30sf
+#Log:
+#  ServiceName: im-server
+#  Level: info
+#
+#WebsocketConfig:
+#  MaxConnNum: 10000
+#  TimeOut: 10
+#  MaxMsgLen: 4096
+#
+#SendMsgRateLimit:
+#  Enable: true
+#  Seconds: 100
+#  Quota: 100

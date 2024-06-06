@@ -10,7 +10,6 @@ import (
 	"go-zero-dandan/app/message/rpc/types/pb"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/common/utild/smsd"
@@ -69,11 +68,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 		smsSendData.StateEm = 1
 		resp.Code = 200
 	}
-	data, err := dao.PrepareData(smsSendData)
-	if err != nil {
-
-	}
-	_, err = messageSmsSendModel.Insert(data)
+	_, err = messageSmsSendModel.Insert(smsSendData)
 	return resp, nil
 
 }
