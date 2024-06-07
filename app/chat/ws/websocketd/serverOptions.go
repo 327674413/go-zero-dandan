@@ -9,6 +9,7 @@ type serverOption struct {
 	ackTimeout        time.Duration //ack等待超时时间
 	patten            string
 	maxConnectionIdle time.Duration
+	sendErrCount      int
 }
 
 func newServerOptions(opts ...ServerOptions) serverOption {
@@ -17,6 +18,7 @@ func newServerOptions(opts ...ServerOptions) serverOption {
 		patten:            "/ws",
 		maxConnectionIdle: defaultMaxConnectionIdle,
 		ackTimeout:        defaultAckTimeout,
+		sendErrCount:      defaultSendErrCount,
 	}
 	//执行传入的options类型的函数
 	for _, opt := range opts {

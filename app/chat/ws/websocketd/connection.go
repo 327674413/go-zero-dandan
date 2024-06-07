@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Conn 定义了一个包含 websocket 连接和相关信息的结构体
+// Conn 定义了一个包含 websocket 连接和相关信息的结构体，一个客户端连接一个conn
 type Conn struct {
 	Uid               int64         //该连接的用户id
 	*websocket.Conn                 // 嵌入的 websocket 连接
@@ -18,9 +18,9 @@ type Conn struct {
 	maxConnectionIdle time.Duration // 最大允许的连接空闲时间
 	done              chan struct{} // 用于通知连接结束的通道
 	messageMu         sync.Mutex
-	readMessage       []*Message
-	readMessageSeq    map[int64]*Message
-	messageChan       chan *Message
+	readMessageAckMq  []*Message         // 本客户端需要ack确认消息的队列，保证按顺序确认用
+	readMessageSeqMap map[int64]*Message //如果是要应答的ack消息，用消息id作为索引管理应答确认秦光
+	sendMessageChan   chan *Message      // 用来发送消息的管道，通过发消息的协程读该管道来发送，收发消息逻辑分离
 }
 
 // NewConn 创建一个新的 websocket 连接并返回 Conn 结构体的实例
@@ -36,9 +36,9 @@ func NewConn(s *Server, w http.ResponseWriter, r *http.Request) *Conn {
 		idle:              time.Now(),              // 记录当前时间为上次活动时间
 		maxConnectionIdle: s.opt.maxConnectionIdle, // 设置最大连接空闲时间
 		done:              make(chan struct{}),     // 初始化通知通道
-		readMessage:       make([]*Message, 0, 2),
-		readMessageSeq:    make(map[int64]*Message),
-		messageChan:       make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
+		readMessageAckMq:  make([]*Message, 0, 2),
+		readMessageSeqMap: make(map[int64]*Message),
+		sendMessageChan:   make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
 	}
 	go conn.keepalive()
 	return conn
@@ -50,10 +50,10 @@ func (t *Conn) appendMsgMq(msg *Message) {
 	defer t.messageMu.Unlock()
 	//根据消息id，判断是否存在ack确认记录
 	logx.Info("mq操作开始")
-	if m, ok := t.readMessageSeq[msg.Id]; ok {
+	if m, ok := t.readMessageSeqMap[msg.Id]; ok {
 		logx.Info("有该消息的ack记录")
 		//存在ack确认记录，先判断当前是否有待发送消息
-		if len(t.readMessage) == 0 {
+		if len(t.readMessageAckMq) == 0 {
 			//消息队列中没有消息，应该是已经发送了，推出
 			logx.Info("确认ack，但队列中没消息，退出")
 			return
@@ -64,7 +64,7 @@ func (t *Conn) appendMsgMq(msg *Message) {
 			return
 		}
 		// 更新ack确认记录，确保队列中消息的ack确认序号是最新的
-		t.readMessageSeq[msg.Id] = msg
+		t.readMessageSeqMap[msg.Id] = msg
 		return
 	}
 	//还没有ack确认，先避免客户端重复发送ack确认
@@ -74,9 +74,9 @@ func (t *Conn) appendMsgMq(msg *Message) {
 	}
 	//ack确认，将消息放入消息队列数组
 	logx.Info("需要ack确认，推入待确认消息列表")
-	t.readMessage = append(t.readMessage, msg)
+	t.readMessageAckMq = append(t.readMessageAckMq, msg)
 	//ack的确认序号中增加该消息id，代表等待确认
-	t.readMessageSeq[msg.Id] = msg
+	t.readMessageSeqMap[msg.Id] = msg
 }
 func (t *Conn) ReadMessage() (messageType int, p []byte, err error) {
 	messageType, p, err = t.Conn.ReadMessage()

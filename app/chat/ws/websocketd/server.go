@@ -138,7 +138,6 @@ func (t *Server) handlerConn(conn *Conn) {
 	}
 	for {
 		_, msg, err := conn.ReadMessage()
-
 		logx.Info("消息来了")
 		if err != nil {
 			logx.Errorf("websocket conn read message err：%v", err)
@@ -159,7 +158,7 @@ func (t *Server) handlerConn(conn *Conn) {
 			conn.appendMsgMq(message)
 		} else {
 			//非ack，直接放入消息推送的通道，发送消息
-			conn.messageChan <- message
+			conn.sendMessageChan <- message
 		}
 
 	}
@@ -173,6 +172,22 @@ func (t *Server) isAck(message *Message) bool {
 
 // 读取消息ack处理的写协程
 func (t *Server) readAck(conn *Conn) {
+	//处理发送失败场景
+	send := func(msg *Message, conn *Conn) error {
+		err := t.Send(msg, conn)
+		if err == nil {
+			return nil
+		}
+		t.Errorf("message ack  send err：%v ,msg：", err, msg)
+		conn.readMessageAckMq[0].errCount++
+		conn.messageMu.Unlock()
+		tempDelay := time.Duration(200*conn.readMessageAckMq[0].errCount) * time.Microsecond
+		if max := 1 * time.Second; tempDelay > max {
+			tempDelay = max
+		}
+		time.Sleep(tempDelay)
+		return err
+	}
 	for {
 		select {
 		case <-conn.done:
@@ -185,36 +200,46 @@ func (t *Server) readAck(conn *Conn) {
 		//非阻塞的，没关闭前，会一直执行下面的代码
 		conn.messageMu.Lock()
 		//判断是否有待处理的ack消息
-		if len(conn.readMessage) == 0 {
+		if len(conn.readMessageAckMq) == 0 {
 			//没有需要处理ack的消息，增加睡眠，确保协程工作切换
 			conn.messageMu.Unlock()
 			time.Sleep(100 * time.Microsecond)
 			continue
 		}
 		// 读取ack队列第一条
-		ackMessage := conn.readMessage[0]
+		ackMessage := conn.readMessageAckMq[0]
+		if ackMessage.errCount > t.opt.sendErrCount {
+			logx.Errorf("conn send fail,message:%v,ackType:%v,maxSendErrCount:%v", ackMessage, t.opt.ack.ToString(), t.opt.sendErrCount)
+			conn.messageMu.Unlock()
+			//因为多次发送错误，这里选择放弃消息，如果有业务需要处理则再调整，比如加钩子之类的
+			delete(conn.readMessageSeqMap, ackMessage.Id)
+			conn.readMessageAckMq = conn.readMessageAckMq[1:]
+			continue
+		}
 		//判断当前ack方式
 		switch t.opt.ack {
 		case OnlyAck:
 			logx.Info("单次ack机制处理，则直接确认，发送消息")
 			//单次ack确认，即可以发送成功，回复该发送者，服务器已处理消息
-			t.Send(&Message{
+			if err := send(&Message{
 				Id:        ackMessage.Id,
 				FrameType: FrameAck,
 				AckSeq:    ackMessage.AckSeq + 1,
-			}, conn)
+			}, conn); err != nil {
+				continue
+			}
 			// 将待处理ack消息移除
-			conn.readMessage = conn.readMessage[1:]
+			conn.readMessageAckMq = conn.readMessageAckMq[1:]
 			conn.messageMu.Unlock()
 			// 将消息放入发送队列，发送给接收者
-			conn.messageChan <- ackMessage
+			conn.sendMessageChan <- ackMessage
 		case RigorAck:
 			//应答模式
 			//判断是否是未确认过的消息
 			if ackMessage.AckSeq == 0 {
 				//序号为0则，还未确认过，服务端进行序号递增，回复给发送着
-				conn.readMessage[0].AckSeq++
-				conn.readMessage[0].ackTime = time.Now()
+				conn.readMessageAckMq[0].AckSeq++
+				conn.readMessageAckMq[0].ackTime = time.Now()
 				t.Send(&Message{
 					Id:        ackMessage.Id,
 					FrameType: FrameAck,
@@ -225,13 +250,13 @@ func (t *Server) readAck(conn *Conn) {
 				continue
 			}
 			//序号不是0，代表是确认过的消息，进行再次确认
-			msgCurrSeq := conn.readMessageSeq[ackMessage.Id] //这里不会出现key不存在的异常请求吗？
+			msgCurrSeq := conn.readMessageSeqMap[ackMessage.Id] //这里不会出现key不存在的异常请求吗？
 			// ack队列中的序号是否大于待处理消息队列中的序号
 			if msgCurrSeq.AckSeq > ackMessage.AckSeq {
 				//大于，则本次收到的消息序号更大，确认成功，发送消息
-				conn.readMessage = conn.readMessage[1:]
+				conn.readMessageAckMq = conn.readMessageAckMq[1:]
 				conn.messageMu.Unlock()
-				conn.messageChan <- ackMessage
+				conn.sendMessageChan <- ackMessage
 				logx.Info("应答机制消息确认成功 mid: %v", ackMessage.Id)
 				continue
 			}
@@ -240,9 +265,9 @@ func (t *Server) readAck(conn *Conn) {
 			val := t.opt.ackTimeout - time.Since(ackMessage.ackTime)
 			// 上次确认时间不为空，且最大允许超时时间小，则超时
 			if !ackMessage.ackTime.IsZero() && val <= 0 {
-				//移除待处理ack消息
-				delete(conn.readMessageSeq, ackMessage.Id)
-				conn.readMessage = conn.readMessage[1:]
+				//超时了，暂时先选择放弃消息， 如果实际业务有需要特殊粗粝，再考虑加钩子之类的
+				delete(conn.readMessageSeqMap, ackMessage.Id)
+				conn.readMessageAckMq = conn.readMessageAckMq[1:]
 				conn.messageMu.Unlock()
 				logx.Info("ack确认超时，不再重发")
 				continue
@@ -265,7 +290,7 @@ func (t *Server) handlerWrite(conn *Conn) {
 		case <-conn.done:
 			//连接关闭
 			return
-		case message := <-conn.messageChan:
+		case message := <-conn.sendMessageChan:
 			switch message.FrameType {
 			case FramePing:
 				t.Send(&Message{FrameType: FramePing}, conn)
@@ -280,7 +305,7 @@ func (t *Server) handlerWrite(conn *Conn) {
 			if t.isAck(message) {
 				//消息发送成功后，如果是ack机制的，需要移除ack序号的map
 				conn.messageMu.Lock()
-				delete(conn.readMessageSeq, message.Id)
+				delete(conn.readMessageSeqMap, message.Id)
 				conn.messageMu.Unlock()
 			}
 		}
