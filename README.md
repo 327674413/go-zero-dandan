@@ -23,14 +23,14 @@ goctl model mysql datasource --ignore-columns="delete_at" -url="${DB_USER}:${$DB
 ### 创建mongo的model
 ```
 #在根目录下执行，往im/ws/model目录下生成chatlog的model
-goctl model mongo -style goZero --type chatlog --dir ./app/im/ws/model
+goctl model mongo -style goZero --type chatlog --dir ./app/im/modelMongo
 
 ```
 
 ### rpc服务创建
 ```
 #在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc message.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+goctl rpc protoc im.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
 
 ```
 ### 标准表模版

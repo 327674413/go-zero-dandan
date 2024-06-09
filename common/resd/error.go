@@ -114,6 +114,16 @@ func NewErrCtx(ctx context.Context, msg string, errorCode ...int) error {
 	return newDanErr(msg, code)
 }
 
+// NewRpcErrCtx 创建新的error，带上下文,Rpc错误返回用
+func NewRpcErrCtx(ctx context.Context, msg string, errorCode ...int) error {
+	code := SysErr
+	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
+	if len(errorCode) > 0 {
+		code = errorCode[0]
+	}
+	return RpcErrEncode(newDanErr(msg, code))
+}
+
 // NewErrWithTemp 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量
 func NewErrWithTemp(msg string, errorCode int, temps ...string) error {
 	logx.WithCallerSkip(1).Error(errors.New(msg))
@@ -124,6 +134,12 @@ func NewErrWithTemp(msg string, errorCode int, temps ...string) error {
 func NewErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...string) error {
 	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
 	return newDanErr(msg, errorCode, temps...)
+}
+
+// NewRpcErrWithTempCtx 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量，带上下文,RPC错误用
+func NewRpcErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...string) error {
+	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
+	return RpcErrEncode(newDanErr(msg, errorCode, temps...))
 }
 
 // RpcErrDecode 解码

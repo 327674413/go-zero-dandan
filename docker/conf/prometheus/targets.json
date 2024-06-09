@@ -63,6 +63,24 @@
     }
   },
   {
+    "targets": ["host.docker.internal:9808"],
+    "labels": {
+      "job": "im-ws",
+      "app": "im-ws",
+      "env": "test",
+      "instance": "host.docker.internal:8808"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9809"],
+    "labels": {
+      "job": "im-rpc",
+      "app": "im-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8809"
+    }
+  },
+  {
     "targets": ["host.docker.internal:9820"],
     "labels": {
       "job": "goods-api",
