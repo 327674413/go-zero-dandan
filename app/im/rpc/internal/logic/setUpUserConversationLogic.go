@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
 	"go-zero-dandan/app/im/rpc/types/pb"
@@ -33,7 +34,6 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 	case websocketd.SingleChatType:
 		//生成会话id
 		conversationId := numd.CombineInt64(in.SendId, in.RecvId)
-		logx.Info(conversationId)
 		//验证是否建立过会话
 		conversationRes, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, conversationId)
 		if conversationRes != nil {
@@ -62,6 +62,11 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
+	case websocketd.GroupChatType:
+		err := l.setupUserConversation(fmt.Sprintf("%d", in.RecvId), in.SendId, in.RecvId, websocketd.ChatType(in.ChatType), true)
+		if err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		}
 	}
 
 	return &pb.SetUpUserConversationResp{}, nil
@@ -82,6 +87,7 @@ func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string
 			return err
 		}
 	}
+	logx.Info(conversationId)
 	//更新会话记录
 	if _, ok := conversations.ConversationList[conversationId]; ok {
 		return nil

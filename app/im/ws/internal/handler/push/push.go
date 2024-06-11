@@ -6,33 +6,53 @@ import (
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/pkg/mapd"
-	"time"
 )
 
 func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 	return func(server *websocketd.Server, conn *websocketd.Conn, msg *websocketd.Message) {
 		var data websocketd.Push
-		logx.Info("11111")
 		if err := mapd.AnyToStruct(msg.Data, &data); err != nil {
 			server.Send(websocketd.NewErrMessage(err))
 			return
 		}
-		logx.Info(msg.Data)
-		//发送
-		rconn := server.GetConn(data.RecvId)
-		if rconn == nil {
-			logx.Info("目标对象离线")
-			//离线
-			return
+		switch data.ChatType {
+		case websocketd.SingleChatType:
+			single(server, &data, data.RecvId)
+		case websocketd.GroupChatType:
+			group(server, &data)
 		}
 
-		server.Send(websocketd.NewMessage(fmt.Sprintf("%d", data.SendId), &websocketd.Chat{
-			ConversationId: data.ConversationId,
-			SendId:         data.SendId,
-			RecvId:         data.RecvId,
-			Msg:            websocketd.Msg{Content: data.Content},
-			ChatType:       data.ChatType,
-			SendTime:       time.Now().UnixNano(),
-		}), rconn)
 	}
+}
+func single(server *websocketd.Server, data *websocketd.Push, recvId int64) error {
+	//发送
+	rconn := server.GetConn(recvId)
+	if rconn == nil {
+		logx.Info("推送目标对象", recvId, "离线")
+		//离线
+		return nil
+	}
+
+	return server.Send(websocketd.NewMessage(fmt.Sprintf("%d", data.SendId), &websocketd.Chat{
+		ConversationId: data.ConversationId,
+		Msg: websocketd.Msg{
+			Content:     data.Content,
+			MsgType:     data.MsgType,
+			MsgId:       data.MsgId,
+			ReadRecords: data.ReadRecords,
+		},
+		ChatType: data.ChatType,
+		SendTime: data.SendTime,
+	}), rconn)
+}
+func group(server *websocketd.Server, data *websocketd.Push) error {
+	for _, id := range data.RecvIds {
+		func(id int64) {
+			server.Schedule(func() {
+				logx.Info("推送群聊消息给：", id)
+				single(server, data, id)
+			})
+		}(id)
+	}
+	return nil
 }

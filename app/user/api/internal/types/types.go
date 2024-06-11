@@ -72,20 +72,20 @@ type UserInfoReq struct {
 }
 
 type UserInfoResp struct {
-	Id        int64       `json:"id,string"`
-	UnionId   int64       `json:"unionId,string"`
-	Account   string      `json:"account"`
-	Uid       string      `json:"uid"`
-	Nickname  string      `json:"nickname"`
-	Phone     string      `json:"phone"`
-	PhoneArea string      `json:"phoneArea"`
-	Email     string      `json:"email"`
-	Avatar    string      `json:"avatar"`
-	SexEm     int64       `json:"sexEm"`
-	CreateAt  int64       `json:"createAt"`
-	PlatInfo  interface{} `json:"platInfo"`
-	UpdateAt  int64       `json:"updateAt"`
-	UserToken string      `json:"userToken"`
+	Id        int64  `json:"id,string"`
+	UnionId   int64  `json:"unionId,string"`
+	Account   string `json:"account"`
+	Uid       string `json:"uid"`
+	Nickname  string `json:"nickname"`
+	Phone     string `json:"phone"`
+	PhoneArea string `json:"phoneArea"`
+	Email     string `json:"email"`
+	Avatar    string `json:"avatar"`
+	SexEm     int64  `json:"sexEm"`
+	CreateAt  int64  `json:"createAt"`
+	PlatId    int64  `json:"platId"`
+	UpdateAt  int64  `json:"updateAt"`
+	UserToken string `json:"userToken"`
 }
 
 type GetUserCronyListReq struct {

@@ -6,18 +6,21 @@ import (
 	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/threading"
+	"go-zero-dandan/common/ctxd"
 	"net/http"
 	"sync"
 	"time"
 )
 
 type Server struct {
-	sync.RWMutex  //读写锁，允许读并发，虽然开销大一点，当绝大多数是读操作时，但比互斥锁Mutex性能更好
-	opt           *serverOption
-	authenication Authentication
-	routes        map[string]HandlerFunc
-	addr          string
-	upgrader      websocket.Upgrader
+	sync.RWMutex          //读写锁，允许读并发，虽然开销大一点，当绝大多数是读操作时，但比互斥锁Mutex性能更好
+	*threading.TaskRunner //并发处理
+	opt                   *serverOption
+	authenication         Authentication
+	routes                map[string]HandlerFunc
+	addr                  string
+	upgrader              websocket.Upgrader
 	logx.Logger
 	connToUser map[*Conn]int64
 	userToConn map[int64]*Conn
@@ -36,6 +39,7 @@ func NewServer(addr string, opts ...ServerOptions) *Server {
 		connToUser:    make(map[*Conn]int64),
 		userToConn:    make(map[int64]*Conn),
 		authenication: opt.Authentication,
+		TaskRunner:    threading.NewTaskRunner(opt.concurrency),
 	}
 }
 func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
@@ -55,6 +59,9 @@ func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 		return
 	}
+	fmt.Println("2222222")
+	fmt.Println(ctxd.GetPlatId(r.Context()))
+	fmt.Println(ctxd.GetPlatClasEm(r.Context()))
 	//记录链接
 	t.addConn(conn, r)
 	//处理链接
@@ -72,6 +79,7 @@ func (t *Server) addConn(conn *Conn, req *http.Request) {
 	logx.Infof("%d用户的新链接", uid)
 	t.connToUser[conn] = uid
 	t.userToConn[uid] = conn
+	logx.Info("新增后连接数量：", len(t.userToConn))
 }
 func (t *Server) GetConn(uid int64) *Conn {
 	t.RWMutex.RLock()
@@ -138,6 +146,7 @@ func (t *Server) handlerConn(conn *Conn) {
 	}
 	for {
 		_, msg, err := conn.ReadMessage()
+		//能确定，用int64精度丢失问题，在这里不管怎么解析，解析出来的都是错的数字
 		logx.Info("消息来了")
 		if err != nil {
 			logx.Errorf("websocket conn read message err：%v", err)

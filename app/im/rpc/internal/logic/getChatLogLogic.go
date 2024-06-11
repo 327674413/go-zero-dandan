@@ -25,7 +25,7 @@ func NewGetChatLogLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCha
 	}
 }
 
-// 获取会话记录
+// GetChatLog 获取会话记录
 func (l *GetChatLogLogic) GetChatLog(in *pb.GetChatLogReq) (*pb.GetChatLogResp, error) {
 	// 根据id
 	if in.MsgId != "" {
@@ -44,6 +44,7 @@ func (l *GetChatLogLogic) GetChatLog(in *pb.GetChatLogReq) (*pb.GetChatLogResp, 
 					RecvId:         chatLog.RecvId,
 					SendId:         chatLog.SendId,
 					MsgContent:     chatLog.MsgContent,
+					ReadRecords:    chatLog.ReadRecords,
 				},
 			},
 		}, nil
@@ -64,6 +65,7 @@ func (l *GetChatLogLogic) GetChatLog(in *pb.GetChatLogReq) (*pb.GetChatLogResp, 
 			RecvId:         item.RecvId,
 			SendId:         item.SendId,
 			MsgContent:     item.MsgContent,
+			ReadRecords:    item.ReadRecords,
 		})
 	}
 	return &pb.GetChatLogResp{

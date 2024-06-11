@@ -2,9 +2,12 @@ package svc
 
 import (
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/zrpc"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/mq/internal/config"
 	"go-zero-dandan/app/im/ws/websocketd"
+	"go-zero-dandan/app/social/rpc/social"
+	"go-zero-dandan/common/interceptor"
 	"net/http"
 )
 
@@ -13,13 +16,16 @@ type ServiceContext struct {
 	WsClient websocketd.Client
 	modelMongo.ChatLogModel
 	modelMongo.ConversationModel
+	SocialRpc social.Social
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
+	socialRpc := social.NewSocial(zrpc.MustNewClient(c.SocialRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
 	svc := &ServiceContext{
 		Config:            c,
 		ChatLogModel:      modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
 		ConversationModel: modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
+		SocialRpc:         socialRpc,
 	}
 	token, err := svc.GetSystemToken()
 	if err != nil {

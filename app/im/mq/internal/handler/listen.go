@@ -20,5 +20,6 @@ func (t *Listen) Services() []service.Service {
 	return []service.Service{
 		//这里可以家在多个消费者
 		kq.MustNewQueue(t.svc.Config.MsgChatTransfer, msgTransfer.NewMsgChatTransfer(t.svc)),
+		kq.MustNewQueue(t.svc.Config.MsgReadTransfer, msgTransfer.NewMsgReadTransfer(t.svc)),
 	}
 }

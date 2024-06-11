@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+// protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
+option go_package = "./pb";
+
+package plat;
+
+//import "desc/main.proto";
+
+
+message IdReq {
+  int64 id = 1;
+}
+
+message PlatInfo {
+  int64 id = 1;
+  int64 ClasEm = 2;
+}
+
+service plat {
+  rpc GetOne(IdReq) returns(PlatInfo);
+}

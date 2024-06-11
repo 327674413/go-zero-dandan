@@ -10,4 +10,3 @@ type Config struct {
 	{{.auth}}
 	{{.jwtTrans}}
 }
-var Conf Config

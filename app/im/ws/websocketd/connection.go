@@ -11,6 +11,9 @@ import (
 // Conn 定义了一个包含 websocket 连接和相关信息的结构体，一个客户端连接一个conn
 type Conn struct {
 	Uid               int64         //该连接的用户id
+	PlatId            int64         //所属应用id
+	PlatClasEm        int64         //所属应用的应用类型
+	PortEm            int64         //连接的端口
 	*websocket.Conn                 // 嵌入的 websocket 连接
 	idleMu            sync.Mutex    // 用于保护共享资源的互斥锁
 	s                 *Server       // 指向关联的服务器实例

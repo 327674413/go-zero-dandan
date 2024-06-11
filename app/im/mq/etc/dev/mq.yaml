@@ -1,6 +1,10 @@
-Name: task.mq
+Name: im.mq
 ListenOn: 0.0.0.0:8823
 Mode: dev
+Etcd:
+  Hosts:
+    - 127.0.0.1:2379
+  Key: im.mq
 MsgChatTransfer:
   Name: MsgChatTransfer
   Brokers:
@@ -9,6 +13,18 @@ MsgChatTransfer:
   Topic: msgChatTransfer
   Offset: first
   Consumers: 1
+MsgReadTransfer:
+  Name: MsgReadTransfer
+  Brokers:
+    - 127.0.0.1:9092
+  Group: kafka
+  Topic: msgReadTransfer
+  Offset: first
+  Consumers: 1
+MsgReadHandler:
+  GroupMsgReadHandler: 1 #是否开启延迟发送
+  GroupMsgReadRecordDelayTime: 5 #延迟发送缓存时间
+  GroupMsgReadRecordDelayCount: 2 #延迟发送缓存数量
 Mongo:
   Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
   Db: chat
@@ -16,6 +32,11 @@ RedisConf:
   Host: 127.0.0.1:6379
   Type: node
   Pass: G62m50oigInC30sf
+SocialRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: social.rpc
 Ws:
   Host: 127.0.0.1:8808
   SysToken: "123456"

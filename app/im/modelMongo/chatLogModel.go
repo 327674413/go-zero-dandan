@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/mon"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -15,6 +16,8 @@ type (
 	ChatLogModel interface {
 		chatLogModel
 		ListBySendTime(ctx context.Context, conversationId string, startSendTime, endSendTime, limit int64) ([]*ChatLog, error)
+		ListByMsgIds(ctx context.Context, msgIds []string) ([]*ChatLog, error)
+		UpdateMakeRead(ctx context.Context, id primitive.ObjectID, readRecords []byte) error
 	}
 
 	customChatLogModel struct {
@@ -35,6 +38,29 @@ func MustChatLogModel(url, db string) ChatLogModel {
 }
 
 var DefaultChatLogLimit int64 = 100
+
+func (m *defaultChatLogModel) ListByMsgIds(ctx context.Context, msgIds []string) ([]*ChatLog, error) {
+	var data []*ChatLog
+	ids := make([]primitive.ObjectID, 0, len(msgIds))
+	for _, id := range msgIds {
+		oid, _ := primitive.ObjectIDFromHex(id)
+		ids = append(ids, oid)
+	}
+	filter := bson.M{
+		"_id": bson.M{
+			"$in": ids,
+		},
+	}
+	err := m.conn.Find(ctx, &data, filter)
+	switch err {
+	case nil:
+		return data, nil
+	case mon.ErrNotFound:
+		return nil, ErrNotFound
+	default:
+		return nil, err
+	}
+}
 
 func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId string, startSendTime, endSendTime, limit int64) ([]*ChatLog, error) {
 	var data []*ChatLog
@@ -64,4 +90,8 @@ func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId
 	default:
 		return nil, err
 	}
+}
+func (m *defaultChatLogModel) UpdateMakeRead(ctx context.Context, id primitive.ObjectID, readRecords []byte) error {
+	_, err := m.conn.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"readRecords": readRecords}})
+	return err
 }

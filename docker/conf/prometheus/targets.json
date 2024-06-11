@@ -81,6 +81,24 @@
     }
   },
   {
+    "targets": ["host.docker.internal:9810"],
+    "labels": {
+      "job": "social-rpc",
+      "app": "social-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8810"
+    }
+  },
+  {
+    "targets": ["host.docker.internal:9811"],
+    "labels": {
+      "job": "plat-rpc",
+      "app": "plat-rpc",
+      "env": "test",
+      "instance": "host.docker.internal:8811"
+    }
+  },
+  {
     "targets": ["host.docker.internal:9820"],
     "labels": {
       "job": "goods-api",

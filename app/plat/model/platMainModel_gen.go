@@ -73,17 +73,18 @@ type (
 	}
 
 	PlatMain struct {
-		Id       int64  `db:"id"`
-		Appid    string `db:"appid"`     // 对外应用标识
-		Secret   string `db:"secret"`    // 对外应用密钥
-		StateEm  int64  `db:"state_em"`  // 应用状态
-		RenterId int64  `db:"renter_id"` // 租户id
-		Name     string `db:"name"`      // 应用名称
-		ClasEm   int64  `db:"clas_em"`   // 应用类型
-		ExpireAt int64  `db:"expire_at"` // 应用到期时间戳
-		CreateAt int64  `db:"create_at"` // 创建时间戳
-		UpdateAt int64  `db:"update_at"` // 更新时间戳
-		DeleteAt int64  `db:"delete_at"` // 删除时间戳
+		Id          int64  `db:"id"`
+		Appid       string `db:"appid"`         // 对外应用标识
+		Secret      string `db:"secret"`        // 对外应用密钥
+		StateEm     int64  `db:"state_em"`      // 应用状态
+		RenterId    int64  `db:"renter_id"`     // 租户id
+		Name        string `db:"name"`          // 应用名称
+		ClasEm      int64  `db:"clas_em"`       // 应用类型
+		ExpireAt    int64  `db:"expire_at"`     // 应用到期时间戳
+		DataLevelEm int64  `db:"data_level_em"` // 应用数据隔离级别，0单应用级，1同用户所有应用，99不隔离平台应用
+		CreateAt    int64  `db:"create_at"`     // 创建时间戳
+		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
+		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
 	}
 )
 

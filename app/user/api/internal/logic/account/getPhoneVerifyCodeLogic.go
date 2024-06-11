@@ -53,8 +53,8 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 		return nil, resd.Error(err, resd.RedisSetErr)
 	}
 	resp = &types.SuccessResp{Msg: ""}
-	if l.svcCtx.Mode == constd.ModeDev {
-		fmt.Println("code：", code)
+	if l.svcCtx.Config.Mode == constd.ModeDev {
+		resp.Msg = code
 		return resp, nil
 	} else {
 		_, rpcErr := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{

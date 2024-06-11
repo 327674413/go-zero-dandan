@@ -141,6 +141,7 @@ func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error)
 		SexEm:     userInfo.SexEm,
 		Email:     userInfo.Email,
 		Avatar:    userInfo.Avatar,
+		PlatId:    userInfo.PlatId,
 	}
 	err := t.svcCtx.Redis.SetDataExCtx(t.ctx, "userToken", token, cacheData, t.svcCtx.Config.Conf.LoginTokenExSec)
 	if err != nil {

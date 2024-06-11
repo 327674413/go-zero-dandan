@@ -3,10 +3,10 @@ package websocketd
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/zeromicro/go-zero/core/logx"
 	"net/url"
 )
 
+// Client 给后端用的ws客户端，目前是给mq往ws发消息用的
 type Client interface {
 	Close() error
 	Send(v any) error
@@ -35,7 +35,6 @@ func NewClient(host string, opts ...DailOptions) *client {
 }
 func (t *client) dail() (*websocket.Conn, error) {
 	u := url.URL{Scheme: "ws", Host: t.host, Path: t.opt.patten}
-	logx.Info("connecting to ", u.String())
 	conn, _, err := websocket.DefaultDialer.Dial(u.String(), t.opt.header)
 	return conn, err
 }

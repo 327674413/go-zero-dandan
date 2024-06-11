@@ -8,6 +8,7 @@ import (
 type Config struct {
 	service.ServiceConf
 	UserRpc zrpc.RpcClientConf
+	PlatRpc zrpc.RpcClientConf
 	//RedisConf redis.RedisConf
 	ListenOn string
 	Auth     struct {
@@ -19,6 +20,10 @@ type Config struct {
 		Db  string
 	}
 	MsgChatTransfer struct {
+		Topic string
+		Addrs []string
+	}
+	MsgReadTransfer struct {
 		Topic string
 		Addrs []string
 	}

@@ -2,7 +2,7 @@ package conversation
 
 import (
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/mitchellh/mapstructure"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
@@ -35,23 +35,47 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 				data.ConversationId = fmt.Sprintf("%d", data.RecvId)
 			}
 		}
-		logx.Info("Chat触发：", data)
 		switch data.ChatType {
 		case websocketd.SingleChatType:
-			err := svc.Push(&kafkad.MsgChatTransfer{
-				ConversationId: data.ConversationId,
-				ChatType:       data.ChatType,
-				SendId:         conn.Uid,
-				RecvId:         data.RecvId,
-				SendTime:       time.Now().UnixNano(),
-				MsgType:        data.Msg.MsgType,
-				Content:        data.Msg.Content,
-			})
-			if err != nil {
-				server.Send(websocketd.NewErrMessage(err), conn)
-				return
-			}
 
+		case websocketd.GroupChatType:
+
+		}
+		err := svc.MsgChatTransferClient.Push(&kafkad.MsgChatTransfer{
+			ConversationId: data.ConversationId,
+			ChatType:       data.ChatType,
+			SendId:         conn.Uid,
+			RecvId:         data.RecvId,
+			SendTime:       time.Now().UnixNano(),
+			MsgType:        data.Msg.MsgType,
+			Content:        data.Msg.Content,
+		})
+		if err != nil {
+			server.Send(websocketd.NewErrMessage(err), conn)
+			return
+		}
+	}
+}
+func MarkRead(svc *svc.ServiceContext) websocketd.HandlerFunc {
+	return func(server *websocketd.Server, conn *websocketd.Conn, msg *websocketd.Message) {
+		// todo: 已读未读处理
+		var data websocketd.MarkRead
+		if err := mapstructure.Decode(msg.Data, &data); err != nil {
+			server.Send(websocketd.NewErrMessage(err), conn)
+			return
+		}
+
+		err := svc.MsgReadTransferClient.Push(&kafkad.MsgMarkRead{
+			ChatType:       data.ChatType,
+			ConversationId: data.ConversationId,
+			SendId:         conn.Uid,
+			RecvId:         data.RecvId,
+			MsgIds:         data.MsgIds,
+		})
+
+		if err != nil {
+			server.Send(websocketd.NewErrMessage(err), conn)
+			return
 		}
 	}
 }

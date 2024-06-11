@@ -73,7 +73,7 @@ type UserInfoResp {
 	Avatar      string      `json:"avatar"`
 	SexEm       int64       `json:"sexEm"`
 	CreateAt    int64       `json:"createAt"`
-	PlatInfo    interface{} `json:"platInfo"`
+	PlatId    	int64 		`json:"platId"`
 	UpdateAt    int64       `json:"updateAt"`
 	UserToken   string      `json:"userToken"`
 }

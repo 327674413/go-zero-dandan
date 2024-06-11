@@ -21,6 +21,13 @@ const (
 	RigorAck
 )
 
+type ContentType int
+
+const (
+	ContentChatMsg ContentType = iota
+	ContentMakeRead
+)
+
 func (t AckType) ToString() string {
 	switch t {
 	case OnlyAck:
@@ -33,8 +40,10 @@ func (t AckType) ToString() string {
 
 type (
 	Msg struct {
-		MsgType `mapstructure:"msgType"`
-		Content string `mapstructure:"content"`
+		MsgType     `mapstructure:"msgType"`
+		Content     string            `mapstructure:"content"`
+		MsgId       string            `mapstructure:"msgId"`
+		ReadRecords map[string]string `mapstructure:"readRecords"`
 	}
 	Chat struct {
 		ConversationId string `mapstructure:"conversationId"`
@@ -47,10 +56,20 @@ type (
 	Push struct {
 		ConversationId string `mapstructure:"conversationId"`
 		ChatType       `mapstructure:"chatType"`
-		SendId         int64 `mapstructure:"sendId,string"`
-		RecvId         int64 `mapstructure:"recvId,string"`
-		SendTime       int64 `mapstructure:"sendTime"`
+		MsgId          string            `mapstructure:"msgId"`
+		SendId         int64             `mapstructure:"sendId,string"`
+		RecvId         int64             `mapstructure:"recvId,string"`
+		RecvIds        []int64           `mapstructure:"recvIds"`
+		SendTime       int64             `mapstructure:"sendTime"`
+		ReadRecords    map[string]string `mapstructure:"readRecords"`
+		ContentType    ContentType       `mapstructure:"contentType"`
 		MsgType        `mapstructure:"msgType"`
 		Content        string `mapstructure:"content"`
+	}
+	MarkRead struct {
+		ChatType       `mapstructure:"chatType"`
+		RecvId         int64    `mapstructure:"recvId,string"`
+		ConversationId string   `mapstructure:"conversationId"`
+		MsgIds         []string `mapstructure:"msgIds"`
 	}
 )

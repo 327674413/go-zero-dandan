@@ -2,10 +2,10 @@
 ```goctl api new user```
 ### 编辑user.api后重新生成代码
 ```
-#进user目录执行
-goctl api go -api user.api -dir . -style goZero 
+#生成api，进user的desc目录执行
+goctl api go -api user.api -dir ../ -style goZero -home ../../../../common/goctl/1.5.0 
 
-#如果用了自定义模版则输入home路径，在desc使用 -dir ../  和 ../../../../common/goctl/1.5.0 
+#生成api，在普通的无desc的目录执行
 goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0
 
 #mac电脑可以vim ~/.bash_profile 
@@ -30,14 +30,14 @@ goctl model mongo -style goZero --type chatlog --dir ./app/im/modelMongo
 ### rpc服务创建
 ```
 #在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc im.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+goctl rpc protoc plat.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
 
 ```
 ### 标准表模版
 ```
 CREATE TABLE `表名`  (
     `id` bigint UNSIGNED NOT NULL,
-    
+    `remark` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
     `plat_id` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
     `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
     `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',

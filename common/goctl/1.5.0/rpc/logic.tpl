@@ -2,7 +2,7 @@ package {{.packageName}}
 
 import (
 	"context"
-
+    "go-zero-dandan/common/resd"
 	{{.imports}}
 
 	"github.com/zeromicro/go-zero/core/logx"

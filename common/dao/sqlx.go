@@ -193,6 +193,7 @@ func (t *SqlxDao) getWhereParam() string {
 }
 func (t *SqlxDao) getPageParam() string {
 	if t.querySize == 0 {
+		return ""
 		t.querySize = t.defaultQuerySize
 	}
 	if t.queryPage <= 0 {

@@ -8,7 +8,6 @@ import (
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/storaged"
 	"go-zero-dandan/common/utild"
@@ -64,12 +63,8 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		Path:     res.Path,
 	}
-	data, err := dao.PrepareData(assetMainData)
-	if err != nil {
-		return nil, resd.Error(err)
-	}
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
-	_, err = assetMainModel.Insert(data)
+	_, err = assetMainModel.Insert(assetMainData)
 	if err != nil {
 		return nil, resd.Error(err)
 	}

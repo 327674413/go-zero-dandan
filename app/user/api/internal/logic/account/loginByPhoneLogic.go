@@ -100,9 +100,7 @@ func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *
 	if err != nil {
 		return resp, err
 	}
-	resp.PlatInfo = map[string]string{
-		"test": "aaa",
-	}
+	resp.PlatId = l.platId
 	return resp, nil
 }
 

@@ -80,7 +80,7 @@ type (
 		Password  string `db:"password"`   // 登录密码
 		Code      string `db:"code"`       // 用户编号
 		Nickname  string `db:"nickname"`   // 昵称
-		Phone     string `db:"phone"`      // 手机号
+		Phone     string `db:"phone"`      // 手机号(已验证)
 		PhoneArea string `db:"phone_area"` // 手机区号
 		Email     string `db:"email"`      // 邮箱地址
 		Avatar    string `db:"avatar"`     // 头像

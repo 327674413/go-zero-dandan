@@ -10,6 +10,7 @@ type serverOption struct {
 	patten            string
 	maxConnectionIdle time.Duration
 	sendErrCount      int
+	concurrency       int //并发发送数
 }
 
 func newServerOptions(opts ...ServerOptions) serverOption {
@@ -19,6 +20,7 @@ func newServerOptions(opts ...ServerOptions) serverOption {
 		maxConnectionIdle: defaultMaxConnectionIdle,
 		ackTimeout:        defaultAckTimeout,
 		sendErrCount:      defaultSendErrCount,
+		concurrency:       defaultConcurrency,
 	}
 	//执行传入的options类型的函数
 	for _, opt := range opts {

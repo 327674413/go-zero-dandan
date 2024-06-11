@@ -1,0 +1,20 @@
+Name: plat.rpc
+ListenOn: 0.0.0.0:8811
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: plat.rpc
+DB:
+  DataSource: "root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+Env: dev
+#Auth:
+#  AccessSecret: "dandandandandandandandan"
+#  AccessExpire: 6048000
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9800
+  Path: /metrics
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf

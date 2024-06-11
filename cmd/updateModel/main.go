@@ -25,6 +25,7 @@ var commands = []Command{
 	{Path: path.Join(rootPath, "asset/model"), Tables: []string{"asset_main", "asset_netdisk_file"}},
 	{Path: path.Join(rootPath, "message/model"), Tables: []string{"message_sms_send", "message_sms_temp", "message_sys_config"}},
 	{Path: path.Join(rootPath, "plat/model"), Tables: []string{"plat_main"}},
+	{Path: path.Join(rootPath, "social/model"), Tables: []string{"social_friend", "social_friend_apply", "social_group", "social_group_member", "social_group_member_apply"}},
 }
 
 const rootPath = "/Users/yelin/go_dev/project/src/go-zero-dandan/app"
