@@ -8,8 +8,8 @@ package im;
 message ChatLog {
   string id = 1;
   string conversationId = 2;
-  int64 sendId = 3;
-  int64 recvId = 4;
+  string sendId = 3;
+  string recvId = 4;
   int64 msgType = 5;
   string msgContent = 6;
   int64 chatType = 7;
@@ -19,7 +19,7 @@ message ChatLog {
 message Conversation {
   string conversationId = 1;
   int64 chatType = 2;
-  int64 targetId = 3;
+  string targetId = 3;
   bool isShow = 4;
   int64 seq = 5;
   // 总消息数
@@ -27,11 +27,11 @@ message Conversation {
   // 未读消息数
   int64 toRead = 7;
   // 已读消息
-  int64 Read = 9;
+  int64 read = 9;
   ChatLog msg = 8;
 }
 message GetConversationsReq {
-  int64 userId = 1;
+  string userId = 1;
 }
 message GetConversationsResp {
   map<string, Conversation> conversationList = 2;
@@ -39,7 +39,7 @@ message GetConversationsResp {
 
 message PutConversationsReq {
   string id = 1;
-  int64 userId = 2;
+  string userId = 2;
   map<string, Conversation> conversationList = 3;
 }
 message PutConversationsResp {}
@@ -51,19 +51,19 @@ message GetChatLogReq {
   string msgId = 5;
 }
 message GetChatLogResp {
-  repeated ChatLog List = 1;
+  repeated ChatLog list = 1;
 }
 
 message SetUpUserConversationReq{
-  int64 SendId = 1;
-  int64 recvId = 2;
+  string sendId = 1;
+  string recvId = 2;
   int64 chatType = 3;
 }
 message SetUpUserConversationResp{}
 
 message CreateGroupConversationReq {
-  int64 GroupId = 1;
-  int64 CreateId = 2;
+  string groupId = 1;
+  string createId = 2;
 }
 message CreateGroupConversationResp {}
 

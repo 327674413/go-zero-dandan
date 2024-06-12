@@ -47,8 +47,8 @@ type (
 	}
 	Chat struct {
 		ConversationId string `mapstructure:"conversationId"`
-		SendId         int64  `mapstructure:"sendId"`
-		RecvId         int64  `mapstructure:"recvId"`
+		SendId         string `mapstructure:"sendId"`
+		RecvId         string `mapstructure:"recvId"`
 		Msg            `mapstructure:"msg"`
 		ChatType       `mapstructure:"chatType"`
 		SendTime       int64 `mapstructure:"sendTime"`
@@ -57,9 +57,9 @@ type (
 		ConversationId string `mapstructure:"conversationId"`
 		ChatType       `mapstructure:"chatType"`
 		MsgId          string            `mapstructure:"msgId"`
-		SendId         int64             `mapstructure:"sendId,string"`
-		RecvId         int64             `mapstructure:"recvId,string"`
-		RecvIds        []int64           `mapstructure:"recvIds"`
+		SendId         string            `mapstructure:"sendId,string"`
+		RecvId         string            `mapstructure:"recvId,string"`
+		RecvIds        []string          `mapstructure:"recvIds"`
 		SendTime       int64             `mapstructure:"sendTime"`
 		ReadRecords    map[string]string `mapstructure:"readRecords"`
 		ContentType    ContentType       `mapstructure:"contentType"`
@@ -68,7 +68,7 @@ type (
 	}
 	MarkRead struct {
 		ChatType       `mapstructure:"chatType"`
-		RecvId         int64    `mapstructure:"recvId,string"`
+		RecvId         string   `mapstructure:"recvId,string"`
 		ConversationId string   `mapstructure:"conversationId"`
 		MsgIds         []string `mapstructure:"msgIds"`
 	}

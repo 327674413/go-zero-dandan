@@ -14,7 +14,7 @@ const (
 )
 
 type Message struct {
-	Id        int64 `json:"id,string"`
+	Id        string `json:"id"`
 	FrameType `json:"frameType"`
 	AckSeq    int       `json:"ackSeq"`
 	ackTime   time.Time `json:"ackTime"`

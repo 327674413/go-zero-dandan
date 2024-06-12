@@ -12,6 +12,12 @@ goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0
 然后加入
 alias gozeroApi='goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0'
 ```
+### rpc服务创建
+```
+#在rpc目录里新建一个proto文件，然后执行
+goctl rpc protoc social.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+
+```
 ### 创建user model
 ```
 #先创建sql建表文件，如user.sql
@@ -27,12 +33,7 @@ goctl model mongo -style goZero --type chatlog --dir ./app/im/modelMongo
 
 ```
 
-### rpc服务创建
-```
-#在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc goods.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
 
-```
 ### 标准表模版
 ```
 CREATE TABLE `表名`  (

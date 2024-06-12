@@ -18,12 +18,12 @@ type (
 )
 
 // NewSocialFriendModel returns a model for the database table.
-func NewSocialFriendModel(conn sqlx.SqlConn, platId ...int64) SocialFriendModel {
-	var platid int64
+func NewSocialFriendModel(conn sqlx.SqlConn, platId ...string) SocialFriendModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customSocialFriendModel{
 		defaultSocialFriendModel: newSocialFriendModel(conn, platid),

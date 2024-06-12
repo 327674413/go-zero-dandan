@@ -15,7 +15,7 @@ type (
 	// and implement the added methods in customConversationsModel.
 	ConversationsModel interface {
 		conversationsModel
-		FindByUserId(ctx context.Context, userId int64) (*Conversations, error)
+		FindByUserId(ctx context.Context, userId string) (*Conversations, error)
 		Save(ctx context.Context, data *Conversations) error
 	}
 
@@ -40,7 +40,7 @@ func (m *defaultConversationsModel) Save(ctx context.Context, data *Conversation
 	_, err := m.conn.UpdateOne(ctx, bson.M{"_id": data.ID}, bson.M{"$set": data}, options.Update().SetUpsert(true))
 	return err
 }
-func (m *defaultConversationsModel) FindByUserId(ctx context.Context, userId int64) (*Conversations, error) {
+func (m *defaultConversationsModel) FindByUserId(ctx context.Context, userId string) (*Conversations, error) {
 	var data Conversations
 
 	err := m.conn.FindOne(ctx, &data, bson.M{"userId": userId})

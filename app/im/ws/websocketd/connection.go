@@ -10,8 +10,8 @@ import (
 
 // Conn 定义了一个包含 websocket 连接和相关信息的结构体，一个客户端连接一个conn
 type Conn struct {
-	Uid               int64         //该连接的用户id
-	PlatId            int64         //所属应用id
+	Uid               string        //该连接的用户id
+	PlatId            string        //所属应用id
 	PlatClasEm        int64         //所属应用的应用类型
 	PortEm            int64         //连接的端口
 	*websocket.Conn                 // 嵌入的 websocket 连接
@@ -21,9 +21,9 @@ type Conn struct {
 	maxConnectionIdle time.Duration // 最大允许的连接空闲时间
 	done              chan struct{} // 用于通知连接结束的通道
 	messageMu         sync.Mutex
-	readMessageAckMq  []*Message         // 本客户端需要ack确认消息的队列，保证按顺序确认用
-	readMessageSeqMap map[int64]*Message //如果是要应答的ack消息，用消息id作为索引管理应答确认秦光
-	sendMessageChan   chan *Message      // 用来发送消息的管道，通过发消息的协程读该管道来发送，收发消息逻辑分离
+	readMessageAckMq  []*Message          // 本客户端需要ack确认消息的队列，保证按顺序确认用
+	readMessageSeqMap map[string]*Message //如果是要应答的ack消息，用消息id作为索引管理应答确认秦光
+	sendMessageChan   chan *Message       // 用来发送消息的管道，通过发消息的协程读该管道来发送，收发消息逻辑分离
 }
 
 // NewConn 创建一个新的 websocket 连接并返回 Conn 结构体的实例
@@ -40,7 +40,7 @@ func NewConn(s *Server, w http.ResponseWriter, r *http.Request) *Conn {
 		maxConnectionIdle: s.opt.maxConnectionIdle, // 设置最大连接空闲时间
 		done:              make(chan struct{}),     // 初始化通知通道
 		readMessageAckMq:  make([]*Message, 0, 2),
-		readMessageSeqMap: make(map[int64]*Message),
+		readMessageSeqMap: make(map[string]*Message),
 		sendMessageChan:   make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
 	}
 	go conn.keepalive()

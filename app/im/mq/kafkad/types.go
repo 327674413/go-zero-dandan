@@ -6,20 +6,20 @@ import "go-zero-dandan/app/im/ws/websocketd"
 type MsgChatTransfer struct {
 	ConversationId      string `json:"conversationId"`
 	websocketd.ChatType `json:"chatType"`
-	SendId              int64   `json:"sendId,string"`
-	RecvId              int64   `json:"recvId,string"`
-	RecvIds             []int64 `json:"recvIds,string"`
-	SendTime            int64   `json:"sendTime"`
+	SendId              string   `json:"sendId"`
+	RecvId              string   `json:"recvId"`
+	RecvIds             []string `json:"recvIds"`
+	SendTime            int64    `json:"sendTime"`
 	websocketd.MsgType  `json:"msgType"`
 	Content             string `json:"content"`
-	PlatId              int64  `json:"platId,string"`
+	PlatId              string `json:"platId"`
 }
 
 // MsgMarkRead 消息读取状态
 type MsgMarkRead struct {
 	ConversationId      string `json:"conversationId"`
 	websocketd.ChatType `json:"chatType"`
-	SendId              int64    `json:"sendId,string"`
-	RecvId              int64    `json:"recvId,string"`
+	SendId              string   `json:"sendId"`
+	RecvId              string   `json:"recvId"`
 	MsgIds              []string `json:"msgIds"`
 }

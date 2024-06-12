@@ -9,9 +9,9 @@ import (
 type Conversations struct {
 	ID primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 
-	UserId           int64                    `bson:"userId"`
+	UserId           string                   `bson:"userId"`
 	ConversationList map[string]*Conversation `bson:"conversationList"`
-	PlatId           int64                    `bson:"platId"`
+	PlatId           string                   `bson:"platId"`
 	// TODO: Fill your own fields
 	UpdateAt time.Time `bson:"updateAt,omitempty" json:"updateAt,omitempty"`
 	CreateAt time.Time `bson:"createAt,omitempty" json:"createAt,omitempty"`

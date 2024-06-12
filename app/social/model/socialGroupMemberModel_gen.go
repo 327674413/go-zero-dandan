@@ -79,8 +79,8 @@ type (
 		RoleLevel     int64  `db:"role_level"`      // 权限等级
 		JoinAt        int64  `db:"join_at"`         // 加入时间
 		JoinSourceEm  int64  `db:"join_source_em"`  // 加入方式
-		InviteUserId  int64  `db:"invite_user_id"`  // 邀请人用户id
-		OperateUserId int64  `db:"operate_user_id"` // 操作人用户id
+		InviteUserId  string `db:"invite_user_id"`  // 邀请人用户id
+		OperateUserId string `db:"operate_user_id"` // 操作人用户id
 		Remark        string `db:"remark"`          // 备注
 		PlatId        string `db:"plat_id"`         // 应用id
 		CreateAt      int64  `db:"create_at"`       // 创建时间戳

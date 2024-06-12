@@ -132,7 +132,7 @@ func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.Ms
 func (t *MsgReadTransfer) transfer() {
 	for push := range t.push {
 		logx.Infof("消息转化：推送进来了%v", push.ConversationId)
-		if push.RecvId != 0 || len(push.RecvIds) > 0 {
+		if push.RecvId != "" || len(push.RecvIds) > 0 {
 			// 问题排查到这里了，好像消息是发了，但是没收到，应该在这里！！！！！！再试一下非群聊是不是能收到？？？？？
 			if err := t.Transfer(context.Background(), push); err != nil {
 				logx.Errorf("推送消息失败：%v", err)

@@ -3,6 +3,8 @@ package utild
 import (
 	"fmt"
 	"github.com/sony/sonyflake"
+	"sort"
+	"strconv"
 )
 import (
 	"math/rand"
@@ -46,4 +48,16 @@ func MakeId() string {
 	}
 	//Note: Sonyflake currently does not use the most significant bit of IDs, so you can convert Sonyflake IDs from uint64 to int64 safely.
 	return fmt.Sprintf("%d", ret)
+}
+
+func CombineId(aid, bid string) string {
+	ids := []string{aid, bid}
+
+	sort.Slice(ids, func(i, j int) bool {
+		a, _ := strconv.ParseUint(ids[i], 0, 64)
+		b, _ := strconv.ParseUint(ids[j], 0, 64)
+		return a < b
+	})
+
+	return fmt.Sprintf("%s_%s", ids[0], ids[1])
 }

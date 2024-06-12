@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/ws/websocketd"
-	"go-zero-dandan/pkg/numd"
+	"go-zero-dandan/common/utild"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -27,11 +27,10 @@ func NewConversationLogic(ctx context.Context, server *websocketd.Server, svc *s
 	}
 }
 
-func (l *Conversation) SingleChat(chat *websocketd.Chat, userId int64) error {
+func (l *Conversation) SingleChat(chat *websocketd.Chat, userId string) error {
 	if chat.ConversationId == "" {
-		chat.ConversationId = numd.CombineInt64(userId, chat.RecvId)
+		chat.ConversationId = utild.CombineId(userId, chat.RecvId)
 	}
-	logx.Info(chat)
 	data := &modelMongo.ChatLog{
 		ConversationId: chat.ConversationId,
 		SendId:         userId,

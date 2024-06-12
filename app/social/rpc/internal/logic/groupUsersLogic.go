@@ -2,13 +2,11 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/pb"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GroupUsersLogic struct {
@@ -37,7 +35,7 @@ func (l *GroupUsersLogic) GroupUsers(in *pb.GroupUsersReq) (*pb.GroupUsersResp, 
 	resp := &pb.GroupUsersResp{List: make([]*pb.GroupMembers, 0, len(list))}
 	for _, item := range list {
 		resp.List = append(resp.List, &pb.GroupMembers{
-			Id:            utild.AnyToInt64(item.Id),
+			Id:            item.Id,
 			GroupId:       item.GroupId,
 			UserId:        item.UserId,
 			RoleLevel:     item.RoleLevel,
@@ -51,10 +49,10 @@ func (l *GroupUsersLogic) GroupUsers(in *pb.GroupUsersReq) (*pb.GroupUsersResp, 
 	return resp, nil
 }
 func (l *GroupUsersLogic) checkReqParams(in *pb.GroupUsersReq) error {
-	if in.PlatId == 0 {
+	if in.PlatId == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "缺少platId", resd.ReqFieldRequired1, "platId")
 	}
-	if in.GroupId == 0 {
+	if in.GroupId == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "缺少groupId", resd.ReqFieldRequired1, "groupId")
 	}
 	return nil

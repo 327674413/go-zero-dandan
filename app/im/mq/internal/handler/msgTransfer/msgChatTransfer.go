@@ -3,7 +3,6 @@ package msgTransfer
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/mq/internal/svc"
@@ -62,7 +61,7 @@ func (t *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.Object
 	}
 	//将发送者设置为已读
 	readRecords := bitmapd.NewBitmap()
-	readRecords.SetStr(fmt.Sprintf("%d", chatLog.SendId))
+	readRecords.SetId(chatLog.SendId)
 	chatLog.ReadRecords = readRecords.Export()
 
 	err := t.svc.ChatLogModel.Insert(ctx, &chatLog)

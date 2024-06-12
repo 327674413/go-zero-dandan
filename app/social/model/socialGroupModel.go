@@ -18,12 +18,12 @@ type (
 )
 
 // NewSocialGroupModel returns a model for the database table.
-func NewSocialGroupModel(conn sqlx.SqlConn, platId ...int64) SocialGroupModel {
-	var platid int64
+func NewSocialGroupModel(conn sqlx.SqlConn, platId ...string) SocialGroupModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customSocialGroupModel{
 		defaultSocialGroupModel: newSocialGroupModel(conn, platid),

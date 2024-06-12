@@ -42,12 +42,12 @@ func (t *baseMsgTransfer) group(ctx context.Context, data *websocketd.Push) erro
 	//要查询群的用户
 	users, err := t.svc.SocialRpc.GroupUsers(ctx, &social.GroupUsersReq{
 		GroupId: data.RecvId,
-		PlatId:  1,
+		PlatId:  "1",
 	})
 	if err != nil {
 		return err
 	}
-	data.RecvIds = make([]int64, 0, len(users.List))
+	data.RecvIds = make([]string, 0, len(users.List))
 	for _, item := range users.List {
 		if item.UserId == data.SendId {
 			continue

@@ -6,8 +6,8 @@ import (
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
+	"go-zero-dandan/common/utild"
 	"go-zero-dandan/pkg/mapd"
-	"go-zero-dandan/pkg/numd"
 	"reflect"
 	"strconv"
 	"time"
@@ -30,7 +30,7 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 		if data.ConversationId == "" {
 			switch data.ChatType {
 			case websocketd.SingleChatType:
-				data.ConversationId = numd.CombineInt64(conn.Uid, data.RecvId)
+				data.ConversationId = utild.CombineId(conn.Uid, data.RecvId)
 			case websocketd.GroupChatType:
 				data.ConversationId = fmt.Sprintf("%d", data.RecvId)
 			}

@@ -5,8 +5,6 @@ type Bitmap struct {
 	size int64
 }
 
-// todo::如果用int64的原数字写入，会超出边界报错
-
 func NewBitmap(size ...int) *Bitmap {
 	s := 100
 	if len(size) > 0 {
@@ -26,18 +24,9 @@ func Load(bits []byte) *Bitmap {
 		size: int64(len(bits) * 8),
 	}
 }
-func (t *Bitmap) SetId(id int64) {
+func (t *Bitmap) SetId(id string) {
 	// id在哪个bit
-	// 计算在哪个byte
-	byteIdx := id / 8
-	// 在这个byte中的哪个bit位置
-	bitIdx := id % 8
-	// 设置值
-	t.bits[byteIdx] = 1 << bitIdx
-}
-func (t *Bitmap) SetStr(str string) {
-	// id在哪个bit
-	idx := hash(str) % t.size
+	idx := hash(id) % t.size
 	// 计算在哪个byte
 	byteIdx := idx / 8
 	// 在这个byte中的哪个bit位置
@@ -45,24 +34,16 @@ func (t *Bitmap) SetStr(str string) {
 	// 设置值
 	t.bits[byteIdx] = 1 << bitIdx
 }
-func (t *Bitmap) IsSetId(id int64) bool {
-	// 计算在哪个byte
-	byteIdx := id / 8
-	// 在这个byte中的哪个bit位置
-	bitIdx := id % 8
-	// 设置值
-	t.bits[byteIdx] = 1 << bitIdx
-	return (t.bits[byteIdx] & (1 << bitIdx)) != 0
-}
-func (t *Bitmap) IsSetStr(str string) bool {
+func (t *Bitmap) IsSetId(id string) bool {
 	// id在哪个bit
-	idx := hash(str) % t.size
+	idx := hash(id) % t.size
 	// 计算在哪个byte
 	byteIdx := idx / 8
 	// 在这个byte中的哪个bit位置
 	bitIdx := idx % 8
 	return (t.bits[byteIdx] & (1 << bitIdx)) != 0
 }
+
 func (t *Bitmap) Export() []byte {
 	return t.bits
 }

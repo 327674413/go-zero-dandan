@@ -2,13 +2,12 @@ package logic
 
 import (
 	"context"
-	"fmt"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
 	"go-zero-dandan/app/im/rpc/types/pb"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/pkg/numd"
+	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -33,7 +32,8 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 	switch websocketd.ChatType(in.ChatType) {
 	case websocketd.SingleChatType:
 		//生成会话id
-		conversationId := numd.CombineInt64(in.SendId, in.RecvId)
+		logx.Info(in.SendId, in.RecvId)
+		conversationId := utild.CombineId(in.SendId, in.RecvId)
 		//验证是否建立过会话
 		conversationRes, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, conversationId)
 		if conversationRes != nil {
@@ -63,7 +63,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
 	case websocketd.GroupChatType:
-		err := l.setupUserConversation(fmt.Sprintf("%d", in.RecvId), in.SendId, in.RecvId, websocketd.ChatType(in.ChatType), true)
+		err := l.setupUserConversation(in.RecvId, in.SendId, in.RecvId, websocketd.ChatType(in.ChatType), true)
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
@@ -72,7 +72,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 	return &pb.SetUpUserConversationResp{}, nil
 }
 
-func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string, userId, recvId int64, chatType websocketd.ChatType, isShow bool) error {
+func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string, userId, recvId string, chatType websocketd.ChatType, isShow bool) error {
 	//用户的会话列表
 	conversations, err := l.svcCtx.ConversationsModel.FindByUserId(l.ctx, userId)
 	if err != nil {

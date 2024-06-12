@@ -7,7 +7,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
-	"go-zero-dandan/common/ctxd"
 	"net/http"
 	"sync"
 	"time"
@@ -22,8 +21,8 @@ type Server struct {
 	addr                  string
 	upgrader              websocket.Upgrader
 	logx.Logger
-	connToUser map[*Conn]int64
-	userToConn map[int64]*Conn
+	connToUser map[*Conn]string
+	userToConn map[string]*Conn
 	patten     string
 }
 
@@ -36,8 +35,8 @@ func NewServer(addr string, opts ...ServerOptions) *Server {
 		opt:           &opt,
 		upgrader:      websocket.Upgrader{},
 		Logger:        logx.WithContext(context.Background()),
-		connToUser:    make(map[*Conn]int64),
-		userToConn:    make(map[int64]*Conn),
+		connToUser:    make(map[*Conn]string),
+		userToConn:    make(map[string]*Conn),
 		authenication: opt.Authentication,
 		TaskRunner:    threading.NewTaskRunner(opt.concurrency),
 	}
@@ -59,9 +58,6 @@ func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
 		conn.Close()
 		return
 	}
-	fmt.Println("2222222")
-	fmt.Println(ctxd.GetPlatId(r.Context()))
-	fmt.Println(ctxd.GetPlatClasEm(r.Context()))
 	//记录链接
 	t.addConn(conn, r)
 	//处理链接
@@ -76,17 +72,17 @@ func (t *Server) addConn(conn *Conn, req *http.Request) {
 		//先不做支持重复登陆，关闭之前的链接
 		c.Close()
 	}
-	logx.Infof("%d用户的新链接", uid)
+	logx.Infof("%s用户的新链接", uid)
 	t.connToUser[conn] = uid
 	t.userToConn[uid] = conn
 	logx.Info("新增后连接数量：", len(t.userToConn))
 }
-func (t *Server) GetConn(uid int64) *Conn {
+func (t *Server) GetConn(uid string) *Conn {
 	t.RWMutex.RLock()
 	defer t.RWMutex.RUnlock()
 	return t.userToConn[uid]
 }
-func (t *Server) GetConns(uids ...int64) []*Conn {
+func (t *Server) GetConns(uids ...string) []*Conn {
 	if len(uids) == 0 {
 		return nil
 	}
@@ -98,22 +94,22 @@ func (t *Server) GetConns(uids ...int64) []*Conn {
 	}
 	return res
 }
-func (t *Server) GetUser(conn *Conn) int64 {
+func (t *Server) GetUser(conn *Conn) string {
 	t.RWMutex.RLock()
 	defer t.RWMutex.RUnlock()
 	return t.connToUser[conn]
 }
-func (t *Server) GetUsers(conns ...*Conn) []int64 {
+func (t *Server) GetUsers(conns ...*Conn) []string {
 	t.RWMutex.Lock()
 	defer t.RWMutex.Unlock()
-	var res []int64
+	var res []string
 	if len(conns) == 0 {
-		res = make([]int64, 0, len(t.userToConn))
+		res = make([]string, 0, len(t.userToConn))
 		for _, uid := range t.connToUser {
 			res = append(res, uid)
 		}
 	} else {
-		res = make([]int64, 0, len(conns))
+		res = make([]string, 0, len(conns))
 		for _, conn := range conns {
 			res = append(res, t.connToUser[conn])
 		}
@@ -125,7 +121,7 @@ func (t *Server) Close(conn *Conn) {
 	defer t.RWMutex.Unlock()
 
 	uid := t.connToUser[conn]
-	if uid == 0 {
+	if uid == "" {
 		// 已被关闭了
 		return
 	}
@@ -333,7 +329,7 @@ func (t *Server) Stop() {
 	fmt.Println("停止服务")
 }
 
-func (t *Server) SendByUserId(msg interface{}, userIds ...int64) error {
+func (t *Server) SendByUserId(msg interface{}, userIds ...string) error {
 	if len(userIds) == 0 {
 		return nil
 	}

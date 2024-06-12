@@ -29,9 +29,9 @@ func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
 		logx.Info("ws连接未携带token")
 		return false
 	}
-	//todo::暂时用写死的方式判断是系统层级的token，无需用户，1代表mq专用
+	//todo::暂时用写死的方式判断是系统层级的token，无需用户，1101代表mq专用
 	if userToken == t.svc.Config.Ws.SysToken {
-		*r = *r.WithContext(context.WithValue(r.Context(), "userId", 1))
+		*r = *r.WithContext(context.WithValue(r.Context(), "userId", "1101"))
 	} else {
 		userMainInfo, err := t.svc.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: userToken})
 		if err != nil {
@@ -49,6 +49,6 @@ func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
 	}
 	return true
 }
-func (t *UserAuth) UserId(r *http.Request) int64 {
+func (t *UserAuth) UserId(r *http.Request) string {
 	return ctxd.GetUserId(r.Context())
 }

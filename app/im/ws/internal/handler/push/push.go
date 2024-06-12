@@ -1,7 +1,6 @@
 package push
 
 import (
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
@@ -24,7 +23,7 @@ func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 
 	}
 }
-func single(server *websocketd.Server, data *websocketd.Push, recvId int64) error {
+func single(server *websocketd.Server, data *websocketd.Push, recvId string) error {
 	//发送
 	rconn := server.GetConn(recvId)
 	if rconn == nil {
@@ -33,7 +32,7 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId int64) erro
 		return nil
 	}
 
-	return server.Send(websocketd.NewMessage(fmt.Sprintf("%d", data.SendId), &websocketd.Chat{
+	return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
 		ConversationId: data.ConversationId,
 		Msg: websocketd.Msg{
 			Content:     data.Content,
@@ -47,7 +46,7 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId int64) erro
 }
 func group(server *websocketd.Server, data *websocketd.Push) error {
 	for _, id := range data.RecvIds {
-		func(id int64) {
+		func(id string) {
 			server.Schedule(func() {
 				logx.Info("推送群聊消息给：", id)
 				single(server, data, id)
