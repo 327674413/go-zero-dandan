@@ -67,7 +67,6 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
 	}
-
 	return &pb.SetUpUserConversationResp{}, nil
 }
 
