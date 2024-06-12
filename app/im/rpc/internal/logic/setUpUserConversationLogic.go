@@ -32,13 +32,12 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 	switch websocketd.ChatType(in.ChatType) {
 	case websocketd.SingleChatType:
 		//生成会话id
-		logx.Info(in.SendId, in.RecvId)
 		conversationId := utild.CombineId(in.SendId, in.RecvId)
 		//验证是否建立过会话
 		conversationRes, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, conversationId)
 		if conversationRes != nil {
 			//有查到数据，已经建立过了
-			return nil, nil
+			return &pb.SetUpUserConversationResp{}, nil
 		} else if err != nil && err == modelMongo.ErrNotFound {
 			//没查到数据，建立会话
 			err := l.svcCtx.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{

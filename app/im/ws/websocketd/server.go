@@ -70,12 +70,13 @@ func (t *Server) addConn(conn *Conn, req *http.Request) {
 	//判断用户是否已经登陆过
 	if c := t.userToConn[uid]; c != nil {
 		//先不做支持重复登陆，关闭之前的链接
+		logx.Infof("%s用户已登陆，踢下线", uid)
 		c.Close()
 	}
-	logx.Infof("%s用户的新链接", uid)
+	logx.Infof("%s用户连接成功", uid)
 	t.connToUser[conn] = uid
 	t.userToConn[uid] = conn
-	logx.Info("新增后连接数量：", len(t.userToConn))
+	logx.Info("当前总连接数量：", len(t.userToConn))
 }
 func (t *Server) GetConn(uid string) *Conn {
 	t.RWMutex.RLock()

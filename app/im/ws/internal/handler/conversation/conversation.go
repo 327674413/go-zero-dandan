@@ -32,7 +32,7 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			case websocketd.SingleChatType:
 				data.ConversationId = utild.CombineId(conn.Uid, data.RecvId)
 			case websocketd.GroupChatType:
-				data.ConversationId = fmt.Sprintf("%d", data.RecvId)
+				data.ConversationId = data.RecvId
 			}
 		}
 		switch data.ChatType {

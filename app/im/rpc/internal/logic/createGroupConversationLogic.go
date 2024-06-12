@@ -29,7 +29,7 @@ func NewCreateGroupConversationLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 func (l *CreateGroupConversationLogic) CreateGroupConversation(in *pb.CreateGroupConversationReq) (*pb.CreateGroupConversationResp, error) {
 	res := &pb.CreateGroupConversationResp{}
-	_, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, fmt.Sprintf("%d", in.GroupId))
+	_, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, in.GroupId)
 	//未报错则有数据，已存在
 	if err == nil {
 		return res, nil
@@ -40,7 +40,7 @@ func (l *CreateGroupConversationLogic) CreateGroupConversation(in *pb.CreateGrou
 	}
 	//未找到，创建
 	err = l.svcCtx.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{
-		ConversationId: fmt.Sprintf("%d", in.GroupId),
+		ConversationId: in.GroupId,
 		ChatType:       websocketd.GroupChatType,
 	})
 	//创建群后，需要创建用户的会话列表

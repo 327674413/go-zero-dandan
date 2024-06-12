@@ -17,7 +17,7 @@ type Conversation struct {
 	Total    int64     `bson:"total,omitempty"`
 	Seq      int64     `bson:"seq"`
 	Msg      *ChatLog  `bson:"msg,omitempty"`
-	PlatId   int64     `bson:"platId"`
+	PlatId   string    `bson:"platId"`
 	UpdateAt time.Time `bson:"updateAt,omitempty" json:"updateAt,omitempty"`
 	CreateAt time.Time `bson:"createAt,omitempty" json:"createAt,omitempty"`
 }
