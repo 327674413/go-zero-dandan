@@ -18,12 +18,12 @@ type (
 )
 
 // NewPlatMainModel returns a model for the database table.
-func NewPlatMainModel(conn sqlx.SqlConn, platId ...int64) PlatMainModel {
-	var platid int64
+func NewPlatMainModel(conn sqlx.SqlConn, platId ...string) PlatMainModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customPlatMainModel{
 		defaultPlatMainModel: newPlatMainModel(conn, platid),

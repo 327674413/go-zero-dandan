@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *AssetMain) (int64, error)
 		TxSave(tx *sql.Tx, data *AssetMain) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultAssetMainModel
 		Alias(alias string) *defaultAssetMainModel
 		Where(whereStr string, whereData ...any) *defaultAssetMainModel
-		WhereId(id int64) *defaultAssetMainModel
+		WhereId(id string) *defaultAssetMainModel
 		Order(order string) *defaultAssetMainModel
 		Limit(num int64) *defaultAssetMainModel
-		Plat(id int64) *defaultAssetMainModel
+		Plat(id string) *defaultAssetMainModel
 		Find() (*AssetMain, error)
-		FindById(id int64) (*AssetMain, error)
+		FindById(id string) (*AssetMain, error)
 		CacheFind(redis *redisd.Redisd) (*AssetMain, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*AssetMain, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*AssetMain, error)
 		Page(page int64, rows int64) *defaultAssetMainModel
 		Select() ([]*AssetMain, error)
 		SelectWithTotal() ([]*AssetMain, int64, error)
@@ -66,14 +66,14 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	AssetMain struct {
-		Id       int64  `db:"id"`
+		Id       string `db:"id"`
 		StateEm  int64  `db:"state_em"`  // 文件状态
 		Sha1     string `db:"sha1"`      // 哈希值
 		Name     string `db:"name"`      // 上传时的原始名称
@@ -84,13 +84,14 @@ type (
 		Ext      string `db:"ext"`       // 文件后缀
 		Url      string `db:"url"`       // 文件链接
 		Path     string `db:"path"`      // 存储路径
+		PlatId   string `db:"plat_id"`   // 应用id
 		CreateAt int64  `db:"create_at"` // 创建时间戳
 		UpdateAt int64  `db:"update_at"` // 更新时间戳
 		DeleteAt int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 
-func newAssetMainModel(conn sqlx.SqlConn, platId int64) *defaultAssetMainModel {
+func newAssetMainModel(conn sqlx.SqlConn, platId string) *defaultAssetMainModel {
 	dao := dao.NewSqlxDao(conn, "`asset_main`", defaultAssetMainFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultAssetMainModel{
@@ -106,7 +107,7 @@ func (m *defaultAssetMainModel) Ctx(ctx context.Context) *defaultAssetMainModel 
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultAssetMainModel) WhereId(id int64) *defaultAssetMainModel {
+func (m *defaultAssetMainModel) WhereId(id string) *defaultAssetMainModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -147,7 +148,7 @@ func (m *defaultAssetMainModel) Dec(field string, num int) (int64, error) {
 func (m *defaultAssetMainModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultAssetMainModel) Plat(id int64) *defaultAssetMainModel {
+func (m *defaultAssetMainModel) Plat(id string) *defaultAssetMainModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -158,7 +159,7 @@ func (m *defaultAssetMainModel) Reinit() *defaultAssetMainModel {
 func (m *defaultAssetMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultAssetMainModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultAssetMainModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -175,7 +176,7 @@ func (m *defaultAssetMainModel) Find() (*AssetMain, error) {
 	}
 	return resp, nil
 }
-func (m *defaultAssetMainModel) FindById(id int64) (*AssetMain, error) {
+func (m *defaultAssetMainModel) FindById(id string) (*AssetMain, error) {
 	resp := &AssetMain{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -194,7 +195,7 @@ func (m *defaultAssetMainModel) CacheFind(redis *redisd.Redisd) (*AssetMain, err
 	}
 	return resp, nil
 }
-func (m *defaultAssetMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*AssetMain, error) {
+func (m *defaultAssetMainModel) CacheFindById(redis *redisd.Redisd, id string) (*AssetMain, error) {
 	resp := &AssetMain{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

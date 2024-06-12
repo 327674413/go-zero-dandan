@@ -9,56 +9,56 @@ package goods;
 
 
 message GoodsInfo {
-  int64 Id = 1;
-  string Name = 2;
-  string Spec = 3;
-  string Cover = 4;
-  int64 SellPrice = 5;
-  int64 StoreQty = 6;
-  int64 State = 7;
-  int64 IsSpecial = 8;
-  int64 UnitId = 9;
-  string UnitName = 10;
-  int64 PlatId = 11;
-  int64 ViewNum = 12;
+  string id = 1;
+  string name = 2;
+  string spec = 3;
+  string cover = 4;
+  int64 sellPrice = 5;
+  int64 storeQty = 6;
+  int64 state = 7;
+  int64 isSpecial = 8;
+  string unitId = 9;
+  string unitName = 10;
+  string platId = 11;
+  int64 viewNum = 12;
 }
 
 message IdReq {
-  int64 Id = 1;
-  int64 PlatId = 2;
+  string id = 1;
+  string platId = 2;
 }
 
 message GetPageReq {
-  int64 Page = 1;
-  int64 Size = 2;
-  string Sort = 3;
-  int64 PlatId = 4;
-  int64 TotalFlag = 5;
+  int64 page = 1;
+  int64 size = 2;
+  string sort = 3;
+  string platId = 4;
+  int64 totalFlag = 5;
 }
 
 message GetHotPageByCursorReq {
-  int64 Page = 1;
-  int64 Size = 2;
-  int64 PlatId = 3;
-  int64 Cursor = 4;
-  int64 LastId = 5;
+  int64 page = 1;
+  int64 size = 2;
+  string platId = 3;
+  int64 cursor = 4;
+  string lastId = 5;
 }
 
 message GetPageResp {
-  int64 Page = 1;
-  int64 Size = 2;
+  int64 page = 1;
+  int64 size = 2;
   repeated GoodsInfo list = 3;
-  bool IsCache = 4;
-  optional int64 Total = 5;
-  optional int64 LastId = 6;
-  optional int64 Cursor = 7;
-  optional bool IsEnd = 8;
+  bool isCache = 4;
+  optional int64 total = 5;
+  optional string lastId = 6;
+  optional int64 cursor = 7;
+  optional bool isEnd = 8;
 }
 message GetPageByCursorResp {
-  int64 Size = 1;
-  bool IsCache = 2;
-  bool IsEnd = 3;
-  int64 LastId = 4;
+  int64 size = 1;
+  bool isCache = 2;
+  bool isEnd = 3;
+  string lastId = 4;
   int64 cursor = 5;
   repeated GoodsInfo list = 6;
 

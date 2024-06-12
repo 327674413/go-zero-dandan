@@ -11,7 +11,7 @@ type UploadImgReq struct {
 }
 
 type DownloadReq struct {
-	Id int64 `form:"id,string"`
+	Id string `form:"id"`
 }
 
 type DownloadResp struct {
@@ -30,26 +30,26 @@ type MultipartUploadInitReq struct {
 }
 
 type MultipartUploadInitRes struct {
-	UserId        int64   `json:"userId,string,omitempty"`
+	UserId        string  `json:"userId,omitempty"`
 	State         int64   `json:"state"`
 	FileSha1      string  `json:"fileSha1"`
 	FileSize      int64   `json:"fileSize"`
-	UploadId      int64   `json:"uploadId,string,omitempty"`
+	UploadId      string  `json:"uploadId,omitempty"`
 	ChunkSize     int64   `json:"chunkSize"`
 	ChunkCount    int64   `json:"chunkCount"`
 	ChunkComplete []int64 `json:"chunkComplete"`
 }
 
 type MultipartUploadSendReq struct {
-	UploadID   int64 `form:"uploadId,string"`
-	ChunkIndex int64 `form:"chunkIndex"`
+	UploadID   string `form:"uploadId"`
+	ChunkIndex int64  `form:"chunkIndex"`
 }
 
 type MultipartUploadCompleteReq struct {
 	FileSha1 string `json:"fileSha1"`
-	UploadId int64  `json:"uploadId,string"`
+	UploadId string `json:"uploadId"`
 }
 
 type MultipartUploadCompleteRes struct {
-	UploadId int64 `form:"uploadId,string"`
+	UploadId string `form:"uploadId"`
 }

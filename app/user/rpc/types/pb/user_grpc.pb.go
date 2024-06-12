@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.19.4
-// source: app/user/rpc/user.proto
+// source: user.proto
 
 package pb
 
@@ -364,5 +364,5 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "app/user/rpc/user.proto",
+	Metadata: "user.proto",
 }

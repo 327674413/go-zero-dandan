@@ -46,7 +46,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 	if err != nil {
 		l.rpcFail(err)
 	}
-	if smsTemp.Id == 0 {
+	if smsTemp.Id == "" {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "未配置短信模版", resd.ConfigNotInit1, "SmsTemp")
 	}
 	content, _ := json.Marshal(in.TempData)
@@ -103,7 +103,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)
 	}
-	if sysConfig.Id == 0 {
+	if sysConfig.Id == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "参数错误", resd.ConfigNotInit1, "MessageSysConfig")
 	}
 

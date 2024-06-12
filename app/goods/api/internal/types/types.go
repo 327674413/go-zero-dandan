@@ -2,7 +2,7 @@
 package types
 
 type GoodsInfo struct {
-	Id        int64  `json:"id,string"`
+	Id        string `json:"id"`
 	Name      string `json:"name"`
 	Spec      string `json:"spec"`
 	Cover     string `json:"cover"`
@@ -10,14 +10,14 @@ type GoodsInfo struct {
 	StoreQty  int64  `json:"storeQty"`
 	State     int64  `json:"state"`
 	IsSpecial int64  `json:"state"`
-	UnitId    int64  `json:"unitId,string"`
+	UnitId    string `json:"unitId"`
 	UnitName  string `json:"unitName"`
 	ViewNum   int64  `json:"viewNum"`
-	PlatId    int64  `json:"platId,string"`
+	PlatId    string `json:"platId"`
 }
 
 type IdReq struct {
-	Id *int64 `json:"id,string,optional"`
+	Id *string `json:"id,optional"`
 }
 
 type GetPageReq struct {
@@ -44,7 +44,7 @@ type GetHotPageByCursorResp struct {
 	IsCache bool         `json:"isCache"`
 	IsEnd   bool         `json:"isEnd"`
 	Cursor  int64        `json:"cursor"`
-	LastId  int64        `json:"lastId"`
+	LastId  string       `json:"lastId"`
 	Size    int64        `json:"size"`
 	List    []*GoodsInfo `json:"list"`
 }

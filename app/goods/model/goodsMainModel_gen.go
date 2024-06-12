@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *GoodsMain) (int64, error)
 		TxSave(tx *sql.Tx, data *GoodsMain) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultGoodsMainModel
 		Alias(alias string) *defaultGoodsMainModel
 		Where(whereStr string, whereData ...any) *defaultGoodsMainModel
-		WhereId(id int64) *defaultGoodsMainModel
+		WhereId(id string) *defaultGoodsMainModel
 		Order(order string) *defaultGoodsMainModel
 		Limit(num int64) *defaultGoodsMainModel
-		Plat(id int64) *defaultGoodsMainModel
+		Plat(id string) *defaultGoodsMainModel
 		Find() (*GoodsMain, error)
-		FindById(id int64) (*GoodsMain, error)
+		FindById(id string) (*GoodsMain, error)
 		CacheFind(redis *redisd.Redisd) (*GoodsMain, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*GoodsMain, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*GoodsMain, error)
 		Page(page int64, rows int64) *defaultGoodsMainModel
 		Select() ([]*GoodsMain, error)
 		SelectWithTotal() ([]*GoodsMain, int64, error)
@@ -66,14 +66,14 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	GoodsMain struct {
-		Id        int64  `db:"id"`
+		Id        string `db:"id"`
 		Code      string `db:"code"`       // 商品编号
 		Name      string `db:"name"`       // 商品名称
 		Spec      string `db:"spec"`       // 商品规格
@@ -82,17 +82,17 @@ type (
 		StoreQty  int64  `db:"store_qty"`  // 当前库存
 		State     int64  `db:"state"`      // 0未上架，1上架
 		IsSpecial int64  `db:"is_special"` // 是否活动专用的特殊商品
-		UnitId    int64  `db:"unit_id"`    // 单位
+		UnitId    string `db:"unit_id"`    // 单位
 		UnitName  string `db:"unit_name"`  // 单位名称
 		ViewNum   int64  `db:"view_num"`   // 浏览数量
-		PlatId    int64  `db:"plat_id"`
+		PlatId    string `db:"plat_id"`
 		CreateAt  int64  `db:"create_at"`
 		EditAt    int64  `db:"edit_at"`
 		DeleteAt  int64  `db:"delete_at"`
 	}
 )
 
-func newGoodsMainModel(conn sqlx.SqlConn, platId int64) *defaultGoodsMainModel {
+func newGoodsMainModel(conn sqlx.SqlConn, platId string) *defaultGoodsMainModel {
 	dao := dao.NewSqlxDao(conn, "`goods_main`", defaultGoodsMainFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultGoodsMainModel{
@@ -108,7 +108,7 @@ func (m *defaultGoodsMainModel) Ctx(ctx context.Context) *defaultGoodsMainModel 
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultGoodsMainModel) WhereId(id int64) *defaultGoodsMainModel {
+func (m *defaultGoodsMainModel) WhereId(id string) *defaultGoodsMainModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -149,7 +149,7 @@ func (m *defaultGoodsMainModel) Dec(field string, num int) (int64, error) {
 func (m *defaultGoodsMainModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultGoodsMainModel) Plat(id int64) *defaultGoodsMainModel {
+func (m *defaultGoodsMainModel) Plat(id string) *defaultGoodsMainModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -160,7 +160,7 @@ func (m *defaultGoodsMainModel) Reinit() *defaultGoodsMainModel {
 func (m *defaultGoodsMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultGoodsMainModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultGoodsMainModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -177,7 +177,7 @@ func (m *defaultGoodsMainModel) Find() (*GoodsMain, error) {
 	}
 	return resp, nil
 }
-func (m *defaultGoodsMainModel) FindById(id int64) (*GoodsMain, error) {
+func (m *defaultGoodsMainModel) FindById(id string) (*GoodsMain, error) {
 	resp := &GoodsMain{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -196,7 +196,7 @@ func (m *defaultGoodsMainModel) CacheFind(redis *redisd.Redisd) (*GoodsMain, err
 	}
 	return resp, nil
 }
-func (m *defaultGoodsMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*GoodsMain, error) {
+func (m *defaultGoodsMainModel) CacheFindById(redis *redisd.Redisd, id string) (*GoodsMain, error) {
 	resp := &GoodsMain{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

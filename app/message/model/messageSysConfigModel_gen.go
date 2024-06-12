@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *MessageSysConfig) (int64, error)
 		TxSave(tx *sql.Tx, data *MessageSysConfig) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultMessageSysConfigModel
 		Alias(alias string) *defaultMessageSysConfigModel
 		Where(whereStr string, whereData ...any) *defaultMessageSysConfigModel
-		WhereId(id int64) *defaultMessageSysConfigModel
+		WhereId(id string) *defaultMessageSysConfigModel
 		Order(order string) *defaultMessageSysConfigModel
 		Limit(num int64) *defaultMessageSysConfigModel
-		Plat(id int64) *defaultMessageSysConfigModel
+		Plat(id string) *defaultMessageSysConfigModel
 		Find() (*MessageSysConfig, error)
-		FindById(id int64) (*MessageSysConfig, error)
+		FindById(id string) (*MessageSysConfig, error)
 		CacheFind(redis *redisd.Redisd) (*MessageSysConfig, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*MessageSysConfig, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*MessageSysConfig, error)
 		Page(page int64, rows int64) *defaultMessageSysConfigModel
 		Select() ([]*MessageSysConfig, error)
 		SelectWithTotal() ([]*MessageSysConfig, int64, error)
@@ -66,23 +66,23 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	MessageSysConfig struct {
-		Id              int64 `db:"id"`
-		SmsLimitHourNum int64 `db:"sms_limit_hour_num"` // 最近一小时内获取上限,0则不管控
-		SmsLimitDayNum  int64 `db:"sms_limit_day_num"`  // 每日获取上限,0则不管控
-		CreateAt        int64 `db:"create_at"`          // 创建时间戳
-		UpdateAt        int64 `db:"update_at"`          // 更新时间戳
-		DeleteAt        int64 `db:"delete_at"`          // 删除时间戳
+		Id              string `db:"id"`
+		SmsLimitHourNum int64  `db:"sms_limit_hour_num"` // 最近一小时内获取上限,0则不管控
+		SmsLimitDayNum  int64  `db:"sms_limit_day_num"`  // 每日获取上限,0则不管控
+		CreateAt        int64  `db:"create_at"`          // 创建时间戳
+		UpdateAt        int64  `db:"update_at"`          // 更新时间戳
+		DeleteAt        int64  `db:"delete_at"`          // 删除时间戳
 	}
 )
 
-func newMessageSysConfigModel(conn sqlx.SqlConn, platId int64) *defaultMessageSysConfigModel {
+func newMessageSysConfigModel(conn sqlx.SqlConn, platId string) *defaultMessageSysConfigModel {
 	dao := dao.NewSqlxDao(conn, "`message_sys_config`", defaultMessageSysConfigFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultMessageSysConfigModel{
@@ -98,7 +98,7 @@ func (m *defaultMessageSysConfigModel) Ctx(ctx context.Context) *defaultMessageS
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultMessageSysConfigModel) WhereId(id int64) *defaultMessageSysConfigModel {
+func (m *defaultMessageSysConfigModel) WhereId(id string) *defaultMessageSysConfigModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -139,7 +139,7 @@ func (m *defaultMessageSysConfigModel) Dec(field string, num int) (int64, error)
 func (m *defaultMessageSysConfigModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultMessageSysConfigModel) Plat(id int64) *defaultMessageSysConfigModel {
+func (m *defaultMessageSysConfigModel) Plat(id string) *defaultMessageSysConfigModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -150,7 +150,7 @@ func (m *defaultMessageSysConfigModel) Reinit() *defaultMessageSysConfigModel {
 func (m *defaultMessageSysConfigModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultMessageSysConfigModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultMessageSysConfigModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -167,7 +167,7 @@ func (m *defaultMessageSysConfigModel) Find() (*MessageSysConfig, error) {
 	}
 	return resp, nil
 }
-func (m *defaultMessageSysConfigModel) FindById(id int64) (*MessageSysConfig, error) {
+func (m *defaultMessageSysConfigModel) FindById(id string) (*MessageSysConfig, error) {
 	resp := &MessageSysConfig{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -186,7 +186,7 @@ func (m *defaultMessageSysConfigModel) CacheFind(redis *redisd.Redisd) (*Message
 	}
 	return resp, nil
 }
-func (m *defaultMessageSysConfigModel) CacheFindById(redis *redisd.Redisd, id int64) (*MessageSysConfig, error) {
+func (m *defaultMessageSysConfigModel) CacheFindById(redis *redisd.Redisd, id string) (*MessageSysConfig, error) {
 	resp := &MessageSysConfig{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

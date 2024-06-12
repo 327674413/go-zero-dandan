@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *UserMain) (int64, error)
 		TxSave(tx *sql.Tx, data *UserMain) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultUserMainModel
 		Alias(alias string) *defaultUserMainModel
 		Where(whereStr string, whereData ...any) *defaultUserMainModel
-		WhereId(id int64) *defaultUserMainModel
+		WhereId(id string) *defaultUserMainModel
 		Order(order string) *defaultUserMainModel
 		Limit(num int64) *defaultUserMainModel
-		Plat(id int64) *defaultUserMainModel
+		Plat(id string) *defaultUserMainModel
 		Find() (*UserMain, error)
-		FindById(id int64) (*UserMain, error)
+		FindById(id string) (*UserMain, error)
 		CacheFind(redis *redisd.Redisd) (*UserMain, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*UserMain, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*UserMain, error)
 		Page(page int64, rows int64) *defaultUserMainModel
 		Select() ([]*UserMain, error)
 		SelectWithTotal() ([]*UserMain, int64, error)
@@ -66,15 +66,15 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	UserMain struct {
-		Id        int64  `db:"id"`
-		UnionId   int64  `db:"union_id"`   // 平台层用户唯一表示
+		Id        string `db:"id"`
+		UnionId   string `db:"union_id"`   // 平台层用户唯一表示
 		StateEm   int64  `db:"state_em"`   // 用户状态枚举
 		Account   string `db:"account"`    // 登录账号
 		Password  string `db:"password"`   // 登录密码
@@ -85,14 +85,14 @@ type (
 		Email     string `db:"email"`      // 邮箱地址
 		Avatar    string `db:"avatar"`     // 头像
 		SexEm     int64  `db:"sex_em"`     // 性别枚举
-		PlatId    int64  `db:"plat_id"`    // 应用id
+		PlatId    string `db:"plat_id"`    // 应用id
 		CreateAt  int64  `db:"create_at"`  // 创建时间戳
 		UpdateAt  int64  `db:"update_at"`  // 更新时间戳
 		DeleteAt  int64  `db:"delete_at"`  // 删除时间戳
 	}
 )
 
-func newUserMainModel(conn sqlx.SqlConn, platId int64) *defaultUserMainModel {
+func newUserMainModel(conn sqlx.SqlConn, platId string) *defaultUserMainModel {
 	dao := dao.NewSqlxDao(conn, "`user_main`", defaultUserMainFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultUserMainModel{
@@ -108,7 +108,7 @@ func (m *defaultUserMainModel) Ctx(ctx context.Context) *defaultUserMainModel {
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultUserMainModel) WhereId(id int64) *defaultUserMainModel {
+func (m *defaultUserMainModel) WhereId(id string) *defaultUserMainModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -149,7 +149,7 @@ func (m *defaultUserMainModel) Dec(field string, num int) (int64, error) {
 func (m *defaultUserMainModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultUserMainModel) Plat(id int64) *defaultUserMainModel {
+func (m *defaultUserMainModel) Plat(id string) *defaultUserMainModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -160,7 +160,7 @@ func (m *defaultUserMainModel) Reinit() *defaultUserMainModel {
 func (m *defaultUserMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultUserMainModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultUserMainModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -177,7 +177,7 @@ func (m *defaultUserMainModel) Find() (*UserMain, error) {
 	}
 	return resp, nil
 }
-func (m *defaultUserMainModel) FindById(id int64) (*UserMain, error) {
+func (m *defaultUserMainModel) FindById(id string) (*UserMain, error) {
 	resp := &UserMain{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -196,7 +196,7 @@ func (m *defaultUserMainModel) CacheFind(redis *redisd.Redisd) (*UserMain, error
 	}
 	return resp, nil
 }
-func (m *defaultUserMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*UserMain, error) {
+func (m *defaultUserMainModel) CacheFindById(redis *redisd.Redisd, id string) (*UserMain, error) {
 	resp := &UserMain{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

@@ -1,8 +1,6 @@
 package model
 
-import (
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
-)
+import "github.com/zeromicro/go-zero/core/stores/sqlx"
 
 var _ UserCronyModel = (*customUserCronyModel)(nil)
 
@@ -20,12 +18,12 @@ type (
 )
 
 // NewUserCronyModel returns a model for the database table.
-func NewUserCronyModel(conn sqlx.SqlConn, platId ...int64) UserCronyModel {
-	var platid int64
+func NewUserCronyModel(conn sqlx.SqlConn, platId ...string) UserCronyModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customUserCronyModel{
 		defaultUserCronyModel: newUserCronyModel(conn, platid),

@@ -183,6 +183,14 @@ func AssertErr(failErr error) (*danError, bool) {
 		return nil, false
 	}
 }
+func IsUserNotLoginErr(failErr error) bool {
+	if err, ok := failErr.(*danError); ok {
+		if err.Code == AuthUserNotLoginErr {
+			return true
+		}
+	}
+	return false
+}
 
 /*
 // ApiFail 按错误内容返回错误信息

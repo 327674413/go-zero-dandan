@@ -39,7 +39,7 @@ func (l *GetOneLogic) GetOne(in *pb.IdReq) (*pb.PlatInfo, error) {
 	return res, nil
 }
 func (l *GetOneLogic) checkReqParams(in *pb.IdReq) error {
-	if in.Id == 0 {
+	if in.Id == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "参数缺少id", resd.ReqFieldRequired1, "id")
 	}
 	return nil

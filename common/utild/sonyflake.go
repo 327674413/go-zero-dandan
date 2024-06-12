@@ -39,11 +39,11 @@ func Int63nRange(min, max int64) int64 {
 	return rg.rand.Int63n(max-min) + min
 }
 
-func MakeId() int64 {
+func MakeId() string {
 	ret, err := sf.NextID()
 	if err != nil {
-		return Int63nRange(1926425572, 9223372036854775806)
+		return fmt.Sprintf("%d", Int63nRange(1926425572, 9223372036854775806))
 	}
 	//Note: Sonyflake currently does not use the most significant bit of IDs, so you can convert Sonyflake IDs from uint64 to int64 safely.
-	return int64(ret)
+	return fmt.Sprintf("%d", ret)
 }

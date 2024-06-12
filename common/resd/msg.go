@@ -5,7 +5,7 @@ var Msg map[int]string
 func init() {
 	Msg = make(map[int]string)
 	Msg[Auth] = "Auth"
-	Msg[AuthUserNotLogin] = "AuthUserNotLogin"
+	Msg[AuthUserNotLoginErr] = "AuthUserNotLoginErr"
 	Msg[AuthPlatErr] = "AuthPlatErr"
 	Msg[AccountOrPassWrong] = "AccountOrPassWrong"
 	Msg[ConfigNotInit1] = "ConfigNotInit"
@@ -15,7 +15,7 @@ func init() {
 	Msg[UploadImageSizeLimited1] = "UploadImageSizeLimited1"
 	Msg[UploadFileSizeLimited1] = "UploadFileSizeLimited1"
 	Msg[MergeFileChunkNotFound] = "MergeFileChunkNotFound"
-	Msg[NotFound] = "NotFound"
+	Msg[NotFound1] = "NotFound1"
 	Msg[NotFoundUser] = "NotFoundUser"
 	Msg[NotSupportPhoneArea] = "NotSupportPhoneArea"
 	Msg[NotSupportFileType] = "NotSupportFileType"

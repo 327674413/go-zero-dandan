@@ -6,7 +6,7 @@ const (
 	OkAsync                         = 201   //成功，但属于异步交易
 	Auth                            = 400   //权限异常
 	AuthPlatErr                     = 40101 // 无效应用
-	AuthUserNotLogin                = 40201 // 用户未登录
+	AuthUserNotLoginErr             = 40201 // 用户未登录
 	SysErr                          = 500   //系统异常
 	UserMainInfoErr                 = 50001 //系统异常
 	MysqlErr                        = 501   //mysql异常
@@ -37,7 +37,7 @@ const (
 	PlatIdErr                       = 60400001
 	PlatClasErr                     = 60400002
 	ReqWait                         = 605      //请求太频繁
-	NotFound                        = 606      //信息不存在
+	NotFound1                       = 606      //信息不存在
 	DataExist1                      = 607      //数据已存在
 	NotSupportPhoneArea             = 60800001 //暂不支持手机号
 	NotSupportImageType             = 60800002 //图片格式不支持

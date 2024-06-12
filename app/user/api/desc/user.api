@@ -26,14 +26,3 @@ service user-api {
 	@handler editMyInfo
 	post /editMyInfo(EditMyInfoReq) returns (SuccessResp)
 }
-
-@server(
-	jwt: Auth
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
-	prefix: user/v1
-	group: crony
-)
-service user-api {
-	@handler getMyCronyList
-	post /getMyCronyList(getUserCronyListReq) returns (getUserCronyListResp)
-}

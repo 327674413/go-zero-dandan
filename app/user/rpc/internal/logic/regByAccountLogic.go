@@ -57,7 +57,7 @@ func (l *RegByAccountLogic) RegByAccount(in *pb.RegByAccountReq) (*pb.LoginResp,
 	addData.Account = account
 	addData.Password = utild.Sha1(password)
 	addData.Id = utild.MakeId()
-	id, err := userModel.Insert(addData)
+	_, err = userModel.Insert(addData)
 	if err != nil {
 		return nil, resd.RpcErrEncode(resd.NewErrCtx(l.ctx, "新增用户失败", resd.MysqlInsertErr))
 	}
@@ -78,14 +78,14 @@ func (l *RegByAccountLogic) RegByAccount(in *pb.RegByAccountReq) (*pb.LoginResp,
 		}
 		userInfo.PlatId = in.PlatId
 		return &pb.LoginResp{
-			Id:       id,
+			Id:       addData.Id,
 			Token:    token,
 			ExpireAt: nowStamp + int64(expireNum),
 			UserInfo: userInfo,
 		}, nil
 	} else {
 		return &pb.LoginResp{
-			Id: id,
+			Id: addData.Id,
 		}, nil
 	}
 

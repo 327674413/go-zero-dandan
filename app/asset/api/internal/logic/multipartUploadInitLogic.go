@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/app/asset/api/internal/biz"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
@@ -25,7 +24,7 @@ type MultipartUploadInitLogic struct {
 	svcCtx       *svc.ServiceContext
 	lang         *i18n.Localizer
 	userMainInfo *user.UserMainInfo
-	platId       int64
+	platId       string
 	platClasEm   int64
 }
 
@@ -57,20 +56,20 @@ func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploa
 	whereStr := fmt.Sprintf("sha1 = ? AND mode_em=%d", l.svcCtx.Config.AssetMode)
 	findFile, err := netdiskModel.Where(whereStr, req.FileSha1).Find()
 	//查询报错
-	if err != nil && err != sqlx.ErrNotFound {
+	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//有找到历史任务，并且状态为未完成
-	if err != sqlx.ErrNotFound && findFile.StateEm < constd.AssetStateEmFinish {
+	if findFile != nil && findFile.StateEm < constd.AssetStateEmFinish {
 		return l.getTask(findFile, req)
 	}
 	//没找到 或 历史任务已完成，找是否存在该文件
 	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
 	findAsset, err := assetMainModel.Where(fmt.Sprintf("sha1= ? AND state_em=%d", constd.AssetStateEmFinish), req.FileSha1).Find()
-	if err != nil && err != sqlx.ErrNotFound {
+	if err != nil {
 		return nil, resd.Error(err)
 	}
-	if err == sqlx.ErrNotFound {
+	if findAsset == nil {
 		return l.addTask(req)
 	} else {
 		assetData := &model.AssetNetdiskFile{}
@@ -176,11 +175,11 @@ func (l *MultipartUploadInitLogic) initPlat() (err error) {
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
+	platId, _ := l.ctx.Value("platId").(string)
+	if platId == "" {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
-	l.platId = platClasId
+	l.platId = platId
 	l.platClasEm = platClasEm
 	return nil
 }

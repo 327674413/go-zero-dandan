@@ -18,12 +18,12 @@ type (
 )
 
 // NewUserInfoModel returns a model for the database table.
-func NewUserInfoModel(conn sqlx.SqlConn, platId ...int64) UserInfoModel {
-	var platid int64
+func NewUserInfoModel(conn sqlx.SqlConn, platId ...string) UserInfoModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customUserInfoModel{
 		defaultUserInfoModel: newUserInfoModel(conn, platid),

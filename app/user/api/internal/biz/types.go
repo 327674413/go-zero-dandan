@@ -1,8 +1,8 @@
 package biz
 
 type UserRegInfo struct {
-	Id        int64
-	UnionId   int64
+	Id        string
+	UnionId   string
 	Account   string
 	Password  string
 	Code      string
@@ -14,7 +14,7 @@ type UserRegInfo struct {
 	SexEm     int64
 }
 type UserEditInfo struct {
-	Id       int64
+	Id       string
 	Code     *string
 	Nickname *string
 	Email    *string

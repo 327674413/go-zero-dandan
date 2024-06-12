@@ -22,7 +22,7 @@ type MultipartUploadCompleteLogic struct {
 	ctx        context.Context
 	svcCtx     *svc.ServiceContext
 	lang       *i18n.Localizer
-	platId     int64
+	platId     string
 	platClasEm int64
 }
 
@@ -41,7 +41,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	netdiskFileModel := model.NewAssetNetdiskFileModel(l.svcCtx.SqlConn)
 	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(req.UploadId)
 	if err != nil {
-		return nil, resd.Error(err, resd.NotFound)
+		return nil, resd.NewErrWithTempCtx(l.ctx, "该分片上传id不存在", resd.NotFound1, "UpoladTask")
 	}
 	uploadKey := fmt.Sprintf("multipart:%d", uploadTask.Id)
 	chunkCountStr, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "chunkCount")
@@ -91,31 +91,36 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		return nil, resd.Error(err)
 	}
 	assetId := utild.MakeId()
-	_, err = assetMainModel.TxInsert(tx, map[string]string{
-		"id":        fmt.Sprintf("%d", assetId),
-		"sha1":      uploadTask.Sha1,
-		"name":      uploadTask.Name,
-		"mode_em":   fmt.Sprintf("%d", uploadTask.ModeEm),
-		"size_num":  fmt.Sprintf("%d", uploadTask.SizeNum),
-		"size_text": utild.FormatFileSize(uploadTask.SizeNum),
-		"state_em":  "2",
-		"mime":      mergeRes.Mime,
-		"ext":       uploadTask.Ext,
-		"url":       mergeRes.Url,
-		"path":      mergeRes.Path,
-	})
+	assetMainData := &model.AssetMain{
+		Id:       assetId,
+		StateEm:  2,
+		Sha1:     uploadTask.Sha1,
+		Name:     uploadTask.Name,
+		ModeEm:   uploadTask.ModeEm,
+		Mime:     mergeRes.Mime,
+		SizeNum:  uploadTask.SizeNum,
+		SizeText: utild.FormatFileSize(uploadTask.SizeNum),
+		Ext:      uploadTask.Ext,
+		Url:      mergeRes.Url,
+		Path:     mergeRes.Path,
+		PlatId:   "",
+		CreateAt: 0,
+		UpdateAt: 0,
+		DeleteAt: 0,
+	}
+	_, err = assetMainModel.TxInsert(tx, assetMainData)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = netdiskFileModel.TxUpdate(tx, map[string]string{
-		"id":        fmt.Sprintf("%d", uploadTask.Id),
-		"state_em":  "2",
+	_, err = netdiskFileModel.TxUpdate(tx, map[string]any{
+		"id":        uploadTask.Id,
+		"state_em":  2,
 		"mime":      uploadTask.Mime,
 		"ext":       uploadTask.Ext,
 		"url":       mergeRes.Url,
 		"path":      mergeRes.Path,
-		"asset_id":  fmt.Sprintf("%d", assetId),
-		"finish_at": fmt.Sprintf("%d", utild.GetStamp()),
+		"asset_id":  assetId,
+		"finish_at": utild.GetStamp(),
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
@@ -138,11 +143,11 @@ func (l *MultipartUploadCompleteLogic) initPlat() (err error) {
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
+	platId, _ := l.ctx.Value("platId").(string)
+	if platId == "" {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
-	l.platId = platClasId
+	l.platId = platId
 	l.platClasEm = platClasEm
 	return nil
 }

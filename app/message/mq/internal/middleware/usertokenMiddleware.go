@@ -23,7 +23,7 @@ func (m *UserTokenMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(200)
 			localizer := r.Context().Value("lang").(*i18n.Localizer)
-			json.NewEncoder(w).Encode(resd.NewErrCtx(r.Context(), land.Msg(localizer, resd.AuthUserNotLogin), resd.AuthUserNotLogin))
+			json.NewEncoder(w).Encode(resd.NewErrCtx(r.Context(), land.Msg(localizer, resd.AuthUserNotLoginErr), resd.AuthUserNotLoginErr))
 			return
 		}
 		next(w, r)

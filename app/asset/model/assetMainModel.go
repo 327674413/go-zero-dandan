@@ -18,12 +18,12 @@ type (
 )
 
 // NewAssetMainModel returns a model for the database table.
-func NewAssetMainModel(conn sqlx.SqlConn, platId ...int64) AssetMainModel {
-	var platid int64
+func NewAssetMainModel(conn sqlx.SqlConn, platId ...string) AssetMainModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customAssetMainModel{
 		defaultAssetMainModel: newAssetMainModel(conn, platid),

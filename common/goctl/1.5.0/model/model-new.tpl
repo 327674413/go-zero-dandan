@@ -1,4 +1,4 @@
-func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId int64) *default{{.upperStartCamelObject}}Model {
+func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId string) *default{{.upperStartCamelObject}}Model {
 	dao := dao.NewSqlxDao(conn, {{.table}}, default{{.upperStartCamelObject}}Fields, true, "delete_at")
 	dao.Plat(platId)
 	return &default{{.upperStartCamelObject}}Model{
@@ -15,7 +15,7 @@ func (m *default{{.upperStartCamelObject}}Model) Ctx(ctx context.Context) *defau
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *default{{.upperStartCamelObject}}Model) WhereId(id int64) *default{{.upperStartCamelObject}}Model {
+func (m *default{{.upperStartCamelObject}}Model) WhereId(id string) *default{{.upperStartCamelObject}}Model {
 	m.dao.WhereId(id)
     return m
 }
@@ -56,7 +56,7 @@ func (m *default{{.upperStartCamelObject}}Model) Dec(field string, num int) (int
 func (m *default{{.upperStartCamelObject}}Model) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
     return m.dao.Dec(field, num)
 }
-func (m *default{{.upperStartCamelObject}}Model) Plat(id int64) *default{{.upperStartCamelObject}}Model {
+func (m *default{{.upperStartCamelObject}}Model) Plat(id string) *default{{.upperStartCamelObject}}Model {
     m.dao.Plat(id)
     return m
 }

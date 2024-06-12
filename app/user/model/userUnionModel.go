@@ -18,12 +18,12 @@ type (
 )
 
 // NewUserUnionModel returns a model for the database table.
-func NewUserUnionModel(conn sqlx.SqlConn, platId ...int64) UserUnionModel {
-	var platid int64
+func NewUserUnionModel(conn sqlx.SqlConn, platId ...string) UserUnionModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customUserUnionModel{
 		defaultUserUnionModel: newUserUnionModel(conn, platid),

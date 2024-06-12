@@ -4,14 +4,14 @@ type (
 		Field(field string) *default{{.upperStartCamelObject}}Model
         Alias(alias string) *default{{.upperStartCamelObject}}Model
         Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model
-        WhereId(id int64) *default{{.upperStartCamelObject}}Model
+        WhereId(id string) *default{{.upperStartCamelObject}}Model
         Order(order string) *default{{.upperStartCamelObject}}Model
         Limit(num int64) *default{{.upperStartCamelObject}}Model
-        Plat(id int64) *default{{.upperStartCamelObject}}Model
+        Plat(id string) *default{{.upperStartCamelObject}}Model
         Find() (*{{.upperStartCamelObject}}, error)
-        FindById(id int64) (*{{.upperStartCamelObject}}, error)
+        FindById(id string) (*{{.upperStartCamelObject}}, error)
         CacheFind(redis *redisd.Redisd) (*{{.upperStartCamelObject}}, error)
-        CacheFindById(redis *redisd.Redisd, id int64) (*{{.upperStartCamelObject}}, error)
+        CacheFindById(redis *redisd.Redisd, id string) (*{{.upperStartCamelObject}}, error)
         Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model
         Select() ([]*{{.upperStartCamelObject}}, error)
         SelectWithTotal() ([]*{{.upperStartCamelObject}}, int64, error)
@@ -34,7 +34,7 @@ type (
         whereSql        string
         aliasSql 		string
         orderSql        string
-        platId          int64
+        platId          string
         whereData       []any
         err             error
         ctx             context.Context

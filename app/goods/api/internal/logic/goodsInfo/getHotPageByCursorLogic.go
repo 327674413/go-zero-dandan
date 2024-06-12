@@ -18,7 +18,7 @@ type GetHotPageByCursorLogic struct {
 	ctx          context.Context
 	svcCtx       *svc.ServiceContext
 	userMainInfo *user.UserMainInfo
-	platId       int64
+	platId       string
 	platClasEm   int64
 }
 
@@ -84,11 +84,11 @@ func (l *GetHotPageByCursorLogic) initPlat() (err error) {
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
+	platId, _ := l.ctx.Value("platId").(string)
+	if platId == "" {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
-	l.platId = platClasId
+	l.platId = platId
 	l.platClasEm = platClasEm
 	return nil
 }

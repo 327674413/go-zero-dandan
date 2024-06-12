@@ -14,7 +14,7 @@ type EditUserInfoLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
-	platId int64
+	platId string
 }
 
 func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EditUserInfoLogic {
@@ -47,7 +47,7 @@ func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, 
 	return &pb.SuccResp{Code: 200}, nil
 }
 
-func (l *EditUserInfoLogic) Plat(platId int64) *EditUserInfoLogic {
+func (l *EditUserInfoLogic) Plat(platId string) *EditUserInfoLogic {
 	l.platId = platId
 	return l
 }

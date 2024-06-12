@@ -19,7 +19,7 @@ type MultipartUploadSendLogic struct {
 	ctx        context.Context
 	svcCtx     *svc.ServiceContext
 	lang       *i18n.Localizer
-	platId     int64
+	platId     string
 	platClasEm int64
 }
 
@@ -40,7 +40,7 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if hasUpload == false {
-		return nil, resd.NewErrCtx(l.ctx, "该分片上传id不存在")
+		return nil, resd.NewErrWithTempCtx(l.ctx, "该分片上传id不存在", resd.NotFound1, "UpoladTask")
 	}
 	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, redisFieldKey, "fileSha1")
 	if err != nil {
@@ -63,11 +63,11 @@ func (l *MultipartUploadSendLogic) initPlat() (err error) {
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
+	platId, _ := l.ctx.Value("platId").(string)
+	if platId == "" {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
-	l.platId = platClasId
+	l.platId = platId
 	l.platClasEm = platClasEm
 	return nil
 }

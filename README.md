@@ -30,21 +30,40 @@ goctl model mongo -style goZero --type chatlog --dir ./app/im/modelMongo
 ### rpc服务创建
 ```
 #在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc plat.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+goctl rpc protoc goods.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
 
 ```
 ### 标准表模版
 ```
 CREATE TABLE `表名`  (
-    `id` bigint UNSIGNED NOT NULL,
+    `id` char(20) NOT NULL,
     `remark` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
-    `plat_id` bigint UNSIGNED NOT NULL DEFAULT 0 COMMENT '应用id',
+    `plat_id` char(20) NOT NULL DEFAULT '' COMMENT '应用id',
     `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
     `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',
     `delete_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳',
     PRIMARY KEY (`id`)
 );
+
 ```
+### goctl二次开发
+
+```
+# 以修改model生成规则中，将bigint类型的id 变成string类型为例子
+# 首先git上下载goct源码，以1.5.0版本为例子
+# 进入goctl目录中的model/sql/parser/parser.go
+# 在大概360行附近，添加：
+if each.Name == "id" {
+    dt = "string"
+}
+# 这里的each就是字段，each.Name是数据库的字段名，dt是经过gozero原先的映射关系处理后得到的go数据类型，这里强制变成string
+# 改完后，编译文件，然后通过which看一下goctl目录放哪，将编译后的文件覆盖，就可以用自己二次开发的goctl了
+
+# 调试的话，用 go run goctl.go 后面一样可以跟上原先的参数
+# 但里面用好像只能用fmt.Println()才能看空值台打印，用logx.Info好像不行
+
+```
+
 ### 启动user api
 ```
 #进user目录执行
@@ -76,6 +95,8 @@ goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 
 ### 数据库相关
 - 单条数据查询，未查到的err也是nil，按照数据非nil则正常，如果是nil可以直接笼统报错未找到数据，但如果未找到需要新增时，则额外判断err是不是nil，是nil就是没数据可新增，非nil则是sql操作报错，异常报错
+### 缓存相关
+- 数据未查到不报错，需要判断查出来的东西是不是空字符串或者写入的目标结构体是不是有值来判断，暂时好像没碰到要区分 未查到的这种场景
 ## 部署说明
 
 ### 普通应用部署

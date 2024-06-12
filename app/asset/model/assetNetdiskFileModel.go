@@ -18,12 +18,12 @@ type (
 )
 
 // NewAssetNetdiskFileModel returns a model for the database table.
-func NewAssetNetdiskFileModel(conn sqlx.SqlConn, platId ...int64) AssetNetdiskFileModel {
-	var platid int64
+func NewAssetNetdiskFileModel(conn sqlx.SqlConn, platId ...string) AssetNetdiskFileModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customAssetNetdiskFileModel{
 		defaultAssetNetdiskFileModel: newAssetNetdiskFileModel(conn, platid),

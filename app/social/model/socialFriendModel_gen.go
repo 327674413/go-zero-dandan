@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *SocialFriend) (int64, error)
 		TxSave(tx *sql.Tx, data *SocialFriend) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultSocialFriendModel
 		Alias(alias string) *defaultSocialFriendModel
 		Where(whereStr string, whereData ...any) *defaultSocialFriendModel
-		WhereId(id int64) *defaultSocialFriendModel
+		WhereId(id string) *defaultSocialFriendModel
 		Order(order string) *defaultSocialFriendModel
 		Limit(num int64) *defaultSocialFriendModel
-		Plat(id int64) *defaultSocialFriendModel
+		Plat(id string) *defaultSocialFriendModel
 		Find() (*SocialFriend, error)
-		FindById(id int64) (*SocialFriend, error)
+		FindById(id string) (*SocialFriend, error)
 		CacheFind(redis *redisd.Redisd) (*SocialFriend, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*SocialFriend, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*SocialFriend, error)
 		Page(page int64, rows int64) *defaultSocialFriendModel
 		Select() ([]*SocialFriend, error)
 		SelectWithTotal() ([]*SocialFriend, int64, error)
@@ -66,26 +66,26 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	SocialFriend struct {
-		Id       int64  `db:"id"`
-		UserId   int64  `db:"user_id"`   // 归属用户id
-		FriendId int64  `db:"friend_id"` // 好友用户id
+		Id       string `db:"id"`
+		UserId   string `db:"user_id"`   // 归属用户id
+		FriendId string `db:"friend_id"` // 好友用户id
 		SourceEm int64  `db:"source_em"` // 添加来源枚举
 		Remark   string `db:"remark"`    // 备注
-		PlatId   int64  `db:"plat_id"`   // 应用id
+		PlatId   string `db:"plat_id"`   // 应用id
 		CreateAt int64  `db:"create_at"` // 创建时间戳
 		UpdateAt int64  `db:"update_at"` // 更新时间戳
 		DeleteAt int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 
-func newSocialFriendModel(conn sqlx.SqlConn, platId int64) *defaultSocialFriendModel {
+func newSocialFriendModel(conn sqlx.SqlConn, platId string) *defaultSocialFriendModel {
 	dao := dao.NewSqlxDao(conn, "`social_friend`", defaultSocialFriendFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultSocialFriendModel{
@@ -101,7 +101,7 @@ func (m *defaultSocialFriendModel) Ctx(ctx context.Context) *defaultSocialFriend
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultSocialFriendModel) WhereId(id int64) *defaultSocialFriendModel {
+func (m *defaultSocialFriendModel) WhereId(id string) *defaultSocialFriendModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -142,7 +142,7 @@ func (m *defaultSocialFriendModel) Dec(field string, num int) (int64, error) {
 func (m *defaultSocialFriendModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultSocialFriendModel) Plat(id int64) *defaultSocialFriendModel {
+func (m *defaultSocialFriendModel) Plat(id string) *defaultSocialFriendModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -153,7 +153,7 @@ func (m *defaultSocialFriendModel) Reinit() *defaultSocialFriendModel {
 func (m *defaultSocialFriendModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultSocialFriendModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultSocialFriendModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -170,7 +170,7 @@ func (m *defaultSocialFriendModel) Find() (*SocialFriend, error) {
 	}
 	return resp, nil
 }
-func (m *defaultSocialFriendModel) FindById(id int64) (*SocialFriend, error) {
+func (m *defaultSocialFriendModel) FindById(id string) (*SocialFriend, error) {
 	resp := &SocialFriend{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -189,7 +189,7 @@ func (m *defaultSocialFriendModel) CacheFind(redis *redisd.Redisd) (*SocialFrien
 	}
 	return resp, nil
 }
-func (m *defaultSocialFriendModel) CacheFindById(redis *redisd.Redisd, id int64) (*SocialFriend, error) {
+func (m *defaultSocialFriendModel) CacheFindById(redis *redisd.Redisd, id string) (*SocialFriend, error) {
 	resp := &SocialFriend{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

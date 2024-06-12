@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *MessageSmsTemp) (int64, error)
 		TxSave(tx *sql.Tx, data *MessageSmsTemp) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultMessageSmsTempModel
 		Alias(alias string) *defaultMessageSmsTempModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsTempModel
-		WhereId(id int64) *defaultMessageSmsTempModel
+		WhereId(id string) *defaultMessageSmsTempModel
 		Order(order string) *defaultMessageSmsTempModel
 		Limit(num int64) *defaultMessageSmsTempModel
-		Plat(id int64) *defaultMessageSmsTempModel
+		Plat(id string) *defaultMessageSmsTempModel
 		Find() (*MessageSmsTemp, error)
-		FindById(id int64) (*MessageSmsTemp, error)
+		FindById(id string) (*MessageSmsTemp, error)
 		CacheFind(redis *redisd.Redisd) (*MessageSmsTemp, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*MessageSmsTemp, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsTemp, error)
 		Page(page int64, rows int64) *defaultMessageSmsTempModel
 		Select() ([]*MessageSmsTemp, error)
 		SelectWithTotal() ([]*MessageSmsTemp, int64, error)
@@ -66,14 +66,14 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	MessageSmsTemp struct {
-		Id          int64  `db:"id"`
+		Id          string `db:"id"`
 		Name        string `db:"name"`
 		SecretId    string `db:"secret_id"`     // SecretId
 		SecretKey   string `db:"secret_key"`    // SecretKey
@@ -81,14 +81,14 @@ type (
 		SmsSdkAppid string `db:"sms_sdk_appid"` // SmsSdkAppId
 		SignName    string `db:"sign_name"`     // SignName
 		TemplateId  string `db:"template_id"`   // TemplateId
-		PlatId      int64  `db:"plat_id"`       // 应用id
+		PlatId      string `db:"plat_id"`       // 应用id
 		CreateAt    int64  `db:"create_at"`     // 创建时间戳
 		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
 		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
 	}
 )
 
-func newMessageSmsTempModel(conn sqlx.SqlConn, platId int64) *defaultMessageSmsTempModel {
+func newMessageSmsTempModel(conn sqlx.SqlConn, platId string) *defaultMessageSmsTempModel {
 	dao := dao.NewSqlxDao(conn, "`message_sms_temp`", defaultMessageSmsTempFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultMessageSmsTempModel{
@@ -104,7 +104,7 @@ func (m *defaultMessageSmsTempModel) Ctx(ctx context.Context) *defaultMessageSms
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultMessageSmsTempModel) WhereId(id int64) *defaultMessageSmsTempModel {
+func (m *defaultMessageSmsTempModel) WhereId(id string) *defaultMessageSmsTempModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -145,7 +145,7 @@ func (m *defaultMessageSmsTempModel) Dec(field string, num int) (int64, error) {
 func (m *defaultMessageSmsTempModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultMessageSmsTempModel) Plat(id int64) *defaultMessageSmsTempModel {
+func (m *defaultMessageSmsTempModel) Plat(id string) *defaultMessageSmsTempModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -156,7 +156,7 @@ func (m *defaultMessageSmsTempModel) Reinit() *defaultMessageSmsTempModel {
 func (m *defaultMessageSmsTempModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultMessageSmsTempModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultMessageSmsTempModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -173,7 +173,7 @@ func (m *defaultMessageSmsTempModel) Find() (*MessageSmsTemp, error) {
 	}
 	return resp, nil
 }
-func (m *defaultMessageSmsTempModel) FindById(id int64) (*MessageSmsTemp, error) {
+func (m *defaultMessageSmsTempModel) FindById(id string) (*MessageSmsTemp, error) {
 	resp := &MessageSmsTemp{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -192,7 +192,7 @@ func (m *defaultMessageSmsTempModel) CacheFind(redis *redisd.Redisd) (*MessageSm
 	}
 	return resp, nil
 }
-func (m *defaultMessageSmsTempModel) CacheFindById(redis *redisd.Redisd, id int64) (*MessageSmsTemp, error) {
+func (m *defaultMessageSmsTempModel) CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsTemp, error) {
 	resp := &MessageSmsTemp{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

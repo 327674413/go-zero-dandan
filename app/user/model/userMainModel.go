@@ -18,12 +18,12 @@ type (
 )
 
 // NewUserMainModel returns a model for the database table.
-func NewUserMainModel(conn sqlx.SqlConn, platId ...int64) UserMainModel {
-	var platid int64
+func NewUserMainModel(conn sqlx.SqlConn, platId ...string) UserMainModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customUserMainModel{
 		defaultUserMainModel: newUserMainModel(conn, platid),

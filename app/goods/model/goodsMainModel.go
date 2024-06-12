@@ -18,12 +18,12 @@ type (
 )
 
 // NewGoodsMainModel returns a model for the database table.
-func NewGoodsMainModel(conn sqlx.SqlConn, platId ...int64) GoodsMainModel {
-	var platid int64
+func NewGoodsMainModel(conn sqlx.SqlConn, platId ...string) GoodsMainModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customGoodsMainModel{
 		defaultGoodsMainModel: newGoodsMainModel(conn, platid),

@@ -22,7 +22,7 @@ type UserBiz struct {
 	ctx        context.Context
 	svcCtx     *svc.ServiceContext
 	lang       *i18n.Localizer
-	platId     int64
+	platId     string
 	platClasEm int64
 }
 
@@ -163,11 +163,11 @@ func (t *UserBiz) initPlat() (err error) {
 	if platClasEm == 0 {
 		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
 	}
-	platClasId := utild.AnyToInt64(t.ctx.Value("platId"))
-	if platClasId == 0 {
+	platId, _ := t.ctx.Value("platId").(string)
+	if platId == "" {
 		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.PlatIdErr)
 	}
-	t.platId = platClasId
+	t.platId = platId
 	t.platClasEm = platClasEm
 	return nil
 }

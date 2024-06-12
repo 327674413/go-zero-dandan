@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *SocialGroup) (int64, error)
 		TxSave(tx *sql.Tx, data *SocialGroup) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultSocialGroupModel
 		Alias(alias string) *defaultSocialGroupModel
 		Where(whereStr string, whereData ...any) *defaultSocialGroupModel
-		WhereId(id int64) *defaultSocialGroupModel
+		WhereId(id string) *defaultSocialGroupModel
 		Order(order string) *defaultSocialGroupModel
 		Limit(num int64) *defaultSocialGroupModel
-		Plat(id int64) *defaultSocialGroupModel
+		Plat(id string) *defaultSocialGroupModel
 		Find() (*SocialGroup, error)
-		FindById(id int64) (*SocialGroup, error)
+		FindById(id string) (*SocialGroup, error)
 		CacheFind(redis *redisd.Redisd) (*SocialGroup, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*SocialGroup, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*SocialGroup, error)
 		Page(page int64, rows int64) *defaultSocialGroupModel
 		Select() ([]*SocialGroup, error)
 		SelectWithTotal() ([]*SocialGroup, int64, error)
@@ -66,30 +66,30 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	SocialGroup struct {
-		Id                  int64  `db:"id"`
+		Id                  string `db:"id"`
 		Name                string `db:"name"`                 // 群组名
 		StateEm             int64  `db:"state_em"`             // 群组状态
 		TypeEm              int64  `db:"type_em"`              // 群组类型
-		CreateUserId        int64  `db:"create_user_id"`       // 创建人id
+		CreateUserId        string `db:"create_user_id"`       // 创建人id
 		IsVerify            int64  `db:"is_verify"`            // 是否需要验证
 		NotificationContent string `db:"notification_content"` // 群公告内容
-		NotificationUserId  int64  `db:"notification_user_id"` // 群公告编写人
+		NotificationUserId  string `db:"notification_user_id"` // 群公告编写人
 		Remark              string `db:"remark"`               // 备注
-		PlatId              int64  `db:"plat_id"`              // 应用id
+		PlatId              string `db:"plat_id"`              // 应用id
 		CreateAt            int64  `db:"create_at"`            // 创建时间戳
 		UpdateAt            int64  `db:"update_at"`            // 更新时间戳
 		DeleteAt            int64  `db:"delete_at"`            // 删除时间戳
 	}
 )
 
-func newSocialGroupModel(conn sqlx.SqlConn, platId int64) *defaultSocialGroupModel {
+func newSocialGroupModel(conn sqlx.SqlConn, platId string) *defaultSocialGroupModel {
 	dao := dao.NewSqlxDao(conn, "`social_group`", defaultSocialGroupFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultSocialGroupModel{
@@ -105,7 +105,7 @@ func (m *defaultSocialGroupModel) Ctx(ctx context.Context) *defaultSocialGroupMo
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultSocialGroupModel) WhereId(id int64) *defaultSocialGroupModel {
+func (m *defaultSocialGroupModel) WhereId(id string) *defaultSocialGroupModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -146,7 +146,7 @@ func (m *defaultSocialGroupModel) Dec(field string, num int) (int64, error) {
 func (m *defaultSocialGroupModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultSocialGroupModel) Plat(id int64) *defaultSocialGroupModel {
+func (m *defaultSocialGroupModel) Plat(id string) *defaultSocialGroupModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -157,7 +157,7 @@ func (m *defaultSocialGroupModel) Reinit() *defaultSocialGroupModel {
 func (m *defaultSocialGroupModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultSocialGroupModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultSocialGroupModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -174,7 +174,7 @@ func (m *defaultSocialGroupModel) Find() (*SocialGroup, error) {
 	}
 	return resp, nil
 }
-func (m *defaultSocialGroupModel) FindById(id int64) (*SocialGroup, error) {
+func (m *defaultSocialGroupModel) FindById(id string) (*SocialGroup, error) {
 	resp := &SocialGroup{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -193,7 +193,7 @@ func (m *defaultSocialGroupModel) CacheFind(redis *redisd.Redisd) (*SocialGroup,
 	}
 	return resp, nil
 }
-func (m *defaultSocialGroupModel) CacheFindById(redis *redisd.Redisd, id int64) (*SocialGroup, error) {
+func (m *defaultSocialGroupModel) CacheFindById(redis *redisd.Redisd, id string) (*SocialGroup, error) {
 	resp := &SocialGroup{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

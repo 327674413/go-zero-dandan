@@ -1,8 +1,9 @@
-AuthUserNotLogin = "You are not login"
+AuthUserNotLoginErr = "You are not login"
 AuthPlatErr = "invalid App"
 SysErr = "Encountered a small problem"
 
 CopierErr = "copy data trans error"
+NotFound1 = "{{.Field1}} is not found"
 
 ReqFieldRequired1 = "Param {{.Field1}} is required"
 ReqPhoneErr = "Not a correct phone number"
@@ -64,7 +65,7 @@ Image = "Image"
 Id = "Id"
 Account = "Account"
 Password = "Password"
-
+UpoladTask = "Upload Task"
 
 
 

@@ -27,10 +27,10 @@ func NewGetUserCronyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 func (l *GetUserCronyListLogic) GetUserCronyList(in *pb.GetUserCronyListReq) (*pb.GetUserCronyListResp, error) {
-	if in.PlatId == nil || *in.PlatId == 0 {
+	if in.PlatId == nil || *in.PlatId == "" {
 		return l.rpcFail(resd.NewErrCtx(l.ctx, "未传入应用标识"))
 	}
-	if in.OwnerUserId == nil || *in.OwnerUserId == 0 {
+	if in.OwnerUserId == nil || *in.OwnerUserId == "" {
 		return l.rpcFail(resd.NewErrCtx(l.ctx, "ownerUserId不得为空"))
 	}
 	userCronyModel := model.NewUserCronyModel(l.svcCtx.SqlConn, *in.PlatId)

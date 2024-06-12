@@ -14,13 +14,9 @@ type Redisd struct {
 	redisConn *redisx.Redis
 	prefix    string
 }
-type NotFound struct {
-	Msg string
-}
 
-func (t *NotFound) Error() string {
-	return fmt.Sprintf("redis key: %s not found", t.Msg)
-}
+// 如果自定义未找到数据的错误，和err判断的时候还要断言，会比较麻烦，现在是按照没找到数据也不报错的方式走
+
 func NewRedisd(redisConn *redisx.Redis, prefix string) *Redisd {
 	return &Redisd{
 		redisConn: redisConn,
@@ -322,7 +318,7 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) erro
 		return err
 	}
 	if str == "" {
-		return &NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		return nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	}
 	return json.Unmarshal([]byte(str), targetStructPointer)
 }
@@ -334,7 +330,7 @@ func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targe
 		return err
 	}
 	if str == "" {
-		return &NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		return nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	}
 	return json.Unmarshal([]byte(str), targetStructPointer)
 }

@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *AssetNetdiskFile) (int64, error)
 		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultAssetNetdiskFileModel
 		Alias(alias string) *defaultAssetNetdiskFileModel
 		Where(whereStr string, whereData ...any) *defaultAssetNetdiskFileModel
-		WhereId(id int64) *defaultAssetNetdiskFileModel
+		WhereId(id string) *defaultAssetNetdiskFileModel
 		Order(order string) *defaultAssetNetdiskFileModel
 		Limit(num int64) *defaultAssetNetdiskFileModel
-		Plat(id int64) *defaultAssetNetdiskFileModel
+		Plat(id string) *defaultAssetNetdiskFileModel
 		Find() (*AssetNetdiskFile, error)
-		FindById(id int64) (*AssetNetdiskFile, error)
+		FindById(id string) (*AssetNetdiskFile, error)
 		CacheFind(redis *redisd.Redisd) (*AssetNetdiskFile, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*AssetNetdiskFile, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*AssetNetdiskFile, error)
 		Page(page int64, rows int64) *defaultAssetNetdiskFileModel
 		Select() ([]*AssetNetdiskFile, error)
 		SelectWithTotal() ([]*AssetNetdiskFile, int64, error)
@@ -66,19 +66,19 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	AssetNetdiskFile struct {
-		Id            int64  `db:"id"`
-		AssetId       int64  `db:"asset_id"`        // 关联资源id
+		Id            string `db:"id"`
+		AssetId       string `db:"asset_id"`        // 关联资源id
 		Name          string `db:"name"`            // 自定义文件别名
 		StateEm       int64  `db:"state_em"`        // 文件状态
-		ClasId        int64  `db:"clas_id"`         // 所属目录id
-		AuthGroupId   int64  `db:"auth_group_id"`   // 权限组别id
+		ClasId        string `db:"clas_id"`         // 所属目录id
+		AuthGroupId   string `db:"auth_group_id"`   // 权限组别id
 		AuthGroupName string `db:"auth_group_name"` // 权限组别名称
 		ClasName      string `db:"clas_name"`       // 所属目录名称
 		Sha1          string `db:"sha1"`            // 文件哈希
@@ -90,16 +90,16 @@ type (
 		Ext           string `db:"ext"`             // 文件后缀
 		Path          string `db:"path"`            // 文件路径
 		Url           string `db:"url"`             // 文件链接
-		UserId        int64  `db:"user_id"`         // 上传用户标识
+		UserId        string `db:"user_id"`         // 上传用户标识
 		FinishAt      int64  `db:"finish_at"`       // 完成上传时间
-		PlatId        int64  `db:"plat_id"`         // 应用id
+		PlatId        string `db:"plat_id"`         // 应用id
 		CreateAt      int64  `db:"create_at"`       // 创建时间戳
 		UpdateAt      int64  `db:"update_at"`       // 更新时间戳
 		DeleteAt      int64  `db:"delete_at"`       // 删除时间戳
 	}
 )
 
-func newAssetNetdiskFileModel(conn sqlx.SqlConn, platId int64) *defaultAssetNetdiskFileModel {
+func newAssetNetdiskFileModel(conn sqlx.SqlConn, platId string) *defaultAssetNetdiskFileModel {
 	dao := dao.NewSqlxDao(conn, "`asset_netdisk_file`", defaultAssetNetdiskFileFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultAssetNetdiskFileModel{
@@ -115,7 +115,7 @@ func (m *defaultAssetNetdiskFileModel) Ctx(ctx context.Context) *defaultAssetNet
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultAssetNetdiskFileModel) WhereId(id int64) *defaultAssetNetdiskFileModel {
+func (m *defaultAssetNetdiskFileModel) WhereId(id string) *defaultAssetNetdiskFileModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -156,7 +156,7 @@ func (m *defaultAssetNetdiskFileModel) Dec(field string, num int) (int64, error)
 func (m *defaultAssetNetdiskFileModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultAssetNetdiskFileModel) Plat(id int64) *defaultAssetNetdiskFileModel {
+func (m *defaultAssetNetdiskFileModel) Plat(id string) *defaultAssetNetdiskFileModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -167,7 +167,7 @@ func (m *defaultAssetNetdiskFileModel) Reinit() *defaultAssetNetdiskFileModel {
 func (m *defaultAssetNetdiskFileModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultAssetNetdiskFileModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultAssetNetdiskFileModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -184,7 +184,7 @@ func (m *defaultAssetNetdiskFileModel) Find() (*AssetNetdiskFile, error) {
 	}
 	return resp, nil
 }
-func (m *defaultAssetNetdiskFileModel) FindById(id int64) (*AssetNetdiskFile, error) {
+func (m *defaultAssetNetdiskFileModel) FindById(id string) (*AssetNetdiskFile, error) {
 	resp := &AssetNetdiskFile{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -203,7 +203,7 @@ func (m *defaultAssetNetdiskFileModel) CacheFind(redis *redisd.Redisd) (*AssetNe
 	}
 	return resp, nil
 }
-func (m *defaultAssetNetdiskFileModel) CacheFindById(redis *redisd.Redisd, id int64) (*AssetNetdiskFile, error) {
+func (m *defaultAssetNetdiskFileModel) CacheFindById(redis *redisd.Redisd, id string) (*AssetNetdiskFile, error) {
 	resp := &AssetNetdiskFile{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

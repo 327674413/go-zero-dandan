@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *SocialFriendApply) (int64, error)
 		TxSave(tx *sql.Tx, data *SocialFriendApply) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultSocialFriendApplyModel
 		Alias(alias string) *defaultSocialFriendApplyModel
 		Where(whereStr string, whereData ...any) *defaultSocialFriendApplyModel
-		WhereId(id int64) *defaultSocialFriendApplyModel
+		WhereId(id string) *defaultSocialFriendApplyModel
 		Order(order string) *defaultSocialFriendApplyModel
 		Limit(num int64) *defaultSocialFriendApplyModel
-		Plat(id int64) *defaultSocialFriendApplyModel
+		Plat(id string) *defaultSocialFriendApplyModel
 		Find() (*SocialFriendApply, error)
-		FindById(id int64) (*SocialFriendApply, error)
+		FindById(id string) (*SocialFriendApply, error)
 		CacheFind(redis *redisd.Redisd) (*SocialFriendApply, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*SocialFriendApply, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*SocialFriendApply, error)
 		Page(page int64, rows int64) *defaultSocialFriendApplyModel
 		Select() ([]*SocialFriendApply, error)
 		SelectWithTotal() ([]*SocialFriendApply, int64, error)
@@ -66,30 +66,30 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	SocialFriendApply struct {
-		Id             int64  `db:"id"`
-		UserId         int64  `db:"user_id"`          // 归属用户id
-		ApplyUserId    int64  `db:"apply_user_id"`    // 申请成为好友的ID
+		Id             string `db:"id"`
+		UserId         string `db:"user_id"`          // 归属用户id
+		ApplyUserId    string `db:"apply_user_id"`    // 申请成为好友的ID
 		ApplyMsg       string `db:"apply_msg"`        // 申请填写的内容
 		ApplyAt        int64  `db:"apply_at"`         // 申请时间戳
 		ProcessMsg     string `db:"process_msg"`      // 处理时填写的内容
 		ProcessAt      int64  `db:"process_at"`       // 处理时间戳
 		ProcessStateEm int64  `db:"process_state_em"` // 处理状态
 		Remark         string `db:"remark"`           // 备注
-		PlatId         int64  `db:"plat_id"`          // 应用id
+		PlatId         string `db:"plat_id"`          // 应用id
 		CreateAt       int64  `db:"create_at"`        // 创建时间戳
 		UpdateAt       int64  `db:"update_at"`        // 更新时间戳
 		DeleteAt       int64  `db:"delete_at"`        // 删除时间戳
 	}
 )
 
-func newSocialFriendApplyModel(conn sqlx.SqlConn, platId int64) *defaultSocialFriendApplyModel {
+func newSocialFriendApplyModel(conn sqlx.SqlConn, platId string) *defaultSocialFriendApplyModel {
 	dao := dao.NewSqlxDao(conn, "`social_friend_apply`", defaultSocialFriendApplyFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultSocialFriendApplyModel{
@@ -105,7 +105,7 @@ func (m *defaultSocialFriendApplyModel) Ctx(ctx context.Context) *defaultSocialF
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultSocialFriendApplyModel) WhereId(id int64) *defaultSocialFriendApplyModel {
+func (m *defaultSocialFriendApplyModel) WhereId(id string) *defaultSocialFriendApplyModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -146,7 +146,7 @@ func (m *defaultSocialFriendApplyModel) Dec(field string, num int) (int64, error
 func (m *defaultSocialFriendApplyModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultSocialFriendApplyModel) Plat(id int64) *defaultSocialFriendApplyModel {
+func (m *defaultSocialFriendApplyModel) Plat(id string) *defaultSocialFriendApplyModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -157,7 +157,7 @@ func (m *defaultSocialFriendApplyModel) Reinit() *defaultSocialFriendApplyModel 
 func (m *defaultSocialFriendApplyModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultSocialFriendApplyModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultSocialFriendApplyModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -174,7 +174,7 @@ func (m *defaultSocialFriendApplyModel) Find() (*SocialFriendApply, error) {
 	}
 	return resp, nil
 }
-func (m *defaultSocialFriendApplyModel) FindById(id int64) (*SocialFriendApply, error) {
+func (m *defaultSocialFriendApplyModel) FindById(id string) (*SocialFriendApply, error) {
 	resp := &SocialFriendApply{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -193,7 +193,7 @@ func (m *defaultSocialFriendApplyModel) CacheFind(redis *redisd.Redisd) (*Social
 	}
 	return resp, nil
 }
-func (m *defaultSocialFriendApplyModel) CacheFindById(redis *redisd.Redisd, id int64) (*SocialFriendApply, error) {
+func (m *defaultSocialFriendApplyModel) CacheFindById(redis *redisd.Redisd, id string) (*SocialFriendApply, error) {
 	resp := &SocialFriendApply{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

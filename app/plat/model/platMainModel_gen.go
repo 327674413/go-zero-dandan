@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *PlatMain) (int64, error)
 		TxSave(tx *sql.Tx, data *PlatMain) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultPlatMainModel
 		Alias(alias string) *defaultPlatMainModel
 		Where(whereStr string, whereData ...any) *defaultPlatMainModel
-		WhereId(id int64) *defaultPlatMainModel
+		WhereId(id string) *defaultPlatMainModel
 		Order(order string) *defaultPlatMainModel
 		Limit(num int64) *defaultPlatMainModel
-		Plat(id int64) *defaultPlatMainModel
+		Plat(id string) *defaultPlatMainModel
 		Find() (*PlatMain, error)
-		FindById(id int64) (*PlatMain, error)
+		FindById(id string) (*PlatMain, error)
 		CacheFind(redis *redisd.Redisd) (*PlatMain, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*PlatMain, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*PlatMain, error)
 		Page(page int64, rows int64) *defaultPlatMainModel
 		Select() ([]*PlatMain, error)
 		SelectWithTotal() ([]*PlatMain, int64, error)
@@ -66,14 +66,14 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	PlatMain struct {
-		Id          int64  `db:"id"`
+		Id          string `db:"id"`
 		Appid       string `db:"appid"`         // 对外应用标识
 		Secret      string `db:"secret"`        // 对外应用密钥
 		StateEm     int64  `db:"state_em"`      // 应用状态
@@ -88,7 +88,7 @@ type (
 	}
 )
 
-func newPlatMainModel(conn sqlx.SqlConn, platId int64) *defaultPlatMainModel {
+func newPlatMainModel(conn sqlx.SqlConn, platId string) *defaultPlatMainModel {
 	dao := dao.NewSqlxDao(conn, "`plat_main`", defaultPlatMainFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultPlatMainModel{
@@ -104,7 +104,7 @@ func (m *defaultPlatMainModel) Ctx(ctx context.Context) *defaultPlatMainModel {
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultPlatMainModel) WhereId(id int64) *defaultPlatMainModel {
+func (m *defaultPlatMainModel) WhereId(id string) *defaultPlatMainModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -145,7 +145,7 @@ func (m *defaultPlatMainModel) Dec(field string, num int) (int64, error) {
 func (m *defaultPlatMainModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultPlatMainModel) Plat(id int64) *defaultPlatMainModel {
+func (m *defaultPlatMainModel) Plat(id string) *defaultPlatMainModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -156,7 +156,7 @@ func (m *defaultPlatMainModel) Reinit() *defaultPlatMainModel {
 func (m *defaultPlatMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultPlatMainModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultPlatMainModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -173,7 +173,7 @@ func (m *defaultPlatMainModel) Find() (*PlatMain, error) {
 	}
 	return resp, nil
 }
-func (m *defaultPlatMainModel) FindById(id int64) (*PlatMain, error) {
+func (m *defaultPlatMainModel) FindById(id string) (*PlatMain, error) {
 	resp := &PlatMain{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -192,7 +192,7 @@ func (m *defaultPlatMainModel) CacheFind(redis *redisd.Redisd) (*PlatMain, error
 	}
 	return resp, nil
 }
-func (m *defaultPlatMainModel) CacheFindById(redis *redisd.Redisd, id int64) (*PlatMain, error) {
+func (m *defaultPlatMainModel) CacheFindById(redis *redisd.Redisd, id string) (*PlatMain, error) {
 	resp := &PlatMain{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

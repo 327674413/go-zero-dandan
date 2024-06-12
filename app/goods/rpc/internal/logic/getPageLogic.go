@@ -28,6 +28,9 @@ func (l *GetPageLogic) GetPage(in *pb.GetPageReq) (*pb.GetPageResp, error) {
 	page := in.Page
 	size := in.Size
 	sort := in.Sort
+	if size == 0 {
+		size = defaultPageSize
+	}
 	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
 	list, err := goodsModel.Ctx(l.ctx).Page(page, size).Order(sort).CacheSelect(l.svcCtx.Redis)
 	if err != nil {

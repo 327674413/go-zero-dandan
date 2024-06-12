@@ -6,7 +6,7 @@ option go_package = "./pb";
 package user;
 
 message SearchUserReq{
-  int64 PlatId = 1;
+  string PlatId = 1;
   int64 Page = 2;
   int64 Size = 3;
   optional int64 NeedPageCount = 4;
@@ -25,21 +25,21 @@ message SearchUserResp{
   repeated UserMainInfo List = 6;
 }
 message BindUnionUserReq{
-  int64 UserId = 1;
+  string UserId = 1;
   int64 BindClasEm = 2;
   optional string Account = 3;
   optional string Phone = 4;
 }
 message BindUnionUserResp{
-  int64 UnionId = 1;
+  string UnionId = 1;
 }
 message LoginByAccountReq {
-  int64 PlatId = 1;
+  string PlatId = 1;
   string  Account = 2;
   string  Password = 3;
 }
 message RegByAccountReq {
-  int64 PlatId = 1;
+  string PlatId = 1;
   string  Account = 2;
   string  Password = 3;
   optional string Nickname = 5;
@@ -53,13 +53,13 @@ message RegByAccountReq {
 message GetUserPageReq {
   int64 Page = 1;
   int64 Size = 2;
-  int64 PlatId = 3;
-  optional int64 Cursor = 4;
-  optional int64 LastId = 5;
+  int64 string = 3;
+  optional string Cursor = 4;
+  optional string LastId = 5;
   optional string Account = 6;
   optional string Nickname = 7;
   optional string Phone = 8;
-  repeated int64 ids = 9;
+  repeated string ids = 9;
   optional string Email = 10;
 }
 message GetUserPageResp{
@@ -67,21 +67,21 @@ message GetUserPageResp{
   int64 Size = 2;
   bool IsCache = 3;
   optional int64 Total = 6;
-  optional int64 LastId = 7;
-  optional int64 Cursor = 8;
+  optional string string = 7;
+  optional string Cursor = 8;
   optional bool IsEnd = 9;
   repeated UserMainInfo List = 10;
 
 }
 message LoginResp{
-  int64 Id = 1;
+  string Id = 1;
   string Token = 2;
   int64 ExpireAt = 3;
   UserMainInfo UserInfo = 4;
 }
 message UserMainInfo {
-  int64 Id = 1;
-  int64 UnionId = 2;
+  string Id = 1;
+  string UnionId = 2;
   int64 StateEm = 3;
   string Account = 4;
   string Nickname = 5;
@@ -90,23 +90,23 @@ message UserMainInfo {
   int64 SexEm = 8;
   string Email = 9;
   string Avatar = 10;
-  int64 PlatId = 11;
+  string PlatId = 11;
 }
 
 message EditUserInfoReq {
-  int64 Id = 1;
+  string Id = 1;
   optional string Nickname = 2;
   optional int64 SexEm = 3;
   optional string Email = 4;
   optional string Avatar = 5;
   optional string GraduateFrom = 6;
   optional string BirthDate = 7;
-  int64 PlatId = 8;
+  string PlatId = 8;
 }
 
 message UserCronyInfo {
-  int64 OwnerUserId = 1;
-  int64 TargetUserId = 2;
+  string OwnerUserId = 1;
+  string TargetUserId = 2;
   string Remark = 3;
   int64 TypeEm = 4;
   string NameNote = 5;
@@ -114,9 +114,9 @@ message UserCronyInfo {
   string TargetUserName = 7;
   string TargetUserAvatar = 8;
   string TagIds = 9;
-  int64 GroupId = 10;
+  string GroupId = 10;
   string GroupName = 11;
-  int64 Id = 12;
+  string Id = 12;
 }
 
 
@@ -127,8 +127,8 @@ message getUserCronyListResp {
 
 
 message IdReq {
-  int64 Id = 1;
-  int64 PlatId = 2;
+  string Id = 1;
+  string PlatId = 2;
 }
 message TokenReq {
   string token = 1;
@@ -137,11 +137,11 @@ message SuccResp {
   int64 Code= 1;
 }
 message getUserCronyListReq {
-  optional int64 PlatId = 1;
+  optional string PlatId = 1;
   optional int64 IsNeedTotal = 2;
-  optional int64 OwnerUserId = 3;
+  optional string OwnerUserId = 3;
   optional string OwnerUserName = 4;
-  optional int64 GroupId = 5;
+  optional string GroupId = 5;
   optional string TypeEms = 6;
   optional string AddStartTime = 7;
   optional string AddEndTime = 8;

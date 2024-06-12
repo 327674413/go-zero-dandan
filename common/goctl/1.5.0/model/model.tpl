@@ -24,12 +24,12 @@ type (
 )
 
 // New{{.upperStartCamelObject}}Model returns a model for the database table.
-func New{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId ...int64{{if .withCache}}, c cache.CacheConf{{end}}) {{.upperStartCamelObject}}Model {
-	var platid int64
+func New{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId ...string{{if .withCache}}, c cache.CacheConf{{end}}) {{.upperStartCamelObject}}Model {
+	var platid string
     if len(platId) > 0 {
         platid = platId[0]
     } else {
-        platid = 0
+        platid = ""
     }
 	return &custom{{.upperStartCamelObject}}Model{
 		default{{.upperStartCamelObject}}Model: new{{.upperStartCamelObject}}Model(conn,platid{{if .withCache}}, c{{end}}),

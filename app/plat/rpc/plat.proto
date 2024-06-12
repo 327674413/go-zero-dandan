@@ -9,11 +9,11 @@ package plat;
 
 
 message IdReq {
-  int64 id = 1;
+  string id = 1;
 }
 
 message PlatInfo {
-  int64 id = 1;
+  string id = 1;
   int64 ClasEm = 2;
 }
 

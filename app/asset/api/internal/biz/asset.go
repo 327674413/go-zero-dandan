@@ -24,7 +24,7 @@ func NewAssetBiz(ctx context.Context, svcCtx *svc.ServiceContext, userMainInfo *
 		userMainInfo: userMainInfo,
 	}
 }
-func (t *AssetBiz) GetUploading(uploadId int64) (int64, []int64, error) {
+func (t *AssetBiz) GetUploading(uploadId string) (int64, []int64, error) {
 	//先判断是否存在该上传任务
 	uploadKey := getUploadRedisKey(uploadId)
 
@@ -57,6 +57,6 @@ func (t *AssetBiz) GetUploading(uploadId int64) (int64, []int64, error) {
 	}
 	return utild.AnyToInt64(chunkCountStr), completeIndexs, nil
 }
-func getUploadRedisKey(uploadId int64) string {
-	return fmt.Sprintf("multipart:%d", uploadId)
+func getUploadRedisKey(uploadId string) string {
+	return fmt.Sprintf("multipart:%s", uploadId)
 }

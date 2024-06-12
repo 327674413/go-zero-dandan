@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *UserUnion) (int64, error)
 		TxSave(tx *sql.Tx, data *UserUnion) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultUserUnionModel
 		Alias(alias string) *defaultUserUnionModel
 		Where(whereStr string, whereData ...any) *defaultUserUnionModel
-		WhereId(id int64) *defaultUserUnionModel
+		WhereId(id string) *defaultUserUnionModel
 		Order(order string) *defaultUserUnionModel
 		Limit(num int64) *defaultUserUnionModel
-		Plat(id int64) *defaultUserUnionModel
+		Plat(id string) *defaultUserUnionModel
 		Find() (*UserUnion, error)
-		FindById(id int64) (*UserUnion, error)
+		FindById(id string) (*UserUnion, error)
 		CacheFind(redis *redisd.Redisd) (*UserUnion, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*UserUnion, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*UserUnion, error)
 		Page(page int64, rows int64) *defaultUserUnionModel
 		Select() ([]*UserUnion, error)
 		SelectWithTotal() ([]*UserUnion, int64, error)
@@ -66,21 +66,21 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	UserUnion struct {
-		Id       int64 `db:"id"`
-		CreateAt int64 `db:"create_at"` // 创建时间戳
-		UpdateAt int64 `db:"update_at"` // 更新时间戳
-		DeleteAt int64 `db:"delete_at"` // 删除时间戳
+		Id       string `db:"id"`
+		CreateAt int64  `db:"create_at"` // 创建时间戳
+		UpdateAt int64  `db:"update_at"` // 更新时间戳
+		DeleteAt int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 
-func newUserUnionModel(conn sqlx.SqlConn, platId int64) *defaultUserUnionModel {
+func newUserUnionModel(conn sqlx.SqlConn, platId string) *defaultUserUnionModel {
 	dao := dao.NewSqlxDao(conn, "`user_union`", defaultUserUnionFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultUserUnionModel{
@@ -96,7 +96,7 @@ func (m *defaultUserUnionModel) Ctx(ctx context.Context) *defaultUserUnionModel 
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultUserUnionModel) WhereId(id int64) *defaultUserUnionModel {
+func (m *defaultUserUnionModel) WhereId(id string) *defaultUserUnionModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -137,7 +137,7 @@ func (m *defaultUserUnionModel) Dec(field string, num int) (int64, error) {
 func (m *defaultUserUnionModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultUserUnionModel) Plat(id int64) *defaultUserUnionModel {
+func (m *defaultUserUnionModel) Plat(id string) *defaultUserUnionModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -148,7 +148,7 @@ func (m *defaultUserUnionModel) Reinit() *defaultUserUnionModel {
 func (m *defaultUserUnionModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultUserUnionModel) Delete(ctx context.Context, id int64) error {
+func (m *defaultUserUnionModel) Delete(ctx context.Context, id string) error {
 	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
@@ -165,7 +165,7 @@ func (m *defaultUserUnionModel) Find() (*UserUnion, error) {
 	}
 	return resp, nil
 }
-func (m *defaultUserUnionModel) FindById(id int64) (*UserUnion, error) {
+func (m *defaultUserUnionModel) FindById(id string) (*UserUnion, error) {
 	resp := &UserUnion{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -184,7 +184,7 @@ func (m *defaultUserUnionModel) CacheFind(redis *redisd.Redisd) (*UserUnion, err
 	}
 	return resp, nil
 }
-func (m *defaultUserUnionModel) CacheFindById(redis *redisd.Redisd, id int64) (*UserUnion, error) {
+func (m *defaultUserUnionModel) CacheFindById(redis *redisd.Redisd, id string) (*UserUnion, error) {
 	resp := &UserUnion{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

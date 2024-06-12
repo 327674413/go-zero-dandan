@@ -9,7 +9,7 @@ func (m *default{{.upperStartCamelObject}}Model) Find() (*{{.upperStartCamelObje
     }
     return resp, nil
 }
-func (m *default{{.upperStartCamelObject}}Model) FindById(id int64) (*{{.upperStartCamelObject}}, error) {
+func (m *default{{.upperStartCamelObject}}Model) FindById(id string) (*{{.upperStartCamelObject}}, error) {
 	resp := &{{.upperStartCamelObject}}{}
 	err := m.dao.FindById(resp,id)
 	if err != nil {
@@ -28,7 +28,7 @@ func (m *default{{.upperStartCamelObject}}Model) CacheFind( redis *redisd.Redisd
     }
     return resp, nil
 }
-func (m *default{{.upperStartCamelObject}}Model) CacheFindById( redis *redisd.Redisd, id int64) (*{{.upperStartCamelObject}}, error) {
+func (m *default{{.upperStartCamelObject}}Model) CacheFindById( redis *redisd.Redisd, id string) (*{{.upperStartCamelObject}}, error) {
 	resp := &{{.upperStartCamelObject}}{}
     err := m.dao.CacheFindById(redis, resp, id)
     if err != nil {

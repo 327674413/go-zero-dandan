@@ -7,13 +7,11 @@ import (
 	"github.com/zeromicro/go-zero/core/mr"
 	"github.com/zeromicro/go-zero/core/threading"
 	"go-zero-dandan/app/goods/model"
+	"go-zero-dandan/app/goods/rpc/internal/svc"
+	"go-zero-dandan/app/goods/rpc/types/pb"
 	"go-zero-dandan/common/resd"
 	"math"
 	"sort"
-	"strconv"
-
-	"go-zero-dandan/app/goods/rpc/internal/svc"
-	"go-zero-dandan/app/goods/rpc/types/pb"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,7 +29,7 @@ const (
 	redisKeyHotViewGoodses = "HotViewByCursor"
 	defaultCacheExpireSec  = 3600
 	defaultCursor          = math.MaxInt32 //倒序找，默认的最大值
-	endFlagId              = -1            //倒序找，最后一条用-1来判断
+	endFlagId              = "-1"          //倒序找，最后一条用-1来判断
 )
 
 func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageByCursorLogic {
@@ -45,11 +43,14 @@ func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 // 这个方式缺陷还挺多：在边界时只能返回缓存剩余数据，导致数量不满足分页要求 和 关联引发的系列问题；当然在高并发和加载更多时可能可以忽略
 
 func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorReq) (*pb.GetPageByCursorResp, error) {
-	if in.Size == 0 {
-		in.Size = defaultPageSize
+	var size int64
+	if in.Size > 0 {
+		size = in.Size
+	} else {
+		size = defaultPageSize
 	}
-	if in.Size > maxPageSize {
-		in.Size = maxPageSize
+	if size > maxPageSize {
+		size = maxPageSize
 	}
 	if in.Page <= 0 {
 		in.Page = 1
@@ -58,16 +59,16 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		in.Cursor = defaultCursor
 	}
 	//先尝试从缓存中获取数据
-	ids, _ := l.getCacheIds(in.Page, in.Size)
+	ids, _ := l.getCacheIds(in.Page, size)
 	var (
-		currCacheData      []*model.GoodsMain
-		respCursor, lastId int64
-		isCache, isEnd     bool
+		currCacheData  []*model.GoodsMain
+		lastId         string
+		respCursor     int64
+		isCache, isEnd bool
 	)
 	currPageGoodses := make([]*pb.GoodsInfo, 0)
 	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
 	if len(ids) > 0 {
-		fmt.Println("ids：", ids)
 		//存在缓存
 		isCache = true
 		if ids[len(ids)-1] == endFlagId {
@@ -120,9 +121,9 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		}
 		currCacheData = v.([]*model.GoodsMain)
 		var firstPageList []*model.GoodsMain
-		if len(currCacheData) > int(in.Size) {
+		if len(currCacheData) > int(size) {
 			//当前获取的全部数据 大于 分页数，则按分页数截取当前页数据
-			firstPageList = currCacheData[:int(in.Size)]
+			firstPageList = currCacheData[:int(size)]
 		} else {
 			//小于分页数则代表实际数据只有一页，到最后了
 			firstPageList = currCacheData
@@ -165,7 +166,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		})
 	}
 	return &pb.GetPageByCursorResp{
-		Size:    in.Size,
+		Size:    size,
 		List:    currPageGoodses,
 		IsCache: isCache,
 		IsEnd:   isEnd,
@@ -173,7 +174,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		LastId:  lastId,
 	}, nil
 }
-func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]int64, error) {
+func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]string, error) {
 	isExist, err := l.svcCtx.Redis.Exists(redisKeyHotViewGoodses)
 	if err != nil {
 		//保证能查到，缓存异常不处理
@@ -184,27 +185,23 @@ func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]int64, error)
 	}
 	// zrevrange 是高到低，所以分页时，cursor要放到max里，也就是这里的stop， page是计算偏移量的，游标分页不需要，从cursor开始获取目标行数即可， 如果低到高应该是放到start里，确认，待定
 	pair, err := l.svcCtx.Redis.ZpageCtx(l.ctx, redisKeyHotViewGoodses, "", int(page), int(size), true)
-	ids := make([]int64, 0)
+	ids := make([]string, 0)
 	for _, item := range pair {
-		id, err := strconv.ParseInt(item.Key, 10, 64)
-		if err != nil {
-			return nil, resd.ErrorCtx(l.ctx, err)
-		}
-		ids = append(ids, id)
+		ids = append(ids, item.Key)
 	}
 	return ids, nil
 }
-func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []int64, goodsModel *model.GoodsMainModel) ([]*model.GoodsMain, error) {
+func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []string, goodsModel *model.GoodsMainModel) ([]*model.GoodsMain, error) {
 	//通过并行获取数据
-	goodses, err := mr.MapReduce[int64, *model.GoodsMain, []*model.GoodsMain](func(source chan<- int64) {
+	goodses, err := mr.MapReduce[string, *model.GoodsMain, []*model.GoodsMain](func(source chan<- string) {
 		//生成要处理的数据
 		for _, id := range ids {
-			if id == -1 {
+			if id == "-1" {
 				continue
 			}
 			source <- id
 		}
-	}, func(id int64, writer mr.Writer[*model.GoodsMain], cancel func(error)) {
+	}, func(id string, writer mr.Writer[*model.GoodsMain], cancel func(error)) {
 		//处理数据
 		goods, err := (*goodsModel).CacheFindById(l.svcCtx.Redis, id)
 		if err != nil {

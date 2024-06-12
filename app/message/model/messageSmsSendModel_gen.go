@@ -21,7 +21,7 @@ var (
 	messageSmsSendRows                = strings.Join(messageSmsSendFieldNames, ",")
 	defaultMessageSmsSendFields       = strings.Join(messageSmsSendFieldNames, ",")
 	messageSmsSendRowsExpectAutoSet   = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`delete_at`"), ",")
-	messageSmsSendRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
+	messageSmsSendRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`char`", "`delete_at`"), "=?,") + "=?"
 )
 
 type (
@@ -32,18 +32,18 @@ type (
 		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
 		Save(data *MessageSmsSend) (int64, error)
 		TxSave(tx *sql.Tx, data *MessageSmsSend) (int64, error)
-		Delete(ctx context.Context, id int64) error
+		Delete(ctx context.Context, char string) error
 		Field(field string) *defaultMessageSmsSendModel
 		Alias(alias string) *defaultMessageSmsSendModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsSendModel
-		WhereId(id int64) *defaultMessageSmsSendModel
+		WhereId(id string) *defaultMessageSmsSendModel
 		Order(order string) *defaultMessageSmsSendModel
 		Limit(num int64) *defaultMessageSmsSendModel
-		Plat(id int64) *defaultMessageSmsSendModel
+		Plat(id string) *defaultMessageSmsSendModel
 		Find() (*MessageSmsSend, error)
-		FindById(id int64) (*MessageSmsSend, error)
+		FindById(id string) (*MessageSmsSend, error)
 		CacheFind(redis *redisd.Redisd) (*MessageSmsSend, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*MessageSmsSend, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsSend, error)
 		Page(page int64, rows int64) *defaultMessageSmsSendModel
 		Select() ([]*MessageSmsSend, error)
 		SelectWithTotal() ([]*MessageSmsSend, int64, error)
@@ -66,27 +66,27 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	MessageSmsSend struct {
-		Id       int64  `db:"id"`
+		Char     string `db:"char"`
 		Phone    string `db:"phone"`     // 发送手机号
 		Content  string `db:"content"`   // 发送手机号
 		StateEm  int64  `db:"state_em"`  // 发送状态枚举
 		Err      string `db:"err"`       // 发送错误时的错误信息
-		TempId   int64  `db:"temp_id"`   // 模版id
-		PlatId   int64  `db:"plat_id"`   // 应用id
+		TempId   string `db:"temp_id"`   // 模版id
+		PlatId   string `db:"plat_id"`   // 应用id
 		CreateAt int64  `db:"create_at"` // 创建时间戳
 		UpdateAt int64  `db:"update_at"` // 更新时间戳
 		DeleteAt int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 
-func newMessageSmsSendModel(conn sqlx.SqlConn, platId int64) *defaultMessageSmsSendModel {
+func newMessageSmsSendModel(conn sqlx.SqlConn, platId string) *defaultMessageSmsSendModel {
 	dao := dao.NewSqlxDao(conn, "`message_sms_send`", defaultMessageSmsSendFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultMessageSmsSendModel{
@@ -102,7 +102,7 @@ func (m *defaultMessageSmsSendModel) Ctx(ctx context.Context) *defaultMessageSms
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultMessageSmsSendModel) WhereId(id int64) *defaultMessageSmsSendModel {
+func (m *defaultMessageSmsSendModel) WhereId(id string) *defaultMessageSmsSendModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -143,7 +143,7 @@ func (m *defaultMessageSmsSendModel) Dec(field string, num int) (int64, error) {
 func (m *defaultMessageSmsSendModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultMessageSmsSendModel) Plat(id int64) *defaultMessageSmsSendModel {
+func (m *defaultMessageSmsSendModel) Plat(id string) *defaultMessageSmsSendModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -154,9 +154,9 @@ func (m *defaultMessageSmsSendModel) Reinit() *defaultMessageSmsSendModel {
 func (m *defaultMessageSmsSendModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, id int64) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
+func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, char string) error {
+	query := fmt.Sprintf("delete from %s where `char` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, char)
 	return err
 }
 
@@ -171,7 +171,7 @@ func (m *defaultMessageSmsSendModel) Find() (*MessageSmsSend, error) {
 	}
 	return resp, nil
 }
-func (m *defaultMessageSmsSendModel) FindById(id int64) (*MessageSmsSend, error) {
+func (m *defaultMessageSmsSendModel) FindById(id string) (*MessageSmsSend, error) {
 	resp := &MessageSmsSend{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -190,7 +190,7 @@ func (m *defaultMessageSmsSendModel) CacheFind(redis *redisd.Redisd) (*MessageSm
 	}
 	return resp, nil
 }
-func (m *defaultMessageSmsSendModel) CacheFindById(redis *redisd.Redisd, id int64) (*MessageSmsSend, error) {
+func (m *defaultMessageSmsSendModel) CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsSend, error) {
 	resp := &MessageSmsSend{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

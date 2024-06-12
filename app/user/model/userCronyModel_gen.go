@@ -36,14 +36,14 @@ type (
 		Field(field string) *defaultUserCronyModel
 		Alias(alias string) *defaultUserCronyModel
 		Where(whereStr string, whereData ...any) *defaultUserCronyModel
-		WhereId(id int64) *defaultUserCronyModel
+		WhereId(id string) *defaultUserCronyModel
 		Order(order string) *defaultUserCronyModel
 		Limit(num int64) *defaultUserCronyModel
-		Plat(id int64) *defaultUserCronyModel
+		Plat(id string) *defaultUserCronyModel
 		Find() (*UserCrony, error)
-		FindById(id int64) (*UserCrony, error)
+		FindById(id string) (*UserCrony, error)
 		CacheFind(redis *redisd.Redisd) (*UserCrony, error)
-		CacheFindById(redis *redisd.Redisd, id int64) (*UserCrony, error)
+		CacheFindById(redis *redisd.Redisd, id string) (*UserCrony, error)
 		Page(page int64, rows int64) *defaultUserCronyModel
 		Select() ([]*UserCrony, error)
 		SelectWithTotal() ([]*UserCrony, int64, error)
@@ -66,32 +66,32 @@ type (
 		whereSql        string
 		aliasSql        string
 		orderSql        string
-		platId          int64
+		platId          string
 		whereData       []any
 		err             error
 		ctx             context.Context
 	}
 
 	UserCrony struct {
-		Id               int64  `db:"id"`
-		OwnerUserId      int64  `db:"owner_user_id"`      // 归属人id
-		TargetUserId     int64  `db:"target_user_id"`     // 好友id
+		Id               string `db:"id"`
+		OwnerUserId      string `db:"owner_user_id"`      // 归属人id
+		TargetUserId     string `db:"target_user_id"`     // 好友id
 		TargetUserName   string `db:"target_user_name"`   // 好友名称
 		TargetUserAvatar string `db:"target_user_avatar"` // 好友头像
 		NameNote         string `db:"name_note"`          // 好友别名
 		Remark           string `db:"remark"`             // 好友备注
 		TypeEm           int64  `db:"type_em"`            // 好友类型
-		GroupId          int64  `db:"group_id"`           // 组别id
+		GroupId          string `db:"group_id"`           // 组别id
 		GroupName        string `db:"group_name"`         // 组别名称
 		TagIds           string `db:"tag_ids"`            // 标签集合id
-		PlatId           int64  `db:"plat_id"`
+		PlatId           string `db:"plat_id"`
 		CreateAt         int64  `db:"create_at"`
 		EditAt           int64  `db:"edit_at"`
 		DeleteAt         int64  `db:"delete_at"`
 	}
 )
 
-func newUserCronyModel(conn sqlx.SqlConn, platId int64) *defaultUserCronyModel {
+func newUserCronyModel(conn sqlx.SqlConn, platId string) *defaultUserCronyModel {
 	dao := dao.NewSqlxDao(conn, "`user_crony`", defaultUserCronyFields, true, "delete_at")
 	dao.Plat(platId)
 	return &defaultUserCronyModel{
@@ -107,7 +107,7 @@ func (m *defaultUserCronyModel) Ctx(ctx context.Context) *defaultUserCronyModel 
 	m.dao.Ctx(ctx)
 	return m
 }
-func (m *defaultUserCronyModel) WhereId(id int64) *defaultUserCronyModel {
+func (m *defaultUserCronyModel) WhereId(id string) *defaultUserCronyModel {
 	m.dao.WhereId(id)
 	return m
 }
@@ -148,7 +148,7 @@ func (m *defaultUserCronyModel) Dec(field string, num int) (int64, error) {
 func (m *defaultUserCronyModel) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return m.dao.Dec(field, num)
 }
-func (m *defaultUserCronyModel) Plat(id int64) *defaultUserCronyModel {
+func (m *defaultUserCronyModel) Plat(id string) *defaultUserCronyModel {
 	m.dao.Plat(id)
 	return m
 }
@@ -176,7 +176,7 @@ func (m *defaultUserCronyModel) Find() (*UserCrony, error) {
 	}
 	return resp, nil
 }
-func (m *defaultUserCronyModel) FindById(id int64) (*UserCrony, error) {
+func (m *defaultUserCronyModel) FindById(id string) (*UserCrony, error) {
 	resp := &UserCrony{}
 	err := m.dao.FindById(resp, id)
 	if err != nil {
@@ -195,7 +195,7 @@ func (m *defaultUserCronyModel) CacheFind(redis *redisd.Redisd) (*UserCrony, err
 	}
 	return resp, nil
 }
-func (m *defaultUserCronyModel) CacheFindById(redis *redisd.Redisd, id int64) (*UserCrony, error) {
+func (m *defaultUserCronyModel) CacheFindById(redis *redisd.Redisd, id string) (*UserCrony, error) {
 	resp := &UserCrony{}
 	err := m.dao.CacheFindById(redis, resp, id)
 	if err != nil {

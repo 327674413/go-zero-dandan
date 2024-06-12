@@ -14,6 +14,7 @@ import (
 )
 
 // todo::错误返回全部封装， 用resd来包装，这样错误吗就不用每次写了
+
 // SqlxDao 自用orm
 type SqlxDao struct {
 	conn             sqlx.SqlConn
@@ -26,7 +27,7 @@ type SqlxDao struct {
 
 	tableAlias         string
 	orderSql           string
-	platId             int64
+	platId             string
 	queryPage          int64
 	querySize          int64
 	limitNum           int64
@@ -145,7 +146,7 @@ func (t *SqlxDao) Dec(field string, num int) (int64, error) {
 func (t *SqlxDao) TxDec(tx *sql.Tx, field string, num int) (int64, error) {
 	return 0, nil
 }
-func (t *SqlxDao) FindById(targetStructPtr any, id int64) error {
+func (t *SqlxDao) FindById(targetStructPtr any, id string) error {
 	t.whereSql = ""
 	t.WhereId(id)
 	return t.Find(targetStructPtr)
@@ -179,8 +180,8 @@ func (t *SqlxDao) getWhereParam() string {
 	if t.tableAlias != "" {
 		plat = t.tableAlias + "." + plat
 	}
-	if t.platId != 0 {
-		where = where + "" + fmt.Sprintf(" AND %s=%d", plat, t.platId)
+	if t.platId != "" {
+		where = where + "" + fmt.Sprintf(" AND %s=%s", plat, t.platId)
 	}
 	if t.softDeletable {
 		aliasDelete := ""
@@ -356,15 +357,13 @@ func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 }
 
 // CacheFindById 优先从缓存里查询数据，若缓存不存在则从数据库里查询，无失效时间
-func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id int64) (err error) {
+func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id string) (err error) {
 	defer t.Reinit()
 	cacheField := t.getCachePrefixField()
-	cacheKey := fmt.Sprintf("%d", id)
-
 	if t.ctx == nil {
-		err = redis.GetData(cacheField, cacheKey, targetStructPtr)
+		err = redis.GetData(cacheField, id, targetStructPtr)
 	} else {
-		err = redis.GetDataCtx(t.ctx, cacheField, cacheKey, targetStructPtr)
+		err = redis.GetDataCtx(t.ctx, cacheField, id, targetStructPtr)
 	}
 
 	if err == nil {
@@ -377,10 +376,10 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id in
 	}
 	// todo::如果没查到，是不是会有问题
 	if t.ctx == nil {
-		redis.SetData(cacheField, cacheKey, targetStructPtr)
+		redis.SetData(cacheField, id, targetStructPtr)
 	} else {
 
-		redis.SetDataCtx(t.ctx, cacheField, cacheKey, targetStructPtr)
+		redis.SetDataCtx(t.ctx, cacheField, id, targetStructPtr)
 	}
 
 	return nil
@@ -465,7 +464,7 @@ func (t *SqlxDao) prepareInsert(data map[string]any) (string, []any, error) {
 	} else {
 		return "", nil, resd.NewErr("insert data is empty", 4) //这里用了第4层能定位到业务调用代码处，暂不确定是否靠谱
 	}
-	if !hasPlatId && t.platId > 0 {
+	if !hasPlatId && t.platId != "" {
 		insertFields = insertFields + ",plat_id"
 		insertValues = insertValues + ",?"
 		insertData = append(insertData, t.platId)
@@ -570,11 +569,11 @@ func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
 func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
-	var id int64
+	var id string
 	var hasId bool
 	for k, v := range data {
 		if k == "id" {
-			id = utild.AnyToInt64(k)
+			id = k
 			hasId = true
 			continue
 		}
@@ -604,15 +603,15 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
-		if id == 0 {
+		if id == "" {
 			return 0, resd.NewErr("update data must need where")
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
 
 	}
-	if t.platId != 0 {
-		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", t.platId)
+	if t.platId != "" {
+		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%s", t.platId)
 	}
 	query := fmt.Sprintf("update %s set %s where %s", t.table, updateStr, whereStr)
 	var sqlRes sql.Result
@@ -633,11 +632,11 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 	var updateStr string
 	params := make([]any, 0)
-	var id int64
+	var id string
 	var hasId bool
 	for k, v := range data {
 		if k == "id" {
-			id = utild.AnyToInt64(k)
+			id = k
 			hasId = true
 			continue
 		}
@@ -667,15 +666,15 @@ func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
-		if id == 0 {
+		if id == "" {
 			return 0, resd.NewErr("update data must need where")
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
 
 	}
-	if t.platId != 0 {
-		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", t.platId)
+	if t.platId != "" {
+		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%s", t.platId)
 	}
 	query := fmt.Sprintf("update %s set %s where %s", t.table, updateStr, whereStr)
 	var sqlRes sql.Result
@@ -723,15 +722,15 @@ func (t *SqlxDao) prepareUpdate(data map[string]any) (string, []any, error) {
 		return "", nil, resd.NewErr("update param where is empty")
 	}
 	// 多应用时自动增加多应用条件
-	if t.platId != 0 {
-		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%d", t.platId)
+	if t.platId != "" {
+		whereStr = whereStr + fmt.Sprintf(" AND plat_id=%s", t.platId)
 	}
 	query := fmt.Sprintf("update %s set %s where %s", t.table, updateStr, whereStr)
 	return query, params, nil
 }
 
 // WhereId 根据id设置where，优先级最高，执行后将会覆盖原有条件
-func (t *SqlxDao) WhereId(id int64) *SqlxDao {
+func (t *SqlxDao) WhereId(id string) *SqlxDao {
 	t.whereSql = "id=?"
 	t.whereData = append(t.whereData, id)
 	return t
@@ -767,7 +766,7 @@ func (t *SqlxDao) Order(order string) *SqlxDao {
 }
 
 // Plat 设置应用id
-func (t *SqlxDao) Plat(platId int64) *SqlxDao {
+func (t *SqlxDao) Plat(platId string) *SqlxDao {
 	t.platId = platId
 	return t
 }

@@ -1,8 +1,9 @@
-AuthUserNotLogin = "您还未登录"
+AuthUserNotLoginErr = "您还未登录"
 AuthPlatErr = "无效应用"
 SysErr = "遇到了点小问题"
 
 CopierErr = "内部数据格式转换失败"
+NotFound1 = "{{.Field1}}不存在"
 
 ReqFieldRequired1 = "{{.Field1}}不能为空"
 ReqPhoneErr = "请输入正确的手机号码"
@@ -64,7 +65,7 @@ Image = "图片"
 Id = "id"
 Account = "账号"
 VarPassword = "密码"
-
+UpoladTask = "上传任务"
 
 [HelloPerson]
 hash = "sha1-5b49bfdad81fedaeefb224b0ffc2acc58b09cff5"
