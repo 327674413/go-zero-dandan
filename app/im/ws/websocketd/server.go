@@ -12,18 +12,19 @@ import (
 	"time"
 )
 
+// Server websocket核心服务，管理路由、连接信息等
 type Server struct {
-	sync.RWMutex          //读写锁，允许读并发，虽然开销大一点，当绝大多数是读操作时，但比互斥锁Mutex性能更好
-	*threading.TaskRunner //并发处理
-	opt                   *serverOption
-	authenication         Authentication
-	routes                map[string]HandlerFunc
-	addr                  string
-	upgrader              websocket.Upgrader
-	logx.Logger
-	connToUser map[*Conn]string
-	userToConn map[string]*Conn
-	patten     string
+	sync.RWMutex                                 //读写锁，允许读并发，虽然开销大一点，当绝大多数是读操作时，但比互斥锁Mutex性能更好
+	*threading.TaskRunner                        //zero封装的，多协程并发执行的方法
+	opt                   *serverOption          //服务启动的配置参数
+	authenication         Authentication         //用户连接的授权接口，要实现根据http请求获取，返回是否允许执行和获取用户id方法
+	routes                map[string]HandlerFunc //方法路由，通过请求中的method方法来调用具体路由对应的执行方法
+	addr                  string                 // ws启动的端口地址
+	upgrader              websocket.Upgrader     //将http升级到socket协议使用
+	logx.Logger                                  // zero封装的日志方法
+	connToUser            map[*Conn]string       // 管理连接，以conn连接为key
+	userToConn            map[string]*Conn       // 管理连接，以用户id为key
+	patten                string                 //监听路径，也就是地址:ip后面部分的路径地址，如这里实际用的是/ws
 }
 
 func NewServer(addr string, opts ...ServerOptions) *Server {
@@ -41,18 +42,23 @@ func NewServer(addr string, opts ...ServerOptions) *Server {
 		TaskRunner:    threading.NewTaskRunner(opt.concurrency),
 	}
 }
+
+// ServerWs 处理ws请求的方法，调用时通过http.HandleFunc(patten,ServerWs)完成服务绑定和启动
 func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
+	// 捕获ws服务中的panic，避免程序中断
 	defer func() {
 		if r := recover(); r != nil {
 			t.Errorf("server handler ws recover err：%v", r)
 		}
 	}()
+	//将用户的http请求连接升级为websocket的conn连接
 	conn := NewConn(t, w, r)
 	if conn == nil {
 		return
 	}
+	//校验用户的连接权限，比如是否登陆用户等
 	if !t.authenication.Auth(w, r) {
-		//提示权限
+		//无权限
 		t.Send(&Message{FrameType: FrameData, Data: "不具备访问权限"}, conn)
 		//主动断开链接
 		conn.Close()
@@ -60,29 +66,36 @@ func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
 	}
 	//记录链接
 	t.addConn(conn, r)
-	//处理链接
+	//通过协程，开启每个连接的消息处理
 	go t.handlerConn(conn)
 }
 func (t *Server) addConn(conn *Conn, req *http.Request) {
+	//根据授权，获取用户id
 	uid := t.authenication.UserId(req)
 	t.RWMutex.Lock()
 	defer t.RWMutex.Unlock()
 	//判断用户是否已经登陆过
 	if c := t.userToConn[uid]; c != nil {
 		//先不做支持重复登陆，关闭之前的链接
-		logx.Infof("%s用户已登陆，踢下线", uid)
+		// todo::支持多设备登陆使用
+		logx.Infof("用户%s已登陆，踢下线", uid)
 		c.Close()
 	}
-	logx.Infof("%s用户连接成功", uid)
+	logx.Infof("用户%s连接成功", uid)
 	t.connToUser[conn] = uid
+	conn.Uid = uid
 	t.userToConn[uid] = conn
 	logx.Info("当前总连接数量：", len(t.userToConn))
 }
+
+// GetConn 根据用户id获取conn连接
 func (t *Server) GetConn(uid string) *Conn {
 	t.RWMutex.RLock()
 	defer t.RWMutex.RUnlock()
 	return t.userToConn[uid]
 }
+
+// GetConns 根据多个用户id，获取多个conn连接
 func (t *Server) GetConns(uids ...string) []*Conn {
 	if len(uids) == 0 {
 		return nil
@@ -95,11 +108,15 @@ func (t *Server) GetConns(uids ...string) []*Conn {
 	}
 	return res
 }
+
+// GetUser 根据conn连接获取用户id
 func (t *Server) GetUser(conn *Conn) string {
 	t.RWMutex.RLock()
 	defer t.RWMutex.RUnlock()
 	return t.connToUser[conn]
 }
+
+// GetUsers 根据多个conn连接获取多个用户id
 func (t *Server) GetUsers(conns ...*Conn) []string {
 	t.RWMutex.Lock()
 	defer t.RWMutex.Unlock()
@@ -117,6 +134,8 @@ func (t *Server) GetUsers(conns ...*Conn) []string {
 	}
 	return res
 }
+
+// Close 关闭conn连接
 func (t *Server) Close(conn *Conn) {
 	t.RWMutex.Lock()
 	defer t.RWMutex.Unlock()
@@ -131,40 +150,40 @@ func (t *Server) Close(conn *Conn) {
 	conn.Close()
 }
 
-// 根据链接对象进行任务处理
+// handlerConn 每个连接的ws处理方法，一个conn就会有一个协程
 func (t *Server) handlerConn(conn *Conn) {
-	//获取用户id
-	conn.Uid = t.GetUser(conn)
-	// 写入处理任务
-	go t.handlerWrite(conn)
-	//判断是否开启ack
+	// 专门再起一个写消息的协程，本方法金接收消息，判断ack或直接处理
+	go t.messageHandler(conn)
+	// 根据是否启用ack，开启ack的处理协层，传nil就会走启动服务时的opt参数
 	if t.isAck(nil) {
 		go t.readAck(conn)
 	}
+	// 阻塞，直到有客户端法消息进来才会开始处理消息
 	for {
+		//这里读到消息后，并没有直接处理业务，而是判断类型后，放到ack待确认里，或放到管道中，专门另一个协程来处理
 		_, msg, err := conn.ReadMessage()
-		//能确定，用int64精度丢失问题，在这里不管怎么解析，解析出来的都是错的数字
-		logx.Info("消息来了")
+		//备注：如果msg中的数据有int64那种很长的数字，似乎会出现精度丢失问题，在这里收到就和发出的不一样了，所以最好长数字要用字符串传输
+		t.Info("消息来了")
 		if err != nil {
-			logx.Errorf("websocket conn read message err：%v", err)
+			t.Errorf("websocket conn read message err：%v", err)
 			t.Close(conn)
 			return
 		}
-		//消息转化
+		//消息转化，json解析成消息结构体
 		var message *Message
 		if err = json.Unmarshal(msg, &message); err != nil {
-			logx.Errorf("json unmarshal err：%v ，msg：%s", err, string(msg))
+			t.Errorf("消息json解析失败：%v ，msg：%s", err, string(msg))
 			t.Close(conn)
 			return
 		}
 		//根据消息机制进行处理
 		if t.isAck(message) {
-			logx.Infof("ACK机制的消息来了 %v", message)
-			//进行ack处理机制，写入处理的队列
+			t.Infof("ACK机制的消息来了 %v", message)
+			//进行ack处理机制，写入待处理的队列，因为每次只处理一条，直接用数组，不确定用管道会不会更好
 			conn.appendMsgMq(message)
 		} else {
-			//非ack，直接放入消息推送的通道，发送消息
-			conn.sendMessageChan <- message
+			//非ack，直接放入消息发送的管道，该管道有写消息的协程执行，会解析消息内容进行发送
+			conn.readMessageChan <- message
 		}
 
 	}
@@ -238,7 +257,7 @@ func (t *Server) readAck(conn *Conn) {
 			conn.readMessageAckMq = conn.readMessageAckMq[1:]
 			conn.messageMu.Unlock()
 			// 将消息放入发送队列，发送给接收者
-			conn.sendMessageChan <- ackMessage
+			conn.readMessageChan <- ackMessage
 		case RigorAck:
 			//应答模式
 			//判断是否是未确认过的消息
@@ -262,7 +281,7 @@ func (t *Server) readAck(conn *Conn) {
 				//大于，则本次收到的消息序号更大，确认成功，发送消息
 				conn.readMessageAckMq = conn.readMessageAckMq[1:]
 				conn.messageMu.Unlock()
-				conn.sendMessageChan <- ackMessage
+				conn.readMessageChan <- ackMessage
 				logx.Info("应答机制消息确认成功 mid: %v", ackMessage.Id)
 				continue
 			}
@@ -289,27 +308,30 @@ func (t *Server) readAck(conn *Conn) {
 	}
 }
 
-// ack处理
-func (t *Server) handlerWrite(conn *Conn) {
+// messageHandler 处理收到消息的协程方法
+func (t *Server) messageHandler(conn *Conn) {
 	for {
 		select {
 		case <-conn.done:
-			//连接关闭
+			//主动关闭调用conn.Close时会关闭，触发进入该方法，然后结束这个conn的写协程
 			return
-		case message := <-conn.sendMessageChan:
+		case message := <-conn.readMessageChan:
+			//无需ack或已经确认完的消息进来，进行消息处理
 			switch message.FrameType {
 			case FramePing:
+				//过来的是ping类型的消息，这里好像没有回复gong，也是给该客户端回复的ping？？？还没搞懂是不是通过ping来做心跳
 				t.Send(&Message{FrameType: FramePing}, conn)
 			case FrameData:
-				//根据请求的method分发路由并执行
+				//data类型的消息，根据消息中的method参数，找到对应的路由.方法，并执行
 				if handler, ok := t.routes[message.Method]; ok {
 					handler(t, conn, message)
 				} else {
+					//未提供方法时，报错
 					t.Send(&Message{FrameType: FrameData, Data: fmt.Sprintf("不存在的ws写入方法：%v", message.Method)}, conn)
 				}
 			}
 			if t.isAck(message) {
-				//消息发送成功后，如果是ack机制的，需要移除ack序号的map
+				//消息读取处理完毕后，如果是ack机制的，需要移除ack序号的map
 				conn.messageMu.Lock()
 				delete(conn.readMessageSeqMap, message.Id)
 				conn.messageMu.Unlock()
@@ -317,25 +339,34 @@ func (t *Server) handlerWrite(conn *Conn) {
 		}
 	}
 }
+
+// AddRoutes 注册路由方法
 func (t *Server) AddRoutes(rs []Route) {
 	for _, r := range rs {
 		t.routes[r.Method] = r.Handler
 	}
 }
+
+// Start 启动ws的连接服务
 func (t *Server) Start() {
 	http.HandleFunc(t.patten, t.ServerWs)
 	t.Info(http.ListenAndServe(t.addr, nil))
 }
+
+// Stop 停止ws的连接服务，暂未实现
 func (t *Server) Stop() {
 	fmt.Println("停止服务")
 }
 
+// SendByUserId 根据用户id发送消息
 func (t *Server) SendByUserId(msg interface{}, userIds ...string) error {
 	if len(userIds) == 0 {
 		return nil
 	}
 	return t.Send(msg, t.GetConns(userIds...)...)
 }
+
+// Send 根据conn连接发送消息
 func (t *Server) Send(msg interface{}, conns ...*Conn) error {
 	if len(conns) == 0 {
 		return nil

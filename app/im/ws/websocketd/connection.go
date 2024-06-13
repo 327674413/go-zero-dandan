@@ -23,7 +23,7 @@ type Conn struct {
 	messageMu         sync.Mutex
 	readMessageAckMq  []*Message          // 本客户端需要ack确认消息的队列，保证按顺序确认用
 	readMessageSeqMap map[string]*Message //如果是要应答的ack消息，用消息id作为索引管理应答确认秦光
-	sendMessageChan   chan *Message       // 用来发送消息的管道，通过发消息的协程读该管道来发送，收发消息逻辑分离
+	readMessageChan   chan *Message       // 用来异步处理收到消息的管道，当无需ack确认或ack确认后，丢给该管道处理
 }
 
 // NewConn 创建一个新的 websocket 连接并返回 Conn 结构体的实例
@@ -41,7 +41,7 @@ func NewConn(s *Server, w http.ResponseWriter, r *http.Request) *Conn {
 		done:              make(chan struct{}),     // 初始化通知通道
 		readMessageAckMq:  make([]*Message, 0, 2),
 		readMessageSeqMap: make(map[string]*Message),
-		sendMessageChan:   make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
+		readMessageChan:   make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
 	}
 	go conn.keepalive()
 	return conn
@@ -81,20 +81,24 @@ func (t *Conn) appendMsgMq(msg *Message) {
 	//ack的确认序号中增加该消息id，代表等待确认
 	t.readMessageSeqMap[msg.Id] = msg
 }
+
+// ReadMessage 读取消息
 func (t *Conn) ReadMessage() (messageType int, p []byte, err error) {
 	messageType, p, err = t.Conn.ReadMessage()
 	//三方库中的读写是不安全的，需要锁
 	t.idleMu.Lock()
 	defer t.idleMu.Unlock()
-	t.idle = time.Time{}
+	t.idle = time.Now() //设置上次活跃时间为当前时间
 	return
 }
+
+// WriteMessage 发送消息
 func (t *Conn) WriteMessage(messageType int, data []byte) error {
 	//三方库中的读写是不安全的，需要锁
 	t.idleMu.Lock()
 	defer t.idleMu.Unlock()
 	err := t.Conn.WriteMessage(messageType, data)
-	t.idle = time.Now()
+	t.idle = time.Now() //设置上次活跃时间为当前时间
 	return err
 
 }
@@ -128,11 +132,13 @@ func (t *Conn) keepalive() {
 	}
 }
 
+// Close 主动关闭客户端连接
 func (t *Conn) Close() error {
+	//确保通道只关闭一次，避免重复关闭通道可能导致的 panic
 	select {
-	case <-t.done:
+	case <-t.done: // 如果 t.done 通道已经关闭（即已经有值可以接收），什么都不做
 	default:
-		close(t.done)
+		close(t.done) // 如果 t.done 通道还没有关闭，关闭它
 	}
 	return t.Conn.Close()
 }

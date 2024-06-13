@@ -20,6 +20,7 @@ func stringToInt64HookFunc(f reflect.Type, t reflect.Type, data interface{}) (in
 	return data, nil
 }
 
+// Chat 的消息写入方法
 func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 	return func(server *websocketd.Server, conn *websocketd.Conn, msg *websocketd.Message) {
 		var data websocketd.Chat
