@@ -19,7 +19,7 @@ var config Config
 
 func main() {
 	// 读取 YAML 文件内容
-	yamlFile, err := os.ReadFile("./cmd-dev.yml")
+	yamlFile, err := os.ReadFile("./conf.yml")
 	if err != nil {
 		log.Fatalf("Failed to read YAML file: %v \n", err)
 	}
@@ -33,7 +33,7 @@ func main() {
 	data := make([]*model.UserCrony, 0)
 	//var data []model.UserCrony
 	//var data model.UserCrony
-	err = db.QueryRowsPartialCtx(context.Background(), &data, "select * from user_crony")
+	err = db.QueryRowsPartialCtx(context.Background(), &data, "select * from staff")
 	if err != nil {
 		logx.Error(err)
 		return

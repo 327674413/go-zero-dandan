@@ -86,6 +86,7 @@ func (t *Server) addConn(conn *Conn, req *http.Request) {
 	conn.Uid = uid
 	t.userToConn[uid] = conn
 	logx.Info("当前总连接数量：", len(t.userToConn))
+	//todo::需要发送上线消息给kafka，更新上线用户缓存和给好友发上线通知
 }
 
 // GetConn 根据用户id获取conn连接
@@ -163,12 +164,16 @@ func (t *Server) handlerConn(conn *Conn) {
 		//这里读到消息后，并没有直接处理业务，而是判断类型后，放到ack待确认里，或放到管道中，专门另一个协程来处理
 		_, msg, err := conn.ReadMessage()
 		//备注：如果msg中的数据有int64那种很长的数字，似乎会出现精度丢失问题，在这里收到就和发出的不一样了，所以最好长数字要用字符串传输
-		t.Info("消息来了")
 		if err != nil {
-			t.Errorf("websocket conn read message err：%v", err)
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				t.Infof("用户%s下线", conn.Uid)
+			} else {
+				t.Infof("用户%s离线：%v", conn.Uid)
+			}
 			t.Close(conn)
 			return
 		}
+		t.Infof("用户%s消息来了", conn.Uid)
 		//消息转化，json解析成消息结构体
 		var message *Message
 		if err = json.Unmarshal(msg, &message); err != nil {

@@ -1,7 +1,6 @@
 package push
 
 import (
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/pkg/mapd"
@@ -27,7 +26,7 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 	//发送
 	rconn := server.GetConn(recvId)
 	if rconn == nil {
-		logx.Info("推送目标对象", recvId, "离线")
+		server.Info("推送目标对象", recvId, "离线")
 		//离线
 		return nil
 	}
@@ -48,7 +47,7 @@ func group(server *websocketd.Server, data *websocketd.Push) error {
 	for _, id := range data.RecvIds {
 		func(id string) {
 			server.Schedule(func() {
-				logx.Info("推送群聊消息给：", id)
+				server.Info("推送群聊消息给：", id)
 				single(server, data, id)
 			})
 		}(id)

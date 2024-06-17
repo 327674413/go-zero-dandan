@@ -98,8 +98,16 @@ message FriendListReq{
 message FriendListResp{
   repeated Friends list = 1;
 }
+message FriendOnlineResp{
+  string platId = 1;
+  map<string, bool> onlineUser = 2;
+}
 
 // 群
+message GroupOnlineResp{
+  string platId = 1;
+  map<string, bool> onlineUser = 2;
+}
 message GroupCreateReq {
   string name = 1;
   int64  status = 2;
@@ -169,7 +177,7 @@ service social {
   rpc FriendPutInHandle(FriendPutInHandleReq) returns(FriendPutInHandleResp);
   rpc FriendPutInList(FriendPutInListReq) returns(FriendPutInListResp);
   rpc FriendList(FriendListReq) returns (FriendListResp);
-
+  rpc FriendOnlineList(FriendListReq) returns (FriendOnlineResp);
   // 群业务：创建群，修改群，群公告，申请群，用户群列表，群成员，申请群，群退出..
 
   rpc GroupCreate(GroupCreateReq) returns (GroupCreateResp);
@@ -178,6 +186,6 @@ service social {
   rpc GroupPutInHandle(GroupPutInHandleReq) returns(GroupPutInHandleResp);
   rpc GroupList(GroupListReq) returns (GroupListResp);
   rpc GroupUsers(GroupUsersReq) returns (GroupUsersResp);
-
+  rpc GroupOnlineUserList(GroupUsersReq) returns (GroupOnlineResp);
   // ..
 }

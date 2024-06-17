@@ -2,9 +2,11 @@ package logic
 
 import (
 	"context"
-
+	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild/copier"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +26,19 @@ func NewFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 }
 
 func (l *FriendListLogic) FriendList(in *pb.FriendListReq) (*pb.FriendListResp, error) {
-	// todo: add your logic here and delete this line
+	m := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
 
-	return &pb.FriendListResp{}, nil
+	list, err := m.Where("user_id = ?", in.UserId).Select()
+
+	if err != nil {
+		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+	}
+	resp := &pb.FriendListResp{
+		List: make([]*pb.Friends, 0),
+	}
+	if err = copier.Copy(&resp.List, list); err != nil {
+		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+	}
+	return resp, nil
+
 }

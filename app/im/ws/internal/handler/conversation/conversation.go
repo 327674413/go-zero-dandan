@@ -8,40 +8,35 @@ import (
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/pkg/mapd"
-	"reflect"
-	"strconv"
 	"time"
 )
 
-func stringToInt64HookFunc(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
-	if f.Kind() == reflect.String && t.Kind() == reflect.Int64 {
-		return strconv.ParseInt(data.(string), 10, 64)
-	}
-	return data, nil
-}
-
-// Chat 的消息写入方法
+// Chat 聊天核心方法，包括私聊、群聊等
 func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 	return func(server *websocketd.Server, conn *websocketd.Conn, msg *websocketd.Message) {
 		var data websocketd.Chat
+		// 将读取的消息结构体，转化为chat聊天消息的结构体
 		if err := mapd.AnyToStruct(msg.Data, &data); err != nil {
 			server.Send(websocketd.NewErrMessage(fmt.Errorf("解析消息失败：%v", err)), conn)
 			return
 		}
+		// 当会话id不存在时进行处理
 		if data.ConversationId == "" {
 			switch data.ChatType {
-			case websocketd.SingleChatType:
+			case websocketd.SingleChatType: //私聊，将两个用户的id组装成会话id
 				data.ConversationId = utild.CombineId(conn.Uid, data.RecvId)
-			case websocketd.GroupChatType:
+			case websocketd.GroupChatType: //群聊，recivId为群id,作为会话id
 				data.ConversationId = data.RecvId
 			}
 		}
+		// 根据不同消息类型，做不同的二次处理
 		switch data.ChatType {
 		case websocketd.SingleChatType:
 
 		case websocketd.GroupChatType:
 
 		}
+		// 将消息转化为mq消息的格式，并发送的mq
 		err := svc.MsgChatTransferClient.Push(&kafkad.MsgChatTransfer{
 			ConversationId: data.ConversationId,
 			ChatType:       data.ChatType,

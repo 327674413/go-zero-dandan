@@ -19,16 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Social_FriendPutIn_FullMethodName       = "/social.social/FriendPutIn"
-	Social_FriendPutInHandle_FullMethodName = "/social.social/FriendPutInHandle"
-	Social_FriendPutInList_FullMethodName   = "/social.social/FriendPutInList"
-	Social_FriendList_FullMethodName        = "/social.social/FriendList"
-	Social_GroupCreate_FullMethodName       = "/social.social/GroupCreate"
-	Social_GroupPutin_FullMethodName        = "/social.social/GroupPutin"
-	Social_GroupPutinList_FullMethodName    = "/social.social/GroupPutinList"
-	Social_GroupPutInHandle_FullMethodName  = "/social.social/GroupPutInHandle"
-	Social_GroupList_FullMethodName         = "/social.social/GroupList"
-	Social_GroupUsers_FullMethodName        = "/social.social/GroupUsers"
+	Social_FriendPutIn_FullMethodName         = "/social.social/FriendPutIn"
+	Social_FriendPutInHandle_FullMethodName   = "/social.social/FriendPutInHandle"
+	Social_FriendPutInList_FullMethodName     = "/social.social/FriendPutInList"
+	Social_FriendList_FullMethodName          = "/social.social/FriendList"
+	Social_FriendOnlineList_FullMethodName    = "/social.social/FriendOnlineList"
+	Social_GroupCreate_FullMethodName         = "/social.social/GroupCreate"
+	Social_GroupPutin_FullMethodName          = "/social.social/GroupPutin"
+	Social_GroupPutinList_FullMethodName      = "/social.social/GroupPutinList"
+	Social_GroupPutInHandle_FullMethodName    = "/social.social/GroupPutInHandle"
+	Social_GroupList_FullMethodName           = "/social.social/GroupList"
+	Social_GroupUsers_FullMethodName          = "/social.social/GroupUsers"
+	Social_GroupOnlineUserList_FullMethodName = "/social.social/GroupOnlineUserList"
 )
 
 // SocialClient is the client API for Social service.
@@ -39,12 +41,14 @@ type SocialClient interface {
 	FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error)
 	FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error)
 	FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
+	FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
 	GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error)
 	GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error)
 	GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error)
 	GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error)
 	GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
 	GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error)
+	GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error)
 }
 
 type socialClient struct {
@@ -85,6 +89,15 @@ func (c *socialClient) FriendPutInList(ctx context.Context, in *FriendPutInListR
 func (c *socialClient) FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
 	out := new(FriendListResp)
 	err := c.cc.Invoke(ctx, Social_FriendList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *socialClient) FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
+	out := new(FriendOnlineResp)
+	err := c.cc.Invoke(ctx, Social_FriendOnlineList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,6 +158,15 @@ func (c *socialClient) GroupUsers(ctx context.Context, in *GroupUsersReq, opts .
 	return out, nil
 }
 
+func (c *socialClient) GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error) {
+	out := new(GroupOnlineResp)
+	err := c.cc.Invoke(ctx, Social_GroupOnlineUserList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SocialServer is the server API for Social service.
 // All implementations must embed UnimplementedSocialServer
 // for forward compatibility
@@ -153,12 +175,14 @@ type SocialServer interface {
 	FriendPutInHandle(context.Context, *FriendPutInHandleReq) (*FriendPutInHandleResp, error)
 	FriendPutInList(context.Context, *FriendPutInListReq) (*FriendPutInListResp, error)
 	FriendList(context.Context, *FriendListReq) (*FriendListResp, error)
+	FriendOnlineList(context.Context, *FriendListReq) (*FriendOnlineResp, error)
 	GroupCreate(context.Context, *GroupCreateReq) (*GroupCreateResp, error)
 	GroupPutin(context.Context, *GroupPutinReq) (*GroupPutinResp, error)
 	GroupPutinList(context.Context, *GroupPutinListReq) (*GroupPutinListResp, error)
 	GroupPutInHandle(context.Context, *GroupPutInHandleReq) (*GroupPutInHandleResp, error)
 	GroupList(context.Context, *GroupListReq) (*GroupListResp, error)
 	GroupUsers(context.Context, *GroupUsersReq) (*GroupUsersResp, error)
+	GroupOnlineUserList(context.Context, *GroupUsersReq) (*GroupOnlineResp, error)
 	mustEmbedUnimplementedSocialServer()
 }
 
@@ -178,6 +202,9 @@ func (UnimplementedSocialServer) FriendPutInList(context.Context, *FriendPutInLi
 func (UnimplementedSocialServer) FriendList(context.Context, *FriendListReq) (*FriendListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FriendList not implemented")
 }
+func (UnimplementedSocialServer) FriendOnlineList(context.Context, *FriendListReq) (*FriendOnlineResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FriendOnlineList not implemented")
+}
 func (UnimplementedSocialServer) GroupCreate(context.Context, *GroupCreateReq) (*GroupCreateResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GroupCreate not implemented")
 }
@@ -195,6 +222,9 @@ func (UnimplementedSocialServer) GroupList(context.Context, *GroupListReq) (*Gro
 }
 func (UnimplementedSocialServer) GroupUsers(context.Context, *GroupUsersReq) (*GroupUsersResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GroupUsers not implemented")
+}
+func (UnimplementedSocialServer) GroupOnlineUserList(context.Context, *GroupUsersReq) (*GroupOnlineResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GroupOnlineUserList not implemented")
 }
 func (UnimplementedSocialServer) mustEmbedUnimplementedSocialServer() {}
 
@@ -277,6 +307,24 @@ func _Social_FriendList_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SocialServer).FriendList(ctx, req.(*FriendListReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Social_FriendOnlineList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FriendListReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).FriendOnlineList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_FriendOnlineList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).FriendOnlineList(ctx, req.(*FriendListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -389,6 +437,24 @@ func _Social_GroupUsers_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Social_GroupOnlineUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GroupUsersReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SocialServer).GroupOnlineUserList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Social_GroupOnlineUserList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SocialServer).GroupOnlineUserList(ctx, req.(*GroupUsersReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Social_ServiceDesc is the grpc.ServiceDesc for Social service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -413,6 +479,10 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Social_FriendList_Handler,
 		},
 		{
+			MethodName: "FriendOnlineList",
+			Handler:    _Social_FriendOnlineList_Handler,
+		},
+		{
 			MethodName: "GroupCreate",
 			Handler:    _Social_GroupCreate_Handler,
 		},
@@ -435,6 +505,10 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GroupUsers",
 			Handler:    _Social_GroupUsers_Handler,
+		},
+		{
+			MethodName: "GroupOnlineUserList",
+			Handler:    _Social_GroupOnlineUserList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -7,8 +7,8 @@ func (l *{{.logicName}}) {{.method}} ({{if .hasReq}}in {{.request}}{{if .stream}
 	return {{if .hasReply}}&{{.responseType}}{},{{end}} nil
 }
 func (l *{{.logicName}}) checkReqParams(in {{.request}}) error {
-	if in.PlatId == 0 {
-		return resd.NewErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
+	if in.PlatId == "" {
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}
 	return nil
 }

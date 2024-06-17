@@ -15,6 +15,7 @@ import (
 type (
 	FriendListReq         = pb.FriendListReq
 	FriendListResp        = pb.FriendListResp
+	FriendOnlineResp      = pb.FriendOnlineResp
 	FriendPutInHandleReq  = pb.FriendPutInHandleReq
 	FriendPutInHandleResp = pb.FriendPutInHandleResp
 	FriendPutInListReq    = pb.FriendPutInListReq
@@ -28,6 +29,7 @@ type (
 	GroupListReq          = pb.GroupListReq
 	GroupListResp         = pb.GroupListResp
 	GroupMembers          = pb.GroupMembers
+	GroupOnlineResp       = pb.GroupOnlineResp
 	GroupPutInHandleReq   = pb.GroupPutInHandleReq
 	GroupPutInHandleResp  = pb.GroupPutInHandleResp
 	GroupPutinListReq     = pb.GroupPutinListReq
@@ -44,12 +46,14 @@ type (
 		FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error)
 		FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error)
 		FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
+		FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
 		GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error)
 		GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error)
 		GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error)
 		GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error)
 		GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
 		GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error)
+		GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error)
 	}
 
 	defaultSocial struct {
@@ -83,6 +87,11 @@ func (m *defaultSocial) FriendList(ctx context.Context, in *FriendListReq, opts 
 	return client.FriendList(ctx, in, opts...)
 }
 
+func (m *defaultSocial) FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.FriendOnlineList(ctx, in, opts...)
+}
+
 func (m *defaultSocial) GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
 	return client.GroupCreate(ctx, in, opts...)
@@ -111,4 +120,9 @@ func (m *defaultSocial) GroupList(ctx context.Context, in *GroupListReq, opts ..
 func (m *defaultSocial) GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
 	return client.GroupUsers(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GroupOnlineUserList(ctx, in, opts...)
 }

@@ -11,19 +11,19 @@ import (
 func RegisterHandlers(server *websocketd.Server, svc *svc.ServiceContext) {
 	server.AddRoutes([]websocketd.Route{
 		{
-			Method:  "user.online",
+			Method:  "user.online", //获取在线用户（暂时好像无用）
 			Handler: user.OnLine(svc),
 		},
 		{
-			Method:  "conversation.chat",
+			Method:  "conversation.chat", //消息对话，私聊、群聊等
 			Handler: conversation.Chat(svc),
 		},
 		{
-			Method:  "conversation.markChat",
+			Method:  "conversation.markChat", //标记消息已读
 			Handler: conversation.MarkRead(svc),
 		},
 		{
-			Method:  "push",
+			Method:  "push", //专门用于mq转发消息用的，比如发送消息不会直接发出去，而是先进mq
 			Handler: push.Push(svc),
 		},
 	})

@@ -5,6 +5,10 @@ type MsgType int
 const (
 	TextMsgType MsgType = iota //iota常量自动从0递增的赋值
 )
+const (
+	RedisSystemRootToken = "system:root:token"
+	RedisOnlineUser      = "online:user"
+)
 
 type ChatType int
 

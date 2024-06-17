@@ -12,7 +12,7 @@ Env: dev
 #  AccessExpire: 6048000
 Prometheus:
   Host: 127.0.0.1
-  Port: 9800
+  Port: 9811
   Path: /metrics
 RedisConf:
   Host: 127.0.0.1:6379

@@ -42,6 +42,11 @@ func (s *SocialServer) FriendList(ctx context.Context, in *pb.FriendListReq) (*p
 	return l.FriendList(in)
 }
 
+func (s *SocialServer) FriendOnlineList(ctx context.Context, in *pb.FriendListReq) (*pb.FriendOnlineResp, error) {
+	l := logic.NewFriendOnlineListLogic(ctx, s.svcCtx)
+	return l.FriendOnlineList(in)
+}
+
 func (s *SocialServer) GroupCreate(ctx context.Context, in *pb.GroupCreateReq) (*pb.GroupCreateResp, error) {
 	l := logic.NewGroupCreateLogic(ctx, s.svcCtx)
 	return l.GroupCreate(in)
@@ -70,4 +75,9 @@ func (s *SocialServer) GroupList(ctx context.Context, in *pb.GroupListReq) (*pb.
 func (s *SocialServer) GroupUsers(ctx context.Context, in *pb.GroupUsersReq) (*pb.GroupUsersResp, error) {
 	l := logic.NewGroupUsersLogic(ctx, s.svcCtx)
 	return l.GroupUsers(in)
+}
+
+func (s *SocialServer) GroupOnlineUserList(ctx context.Context, in *pb.GroupUsersReq) (*pb.GroupOnlineResp, error) {
+	l := logic.NewGroupOnlineUserListLogic(ctx, s.svcCtx)
+	return l.GroupOnlineUserList(in)
 }

@@ -88,6 +88,16 @@ goctl template init
 #然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api(用*就会该目录下所有.api文件)
 goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 ```
+### 网关apisix说明
+```
+地址：http://localhost:9002    admin  admin
+
+```
+### 配置中心
+```
+地址：http://localhost:8108/ui/login  admin  dandan
+```
+
 ## 开发说明
 ### 接口相关
 - api的请求入参，目前是用框架的httpx解析，所以参数可选得用optional

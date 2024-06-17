@@ -1,6 +1,6 @@
 version: '3'
 services:
-  Etcd:
+  etcd:
     container_name: etcd3
     image: bitnami/etcd:3.5.7
     deploy:
@@ -9,6 +9,9 @@ services:
         condition: on-failure
     environment:
       - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379 #监听本机所有网络的2379端口
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379,http://0.0.0.0:2379 #对外通告地址，允许多个，别名给apisix用，4个0给宿主机用
+      - ETCD_NAME=etcd
     privileged: true
     volumes:
       - ${DATA_DIR}/etcd:/opt/bitnami/etcd/data
@@ -16,7 +19,8 @@ services:
       - 2379:2379
       - 2380:2380
     networks:
-      - dandan_net
+      dandan_net:
+        ipv4_address: 172.20.0.2
   redis:
     container_name: redis
     image: redis:7.0
@@ -271,7 +275,48 @@ services:
     restart: always
     privileged: true
     networks:
-      dandan_net:
+      - dandan_net
+  apisix-dashboard:
+    image: apache/apisix-dashboard:3.0.1-alpine
+    container_name: apisix-dashboard
+    restart: always
+    depends_on:
+      - etcd
+    volumes:
+      - ./docker/conf/apisix-dashboard/conf.yaml:/usr/local/apisix-dashboard/conf/conf.yaml
+    ports:
+      - "9002:9000" # minio用了9000和9001
+    networks:
+      - dandan_net
+  apisix:
+    image: apache/apisix:3.2.0-debian
+    container_name: apisix
+    restart: always
+    depends_on:
+      - etcd
+      - apisix-dashboard
+    volumes:
+      - ./docker/conf/apisix/config.yaml:/usr/local/apisix/conf/config.yaml
+      - ./docker/data/apisix/logs:/usr/local/apisix/logs
+    ports:
+      - "9180:9180/tcp"
+      - "9080:9080/tcp"
+      - "9091:9091/tcp"
+      - "9443:9443/tcp"
+      - "9093:9092/tcp"
+    networks:
+      - dandan_net
+  sail:
+    image: ccr.ccs.tencentyun.com/hyy-yu/sail:latest
+    container_name: sail
+    ports:
+      - "8108:8108"
+    volumes:
+      - "./docker/conf/sail/compose-cfg.toml:/app/cfg.toml"
+    restart: always
+    platform: linux/arm64
+    networks:
+      - dandan_net
 networks:
   dandan_net:
     driver: bridge

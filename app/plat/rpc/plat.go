@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
@@ -23,6 +22,17 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	//err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
+	//	ETCDEndpoints:  "127.0.0.1:2379",
+	//	ProjectKey:     "98c6f2c2287f4c73cea3d40ae7ec3ff2",
+	//	Namespace:      "plat",
+	//	Configs:        "plat-api.yaml",
+	//	ConfigFilePath: "./etc/conf",
+	//	LogLevel:       "DEBUG",
+	//})).MustLoad(&c)
+	//if err != nil {
+	//	panic(err)
+	//}
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

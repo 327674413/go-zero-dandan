@@ -3,7 +3,6 @@ package msgTransfer
 import (
 	"context"
 	"encoding/json"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/mq/internal/svc"
 	"go-zero-dandan/app/im/mq/kafkad"
@@ -28,13 +27,13 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 		msgId = primitive.NewObjectID()
 	)
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
-		logx.Errorf("msgTransfer 消费失败,err:%v", err)
+		t.Errorf("msgTransfer 消费失败,err:%v", err)
 	}
-	//记录数据
+	//写入消息数据到mongo
 	if err := t.addChatLog(ctx, msgId, data); err != nil {
-		logx.Errorf("msgTransfer 写入消息,err:%v", err)
+		t.Errorf("msgTransfer 写入消息,err:%v", err)
 	}
-
+	//发送给ws进行push
 	return t.Transfer(ctx, &websocketd.Push{
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
@@ -59,14 +58,15 @@ func (t *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.Object
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
 	}
-	//将发送者设置为已读
+	//将此条消息的发送者设置为已读
 	readRecords := bitmapd.NewBitmap()
 	readRecords.SetId(chatLog.SendId)
 	chatLog.ReadRecords = readRecords.Export()
-
+	//存储消息数据
 	err := t.svc.ChatLogModel.Insert(ctx, &chatLog)
 	if err != nil {
 		return err
 	}
+	//更新该消息所在会话中的消息总数加1
 	return t.svc.ConversationModel.UpdateMsg(ctx, &chatLog)
 }
