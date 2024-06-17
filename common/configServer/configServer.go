@@ -3,15 +3,19 @@ package configServer
 import (
 	"errors"
 	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 var ErrNotSetConfig = errors.New("未设置配置信息")
 
+type OnChange func([]byte) error
+
 type ConfigServer interface {
+	Build() error
+	SetOnChange(OnChange)
 	FromJsonBytes() ([]byte, error)
-	Error() error
+	//Error() error
 }
+
 type configServer struct {
 	ConfigServer
 	configFile string
@@ -23,23 +27,34 @@ func NewConfigServer(configFile string, s ConfigServer) *configServer {
 		configFile:   configFile,
 	}
 }
-func (s *configServer) MustLoad(v any) error {
-	if s.ConfigServer.Error() == nil {
-		logx.Info("1")
-		return s.ConfigServer.Error()
-	}
+
+func (s *configServer) MustLoad(v any, onChange OnChange) error {
 	if s.configFile == "" && s.ConfigServer == nil {
-		logx.Info("2")
 		return ErrNotSetConfig
 	}
+
 	if s.ConfigServer == nil {
-		logx.Info("3")
-		// 使用gozero默认方式
+		// 使用go-zero的默认
 		conf.MustLoad(s.configFile, v)
+		return nil
 	}
+
+	if onChange != nil {
+		s.ConfigServer.SetOnChange(onChange)
+	}
+
+	if err := s.ConfigServer.Build(); err != nil {
+		return err
+	}
+
 	data, err := s.ConfigServer.FromJsonBytes()
 	if err != nil {
 		return err
 	}
+
+	return LoadFromJsonBytes(data, v)
+}
+
+func LoadFromJsonBytes(data []byte, v any) error {
 	return conf.LoadFromJsonBytes(data, v)
 }

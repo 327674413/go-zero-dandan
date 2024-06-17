@@ -298,14 +298,15 @@ services:
     volumes:
       - ./docker/conf/apisix/config.yaml:/usr/local/apisix/conf/config.yaml
       - ./docker/data/apisix/logs:/usr/local/apisix/logs
-    ports:
-      - "9180:9180/tcp"
-      - "9080:9080/tcp"
-      - "9091:9091/tcp"
-      - "9443:9443/tcp"
-      - "9093:9092/tcp"
-    networks:
-      - dandan_net
+    network_mode: "host"
+#    ports:
+#      - "9180:9180/tcp"
+#      - "9080:9080/tcp"
+#      - "9091:9091/tcp"
+#      - "9443:9443/tcp"
+#      - "9093:9092/tcp"
+#    networks:
+#      - dandan_net
   sail:
     image: ccr.ccs.tencentyun.com/hyy-yu/sail:latest
     container_name: sail

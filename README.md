@@ -93,7 +93,7 @@ goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
 地址：http://localhost:9002    admin  admin
 
 ```
-### 配置中心
+### 配置中心sail
 ```
 地址：http://localhost:8108/ui/login  admin  dandan
 ```
