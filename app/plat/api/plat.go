@@ -31,16 +31,15 @@ func main() {
 		ConfigFilePath: "./etc/conf",
 		LogLevel:       "DEBUG",
 	})).MustLoad(&c, func(bytes []byte) error {
-		var c config.Config
-		configServer.LoadFromJsonBytes(bytes, &c)
-
+		logx.Info("配置发生变化，重新加载")
+		var newConf config.Config
+		configServer.LoadFromJsonBytes(bytes, &newConf)
 		proc.WrapUp()
 		wg.Add(1)
-		go func(c config.Config) {
+		go func(newConf config.Config) {
 			defer wg.Done()
-
-			Run(c)
-		}(c)
+			Run(newConf)
+		}(newConf)
 		return nil
 	})
 	if err != nil {
@@ -50,12 +49,9 @@ func main() {
 	wg.Add(1)
 	go func(c config.Config) {
 		defer wg.Done()
-
 		Run(c)
 	}(c)
-
 	wg.Wait()
-
 }
 func Run(c config.Config) {
 	server := rest.MustNewServer(c.RestConf)
@@ -63,7 +59,6 @@ func Run(c config.Config) {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-
 	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
