@@ -1,0 +1,17 @@
+db:
+    datasource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+env: dev
+etcd:
+    hosts:
+        - 127.0.0.1:2379
+    key: plat.rpc
+listenon: 0.0.0.0:8811
+name: plat.rpc
+prometheus:
+    host: 127.0.0.1
+    path: /metrics
+    port: 9811
+redisconf:
+    host: 127.0.0.1:6379
+    pass: G62m50oigInC30sf
+    type: node

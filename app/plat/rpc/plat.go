@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -11,6 +10,7 @@ import (
 	"go-zero-dandan/app/plat/rpc/internal/server"
 	"go-zero-dandan/app/plat/rpc/internal/svc"
 	"go-zero-dandan/app/plat/rpc/types/pb"
+	"go-zero-dandan/common/configServer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -21,18 +21,18 @@ func main() {
 	flag.Parse()
 
 	var c config.Config
-	conf.MustLoad(*configFile, &c)
-	//err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
-	//	ETCDEndpoints:  "127.0.0.1:2379",
-	//	ProjectKey:     "98c6f2c2287f4c73cea3d40ae7ec3ff2",
-	//	Namespace:      "plat",
-	//	Configs:        "plat-api.yaml",
-	//	ConfigFilePath: "./etc/conf",
-	//	LogLevel:       "DEBUG",
-	//})).MustLoad(&c)
-	//if err != nil {
-	//	panic(err)
-	//}
+	//conf.MustLoad(*configFile, &c)
+	err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
+		ETCDEndpoints:  "127.0.0.1:2379",
+		ProjectKey:     "2-public",
+		Namespace:      "plat",
+		Configs:        "plat-rpc.yaml",
+		ConfigFilePath: "./etc/conf",
+		LogLevel:       "DEBUG",
+	})).MustLoad(&c, nil)
+	if err != nil {
+		panic(err)
+	}
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

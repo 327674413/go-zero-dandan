@@ -21,9 +21,11 @@ func main() {
 
 	var c config.Config
 	//conf.MustLoad(*configFile, &c)
+	//Run(c)
+
 	err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
 		ETCDEndpoints:  "127.0.0.1:2379",
-		ProjectKey:     "98c6f2c2287f4c73cea3d40ae7ec3ff2",
+		ProjectKey:     "2-public",
 		Namespace:      "plat",
 		Configs:        "plat-api.yaml",
 		ConfigFilePath: "./etc/conf",
@@ -61,6 +63,7 @@ func Run(c config.Config) {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+
 	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

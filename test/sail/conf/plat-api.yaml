@@ -1,0 +1,17 @@
+auth:
+    accessexpire: 6048000
+    accesssecret: dandandandandandandandan
+db:
+    datasource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+env: dev
+host: 0.0.0.0
+name: plat-api
+port: 8800
+prometheus:
+    host: 127.0.0.1
+    path: /metrics
+    port: 9800
+redisconf:
+    host: 127.0.0.1:6379
+    pass: G62m50oigInC30sf
+    type: node
