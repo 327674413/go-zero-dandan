@@ -10,6 +10,9 @@ message Friends {
   int64 sourceEm = 4; // 添加来源
   string friendId = 5;
   string platId = 6;
+  string friendName = 7;
+  string friendAlias = 8;
+  string friendAvatarImg = 9;
 }
 
 message FriendRequests {

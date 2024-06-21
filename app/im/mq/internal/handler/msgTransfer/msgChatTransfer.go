@@ -37,7 +37,7 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 	return t.Transfer(ctx, &websocketd.Push{
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
-		MsgId:          msgId.Hex(),
+		MsgId:          data.MsgId,
 		SendTime:       data.SendTime,
 		Content:        data.Content,
 		ConversationId: data.ConversationId,

@@ -1,0 +1,14 @@
+import (
+	"desc/main.api"
+)
+@server(
+	timeout: 30s
+	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	jwt: Auth
+	group: friend
+	prefix: friend/v1
+)
+service social-api {
+	@handler getMyFriendList
+	post /getMyFriendList returns (FriendListResp)
+}

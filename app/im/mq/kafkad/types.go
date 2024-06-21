@@ -13,6 +13,7 @@ type MsgChatTransfer struct {
 	websocketd.MsgType  `json:"msgType"`
 	Content             string `json:"content"`
 	PlatId              string `json:"platId"`
+	MsgId               string `json:"msgId"`
 }
 
 // MsgMarkRead 消息读取状态

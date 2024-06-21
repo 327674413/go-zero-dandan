@@ -1,0 +1,5 @@
+@charset "UTF-8";
+.fl{display: flex;justify-content: flex-start;align-items: center;}
+.fr{display: flex;justify-content: flex-end;align-items: center;}
+.fc{display: flex;justify-content: center;align-items: center;}
+.fb{display: flex;justify-content: space-between;align-items: center;}

@@ -28,8 +28,16 @@ type Conn struct {
 
 // NewConn 创建一个新的 websocket 连接并返回 Conn 结构体的实例
 func NewConn(s *Server, w http.ResponseWriter, r *http.Request) *Conn {
-	c, err := s.upgrader.Upgrade(w, r, nil) // 升级 HTTP 连接为 websocket 连接
-	if err != nil {                         // 如果升级失败，记录错误并返回 nil
+	var responseHeader http.Header
+	//教程学需要加这个才不会出现1006 eof错误，但我自己实际好像没碰到这个问题，先加着
+	if protocol := r.Header.Get("Sec-WebSocket-Protocol"); protocol != "" {
+		responseHeader = http.Header{
+			"Sec-Websocket-Protocol": []string{protocol},
+		}
+	}
+
+	c, err := s.upgrader.Upgrade(w, r, responseHeader) // 升级 HTTP 连接为 websocket 连接
+	if err != nil {                                    // 如果升级失败，记录错误并返回 nil
 		s.Errorf("upgrade err %v:", err)
 		return nil
 	}

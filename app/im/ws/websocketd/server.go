@@ -30,11 +30,16 @@ type Server struct {
 func NewServer(addr string, opts ...ServerOptions) *Server {
 	opt := newServerOptions(opts...)
 	return &Server{
-		routes:        make(map[string]HandlerFunc),
-		addr:          addr,
-		patten:        opt.patten,
-		opt:           &opt,
-		upgrader:      websocket.Upgrader{},
+		routes: make(map[string]HandlerFunc),
+		addr:   addr,
+		patten: opt.patten,
+		opt:    &opt,
+		upgrader: websocket.Upgrader{
+			//设置允许跨域
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
 		Logger:        logx.WithContext(context.Background()),
 		connToUser:    make(map[*Conn]string),
 		userToConn:    make(map[string]*Conn),
@@ -168,7 +173,7 @@ func (t *Server) handlerConn(conn *Conn) {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				t.Infof("用户%s下线", conn.Uid)
 			} else {
-				t.Infof("用户%s离线：%v", conn.Uid)
+				t.Infof("用户%s离线", conn.Uid)
 			}
 			t.Close(conn)
 			return

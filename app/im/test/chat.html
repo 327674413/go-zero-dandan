@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>im前端测试</title>
+    <link rel="stylesheet" href="static/css/element-ui.css">
+    <link rel="stylesheet" href="static/css/common.css">
+    <style>
+        *{padding:0;margin:0;}
+        .fl{display: flex;align-items: center;justify-content: flex-start;}
+        .fc{display: flex;align-items: center;justify-content: center;}
+        .fr{display: flex;align-items: center;justify-content: flex-end;}
+        #app{display: none;}
+        .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%);}
+        .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
+        .chat-nav{flex:0 0 66px;background: #66b1ff;height:100%;flex-direction: column;padding:30px 0;box-sizing: border-box;}
+        .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
+        .chat-nav-item{margin-top:10px;}
+        .chat-nav-item:hover{cursor: pointer;}
+        .chat-social{flex:0 0 260px;width:260px;background: #f4f4f4;border-right: 1px solid #e0e0e0;height:100%;}
+        .friend-search{padding:10px 15px;border-bottom: 1px solid #e0e0e0;}
+        .friend-item{padding:10px;}
+        .friend-avatar{flex:0 0 40px;margin-right:6px;border-radius: 6px;width:40px;height:40px;}
+        .friend-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
+        .friend-content{width:200px;}
+        .friend-content-top{height:25px;}
+        .friend-name{font-size: 16px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        .friend-date{font-size: 11px;color:#bbb;max-width: 70px;}
+        .friend-content-bottom{height:22px;}
+        .friend-chat{overflow: hidden; white-space: nowrap; text-overflow: ellipsis;font-size: 12px;color:#8a8a8a;}
+    </style>
+</head>
+<body>
+<div id="app" ref="app">
+    <div class="chat-wrapper">
+        <div class="fl chat">
+            <div class="chat-nav fl">
+                <div class="chat-nav-avatar fc" style="background: red;color:#fff;">我</div>
+                <div class="chat-nav-item">
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;">好友</div>
+                </div>
+                <div class="chat-nav-item">
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;">群组</div>
+                </div>
+                <div class="chat-nav-item">
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;">客服</div>
+                </div>
+            </div>
+            <div class="chat-social">
+                <div class="chat-friend">
+                    <div class="friend-search fl">
+                        <el-input size="mini" style="width:140px;margin-right:10px;"></el-input>
+                        <el-button size="mini" circle icon="el-icon-plus" class="friend-search-add"></el-button>
+                    </div>
+                    <div class="friend-list">
+                        <div class="fl friend-item" v-for="item in friendListCpd" :key="item.id">
+                            <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
+                            <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
+                            <div class="friend-content">
+                                <div class="fb friend-content-top">
+                                    <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
+                                    <div class="friend-date">{{item.friendDate}}</div>
+                                </div>
+                                <div class="fl friend-content-bottom">
+                                    <div class="friend-chat">{{item.lastChat}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="chat-content">
+                <div id="chat-target"></div>
+                <form id="form" style="display: none;">
+                    <input type="submit" value="Send" />
+                    <input type="text" id="msg" size="64" autofocus />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="static/js/vue.js"></script>
+<script src="static/js/element.js"></script>
+<script src="static/js/axios.js"></script>
+<script src="static/js/tool.js"></script>
+<script src="static/js/request.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                friendList:[]
+            }
+        },
+        created(){
+            this.getMyFriendList()
+        },
+        mounted() {
+            this.$refs.app.style.display = "block"
+        },
+        beforeDestroy() {
+        },
+        methods:{
+            getMyFriendList(){
+                request({
+                    url:'http://localhost:8812/friend/v1/getMyFriendList',
+                    headers:{
+                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
+                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
+                    }
+                }).then(res=>{
+                    this.friendList = res.list
+                })
+            }
+        },
+        computed:{
+            friendListCpd(){
+                let list = []
+                this.friendList.forEach(item=>{
+                    item.friendDate = '2014/05/01'
+                    item.lastChat = '弗拉加经理看手机啊弗兰克经理卡就哭了经理卡看了'
+                })
+                return this.friendList
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -99,6 +99,15 @@
     }
   },
   {
+    "targets": ["host.docker.internal:9812"],
+    "labels": {
+      "job": "social-api",
+      "app": "social-api",
+      "env": "test",
+      "instance": "host.docker.internal:8812"
+    }
+  },
+  {
     "targets": ["host.docker.internal:9820"],
     "labels": {
       "job": "goods-api",

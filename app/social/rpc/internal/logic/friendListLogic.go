@@ -26,6 +26,9 @@ func NewFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 }
 
 func (l *FriendListLogic) FriendList(in *pb.FriendListReq) (*pb.FriendListResp, error) {
+	if in.UserId == "" {
+		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "缺少UserId", resd.ReqFieldRequired1, "*UserId")
+	}
 	m := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
 
 	list, err := m.Where("user_id = ?", in.UserId).Select()

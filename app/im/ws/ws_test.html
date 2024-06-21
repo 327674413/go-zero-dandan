@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Chat Example</title>
+  <script type="text/javascript">
+    var conn;
+    var userToken = ''
+    window.onload = function () {
+      var msg = document.getElementById("msg");
+      document.getElementById("form").onsubmit = function () {
+        if (!conn) {
+          return false;
+        }
+        if (!msg.value) {
+          return false;
+        }
+        sendChatText(msg.value);
+        msg.value = "";
+        return false;
+      };
+
+    };
+    function sendChatText(text){
+      let data = {content:text,typeEm:'CHAT',code:Date.now() + '' + Math.floor(Math.random() * 10) + 10001,targetTypeEm:'social',targetId:targetUser.targetUserId}
+      conn.send(JSON.stringify(data));
+      data.state = 0;
+      appendSendChatText(data)
+    }
+    function tapLogin(token = ""){
+      var addr = $('#ws-addr').value
+      token = token ? token : $('#user-token').value
+      if (!addr) return alert('请输入ws地址')
+      userToken = token
+      connect(addr + "?platformEm=1&token=" + token)
+    }
+    var socialList = []
+    var targetUser = {}
+    function connect(addr){
+      if (window["WebSocket"]) {
+        conn = new WebSocket(addr,userToken);
+        conn.onopen = function(){
+          showChat()
+          console.log('连接成功')
+          //这里可能要放到onmessage了收到登录成功的消息后再处理
+          post("http://localhost:8801/social/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
+            let str = ""
+            res.data.list.forEach((item,index)=>{
+              str += `<div class="social-item" onclick="tapCrony(${index})">${item.targetUserName}</div>`
+            })
+            document.getElementById('social-list').innerHTML = str
+            socialList = res.data.list
+          })
+        }
+        conn.onclose = function (evt) {
+          var item = document.createElement("div");
+          item.innerHTML = "<b>连接断开</b> <button onclick='showLogin()'>重新登陆</button>";
+          appendChat(item);
+        };
+        conn.onmessage = function (evt) {
+          let data = JSON.parse(evt.data);
+          console.log(data)
+          switch (data.typeEm) {
+            case "CHAT":
+              appendRecvChatText(data)
+              break
+            case "CHAT_RESP":
+              chatRespHandler(data)
+          }
+
+        };
+        conn.onerror = function (evt) {
+          console.error(evt.message,evt.reason,evt.code)
+          alert("websocket 连接失败")
+        };
+      } else {
+        alert("浏览器不支持socket连接")
+      }
+    }
+    function tapCrony(index){
+      targetUser = socialList[index];
+      $('#chat-target').innerHTML = '当前对话好友：'+targetUser.targetUserName
+      $('#form').style.display = 'block'
+
+    }
+    function chatRespHandler(data){
+      let list = document.querySelectorAll('.chat-msg-state')
+      for (let i = 0; i < list.length; i++){
+        console.log(list[i])
+        if (list[i].dataset.code == data.code){
+          list[i].innerHTML = '未读'
+          list[i].style = "color:#808080;"
+        }
+      }
+    }
+    function appendSendChatText(data){
+      var item = document.createElement("div");
+      item.className = 'fr chat-msg-item send'
+      item.innerHTML = '<span class="chat-msg-state" data-code="'+ data.code +'">发送中</span><div class="chat-msg-wrapper"><div class="fr chat-msg-name">我</div><div class="fl chat-msg-content">' +data.content +'</div></div><div class="chat-msg-avatar"></div>';
+      appendChat(item);
+    }
+    function appendRecvChatText(data){
+      var item = document.createElement("div");
+      item.className = 'fl chat-msg-item recv'
+      item.innerHTML = '<div class="chat-msg-avatar"></div><div class="chat-msg-wrapper"><div class="fl chat-msg-name">对方名字</div><div class="fl chat-msg-content">' +data.content +'</div></div>';
+      appendChat(item);
+    }
+
+    function appendChat(item) {
+      var chat = document.getElementById("chat-content");
+      var doScroll = chat.scrollTop > chat.scrollHeight - chat.clientHeight - 1;
+      chat.appendChild(item);
+      if (doScroll) {
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+      }
+    }
+    function $(selector){
+      return document.querySelector(selector)
+    }
+
+    function post(url,data){
+      return new Promise(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("Authorization", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDAyOTE5MzMsImlhdCI6MTY5NDI0MzkzMywicGxhdENsYXNFbSI6MSwicGxhdElkIjoxfQ.hxs6r-gixs7OmgTxMj48atPScMJu6q7PoEYp1jPGcvA");
+        xhr.setRequestHeader("Token", userToken);
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              var response = JSON.parse(xhr.responseText);
+              resolve(response);
+            } else {
+              reject(xhr.status);
+            }
+          }
+        };
+        xhr.send(JSON.stringify(data));
+      });
+
+    }
+    function showLogin(){
+      $('#chat').style.display = "none"
+      $('#login').style.display = "block"
+    }
+    function showChat(){
+      $('#chat').style.display = "flex"
+      $('#login').style.display = "none"
+    }
+  </script>
+  <style type="text/css">
+    html {
+      overflow: hidden;
+    }
+
+    body {
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #chat-content {
+      background: #f4f4f4;
+      margin: 10px;
+      overflow: auto;
+      width:100%;
+      height:90%;
+    }
+
+    #form {
+      padding: 0 0.5em 0 0.5em;
+      margin: 0;
+      position: absolute;
+      bottom: 1em;
+      left: 0px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .fl{display: flex;align-items: center;}
+    .fr{display: flex;align-items: center;justify-content: flex-end;}
+    .fc{display: flex;align-items: center;justify-content: center;}
+    .fb{display: flex;align-items: center;justify-content: space-between;}
+    #page-chat{display: block;width:100vw;height:100vh;background: gray;align-items: flex-start;}
+    .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%)}
+    .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;overflow: hidden;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
+    .chat-nav{width:80px;background: #66b1ff;height:100%;flex-direction: column;padding:30px 0;box-sizing: border-box;}
+    .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
+    .chat-nav-item{margin-top:10px;}
+    .chat-nav-item:hover{cursor: pointer;}
+    #login{display:none;width:100vmin;height:100vmin;position: absolute;left:50%;top:50%;transform: translate(-50%,-50%);background: #f8f8f8;}
+    .login-item{display: flex;align-items: center;padding:.5em 1em;}
+    #ws-addr{width:40em;}
+    .login-btn{padding:10px; margin-right:20px;}
+    .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
+    .chat-msg-name{font-size:14px;color:#8a8a8a;padding:2px;}
+    .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
+    .recv .chat-msg-content{background: #E5E5EA;}
+    .send .chat-msg-content{background: #95EC69;}
+    .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;}
+    .recv .chat-msg-avatar{margin-right:10px;background: #06f;}
+    .send .chat-msg-avatar{margin-left:10px;background: #f60;}
+    .recv .chat-msg-content::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-right: 5px solid #E5E5EA;
+      left: -5px;
+      top: 8px;
+    }
+    .send .chat-msg-content::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 5px solid #95EC69;
+      right: -5px;
+      top: 8px;
+    }
+    .chat-social{flex:0 0 150px;background: #f4f4f4;margin:10px;}
+    .social-title{background: #ff6600;color:#fff;padding:5px;}
+    .social-list{padding:5px;}
+    .social-item:hover{cursor: pointer;text-decoration: underline;color:#ff6600;}
+    #chat-target{color:#333;height:60px;border-bottom: 1px solid #ccc;}
+  </style>
+</head>
+<body>
+<div id="login">
+  <p class="login-item">websockt地址：<input type="text" value="ws://localhost:8808/ws" id="ws-addr" /></p>
+  <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
+  <p class="login-item">
+    <button class="login-btn" onclick="tapLogin()">自定义token登录</button>
+    <button class="login-btn" onclick="tapLogin('1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24')">登录用户96</button>
+    <button class="login-btn" onclick="tapLogin('9f457a9c4eb3858005ff9539115de86dd67e528a0e6f4d269364dee5ba5f764a')">登录用户95</button>
+    <button class="login-btn" onclick="tapLogin('60ddc4cc54081ee7c2ac8c507d057bf619998bb4f25c89f0ac2ca64955bb4f27')">登录用户94</button>
+  </p>
+</div>
+<div id="page-chat" class="fc">
+  <div class="chat-wrapper">
+  <div class="fl chat">
+    <div class="chat-nav fl">
+      <div class="chat-nav-avatar fc" style="background: red;color:#fff;">我</div>
+      <div class="chat-nav-item">
+        <div style="background: #ff6600;font-size: 12px;padding:5px;">好友</div>
+      </div>
+      <div class="chat-nav-item">
+        <div style="background: #ff6600;font-size: 12px;padding:5px;">群组</div>
+      </div>
+      <div class="chat-nav-item">
+        <div style="background: #ff6600;font-size: 12px;padding:5px;">客服</div>
+      </div>
+    </div>
+      <div class="chat-social">
+        <div class="social">
+          <div class="fc social-title">我的好友</div>
+          <div class="social-list" id="social-list">
+
+          </div>
+        </div>
+        <div class="social">
+          <div class="fc social-title">我的群组</div>
+          <div class="social-list">
+            <div class="social-item">群名</div>
+          </div>
+        </div>
+        <div class="social">
+          <div class="fc social-title">客服列表</div>
+          <div class="social-list">
+            <div class="social-item">客服名</div>
+          </div>
+        </div>
+      </div>
+      <div id="chat-content">
+        <div id="chat-target"></div>
+        <form id="form" style="display: none;">
+          <input type="submit" value="Send" />
+          <input type="text" id="msg" size="64" autofocus />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -73,15 +73,18 @@ type (
 	}
 
 	SocialFriend struct {
-		Id       string `db:"id"`
-		UserId   string `db:"user_id"`   // 归属用户id
-		FriendId string `db:"friend_id"` // 好友用户id
-		SourceEm int64  `db:"source_em"` // 添加来源枚举
-		Remark   string `db:"remark"`    // 备注
-		PlatId   string `db:"plat_id"`   // 应用id
-		CreateAt int64  `db:"create_at"` // 创建时间戳
-		UpdateAt int64  `db:"update_at"` // 更新时间戳
-		DeleteAt int64  `db:"delete_at"` // 删除时间戳
+		Id              string `db:"id"`
+		UserId          string `db:"user_id"`      // 归属用户id
+		FriendId        string `db:"friend_id"`    // 好友用户id
+		FriendName      string `db:"friend_name"`  // 冗余好友名称
+		FriendAlias     string `db:"friend_alias"` // 好友别名备注
+		FriendAvatarImg string `db:"friend_avatar_img"`
+		SourceEm        int64  `db:"source_em"` // 添加来源枚举
+		Remark          string `db:"remark"`    // 备注
+		PlatId          string `db:"plat_id"`   // 应用id
+		CreateAt        int64  `db:"create_at"` // 创建时间戳
+		UpdateAt        int64  `db:"update_at"` // 更新时间戳
+		DeleteAt        int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 

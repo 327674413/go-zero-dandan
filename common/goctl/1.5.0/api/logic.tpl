@@ -47,7 +47,7 @@ func (l *{{.logic}}) initPlat() (err error) {
         return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
     }
     platId,_ := l.ctx.Value("platId").(string)
-    if platClasId == 0 {
+    if platId == "" {
         return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
     }
     l.platId = platId

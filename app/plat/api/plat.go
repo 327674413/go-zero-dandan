@@ -14,15 +14,17 @@ import (
 )
 
 var configFile = flag.String("f", "etc/plat-api-dev.yaml", "the config file")
-var wg sync.WaitGroup
+var restartCh = make(chan config.Config)
+var shutdownCh = make(chan struct{})
+var once sync.Once
 
 func main() {
 	flag.Parse()
 
-	var c config.Config
-	//conf.MustLoad(*configFile, &c)
-	//Run(c)
+	go watchConfigChanges()
 
+	var c config.Config
+	// Initial load of the configuration
 	err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
 		ETCDEndpoints:  "127.0.0.1:2379",
 		ProjectKey:     "2-public",
@@ -34,32 +36,48 @@ func main() {
 		logx.Info("配置发生变化，重新加载")
 		var newConf config.Config
 		configServer.LoadFromJsonBytes(bytes, &newConf)
-		proc.WrapUp()
-		wg.Add(1)
-		go func(newConf config.Config) {
-			defer wg.Done()
-			Run(newConf)
-		}(newConf)
+		restartCh <- newConf
 		return nil
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	wg.Add(1)
-	go func(c config.Config) {
-		defer wg.Done()
-		Run(c)
-	}(c)
+	restartCh <- c
+	select {}
+}
+
+func watchConfigChanges() {
+	var wg sync.WaitGroup
+
+	for c := range restartCh {
+		wg.Add(1)
+		go func(conf config.Config) {
+			defer wg.Done()
+			runServer(conf)
+		}(c)
+
+		// Wait for the old server to shutdown
+		<-shutdownCh
+	}
+
 	wg.Wait()
 }
-func Run(c config.Config) {
+
+func runServer(c config.Config) {
 	server := rest.MustNewServer(c.RestConf)
-	defer server.Stop()
+	defer func() {
+		server.Stop()
+		shutdownCh <- struct{}{}
+	}()
+
+	once.Do(func() {
+		proc.WrapUp()
+	})
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-	logx.DisableStat() //去掉定时出现的控制台打印
+	logx.DisableStat() // Disabling periodic console logging
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
