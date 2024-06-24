@@ -83,7 +83,8 @@ type (
 		Phone     string `db:"phone"`      // 手机号(已验证)
 		PhoneArea string `db:"phone_area"` // 手机区号
 		Email     string `db:"email"`      // 邮箱地址
-		Avatar    string `db:"avatar"`     // 头像
+		AvatarImg string `db:"avatar_img"` // 头像
+		Signature string `db:"signature"`  // 个性签名
 		SexEm     int64  `db:"sex_em"`     // 性别枚举
 		PlatId    string `db:"plat_id"`    // 应用id
 		CreateAt  int64  `db:"create_at"`  // 创建时间戳

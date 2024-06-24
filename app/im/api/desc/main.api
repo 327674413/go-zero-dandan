@@ -1,0 +1,135 @@
+
+type (
+	FriendInfo {
+		Id        string  `json:"id,optional"`
+		FriendUid string `json:"friendUid,optional"`
+		FriendName string `json:"friendName,optional"`
+		FriendAlias string `json:"friendAlias,optional"`
+		FriendIcon string `json:"friendIcon,optional"`
+	 	SourceEm int64  `json:"sourcEm,optional"`
+		Remark string `json:"remark,optional"`
+	}
+
+	FriendApply {
+		Id           string  `json:"id,optional"`
+		UserId       string `json:"userId,optional"`
+		ApplyUid     string `json:"applyUid,optional"`
+		ApplyMsg       string `json:"applyMsg,optional"`
+		ApplyAt      int64  `json:"applyAt,optional"`
+		OperateMsg    string `json:"operateMsg,optional"`
+		OperateAt    int64  `json:"operateAt,optional"`
+		OperateStateEm int64  `json:"operateStateEm,optional"`
+	}
+
+	GroupInfo {
+		Id              string `json:"id,optional"`
+		Name            string `json:"name,optional"`
+		StateEm         int64  `json:"stateEm,optional"`
+		TypeEm       	int64  `json:"typeEm,optional"`
+		IsVerify        int64   `json:"isVerify,optional"`
+		NotiContent    string `json:"notiContent,optional"`
+		NotiUid string `json:"notiUid,optional"`
+		MemberList		[]*GroupMember `json:"memberList,optional"`
+		CreateAt       int64  `json:"create_at,optional"`
+	}
+
+	GroupMember {
+		Id            string  `json:"id,optional"`
+		GroupId       string `json:"groupId,optional"`
+		UserId        string `json:"userId,optional"`
+		RoleLevel     int64    `json:"roleLevel,optional"`
+		JoinAt	int64    `json:"joinAt,optional"`
+		JoinSourceEm    int64    `json:"joinSourceEm,optional"`
+		InviteUid    string `json:"inviteUid,optional"`
+		OperateUid   string `json:"operateUid,optional"`
+	}
+
+	GroupMemberApply {
+		Id            string  `json:"id,optional"`
+		GroupId       string `json:"groupId,optional"`
+		UserId        string `json:"userId,optional"`
+		ApplyMsg       string `json:"applyMsg,optional"`
+		ApplyAt       int64  `json:"applyAt,optional"`
+		OperateUid   string `json:"operateUid,optional"`
+		OperateMsg    string `json:"operateMsg,optional"`
+		OperateAt     int64  `json:"operateAt,optional"`
+		OperateStateEm int64  `json:"operateStateEm,optional"`
+		JoinSourceEm    int64    `json:"joinSourceEm,optional"`
+		InviteUid    string `json:"inviteUid,optional"`
+	}
+)
+type ResultResp{
+	Result bool `json:"result"`
+}
+type (
+	CreateFriendApplyReq {
+		ApplyMsg  *string `json:"applyMsg,optional"`
+		FriendUid  *string `json:"friendUid,optional"`
+	}
+	CreateGroupReq {
+		Name *string `json:"name,optional"`
+	}
+	CreateGroupResp {
+		GroupId *string `json:"groupId,optional"`
+	}
+	OperateFriendApplyReq {
+		ApplyId  *string `json:"applyId"`
+		OperateStateEm *int64 `json:"operateStateEm"` // 处理结果
+	}
+	CreateGroupMemberApplyReq {
+		GroupId    *string `json:"groupId,optional"`
+		GroupCode *string `json:"groupCode,optional"`
+		ApplyMsg    *string `json:"applyMsg,optional"`
+		SourceEm *int64  `json:"sourceEm,optional"`
+	}
+	CreateGroupMemberApplyResp {
+		ApplyId *string `json:"applyId,optional"`
+	}
+	OperateGroupMemberApplyReq {
+		ApplyId   *string  `json:"applyId,optional"`
+		OpreateStateEm *int64  `json:"operateStateEm,optional"` // 处理结果
+		OpreateMsg    *string `json:"operateMsg,optional"`
+	}
+	GetGroupMemberListReq{
+		GroupId *string `json:"groupId,optional"`
+	}
+)
+
+type (
+	FriendApplyListResp {
+		List []*FriendApply `json:"list"`
+	}
+	FriendListResp {
+		List []*FriendInfo `json:"list"`
+	}
+	GroupListResp {
+		List []*GroupInfo `json:"list,optional"`
+	}
+	GroupMemberListResp {
+		List []*GroupMember `json:"List,optional"`
+	}
+	GroupApplyListResp{
+		List []*GroupMemberApply `json:"List,optional"`
+	}
+)
+
+
+type IdReq{
+	Id *string `json:"id,optional"`
+	PlatId *string `json:"platId,optional"`
+}
+
+type (
+	NewFriendInfo{
+		Id string `json:"id"`
+		Nickname string `json:"nickname"`
+		AvatarImg string `json:"avatarImg"`
+		Signature string `json:"signature"`
+	}
+	SearchNewFriendReq{
+		Keyword *string `json:"keyword,optional"`
+	}
+	SearchNewFriendResp{
+		List []*NewFriendInfo `json:"list"`
+	}
+)

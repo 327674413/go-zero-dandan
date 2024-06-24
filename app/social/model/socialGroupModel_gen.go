@@ -73,19 +73,20 @@ type (
 	}
 
 	SocialGroup struct {
-		Id                  string `db:"id"`
-		Name                string `db:"name"`                 // 群组名
-		StateEm             int64  `db:"state_em"`             // 群组状态
-		TypeEm              int64  `db:"type_em"`              // 群组类型
-		CreateUserId        string `db:"create_user_id"`       // 创建人id
-		IsVerify            int64  `db:"is_verify"`            // 是否需要验证
-		NotificationContent string `db:"notification_content"` // 群公告内容
-		NotificationUserId  string `db:"notification_user_id"` // 群公告编写人
-		Remark              string `db:"remark"`               // 备注
-		PlatId              string `db:"plat_id"`              // 应用id
-		CreateAt            int64  `db:"create_at"`            // 创建时间戳
-		UpdateAt            int64  `db:"update_at"`            // 更新时间戳
-		DeleteAt            int64  `db:"delete_at"`            // 删除时间戳
+		Id          string `db:"id"`
+		Code        string `db:"code"`         // 群号
+		Name        string `db:"name"`         // 群组名
+		StateEm     int64  `db:"state_em"`     // 群组状态
+		TypeEm      int64  `db:"type_em"`      // 群组类型
+		CreateUid   string `db:"create_uid"`   // 创建人id
+		IsVerify    int64  `db:"is_verify"`    // 是否需要验证
+		NotiContent string `db:"noti_content"` // 群公告内容
+		NotiUid     string `db:"noti_uid"`     // 群公告编写人
+		Remark      string `db:"remark"`       // 备注
+		PlatId      string `db:"plat_id"`      // 应用id
+		CreateAt    int64  `db:"create_at"`    // 创建时间戳
+		UpdateAt    int64  `db:"update_at"`    // 更新时间戳
+		DeleteAt    int64  `db:"delete_at"`    // 删除时间戳
 	}
 )
 

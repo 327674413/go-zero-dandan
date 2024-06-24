@@ -28,12 +28,13 @@ const (
 	RedisGetUserTokenErr            = 502020001
 	CopierErr                       = 521 //工具类失败
 	RpcResDecodeErr                 = 510
-	ReqKeyRequired                  = 600 //未提供主键
-	ReqFieldRequired1               = 601 //未提供比必填字段
-	ReqParamErr                     = 602 //请求参数不正确
-	ReqParamFormatErr1              = 60201
-	ConfigNotInit1                  = 603 //未配置参数
-	PlatInvalid                     = 604 //无效应用
+	ReqKeyRequired                  = 600   //未提供主键
+	ReqFieldRequired1               = 601   //未提供比必填字段
+	ReqFieldEmptyErr1               = 60101 //参数不得为空值
+	ReqParamErr                     = 602   //请求参数不正确
+	ReqParamFormatErr1              = 60201 //参数格式不正确
+	ConfigNotInit1                  = 603   //未配置参数
+	PlatInvalid                     = 604   //无效应用
 	PlatIdErr                       = 60400001
 	PlatClasErr                     = 60400002
 	ReqWait                         = 605      //请求太频繁
@@ -58,8 +59,12 @@ const (
 	ReqGetPhoneVerifyCodeWait       = 60500001 //请求太频繁
 	ReqGetPhoneVerifyCodeDayLimit   = 60500002
 	ReqGetPhoneVerifyCodeHourLimit  = 60500003
+	// 630社交服务相关
 
-	TrdSmsSendErr = 700
+	SocialAlreadyFriend  = 63000001 //已经是好友了
+	SocialAlreadyBlackMe = 63000002 //对方已把你拉黑
+	SocialNotAddSelf     = 63000003 //不能添加自己为好友
+	TrdSmsSendErr        = 700
 )
 const (
 	VarPassword = "Password"

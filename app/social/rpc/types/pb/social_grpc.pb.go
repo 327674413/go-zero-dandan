@@ -19,36 +19,36 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Social_FriendPutIn_FullMethodName         = "/social.social/FriendPutIn"
-	Social_FriendPutInHandle_FullMethodName   = "/social.social/FriendPutInHandle"
-	Social_FriendPutInList_FullMethodName     = "/social.social/FriendPutInList"
-	Social_FriendList_FullMethodName          = "/social.social/FriendList"
-	Social_FriendOnlineList_FullMethodName    = "/social.social/FriendOnlineList"
-	Social_GroupCreate_FullMethodName         = "/social.social/GroupCreate"
-	Social_GroupPutin_FullMethodName          = "/social.social/GroupPutin"
-	Social_GroupPutinList_FullMethodName      = "/social.social/GroupPutinList"
-	Social_GroupPutInHandle_FullMethodName    = "/social.social/GroupPutInHandle"
-	Social_GroupList_FullMethodName           = "/social.social/GroupList"
-	Social_GroupUsers_FullMethodName          = "/social.social/GroupUsers"
-	Social_GroupOnlineUserList_FullMethodName = "/social.social/GroupOnlineUserList"
+	Social_CreateFriendApply_FullMethodName           = "/social.social/CreateFriendApply"
+	Social_OperateFriendApply_FullMethodName          = "/social.social/OperateFriendApply"
+	Social_GetUserFriendApplyList_FullMethodName      = "/social.social/GetUserFriendApplyList"
+	Social_GetUserFriendList_FullMethodName           = "/social.social/GetUserFriendList"
+	Social_GetFriendOnline_FullMethodName             = "/social.social/GetFriendOnline"
+	Social_CreateGroup_FullMethodName                 = "/social.social/CreateGroup"
+	Social_CreateGroupMemberApply_FullMethodName      = "/social.social/CreateGroupMemberApply"
+	Social_GetUserGroupMemberApplyList_FullMethodName = "/social.social/GetUserGroupMemberApplyList"
+	Social_OperateGroupMemberApply_FullMethodName     = "/social.social/OperateGroupMemberApply"
+	Social_GetUserGroupList_FullMethodName            = "/social.social/GetUserGroupList"
+	Social_GetGroupMemberList_FullMethodName          = "/social.social/GetGroupMemberList"
+	Social_GetGroupUserOnline_FullMethodName          = "/social.social/GetGroupUserOnline"
 )
 
 // SocialClient is the client API for Social service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SocialClient interface {
-	FriendPutIn(ctx context.Context, in *FriendPutInReq, opts ...grpc.CallOption) (*FriendPutInResp, error)
-	FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error)
-	FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error)
-	FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
-	FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
-	GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error)
-	GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error)
-	GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error)
-	GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error)
-	GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
-	GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error)
-	GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error)
+	CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error)
+	OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
+	GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error)
+	GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
+	GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
+	CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error)
+	CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error)
+	GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error)
+	OperateGroupMemberApply(ctx context.Context, in *OperateGroupMemberApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
+	GetUserGroupList(ctx context.Context, in *GetUserGroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
+	GetGroupMemberList(ctx context.Context, in *GetGroupMemberListReq, opts ...grpc.CallOption) (*GroupMemberListResp, error)
+	GetGroupUserOnline(ctx context.Context, in *GetGroupUserOnlineReq, opts ...grpc.CallOption) (*GroupUserOnlineResp, error)
 }
 
 type socialClient struct {
@@ -59,108 +59,108 @@ func NewSocialClient(cc grpc.ClientConnInterface) SocialClient {
 	return &socialClient{cc}
 }
 
-func (c *socialClient) FriendPutIn(ctx context.Context, in *FriendPutInReq, opts ...grpc.CallOption) (*FriendPutInResp, error) {
-	out := new(FriendPutInResp)
-	err := c.cc.Invoke(ctx, Social_FriendPutIn_FullMethodName, in, out, opts...)
+func (c *socialClient) CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error) {
+	out := new(CreateFriendApplyResp)
+	err := c.cc.Invoke(ctx, Social_CreateFriendApply_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error) {
-	out := new(FriendPutInHandleResp)
-	err := c.cc.Invoke(ctx, Social_FriendPutInHandle_FullMethodName, in, out, opts...)
+func (c *socialClient) OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Social_OperateFriendApply_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error) {
-	out := new(FriendPutInListResp)
-	err := c.cc.Invoke(ctx, Social_FriendPutInList_FullMethodName, in, out, opts...)
+func (c *socialClient) GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error) {
+	out := new(FriendApplyListResp)
+	err := c.cc.Invoke(ctx, Social_GetUserFriendApplyList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
+func (c *socialClient) GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
 	out := new(FriendListResp)
-	err := c.cc.Invoke(ctx, Social_FriendList_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Social_GetUserFriendList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
+func (c *socialClient) GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
 	out := new(FriendOnlineResp)
-	err := c.cc.Invoke(ctx, Social_FriendOnlineList_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Social_GetFriendOnline_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error) {
-	out := new(GroupCreateResp)
-	err := c.cc.Invoke(ctx, Social_GroupCreate_FullMethodName, in, out, opts...)
+func (c *socialClient) CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error) {
+	out := new(CreateGroupResp)
+	err := c.cc.Invoke(ctx, Social_CreateGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error) {
-	out := new(GroupPutinResp)
-	err := c.cc.Invoke(ctx, Social_GroupPutin_FullMethodName, in, out, opts...)
+func (c *socialClient) CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error) {
+	out := new(CreateGroupMemberApplyResp)
+	err := c.cc.Invoke(ctx, Social_CreateGroupMemberApply_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error) {
-	out := new(GroupPutinListResp)
-	err := c.cc.Invoke(ctx, Social_GroupPutinList_FullMethodName, in, out, opts...)
+func (c *socialClient) GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error) {
+	out := new(GroupMemberApplyListResp)
+	err := c.cc.Invoke(ctx, Social_GetUserGroupMemberApplyList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error) {
-	out := new(GroupPutInHandleResp)
-	err := c.cc.Invoke(ctx, Social_GroupPutInHandle_FullMethodName, in, out, opts...)
+func (c *socialClient) OperateGroupMemberApply(ctx context.Context, in *OperateGroupMemberApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Social_OperateGroupMemberApply_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error) {
+func (c *socialClient) GetUserGroupList(ctx context.Context, in *GetUserGroupListReq, opts ...grpc.CallOption) (*GroupListResp, error) {
 	out := new(GroupListResp)
-	err := c.cc.Invoke(ctx, Social_GroupList_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Social_GetUserGroupList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error) {
-	out := new(GroupUsersResp)
-	err := c.cc.Invoke(ctx, Social_GroupUsers_FullMethodName, in, out, opts...)
+func (c *socialClient) GetGroupMemberList(ctx context.Context, in *GetGroupMemberListReq, opts ...grpc.CallOption) (*GroupMemberListResp, error) {
+	out := new(GroupMemberListResp)
+	err := c.cc.Invoke(ctx, Social_GetGroupMemberList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *socialClient) GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error) {
-	out := new(GroupOnlineResp)
-	err := c.cc.Invoke(ctx, Social_GroupOnlineUserList_FullMethodName, in, out, opts...)
+func (c *socialClient) GetGroupUserOnline(ctx context.Context, in *GetGroupUserOnlineReq, opts ...grpc.CallOption) (*GroupUserOnlineResp, error) {
+	out := new(GroupUserOnlineResp)
+	err := c.cc.Invoke(ctx, Social_GetGroupUserOnline_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -171,18 +171,18 @@ func (c *socialClient) GroupOnlineUserList(ctx context.Context, in *GroupUsersRe
 // All implementations must embed UnimplementedSocialServer
 // for forward compatibility
 type SocialServer interface {
-	FriendPutIn(context.Context, *FriendPutInReq) (*FriendPutInResp, error)
-	FriendPutInHandle(context.Context, *FriendPutInHandleReq) (*FriendPutInHandleResp, error)
-	FriendPutInList(context.Context, *FriendPutInListReq) (*FriendPutInListResp, error)
-	FriendList(context.Context, *FriendListReq) (*FriendListResp, error)
-	FriendOnlineList(context.Context, *FriendListReq) (*FriendOnlineResp, error)
-	GroupCreate(context.Context, *GroupCreateReq) (*GroupCreateResp, error)
-	GroupPutin(context.Context, *GroupPutinReq) (*GroupPutinResp, error)
-	GroupPutinList(context.Context, *GroupPutinListReq) (*GroupPutinListResp, error)
-	GroupPutInHandle(context.Context, *GroupPutInHandleReq) (*GroupPutInHandleResp, error)
-	GroupList(context.Context, *GroupListReq) (*GroupListResp, error)
-	GroupUsers(context.Context, *GroupUsersReq) (*GroupUsersResp, error)
-	GroupOnlineUserList(context.Context, *GroupUsersReq) (*GroupOnlineResp, error)
+	CreateFriendApply(context.Context, *CreateFriendApplyReq) (*CreateFriendApplyResp, error)
+	OperateFriendApply(context.Context, *OperateFriendApplyReq) (*ResultResp, error)
+	GetUserFriendApplyList(context.Context, *GetUserFriendApplyListReq) (*FriendApplyListResp, error)
+	GetUserFriendList(context.Context, *GetUserFriendListReq) (*FriendListResp, error)
+	GetFriendOnline(context.Context, *GetFriendOnlineReq) (*FriendOnlineResp, error)
+	CreateGroup(context.Context, *CreateGroupReq) (*CreateGroupResp, error)
+	CreateGroupMemberApply(context.Context, *CreateGroupMemberApplyReq) (*CreateGroupMemberApplyResp, error)
+	GetUserGroupMemberApplyList(context.Context, *GetUserGroupMemberApplyListReq) (*GroupMemberApplyListResp, error)
+	OperateGroupMemberApply(context.Context, *OperateGroupMemberApplyReq) (*ResultResp, error)
+	GetUserGroupList(context.Context, *GetUserGroupListReq) (*GroupListResp, error)
+	GetGroupMemberList(context.Context, *GetGroupMemberListReq) (*GroupMemberListResp, error)
+	GetGroupUserOnline(context.Context, *GetGroupUserOnlineReq) (*GroupUserOnlineResp, error)
 	mustEmbedUnimplementedSocialServer()
 }
 
@@ -190,41 +190,41 @@ type SocialServer interface {
 type UnimplementedSocialServer struct {
 }
 
-func (UnimplementedSocialServer) FriendPutIn(context.Context, *FriendPutInReq) (*FriendPutInResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FriendPutIn not implemented")
+func (UnimplementedSocialServer) CreateFriendApply(context.Context, *CreateFriendApplyReq) (*CreateFriendApplyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFriendApply not implemented")
 }
-func (UnimplementedSocialServer) FriendPutInHandle(context.Context, *FriendPutInHandleReq) (*FriendPutInHandleResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FriendPutInHandle not implemented")
+func (UnimplementedSocialServer) OperateFriendApply(context.Context, *OperateFriendApplyReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OperateFriendApply not implemented")
 }
-func (UnimplementedSocialServer) FriendPutInList(context.Context, *FriendPutInListReq) (*FriendPutInListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FriendPutInList not implemented")
+func (UnimplementedSocialServer) GetUserFriendApplyList(context.Context, *GetUserFriendApplyListReq) (*FriendApplyListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFriendApplyList not implemented")
 }
-func (UnimplementedSocialServer) FriendList(context.Context, *FriendListReq) (*FriendListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FriendList not implemented")
+func (UnimplementedSocialServer) GetUserFriendList(context.Context, *GetUserFriendListReq) (*FriendListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserFriendList not implemented")
 }
-func (UnimplementedSocialServer) FriendOnlineList(context.Context, *FriendListReq) (*FriendOnlineResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FriendOnlineList not implemented")
+func (UnimplementedSocialServer) GetFriendOnline(context.Context, *GetFriendOnlineReq) (*FriendOnlineResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFriendOnline not implemented")
 }
-func (UnimplementedSocialServer) GroupCreate(context.Context, *GroupCreateReq) (*GroupCreateResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupCreate not implemented")
+func (UnimplementedSocialServer) CreateGroup(context.Context, *CreateGroupReq) (*CreateGroupResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
 }
-func (UnimplementedSocialServer) GroupPutin(context.Context, *GroupPutinReq) (*GroupPutinResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupPutin not implemented")
+func (UnimplementedSocialServer) CreateGroupMemberApply(context.Context, *CreateGroupMemberApplyReq) (*CreateGroupMemberApplyResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroupMemberApply not implemented")
 }
-func (UnimplementedSocialServer) GroupPutinList(context.Context, *GroupPutinListReq) (*GroupPutinListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupPutinList not implemented")
+func (UnimplementedSocialServer) GetUserGroupMemberApplyList(context.Context, *GetUserGroupMemberApplyListReq) (*GroupMemberApplyListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserGroupMemberApplyList not implemented")
 }
-func (UnimplementedSocialServer) GroupPutInHandle(context.Context, *GroupPutInHandleReq) (*GroupPutInHandleResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupPutInHandle not implemented")
+func (UnimplementedSocialServer) OperateGroupMemberApply(context.Context, *OperateGroupMemberApplyReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OperateGroupMemberApply not implemented")
 }
-func (UnimplementedSocialServer) GroupList(context.Context, *GroupListReq) (*GroupListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupList not implemented")
+func (UnimplementedSocialServer) GetUserGroupList(context.Context, *GetUserGroupListReq) (*GroupListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserGroupList not implemented")
 }
-func (UnimplementedSocialServer) GroupUsers(context.Context, *GroupUsersReq) (*GroupUsersResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupUsers not implemented")
+func (UnimplementedSocialServer) GetGroupMemberList(context.Context, *GetGroupMemberListReq) (*GroupMemberListResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroupMemberList not implemented")
 }
-func (UnimplementedSocialServer) GroupOnlineUserList(context.Context, *GroupUsersReq) (*GroupOnlineResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GroupOnlineUserList not implemented")
+func (UnimplementedSocialServer) GetGroupUserOnline(context.Context, *GetGroupUserOnlineReq) (*GroupUserOnlineResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroupUserOnline not implemented")
 }
 func (UnimplementedSocialServer) mustEmbedUnimplementedSocialServer() {}
 
@@ -239,218 +239,218 @@ func RegisterSocialServer(s grpc.ServiceRegistrar, srv SocialServer) {
 	s.RegisterService(&Social_ServiceDesc, srv)
 }
 
-func _Social_FriendPutIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FriendPutInReq)
+func _Social_CreateFriendApply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFriendApplyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).FriendPutIn(ctx, in)
+		return srv.(SocialServer).CreateFriendApply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_FriendPutIn_FullMethodName,
+		FullMethod: Social_CreateFriendApply_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).FriendPutIn(ctx, req.(*FriendPutInReq))
+		return srv.(SocialServer).CreateFriendApply(ctx, req.(*CreateFriendApplyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_FriendPutInHandle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FriendPutInHandleReq)
+func _Social_OperateFriendApply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperateFriendApplyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).FriendPutInHandle(ctx, in)
+		return srv.(SocialServer).OperateFriendApply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_FriendPutInHandle_FullMethodName,
+		FullMethod: Social_OperateFriendApply_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).FriendPutInHandle(ctx, req.(*FriendPutInHandleReq))
+		return srv.(SocialServer).OperateFriendApply(ctx, req.(*OperateFriendApplyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_FriendPutInList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FriendPutInListReq)
+func _Social_GetUserFriendApplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFriendApplyListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).FriendPutInList(ctx, in)
+		return srv.(SocialServer).GetUserFriendApplyList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_FriendPutInList_FullMethodName,
+		FullMethod: Social_GetUserFriendApplyList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).FriendPutInList(ctx, req.(*FriendPutInListReq))
+		return srv.(SocialServer).GetUserFriendApplyList(ctx, req.(*GetUserFriendApplyListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_FriendList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FriendListReq)
+func _Social_GetUserFriendList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserFriendListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).FriendList(ctx, in)
+		return srv.(SocialServer).GetUserFriendList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_FriendList_FullMethodName,
+		FullMethod: Social_GetUserFriendList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).FriendList(ctx, req.(*FriendListReq))
+		return srv.(SocialServer).GetUserFriendList(ctx, req.(*GetUserFriendListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_FriendOnlineList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FriendListReq)
+func _Social_GetFriendOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFriendOnlineReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).FriendOnlineList(ctx, in)
+		return srv.(SocialServer).GetFriendOnline(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_FriendOnlineList_FullMethodName,
+		FullMethod: Social_GetFriendOnline_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).FriendOnlineList(ctx, req.(*FriendListReq))
+		return srv.(SocialServer).GetFriendOnline(ctx, req.(*GetFriendOnlineReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupCreate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupCreateReq)
+func _Social_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateGroupReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupCreate(ctx, in)
+		return srv.(SocialServer).CreateGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupCreate_FullMethodName,
+		FullMethod: Social_CreateGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupCreate(ctx, req.(*GroupCreateReq))
+		return srv.(SocialServer).CreateGroup(ctx, req.(*CreateGroupReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupPutin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupPutinReq)
+func _Social_CreateGroupMemberApply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateGroupMemberApplyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupPutin(ctx, in)
+		return srv.(SocialServer).CreateGroupMemberApply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupPutin_FullMethodName,
+		FullMethod: Social_CreateGroupMemberApply_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupPutin(ctx, req.(*GroupPutinReq))
+		return srv.(SocialServer).CreateGroupMemberApply(ctx, req.(*CreateGroupMemberApplyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupPutinList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupPutinListReq)
+func _Social_GetUserGroupMemberApplyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserGroupMemberApplyListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupPutinList(ctx, in)
+		return srv.(SocialServer).GetUserGroupMemberApplyList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupPutinList_FullMethodName,
+		FullMethod: Social_GetUserGroupMemberApplyList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupPutinList(ctx, req.(*GroupPutinListReq))
+		return srv.(SocialServer).GetUserGroupMemberApplyList(ctx, req.(*GetUserGroupMemberApplyListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupPutInHandle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupPutInHandleReq)
+func _Social_OperateGroupMemberApply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperateGroupMemberApplyReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupPutInHandle(ctx, in)
+		return srv.(SocialServer).OperateGroupMemberApply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupPutInHandle_FullMethodName,
+		FullMethod: Social_OperateGroupMemberApply_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupPutInHandle(ctx, req.(*GroupPutInHandleReq))
+		return srv.(SocialServer).OperateGroupMemberApply(ctx, req.(*OperateGroupMemberApplyReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupListReq)
+func _Social_GetUserGroupList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserGroupListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupList(ctx, in)
+		return srv.(SocialServer).GetUserGroupList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupList_FullMethodName,
+		FullMethod: Social_GetUserGroupList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupList(ctx, req.(*GroupListReq))
+		return srv.(SocialServer).GetUserGroupList(ctx, req.(*GetUserGroupListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupUsersReq)
+func _Social_GetGroupMemberList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGroupMemberListReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupUsers(ctx, in)
+		return srv.(SocialServer).GetGroupMemberList(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupUsers_FullMethodName,
+		FullMethod: Social_GetGroupMemberList_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupUsers(ctx, req.(*GroupUsersReq))
+		return srv.(SocialServer).GetGroupMemberList(ctx, req.(*GetGroupMemberListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GroupOnlineUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GroupUsersReq)
+func _Social_GetGroupUserOnline_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGroupUserOnlineReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GroupOnlineUserList(ctx, in)
+		return srv.(SocialServer).GetGroupUserOnline(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GroupOnlineUserList_FullMethodName,
+		FullMethod: Social_GetGroupUserOnline_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GroupOnlineUserList(ctx, req.(*GroupUsersReq))
+		return srv.(SocialServer).GetGroupUserOnline(ctx, req.(*GetGroupUserOnlineReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -463,52 +463,52 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SocialServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "FriendPutIn",
-			Handler:    _Social_FriendPutIn_Handler,
+			MethodName: "CreateFriendApply",
+			Handler:    _Social_CreateFriendApply_Handler,
 		},
 		{
-			MethodName: "FriendPutInHandle",
-			Handler:    _Social_FriendPutInHandle_Handler,
+			MethodName: "OperateFriendApply",
+			Handler:    _Social_OperateFriendApply_Handler,
 		},
 		{
-			MethodName: "FriendPutInList",
-			Handler:    _Social_FriendPutInList_Handler,
+			MethodName: "GetUserFriendApplyList",
+			Handler:    _Social_GetUserFriendApplyList_Handler,
 		},
 		{
-			MethodName: "FriendList",
-			Handler:    _Social_FriendList_Handler,
+			MethodName: "GetUserFriendList",
+			Handler:    _Social_GetUserFriendList_Handler,
 		},
 		{
-			MethodName: "FriendOnlineList",
-			Handler:    _Social_FriendOnlineList_Handler,
+			MethodName: "GetFriendOnline",
+			Handler:    _Social_GetFriendOnline_Handler,
 		},
 		{
-			MethodName: "GroupCreate",
-			Handler:    _Social_GroupCreate_Handler,
+			MethodName: "CreateGroup",
+			Handler:    _Social_CreateGroup_Handler,
 		},
 		{
-			MethodName: "GroupPutin",
-			Handler:    _Social_GroupPutin_Handler,
+			MethodName: "CreateGroupMemberApply",
+			Handler:    _Social_CreateGroupMemberApply_Handler,
 		},
 		{
-			MethodName: "GroupPutinList",
-			Handler:    _Social_GroupPutinList_Handler,
+			MethodName: "GetUserGroupMemberApplyList",
+			Handler:    _Social_GetUserGroupMemberApplyList_Handler,
 		},
 		{
-			MethodName: "GroupPutInHandle",
-			Handler:    _Social_GroupPutInHandle_Handler,
+			MethodName: "OperateGroupMemberApply",
+			Handler:    _Social_OperateGroupMemberApply_Handler,
 		},
 		{
-			MethodName: "GroupList",
-			Handler:    _Social_GroupList_Handler,
+			MethodName: "GetUserGroupList",
+			Handler:    _Social_GetUserGroupList_Handler,
 		},
 		{
-			MethodName: "GroupUsers",
-			Handler:    _Social_GroupUsers_Handler,
+			MethodName: "GetGroupMemberList",
+			Handler:    _Social_GetGroupMemberList_Handler,
 		},
 		{
-			MethodName: "GroupOnlineUserList",
-			Handler:    _Social_GroupOnlineUserList_Handler,
+			MethodName: "GetGroupUserOnline",
+			Handler:    _Social_GetGroupUserOnline_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

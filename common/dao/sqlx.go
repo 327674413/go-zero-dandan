@@ -21,6 +21,7 @@ type SqlxDao struct {
 	ctx              context.Context
 	table            string
 	defaultRowField  string
+	exceptRowFields  []string
 	defaultQuerySize int64
 	softDeleteField  string
 	softDeletable    bool
@@ -102,6 +103,11 @@ func (t *SqlxDao) Ctx(ctx context.Context) *SqlxDao {
 	return t
 }
 
+// Except 左联表
+func (t *SqlxDao) Except(fields ...string) {
+	t.exceptRowFields = fields
+}
+
 // Limit Select时限制数量，如果设置了Page则会被覆盖
 func (t *SqlxDao) Limit(num int64) *SqlxDao {
 	return t.Page(1, num)
@@ -155,6 +161,23 @@ func (t *SqlxDao) getFieldParam() string {
 	field := t.defaultRowField
 	if t.fieldSql != "" {
 		field = t.fieldSql
+	}
+	// 移除要除去的字段
+	if len(t.exceptRowFields) > 0 {
+		fieldMap := make(map[string]bool)
+		for _, v := range t.exceptRowFields {
+			fieldMap[v] = true
+		}
+		fields := strings.Split(field, ",")
+		resField := ""
+		for _, v := range fields {
+			if _, ok := fieldMap[v]; !ok {
+				resField = v + ","
+			}
+		}
+		if len(resField) > 0 {
+			field = resField[:len(resField)-1]
+		}
 	}
 	return field
 }

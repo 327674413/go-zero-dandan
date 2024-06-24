@@ -75,12 +75,12 @@ type (
 	SocialFriendApply struct {
 		Id             string `db:"id"`
 		UserId         string `db:"user_id"`          // 归属用户id
-		ApplyUserId    string `db:"apply_user_id"`    // 申请成为好友的ID
+		ApplyUid       string `db:"apply_uid"`        // 申请成为好友的ID
 		ApplyMsg       string `db:"apply_msg"`        // 申请填写的内容
 		ApplyAt        int64  `db:"apply_at"`         // 申请时间戳
-		ProcessMsg     string `db:"process_msg"`      // 处理时填写的内容
-		ProcessAt      int64  `db:"process_at"`       // 处理时间戳
-		ProcessStateEm int64  `db:"process_state_em"` // 处理状态
+		OperateMsg     string `db:"operate_msg"`      // 处理时填写的内容
+		OperateAt      int64  `db:"operate_at"`       // 处理时间戳
+		OperateStateEm int64  `db:"operate_state_em"` // 处理状态
 		Remark         string `db:"remark"`           // 备注
 		PlatId         string `db:"plat_id"`          // 应用id
 		CreateAt       int64  `db:"create_at"`        // 创建时间戳

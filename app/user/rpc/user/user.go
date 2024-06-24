@@ -23,6 +23,7 @@ type (
 	IdReq                = pb.IdReq
 	LoginByAccountReq    = pb.LoginByAccountReq
 	LoginResp            = pb.LoginResp
+	MatchField           = pb.MatchField
 	RegByAccountReq      = pb.RegByAccountReq
 	SearchUserReq        = pb.SearchUserReq
 	SearchUserResp       = pb.SearchUserResp

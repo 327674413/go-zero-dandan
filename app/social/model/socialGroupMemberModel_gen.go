@@ -73,19 +73,19 @@ type (
 	}
 
 	SocialGroupMember struct {
-		Id            string `db:"id"`
-		GroupId       string `db:"group_id"`        // 群组id
-		UserId        string `db:"user_id"`         // 用户id
-		RoleLevel     int64  `db:"role_level"`      // 权限等级
-		JoinAt        int64  `db:"join_at"`         // 加入时间
-		JoinSourceEm  int64  `db:"join_source_em"`  // 加入方式
-		InviteUserId  string `db:"invite_user_id"`  // 邀请人用户id
-		OperateUserId string `db:"operate_user_id"` // 操作人用户id
-		Remark        string `db:"remark"`          // 备注
-		PlatId        string `db:"plat_id"`         // 应用id
-		CreateAt      int64  `db:"create_at"`       // 创建时间戳
-		UpdateAt      int64  `db:"update_at"`       // 更新时间戳
-		DeleteAt      int64  `db:"delete_at"`       // 删除时间戳
+		Id           string `db:"id"`
+		GroupId      string `db:"group_id"`       // 群组id
+		UserId       string `db:"user_id"`        // 用户id
+		RoleLevel    int64  `db:"role_level"`     // 权限等级
+		JoinAt       int64  `db:"join_at"`        // 加入时间
+		JoinSourceEm int64  `db:"join_source_em"` // 加入方式
+		InviteUid    string `db:"invite_uid"`     // 邀请人用户id
+		OperateUid   string `db:"operate_uid"`    // 操作人用户id
+		Remark       string `db:"remark"`         // 备注
+		PlatId       string `db:"plat_id"`        // 应用id
+		CreateAt     int64  `db:"create_at"`      // 创建时间戳
+		UpdateAt     int64  `db:"update_at"`      // 更新时间戳
+		DeleteAt     int64  `db:"delete_at"`      // 删除时间戳
 	}
 )
 

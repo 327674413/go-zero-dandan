@@ -9,6 +9,7 @@
         .fl{display: flex;align-items: center;justify-content: flex-start;}
         .fc{display: flex;align-items: center;justify-content: center;}
         .fr{display: flex;align-items: center;justify-content: flex-end;}
+        .btn:hover{cursor: pointer;}
         #app{display: none;}
         .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%);}
         .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
@@ -16,17 +17,32 @@
         .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
         .chat-nav-item{margin-top:10px;}
         .chat-nav-item:hover{cursor: pointer;}
-        .chat-social{flex:0 0 260px;width:260px;background: #f4f4f4;border-right: 1px solid #e0e0e0;height:100%;}
-        .friend-search{padding:10px 15px;border-bottom: 1px solid #e0e0e0;}
+        .chat-social{flex:0 0 260px;width:260px;background: #f8f8f8;border-right: 1px solid #e0e0e0;height:100%;}
+
+
+        .social-search{padding:10px 15px;border-bottom: 1px solid #e0e0e0;}
+        .friend-new{padding:10px 20px;border-bottom: 1px solid #e0e0e0;}
+        .friend-new-num{flex:0 0 25px;width:25px;height:25px;background: #f56c6c;border-radius: 50%;color:#fff;font-size: 12px;}
         .friend-item{padding:10px;}
-        .friend-avatar{flex:0 0 40px;margin-right:6px;border-radius: 6px;width:40px;height:40px;}
+        .friend-item:hover{cursor: pointer;}
+        .friend-avatar{flex:0 0 32px;margin-right:6px;border-radius: 6px;width:32px;height:32px;}
         .friend-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
-        .friend-content{width:200px;}
-        .friend-content-top{height:25px;}
-        .friend-name{font-size: 16px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
-        .friend-date{font-size: 11px;color:#bbb;max-width: 70px;}
-        .friend-content-bottom{height:22px;}
-        .friend-chat{overflow: hidden; white-space: nowrap; text-overflow: ellipsis;font-size: 12px;color:#8a8a8a;}
+        .friend-name{font-size: 15px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        .friend-add-search-list{padding-top:10px;}
+
+
+        .search-result{padding:50px 30px;}
+
+        .conv-item{padding:10px;}
+        .conv-item:hover{cursor: pointer;}
+        .conv-avatar{flex:0 0 40px;margin-right:6px;border-radius: 6px;width:40px;height:40px;}
+        .conv-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
+        .conv-content{flex-grow: 1;overflow: hidden;}
+        .conv-content-top{height:25px;}
+        .conv-name{font-size: 16px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        .conv-date{font-size: 11px;color:#bbb;max-width: 70px;}
+        .conv-content-bottom{height:22px;}
+        .conv-chat{overflow: hidden; white-space: nowrap; text-overflow: ellipsis;font-size: 12px;color:#8a8a8a;}
     </style>
 </head>
 <body>
@@ -36,36 +52,62 @@
             <div class="chat-nav fl">
                 <div class="chat-nav-avatar fc" style="background: red;color:#fff;">我</div>
                 <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;">好友</div>
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('conv')">消息</div>
                 </div>
                 <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;">群组</div>
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('friend')">好友</div>
                 </div>
                 <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;">客服</div>
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('group')">群组</div>
+                </div>
+                <div class="chat-nav-item">
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('call')">客服</div>
                 </div>
             </div>
             <div class="chat-social">
-                <div class="chat-friend">
-                    <div class="friend-search fl">
-                        <el-input size="mini" style="width:140px;margin-right:10px;"></el-input>
-                        <el-button size="mini" circle icon="el-icon-plus" class="friend-search-add"></el-button>
+                <div class="chat-conv" v-if="currNav == 'conv'">
+                    <div class="social-search fl">
+                        <el-input size="mini" prefix-icon="el-icon-search" clearable placeholder="搜索聊天" v-model="searchConvVal" style="margin-right:10px;"></el-input>
+                        <el-button size="mini" circle icon="el-icon-plus" class="conv-search-add" @click="tapShowConvAdd"></el-button>
+                    </div>
+                    <div class="conv-list">
+                        <div class="fl conv-item" v-for="item in friendListCpd" :key="item.id">
+                            <img :src="item.friendAvatarImg" class="conv-avatar" v-if="item.friendAvatarImg" />
+                            <div class="conv-avatar conv-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
+                            <div class="conv-content">
+                                <div class="fb conv-content-top">
+                                    <div class="conv-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
+                                    <div class="conv-date">{{item.friendDate}}</div>
+                                </div>
+                                <div class="fl conv-content-bottom">
+                                    <div class="conv-chat">{{item.lastChat}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-friend" v-if="currNav == 'friend'">
+                    <div class="social-search fl">
+                        <el-input size="mini" prefix-icon="el-icon-search" clearable placeholder="搜索好友" v-model="searchFriendVal" ref="searchFriendVal" style="margin-right:10px;"></el-input>
+                        <el-button size="mini" circle icon="el-icon-plus" class="conv-search-add" @click="tapShowFriendAdd"></el-button>
+                    </div>
+                    <div class="fb btn friend-new" @click="tapShowFriendNewApply">
+                        <div class="fl friend-new-text">新朋友</div>
+                        <div class="fc friend-new-num" v-if="friendNewNum > 0">{{friendNewNum > 99 ? '99+':friendNewNum}}</div>
                     </div>
                     <div class="friend-list">
                         <div class="fl friend-item" v-for="item in friendListCpd" :key="item.id">
                             <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
                             <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
-                            <div class="friend-content">
-                                <div class="fb friend-content-top">
-                                    <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
-                                    <div class="friend-date">{{item.friendDate}}</div>
-                                </div>
-                                <div class="fl friend-content-bottom">
-                                    <div class="friend-chat">{{item.lastChat}}</div>
-                                </div>
-                            </div>
+                            <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
                         </div>
                     </div>
+                </div>
+                <div class="chat-group" v-if="currNav == 'group'">
+                    群组
+                </div>
+                <div class="chat-call" v-if="currNav == 'call'">
+                    客服
                 </div>
             </div>
             <div id="chat-content">
@@ -77,6 +119,49 @@
             </div>
         </div>
     </div>
+    <el-dialog title="添加好友"  :close-on-click-modal="false" :visible.sync="showAddFriendDialog" width="500">
+        <div class="fl friend-add-dialog-search">
+            <el-input size="mini" prefix-icon="el-icon-search" clearable @keyup.enter.native="tapFriendAddSearch" placeholder="搜索好友" v-model="searchFriendVal" style="margin-right:10px;"></el-input>
+            <el-button size="mini"  type="primary" class="conv-search-add" @click="tapFriendAddSearch">搜索</el-button>
+        </div>
+        <div class="friend-add-search-list">
+            <div class="friend-list">
+                <div class="fb friend-item" v-for="item in friendAddSearchList" :key="item.id">
+                    <div class="fl">
+                        <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
+                        <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.nickname.substring(0,1).toUpperCase()}}</div>
+                        <div class="friend-name">{{item.nickname}}</div>
+                    </div>
+                    <el-tag effect="plain" class="btn" @click="tapCreateAddFriendApply(item)">添加</el-tag>
+                </div>
+                <div class="fc search-result" v-if="friendAddSearchListState != ''">
+                    <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
+                    <div class="fc" v-if="friendAddSearchListState == 'none'">未搜索到信息</div>
+                </div>
+
+            </div>
+        </div>
+    </el-dialog>
+
+    <el-dialog title="好友申请列表"  :close-on-click-modal="false" :visible.sync="friendNewApplyShow" width="500">
+        <div class="friend-add-search-list">
+            <div class="friend-list">
+                <div class="fb friend-item" v-for="item in friendAddSearchList" :key="item.id">
+                    <div class="fl">
+                        <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
+                        <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.nickname.substring(0,1).toUpperCase()}}</div>
+                        <div class="friend-name">{{item.nickname}}</div>
+                    </div>
+                    <el-tag effect="plain" class="btn" @click="tapCreateAddFriendApply(item)">添加</el-tag>
+                </div>
+                <div class="fc search-result" v-if="friendAddSearchListState != ''">
+                    <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
+                    <div class="fc" v-if="friendAddSearchListState == 'none'">未搜索到信息</div>
+                </div>
+
+            </div>
+        </div>
+    </el-dialog>
 </div>
 <script src="static/js/vue.js"></script>
 <script src="static/js/element.js"></script>
@@ -88,7 +173,25 @@
         el: '#app',
         data() {
             return {
-                friendList:[]
+                currNav:'friend',
+                searchConvVal:'',
+                convList:[],
+
+                searchFriendVal:'',
+                friendList:[],
+                showAddFriendDialog:false,
+                friendAddSearchList:[],
+                friendAddSearchListState:'',
+                friendNewNum:10,
+                friendNewApplyShow:false,
+
+
+                searchGroupVal:'',
+                groupList:[],
+                showAddGroupDialog:false,
+                groupAddSearchList:[],
+                groupAddSearchListShowNone:false,
+
             }
         },
         created(){
@@ -100,9 +203,18 @@
         beforeDestroy() {
         },
         methods:{
+            tapNav(nav){
+                this.currNav = nav
+            },
+            getMyConvList(){
+
+            },
+            tapShowConvAdd(){
+
+            },
             getMyFriendList(){
                 request({
-                    url:'http://localhost:8812/friend/v1/getMyFriendList',
+                    url:'http://localhost:8812/social/v1/getMyFriendList',
                     headers:{
                         'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
                         'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
@@ -110,10 +222,76 @@
                 }).then(res=>{
                     this.friendList = res.list
                 })
+            },
+            tapShowFriendNewApply(){
+              this.friendNewApplyShow = true
+            },
+            tapShowFriendAdd(){
+                this.showAddFriendDialog = true
+                this.searchFriendVal = ''
+                this.friendAddSearchList = []
+                this.friendAddSearchListState = ''
+                this.$refs.searchFriendVal.focus()
+            },
+            tapFriendAddSearch(){
+                if (this.searchFriendVal.trim() == '') return;
+                this.friendAddSearchListState = "loading"
+                request({
+                    url:'http://localhost:8812/social/v1/friend/searchNewFriendPage',
+                    headers:{
+                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
+                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
+                    },
+                    data:{
+                        keyword:this.searchFriendVal
+                    }
+                }).then(res=>{
+                    this.friendAddSearchList = res.list
+                    if (this.friendAddSearchList.length == 0){
+                        this.friendAddSearchListState = 'none'
+                    } else if(res.list.length == 0) {
+                        this.friendAddSearchListState = 'end'
+                    } else {
+                        this.friendAddSearchListState = ''
+                    }
+                })
+
+            },
+            tapCreateAddFriendApply(friend){
+                this.$prompt('请输入验证消息', '添加好友申请-'+friend.nickname, {
+                    confirmButtonText: '提交',
+                    cancelButtonText: '取消',
+                    closeOnClickModal: false
+                }).then(({ value }) => {
+                    request({
+                        url:'http://localhost:8812/social/v1/friend/createFriendApply',
+                        headers:{
+                            'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
+                            'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
+                        },
+                        loading:'提交中',
+                        data:{
+                            applyMsg:value,
+                            friendUid:friend.id
+                        }
+                    }).then(res=>{
+                        tool.toastSucc('提交成功')
+                    })
+                }).catch(() => {
+
+                });
+
             }
         },
         computed:{
             friendListCpd(){
+                let list = []
+                this.friendList.forEach(item=>{
+                    list.push(item)
+                })
+                return list
+            },
+            convListCpd(){
                 let list = []
                 this.friendList.forEach(item=>{
                     item.friendDate = '2014/05/01'

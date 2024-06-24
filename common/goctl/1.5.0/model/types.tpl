@@ -2,6 +2,7 @@ type (
 	{{.lowerStartCamelObject}}Model interface{
 		{{.method}}
 		Field(field string) *default{{.upperStartCamelObject}}Model
+		Except(fields ...string) *default{{.upperStartCamelObject}}Model
         Alias(alias string) *default{{.upperStartCamelObject}}Model
         Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model
         WhereId(id string) *default{{.upperStartCamelObject}}Model

@@ -33,6 +33,10 @@ func (m *default{{.upperStartCamelObject}}Model) Field(field string) *default{{.
 	m.dao.Field(field)
     return m
 }
+func (m *default{{.upperStartCamelObject}}Model) Except(fields ...string) *default{{.upperStartCamelObject}}Model {
+	m.dao.Except(fields...)
+    return m
+}
 func (m *default{{.upperStartCamelObject}}Model) Order(order string) *default{{.upperStartCamelObject}}Model {
     m.dao.Order(order)
 	return m

@@ -2,6 +2,8 @@ package svc
 
 import (
 	{{.configImport}}
+	"go-zero-dandan/app/user/rpc/user"
+	"github.com/zeromicro/go-zero/zrpc"
 )
 
 type ServiceContext struct {
@@ -10,8 +12,11 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c {{.config}}) *ServiceContext {
+    UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
 	return &ServiceContext{
 		Config: c,
-		{{.middlewareAssignment}}
+		UserRpc: UserRpc,
+		{{.middlewareAssignment}},
+
 	}
 }

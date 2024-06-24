@@ -13,47 +13,48 @@ import (
 )
 
 type (
-	FriendListReq         = pb.FriendListReq
-	FriendListResp        = pb.FriendListResp
-	FriendOnlineResp      = pb.FriendOnlineResp
-	FriendPutInHandleReq  = pb.FriendPutInHandleReq
-	FriendPutInHandleResp = pb.FriendPutInHandleResp
-	FriendPutInListReq    = pb.FriendPutInListReq
-	FriendPutInListResp   = pb.FriendPutInListResp
-	FriendPutInReq        = pb.FriendPutInReq
-	FriendPutInResp       = pb.FriendPutInResp
-	FriendRequests        = pb.FriendRequests
-	Friends               = pb.Friends
-	GroupCreateReq        = pb.GroupCreateReq
-	GroupCreateResp       = pb.GroupCreateResp
-	GroupListReq          = pb.GroupListReq
-	GroupListResp         = pb.GroupListResp
-	GroupMembers          = pb.GroupMembers
-	GroupOnlineResp       = pb.GroupOnlineResp
-	GroupPutInHandleReq   = pb.GroupPutInHandleReq
-	GroupPutInHandleResp  = pb.GroupPutInHandleResp
-	GroupPutinListReq     = pb.GroupPutinListReq
-	GroupPutinListResp    = pb.GroupPutinListResp
-	GroupPutinReq         = pb.GroupPutinReq
-	GroupPutinResp        = pb.GroupPutinResp
-	GroupRequests         = pb.GroupRequests
-	GroupUsersReq         = pb.GroupUsersReq
-	GroupUsersResp        = pb.GroupUsersResp
-	Groups                = pb.Groups
+	CreateFriendApplyReq           = pb.CreateFriendApplyReq
+	CreateFriendApplyResp          = pb.CreateFriendApplyResp
+	CreateGroupMemberApplyReq      = pb.CreateGroupMemberApplyReq
+	CreateGroupMemberApplyResp     = pb.CreateGroupMemberApplyResp
+	CreateGroupReq                 = pb.CreateGroupReq
+	CreateGroupResp                = pb.CreateGroupResp
+	FriendApply                    = pb.FriendApply
+	FriendApplyListResp            = pb.FriendApplyListResp
+	FriendInfo                     = pb.FriendInfo
+	FriendListResp                 = pb.FriendListResp
+	FriendOnlineResp               = pb.FriendOnlineResp
+	GetFriendOnlineReq             = pb.GetFriendOnlineReq
+	GetGroupMemberListReq          = pb.GetGroupMemberListReq
+	GetGroupUserOnlineReq          = pb.GetGroupUserOnlineReq
+	GetUserFriendApplyListReq      = pb.GetUserFriendApplyListReq
+	GetUserFriendListReq           = pb.GetUserFriendListReq
+	GetUserGroupListReq            = pb.GetUserGroupListReq
+	GetUserGroupMemberApplyListReq = pb.GetUserGroupMemberApplyListReq
+	GroupInfo                      = pb.GroupInfo
+	GroupListResp                  = pb.GroupListResp
+	GroupMember                    = pb.GroupMember
+	GroupMemberApply               = pb.GroupMemberApply
+	GroupMemberApplyListResp       = pb.GroupMemberApplyListResp
+	GroupMemberListResp            = pb.GroupMemberListResp
+	GroupUserOnlineResp            = pb.GroupUserOnlineResp
+	OperateFriendApplyReq          = pb.OperateFriendApplyReq
+	OperateGroupMemberApplyReq     = pb.OperateGroupMemberApplyReq
+	ResultResp                     = pb.ResultResp
 
 	Social interface {
-		FriendPutIn(ctx context.Context, in *FriendPutInReq, opts ...grpc.CallOption) (*FriendPutInResp, error)
-		FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error)
-		FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error)
-		FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
-		FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
-		GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error)
-		GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error)
-		GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error)
-		GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error)
-		GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
-		GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error)
-		GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error)
+		CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error)
+		OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
+		GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error)
+		GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
+		GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
+		CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error)
+		CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error)
+		GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error)
+		OperateGroupMemberApply(ctx context.Context, in *OperateGroupMemberApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
+		GetUserGroupList(ctx context.Context, in *GetUserGroupListReq, opts ...grpc.CallOption) (*GroupListResp, error)
+		GetGroupMemberList(ctx context.Context, in *GetGroupMemberListReq, opts ...grpc.CallOption) (*GroupMemberListResp, error)
+		GetGroupUserOnline(ctx context.Context, in *GetGroupUserOnlineReq, opts ...grpc.CallOption) (*GroupUserOnlineResp, error)
 	}
 
 	defaultSocial struct {
@@ -67,62 +68,62 @@ func NewSocial(cli zrpc.Client) Social {
 	}
 }
 
-func (m *defaultSocial) FriendPutIn(ctx context.Context, in *FriendPutInReq, opts ...grpc.CallOption) (*FriendPutInResp, error) {
+func (m *defaultSocial) CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.FriendPutIn(ctx, in, opts...)
+	return client.CreateFriendApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) FriendPutInHandle(ctx context.Context, in *FriendPutInHandleReq, opts ...grpc.CallOption) (*FriendPutInHandleResp, error) {
+func (m *defaultSocial) OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.FriendPutInHandle(ctx, in, opts...)
+	return client.OperateFriendApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) FriendPutInList(ctx context.Context, in *FriendPutInListReq, opts ...grpc.CallOption) (*FriendPutInListResp, error) {
+func (m *defaultSocial) GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.FriendPutInList(ctx, in, opts...)
+	return client.GetUserFriendApplyList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) FriendList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
+func (m *defaultSocial) GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.FriendList(ctx, in, opts...)
+	return client.GetUserFriendList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) FriendOnlineList(ctx context.Context, in *FriendListReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
+func (m *defaultSocial) GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.FriendOnlineList(ctx, in, opts...)
+	return client.GetFriendOnline(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupCreate(ctx context.Context, in *GroupCreateReq, opts ...grpc.CallOption) (*GroupCreateResp, error) {
+func (m *defaultSocial) CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupCreate(ctx, in, opts...)
+	return client.CreateGroup(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupPutin(ctx context.Context, in *GroupPutinReq, opts ...grpc.CallOption) (*GroupPutinResp, error) {
+func (m *defaultSocial) CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupPutin(ctx, in, opts...)
+	return client.CreateGroupMemberApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupPutinList(ctx context.Context, in *GroupPutinListReq, opts ...grpc.CallOption) (*GroupPutinListResp, error) {
+func (m *defaultSocial) GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupPutinList(ctx, in, opts...)
+	return client.GetUserGroupMemberApplyList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupPutInHandle(ctx context.Context, in *GroupPutInHandleReq, opts ...grpc.CallOption) (*GroupPutInHandleResp, error) {
+func (m *defaultSocial) OperateGroupMemberApply(ctx context.Context, in *OperateGroupMemberApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupPutInHandle(ctx, in, opts...)
+	return client.OperateGroupMemberApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupList(ctx context.Context, in *GroupListReq, opts ...grpc.CallOption) (*GroupListResp, error) {
+func (m *defaultSocial) GetUserGroupList(ctx context.Context, in *GetUserGroupListReq, opts ...grpc.CallOption) (*GroupListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupList(ctx, in, opts...)
+	return client.GetUserGroupList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupUsers(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupUsersResp, error) {
+func (m *defaultSocial) GetGroupMemberList(ctx context.Context, in *GetGroupMemberListReq, opts ...grpc.CallOption) (*GroupMemberListResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupUsers(ctx, in, opts...)
+	return client.GetGroupMemberList(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GroupOnlineUserList(ctx context.Context, in *GroupUsersReq, opts ...grpc.CallOption) (*GroupOnlineResp, error) {
+func (m *defaultSocial) GetGroupUserOnline(ctx context.Context, in *GetGroupUserOnlineReq, opts ...grpc.CallOption) (*GroupUserOnlineResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GroupOnlineUserList(ctx, in, opts...)
+	return client.GetGroupUserOnline(ctx, in, opts...)
 }

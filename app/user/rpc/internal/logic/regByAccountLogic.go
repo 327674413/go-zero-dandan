@@ -96,7 +96,7 @@ func (l *RegByAccountLogic) prepareUserMain(in *pb.RegByAccountReq) (*model.User
 		StateEm: constd.UserStateEmNormal,
 	}
 	if in.Avatar != nil {
-		addData.Avatar = *in.Avatar
+		addData.AvatarImg = *in.Avatar
 	}
 	if in.Phone != nil {
 		addData.Phone = *in.Phone

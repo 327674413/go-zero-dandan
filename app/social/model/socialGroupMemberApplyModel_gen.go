@@ -74,21 +74,21 @@ type (
 
 	SocialGroupMemberApply struct {
 		Id             string `db:"id"`
-		ApplyId        string `db:"apply_id"`         // 申请ID
 		GroupId        string `db:"group_id"`         // 群组id
 		UserId         string `db:"user_id"`          // 用户id
 		ApplyMsg       string `db:"apply_msg"`        // 申请内容
 		ApplyAt        int64  `db:"apply_at"`         // 申请时间
 		JoinSourceEm   int64  `db:"join_source_em"`   // 加入方式
-		InviteUserId   string `db:"invite_user_id"`   // 邀请人用户id
-		ProcessUserId  string `db:"process_user_id"`  // 操作人用户id
-		ProcessAt      int64  `db:"process_at"`       // 操作时间
-		ProcessStateEm int64  `db:"process_state_em"` // 处理结果
-		Remark         string `db:"remark"`           // 备注
-		PlatId         string `db:"plat_id"`          // 应用id
-		CreateAt       int64  `db:"create_at"`        // 创建时间戳
-		UpdateAt       int64  `db:"update_at"`        // 更新时间戳
-		DeleteAt       int64  `db:"delete_at"`        // 删除时间戳
+		InviteUid      string `db:"invite_uid"`       // 邀请人用户id
+		OperateUid     string `db:"operate_uid"`      // 操作人用户id
+		OperateAt      int64  `db:"operate_at"`       // 操作时间
+		OperateStateEm int64  `db:"operate_state_em"` // 处理结果
+		OperateMsg     string `db:"operate_msg"`
+		Remark         string `db:"remark"`    // 备注
+		PlatId         string `db:"plat_id"`   // 应用id
+		CreateAt       int64  `db:"create_at"` // 创建时间戳
+		UpdateAt       int64  `db:"update_at"` // 更新时间戳
+		DeleteAt       int64  `db:"delete_at"` // 删除时间戳
 	}
 )
 

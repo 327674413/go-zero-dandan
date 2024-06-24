@@ -31,11 +31,11 @@ func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetToken
 func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
 	platModel := model.NewPlatMainModel(l.svcCtx.SqlConn)
 	platMain, err := platModel.Ctx(l.ctx).Where("appid = ? and secret = ?", req.Appid, req.Secret).Find()
-	if err != nil && err != model.ErrNotFound {
+	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	resp = &types.GetTokenResp{}
-	if err == model.ErrNotFound {
+	if platMain == nil {
 		return nil, resd.NewErrCtx(l.ctx, "无效plat", resd.PlatInvalid)
 	} else {
 		resp.Token, err = l.getToken(l.svcCtx.Config.Auth.AccessSecret, time.Now().Unix(), l.svcCtx.Config.Auth.AccessExpire, platMain)
