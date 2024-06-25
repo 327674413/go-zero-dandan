@@ -19,14 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_GetUserByToken_FullMethodName   = "/user.user/getUserByToken"
-	User_EditUserInfo_FullMethodName     = "/user.user/editUserInfo"
-	User_GetUserCronyList_FullMethodName = "/user.user/getUserCronyList"
-	User_RegByAccount_FullMethodName     = "/user.user/RegByAccount"
-	User_GetUserById_FullMethodName      = "/user.user/GetUserById"
-	User_GetUserPage_FullMethodName      = "/user.user/GetUserPage"
-	User_SearchUser_FullMethodName       = "/user.user/SearchUser"
-	User_BindUnionUser_FullMethodName    = "/user.user/BindUnionUser"
+	User_GetUserByToken_FullMethodName = "/user.user/getUserByToken"
+	User_EditUserInfo_FullMethodName   = "/user.user/editUserInfo"
+	User_RegByAccount_FullMethodName   = "/user.user/RegByAccount"
+	User_GetUserById_FullMethodName    = "/user.user/GetUserById"
+	User_GetUserPage_FullMethodName    = "/user.user/GetUserPage"
+	User_BindUnionUser_FullMethodName  = "/user.user/BindUnionUser"
 )
 
 // UserClient is the client API for User service.
@@ -35,11 +33,9 @@ const (
 type UserClient interface {
 	GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
-	GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error)
 	RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error)
 	GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error)
-	SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
 	BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error)
 }
 
@@ -63,15 +59,6 @@ func (c *userClient) GetUserByToken(ctx context.Context, in *TokenReq, opts ...g
 func (c *userClient) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error) {
 	out := new(SuccResp)
 	err := c.cc.Invoke(ctx, User_EditUserInfo_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userClient) GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error) {
-	out := new(GetUserCronyListResp)
-	err := c.cc.Invoke(ctx, User_GetUserCronyList_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -105,15 +92,6 @@ func (c *userClient) GetUserPage(ctx context.Context, in *GetUserPageReq, opts .
 	return out, nil
 }
 
-func (c *userClient) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
-	out := new(SearchUserResp)
-	err := c.cc.Invoke(ctx, User_SearchUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userClient) BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error) {
 	out := new(BindUnionUserResp)
 	err := c.cc.Invoke(ctx, User_BindUnionUser_FullMethodName, in, out, opts...)
@@ -129,11 +107,9 @@ func (c *userClient) BindUnionUser(ctx context.Context, in *BindUnionUserReq, op
 type UserServer interface {
 	GetUserByToken(context.Context, *TokenReq) (*UserMainInfo, error)
 	EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error)
-	GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error)
 	RegByAccount(context.Context, *RegByAccountReq) (*LoginResp, error)
 	GetUserById(context.Context, *IdReq) (*UserMainInfo, error)
 	GetUserPage(context.Context, *GetUserPageReq) (*GetUserPageResp, error)
-	SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error)
 	BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -148,9 +124,6 @@ func (UnimplementedUserServer) GetUserByToken(context.Context, *TokenReq) (*User
 func (UnimplementedUserServer) EditUserInfo(context.Context, *EditUserInfoReq) (*SuccResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditUserInfo not implemented")
 }
-func (UnimplementedUserServer) GetUserCronyList(context.Context, *GetUserCronyListReq) (*GetUserCronyListResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserCronyList not implemented")
-}
 func (UnimplementedUserServer) RegByAccount(context.Context, *RegByAccountReq) (*LoginResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegByAccount not implemented")
 }
@@ -159,9 +132,6 @@ func (UnimplementedUserServer) GetUserById(context.Context, *IdReq) (*UserMainIn
 }
 func (UnimplementedUserServer) GetUserPage(context.Context, *GetUserPageReq) (*GetUserPageResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserPage not implemented")
-}
-func (UnimplementedUserServer) SearchUser(context.Context, *SearchUserReq) (*SearchUserResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SearchUser not implemented")
 }
 func (UnimplementedUserServer) BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BindUnionUser not implemented")
@@ -211,24 +181,6 @@ func _User_EditUserInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServer).EditUserInfo(ctx, req.(*EditUserInfoReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _User_GetUserCronyList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserCronyListReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).GetUserCronyList(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_GetUserCronyList_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).GetUserCronyList(ctx, req.(*GetUserCronyListReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -287,24 +239,6 @@ func _User_GetUserPage_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_SearchUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SearchUserReq)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).SearchUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_SearchUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).SearchUser(ctx, req.(*SearchUserReq))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _User_BindUnionUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(BindUnionUserReq)
 	if err := dec(in); err != nil {
@@ -339,10 +273,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_EditUserInfo_Handler,
 		},
 		{
-			MethodName: "getUserCronyList",
-			Handler:    _User_GetUserCronyList_Handler,
-		},
-		{
 			MethodName: "RegByAccount",
 			Handler:    _User_RegByAccount_Handler,
 		},
@@ -353,10 +283,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserPage",
 			Handler:    _User_GetUserPage_Handler,
-		},
-		{
-			MethodName: "SearchUser",
-			Handler:    _User_SearchUser_Handler,
 		},
 		{
 			MethodName: "BindUnionUser",

@@ -9,29 +9,28 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type GetUserFriendApplyListLogic struct {
+type GetUserFriendApplyPageLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
-func NewGetUserFriendApplyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserFriendApplyListLogic {
-	return &GetUserFriendApplyListLogic{
+func NewGetUserFriendApplyPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserFriendApplyPageLogic {
+	return &GetUserFriendApplyPageLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
 }
 
-func (l *GetUserFriendApplyListLogic) GetUserFriendApplyList(in *pb.GetUserFriendApplyListReq) (*pb.FriendApplyListResp, error) {
+func (l *GetUserFriendApplyPageLogic) GetUserFriendApplyPage(in *pb.GetUserFriendApplyPageReq) (*pb.FriendApplyPageResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	//applyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
 
-	return &pb.FriendApplyListResp{}, nil
+	return &pb.FriendApplyPageResp{}, nil
 }
-func (l *GetUserFriendApplyListLogic) checkReqParams(in *pb.GetUserFriendApplyListReq) error {
+func (l *GetUserFriendApplyPageLogic) checkReqParams(in *pb.GetUserFriendApplyPageReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

@@ -13,33 +13,26 @@ import (
 )
 
 type (
-	BindUnionUserReq     = pb.BindUnionUserReq
-	BindUnionUserResp    = pb.BindUnionUserResp
-	EditUserInfoReq      = pb.EditUserInfoReq
-	GetUserCronyListReq  = pb.GetUserCronyListReq
-	GetUserCronyListResp = pb.GetUserCronyListResp
-	GetUserPageReq       = pb.GetUserPageReq
-	GetUserPageResp      = pb.GetUserPageResp
-	IdReq                = pb.IdReq
-	LoginByAccountReq    = pb.LoginByAccountReq
-	LoginResp            = pb.LoginResp
-	MatchField           = pb.MatchField
-	RegByAccountReq      = pb.RegByAccountReq
-	SearchUserReq        = pb.SearchUserReq
-	SearchUserResp       = pb.SearchUserResp
-	SuccResp             = pb.SuccResp
-	TokenReq             = pb.TokenReq
-	UserCronyInfo        = pb.UserCronyInfo
-	UserMainInfo         = pb.UserMainInfo
+	BindUnionUserReq  = pb.BindUnionUserReq
+	BindUnionUserResp = pb.BindUnionUserResp
+	EditUserInfoReq   = pb.EditUserInfoReq
+	GetUserPageReq    = pb.GetUserPageReq
+	GetUserPageResp   = pb.GetUserPageResp
+	IdReq             = pb.IdReq
+	LoginByAccountReq = pb.LoginByAccountReq
+	LoginResp         = pb.LoginResp
+	MatchField        = pb.MatchField
+	RegByAccountReq   = pb.RegByAccountReq
+	SuccResp          = pb.SuccResp
+	TokenReq          = pb.TokenReq
+	UserMainInfo      = pb.UserMainInfo
 
 	User interface {
 		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error)
-		GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error)
 		RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error)
 		GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error)
-		SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error)
 		BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error)
 	}
 
@@ -64,11 +57,6 @@ func (m *defaultUser) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opt
 	return client.EditUserInfo(ctx, in, opts...)
 }
 
-func (m *defaultUser) GetUserCronyList(ctx context.Context, in *GetUserCronyListReq, opts ...grpc.CallOption) (*GetUserCronyListResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
-	return client.GetUserCronyList(ctx, in, opts...)
-}
-
 func (m *defaultUser) RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.RegByAccount(ctx, in, opts...)
@@ -82,11 +70,6 @@ func (m *defaultUser) GetUserById(ctx context.Context, in *IdReq, opts ...grpc.C
 func (m *defaultUser) GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error) {
 	client := pb.NewUserClient(m.cli.Conn())
 	return client.GetUserPage(ctx, in, opts...)
-}
-
-func (m *defaultUser) SearchUser(ctx context.Context, in *SearchUserReq, opts ...grpc.CallOption) (*SearchUserResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
-	return client.SearchUser(ctx, in, opts...)
 }
 
 func (m *defaultUser) BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error) {

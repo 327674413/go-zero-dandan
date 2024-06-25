@@ -25,22 +25,22 @@ var (
 )
 
 const (
-	SocialFriendApply_Id             dao.TableField = "id"
-	SocialFriendApply_UserId         dao.TableField = "user_id"
-	SocialFriendApply_FriendUid      dao.TableField = "friend_uid"
-	SocialFriendApply_ApplyLastMsg   dao.TableField = "apply_last_msg"
-	SocialFriendApply_ApplyStartAt   dao.TableField = "apply_start_at"
-	SocialFriendApply_ApplyLastAt    dao.TableField = "apply_last_at"
-	SocialFriendApply_OperateMsg     dao.TableField = "operate_msg"
-	SocialFriendApply_OperateAt      dao.TableField = "operate_at"
-	SocialFriendApply_OperateStateEm dao.TableField = "operate_state_em"
-	SocialFriendApply_Remark         dao.TableField = "remark"
-	SocialFriendApply_IsRead         dao.TableField = "is_read"
-	SocialFriendApply_PlatId         dao.TableField = "plat_id"
-	SocialFriendApply_Content        dao.TableField = "content"
-	SocialFriendApply_CreateAt       dao.TableField = "create_at"
-	SocialFriendApply_UpdateAt       dao.TableField = "update_at"
-	SocialFriendApply_DeleteAt       dao.TableField = "delete_at"
+	SocialFriendApply_Id           dao.TableField = "id"
+	SocialFriendApply_UserId       dao.TableField = "user_id"
+	SocialFriendApply_FriendUid    dao.TableField = "friend_uid"
+	SocialFriendApply_ApplyLastMsg dao.TableField = "apply_last_msg"
+	SocialFriendApply_ApplyStartAt dao.TableField = "apply_start_at"
+	SocialFriendApply_ApplyLastAt  dao.TableField = "apply_last_at"
+	SocialFriendApply_OperateMsg   dao.TableField = "operate_msg"
+	SocialFriendApply_OperateAt    dao.TableField = "operate_at"
+	SocialFriendApply_StateEm      dao.TableField = "state_em"
+	SocialFriendApply_Remark       dao.TableField = "remark"
+	SocialFriendApply_IsRead       dao.TableField = "is_read"
+	SocialFriendApply_PlatId       dao.TableField = "plat_id"
+	SocialFriendApply_Content      dao.TableField = "content"
+	SocialFriendApply_CreateAt     dao.TableField = "create_at"
+	SocialFriendApply_UpdateAt     dao.TableField = "update_at"
+	SocialFriendApply_DeleteAt     dao.TableField = "delete_at"
 )
 
 type (
@@ -93,22 +93,22 @@ type (
 	}
 
 	SocialFriendApply struct {
-		Id             string         `db:"id"`
-		UserId         string         `db:"user_id"`          // 发起人id
-		FriendUid      string         `db:"friend_uid"`       // 对方id
-		ApplyLastMsg   string         `db:"apply_last_msg"`   // 最后一次申请验证信息
-		ApplyStartAt   int64          `db:"apply_start_at"`   // 申请开始时间戳，用于过滤通过之前的历史申请
-		ApplyLastAt    int64          `db:"apply_last_at"`    // 最后一次申请时间，用来好申请列表排序用
-		OperateMsg     string         `db:"operate_msg"`      // 处理时填写的内容
-		OperateAt      int64          `db:"operate_at"`       // 处理时间戳
-		OperateStateEm int64          `db:"operate_state_em"` // 处理状态
-		Remark         string         `db:"remark"`           // 备注
-		IsRead         int64          `db:"is_read"`          // apply_uid被申请人是否已读
-		PlatId         string         `db:"plat_id"`          // 应用id
-		Content        sql.NullString `db:"content"`          // 添加沟通记录
-		CreateAt       int64          `db:"create_at"`        // 创建时间戳
-		UpdateAt       int64          `db:"update_at"`        // 更新时间戳
-		DeleteAt       int64          `db:"delete_at"`        // 删除时间戳
+		Id           string         `db:"id"`
+		UserId       string         `db:"user_id"`        // 发起人id
+		FriendUid    string         `db:"friend_uid"`     // 对方id
+		ApplyLastMsg string         `db:"apply_last_msg"` // 最后一次申请验证信息
+		ApplyStartAt int64          `db:"apply_start_at"` // 申请开始时间戳，用于过滤通过之前的历史申请
+		ApplyLastAt  int64          `db:"apply_last_at"`  // 最后一次申请时间，用来好申请列表排序用
+		OperateMsg   string         `db:"operate_msg"`    // 处理时填写的内容
+		OperateAt    int64          `db:"operate_at"`     // 处理时间戳
+		StateEm      int64          `db:"state_em"`       // 申请状态
+		Remark       string         `db:"remark"`         // 备注
+		IsRead       int64          `db:"is_read"`        // apply_uid被申请人是否已读
+		PlatId       string         `db:"plat_id"`        // 应用id
+		Content      sql.NullString `db:"content"`        // 添加沟通记录
+		CreateAt     int64          `db:"create_at"`      // 创建时间戳
+		UpdateAt     int64          `db:"update_at"`      // 更新时间戳
+		DeleteAt     int64          `db:"delete_at"`      // 删除时间戳
 	}
 )
 

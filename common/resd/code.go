@@ -30,7 +30,7 @@ const (
 	RpcResDecodeErr                 = 510
 	ReqKeyRequired                  = 600   //未提供主键
 	ReqFieldRequired1               = 601   //未提供比必填字段
-	ReqFieldEmptyErr1               = 60101 //参数不得为空值
+	ReqFieldEmpty1                  = 60101 //参数不得为空值
 	ReqParamErr                     = 602   //请求参数不正确
 	ReqParamFormatErr1              = 60201 //参数格式不正确
 	ConfigNotInit1                  = 603   //未配置参数

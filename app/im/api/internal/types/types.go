@@ -132,6 +132,7 @@ type NewFriendInfo struct {
 	Nickname  string `json:"nickname"`
 	AvatarImg string `json:"avatarImg"`
 	Signature string `json:"signature"`
+	StateEm   int64  `json:"stateEm"`
 }
 
 type SearchNewFriendReq struct {

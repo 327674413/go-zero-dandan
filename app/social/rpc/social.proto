@@ -3,6 +3,18 @@ syntax = "proto3";
 package social;
 
 option go_package = "./pb";
+
+// 获取用户关系
+message GetUserRelationReq{
+  string platId = 1;
+  string userId = 2;
+  repeated string friendUids = 3;
+}
+message GetUserRelationResp{
+  map<string,int64> relats = 1;
+}
+
+// 好友信息
 message FriendInfo {
   string id = 1;
   string userId = 2;
@@ -183,9 +195,10 @@ service social {
 
   rpc CreateFriendApply(CreateFriendApplyReq) returns(CreateFriendApplyResp);
   rpc OperateFriendApply(OperateFriendApplyReq) returns(ResultResp);
-  rpc GetUserFriendApplyPage(GetUserFriendApplyListReq) returns(FriendApplyListResp);
+  rpc GetUserFriendApplyPage(GetUserFriendApplyPageReq) returns(FriendApplyPageResp);
   rpc GetUserFriendList(GetUserFriendListReq) returns (FriendListResp);
   rpc GetFriendOnline(GetFriendOnlineReq) returns (FriendOnlineResp);
+  rpc GetUserRelation(GetUserRelationReq) returns (GetUserRelationResp);
   // 群业务：创建群，修改群，群公告，申请群，用户群列表，群成员，申请群，群退出..
 
   rpc CreateGroup(CreateGroupReq) returns (CreateGroupResp);

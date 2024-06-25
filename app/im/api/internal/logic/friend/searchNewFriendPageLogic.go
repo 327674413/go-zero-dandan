@@ -3,7 +3,6 @@ package friend
 import (
 	"context"
 	"go-zero-dandan/app/user/rpc/types/pb"
-	"go-zero-dandan/common/utild/copier"
 	"strings"
 
 	"go-zero-dandan/app/im/api/internal/svc"
@@ -43,7 +42,7 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 	if keyword == "" {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ReqFieldRequired1, "keyword")
 	}
-	searchRes, err := l.svcCtx.UserRpc.SearchUser(l.ctx, &pb.SearchUserReq{
+	searchRes, err := l.svcCtx.UserRpc.GetUserPage(l.ctx, &pb.GetUserPageReq{
 		PlatId: l.platId,
 		Match: map[string]*pb.MatchField{
 			"phone": {Str: &keyword},
@@ -52,11 +51,21 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	resp = &types.SearchNewFriendResp{
-		List: make([]*types.NewFriendInfo, 0),
+	list := make([]*types.NewFriendInfo, len(searchRes.List))
+	ids := make([]string, 0)
+	for _, v := range searchRes.List {
+		list = append(list, &types.NewFriendInfo{
+			Id:        v.Id,
+			Nickname:  v.Nickname,
+			AvatarImg: v.AvatarImg,
+			Signature: v.Signature,
+		})
+		ids = append(ids, v.Id)
 	}
-	copier.Copy(&resp.List, searchRes.List)
-	return resp, nil
+	//relatsRes, err := l.svcCtx.SocialRpc.GetUserRelation(l.ctx)
+	return &types.SearchNewFriendResp{
+		List: list,
+	}, nil
 }
 
 func (l *SearchNewFriendPageLogic) initUser() (err error) {

@@ -62,7 +62,7 @@ func (l *CreateFriendApplyLogic) checkParam(req *types.CreateFriendApplyReq) err
 	}
 	l.friendUid = strings.TrimSpace(*req.FriendUid)
 	if l.friendUid == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "", resd.ReqFieldEmptyErr1, "friendUid")
+		return resd.NewErrWithTempCtx(l.ctx, "", resd.ReqFieldEmpty1, "friendUid")
 	}
 	if req.ApplyMsg != nil {
 		l.applyMsg = strings.TrimSpace(*req.ApplyMsg)

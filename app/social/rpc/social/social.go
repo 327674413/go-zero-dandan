@@ -20,17 +20,19 @@ type (
 	CreateGroupReq                 = pb.CreateGroupReq
 	CreateGroupResp                = pb.CreateGroupResp
 	FriendApply                    = pb.FriendApply
-	FriendApplyListResp            = pb.FriendApplyListResp
+	FriendApplyPageResp            = pb.FriendApplyPageResp
 	FriendInfo                     = pb.FriendInfo
 	FriendListResp                 = pb.FriendListResp
 	FriendOnlineResp               = pb.FriendOnlineResp
 	GetFriendOnlineReq             = pb.GetFriendOnlineReq
 	GetGroupMemberListReq          = pb.GetGroupMemberListReq
 	GetGroupUserOnlineReq          = pb.GetGroupUserOnlineReq
-	GetUserFriendApplyListReq      = pb.GetUserFriendApplyListReq
+	GetUserFriendApplyPageReq      = pb.GetUserFriendApplyPageReq
 	GetUserFriendListReq           = pb.GetUserFriendListReq
 	GetUserGroupListReq            = pb.GetUserGroupListReq
 	GetUserGroupMemberApplyListReq = pb.GetUserGroupMemberApplyListReq
+	GetUserRelationReq             = pb.GetUserRelationReq
+	GetUserRelationResp            = pb.GetUserRelationResp
 	GroupInfo                      = pb.GroupInfo
 	GroupListResp                  = pb.GroupListResp
 	GroupMember                    = pb.GroupMember
@@ -45,9 +47,10 @@ type (
 	Social interface {
 		CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error)
 		OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
-		GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error)
+		GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error)
 		GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
 		GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
+		GetUserRelation(ctx context.Context, in *GetUserRelationReq, opts ...grpc.CallOption) (*GetUserRelationResp, error)
 		CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error)
 		CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error)
 		GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error)
@@ -78,9 +81,9 @@ func (m *defaultSocial) OperateFriendApply(ctx context.Context, in *OperateFrien
 	return client.OperateFriendApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GetUserFriendApplyList(ctx context.Context, in *GetUserFriendApplyListReq, opts ...grpc.CallOption) (*FriendApplyListResp, error) {
+func (m *defaultSocial) GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GetUserFriendApplyList(ctx, in, opts...)
+	return client.GetUserFriendApplyPage(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
@@ -91,6 +94,11 @@ func (m *defaultSocial) GetUserFriendList(ctx context.Context, in *GetUserFriend
 func (m *defaultSocial) GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
 	client := pb.NewSocialClient(m.cli.Conn())
 	return client.GetFriendOnline(ctx, in, opts...)
+}
+
+func (m *defaultSocial) GetUserRelation(ctx context.Context, in *GetUserRelationReq, opts ...grpc.CallOption) (*GetUserRelationResp, error) {
+	client := pb.NewSocialClient(m.cli.Conn())
+	return client.GetUserRelation(ctx, in, opts...)
 }
 
 func (m *defaultSocial) CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error) {

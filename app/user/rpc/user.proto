@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
-option go_package = "./pb";
+option go_package = "./userRpc";
 
 package user;
 
@@ -14,157 +14,95 @@ message MatchField {
   optional bool isFuzzy = 6;
   repeated string raws = 7;
 }
-message SearchUserReq{
-  string platId = 1;
-  int64 page = 2;
-  int64 size = 3;
-  optional int64 needPageCount = 4;
-  optional int64 needTotal = 5;
-  optional string unionId = 6;
-  map<string,MatchField> match = 7;
-}
-message SearchUserResp{
-  int64 page = 1;
-  int64 size = 2;
-  bool isCache = 3;
-  optional int64 total = 4;
-  optional int64 pageCount = 5;
-  repeated UserMainInfo list = 6;
-}
+
 message BindUnionUserReq{
-  string UserId = 1;
-  int64 BindClasEm = 2;
-  optional string Account = 3;
-  optional string Phone = 4;
+  string userId = 1;
+  int64 bindClasEm = 2;
+  optional string account = 3;
+  optional string phone = 4;
   string platId = 5;
 }
 message BindUnionUserResp{
-  string UnionId = 1;
+  string unionId = 1;
 }
 message LoginByAccountReq {
-  string PlatId = 1;
-  string  Account = 2;
-  string  Password = 3;
+  string platId = 1;
+  string  account = 2;
+  string  password = 3;
 }
 message RegByAccountReq {
-  string PlatId = 1;
-  string  Account = 2;
-  string  Password = 3;
-  optional string Nickname = 5;
-  optional string Phone = 6;
-  optional string PhoneArea = 7;
-  optional int64 SexEm = 8;
-  optional string Email = 9;
-  optional string Avatar = 10;
-  int64 IsLogin = 11;
+  string platId = 1;
+  string  account = 2;
+  string  password = 3;
+  optional string nickname = 5;
+  optional string phone = 6;
+  optional string phoneArea = 7;
+  optional int64 sexEm = 8;
+  optional string email = 9;
+  optional string avatarImg = 10;
+  int64 isLogin = 11;
 }
 message GetUserPageReq {
-  int64 Page = 1;
-  int64 Size = 2;
-  int64 string = 3;
-  optional string Cursor = 4;
-  optional string LastId = 5;
-  optional string Account = 6;
-  optional string Nickname = 7;
-  optional string Phone = 8;
-  repeated string ids = 9;
-  optional string Email = 10;
-  string platId = 11;
+  int64 page = 1;
+  int64 size = 2;
+  string platId = 3;
+  int64 needTotal = 4;
+  map<string,MatchField> match = 5;
 }
 message GetUserPageResp{
-  int64 Page = 1;
-  int64 Size = 2;
-  bool IsCache = 3;
-  optional int64 Total = 6;
-  optional string string = 7;
-  optional string Cursor = 8;
-  optional bool IsEnd = 9;
-  repeated UserMainInfo List = 10;
-
+  optional int64 total = 1;
+  repeated UserMainInfo list = 2;
 }
 message LoginResp{
-  string Id = 1;
-  string Token = 2;
-  int64 ExpireAt = 3;
-  UserMainInfo UserInfo = 4;
+  string id = 1;
+  string token = 2;
+  int64 expireAt = 3;
+  UserMainInfo userInfo = 4;
 }
 message UserMainInfo {
-  string Id = 1;
-  string UnionId = 2;
-  int64 StateEm = 3;
-  string Account = 4;
-  string Nickname = 5;
-  string Phone = 6;
-  string PhoneArea = 7;
-  int64 SexEm = 8;
-  string Email = 9;
-  string Avatar = 10;
-  string PlatId = 11;
+  string id = 1;
+  string unionId = 2;
+  int64 stateEm = 3;
+  string account = 4;
+  string nickname = 5;
+  string phone = 6;
+  string phoneArea = 7;
+  int64 sexEm = 8;
+  string email = 9;
+  string avatarImg = 10;
+  string platId = 11;
+  string signature = 12;
 }
 
 message EditUserInfoReq {
-  string Id = 1;
-  optional string Nickname = 2;
-  optional int64 SexEm = 3;
-  optional string Email = 4;
-  optional string Avatar = 5;
-  optional string GraduateFrom = 6;
-  optional string BirthDate = 7;
+  string id = 1;
+  optional string nickname = 2;
+  optional int64 sexEm = 3;
+  optional string email = 4;
+  optional string avatarImg = 5;
+  optional string graduateFrom = 6;
+  optional string birthDate = 7;
   string PlatId = 8;
-}
-
-message UserCronyInfo {
-  string OwnerUserId = 1;
-  string TargetUserId = 2;
-  string Remark = 3;
-  int64 TypeEm = 4;
-  string NameNote = 5;
-  int64 CreateAt = 6;
-  string TargetUserName = 7;
-  string TargetUserAvatar = 8;
-  string TagIds = 9;
-  string GroupId = 10;
-  string GroupName = 11;
-  string Id = 12;
-}
-
-
-message getUserCronyListResp {
-  repeated UserCronyInfo list = 1;
-  optional int64 total = 2;
 }
 
 
 message IdReq {
-  string Id = 1;
-  string PlatId = 2;
+  string id = 1;
+  string platId = 2;
 }
 message TokenReq {
   string token = 1;
 }
 message SuccResp {
-  int64 Code= 1;
+  int64 code= 1;
 }
-message getUserCronyListReq {
-  optional string PlatId = 1;
-  optional int64 IsNeedTotal = 2;
-  optional string OwnerUserId = 3;
-  optional string OwnerUserName = 4;
-  optional string GroupId = 5;
-  optional string TypeEms = 6;
-  optional string AddStartTime = 7;
-  optional string AddEndTime = 8;
-}
+
 service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
-  rpc getUserCronyList(getUserCronyListReq) returns(getUserCronyListResp);
 
   rpc RegByAccount(RegByAccountReq) returns (LoginResp);
   rpc GetUserById(IdReq) returns (UserMainInfo);
   rpc GetUserPage(GetUserPageReq) returns (GetUserPageResp);
-
-  rpc SearchUser(SearchUserReq) returns (SearchUserResp);
-
   rpc BindUnionUser(BindUnionUserReq) returns (BindUnionUserResp);
 }

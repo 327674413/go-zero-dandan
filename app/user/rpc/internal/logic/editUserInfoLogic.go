@@ -27,11 +27,10 @@ func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Edit
 
 func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, error) {
 	userInfoModel := model.NewUserInfoModel(l.svcCtx.SqlConn, l.platId)
-	data, err := dao.PrepareDataByTarget(*in, "Id,GraduateFrom,BirthDate")
-	if err != nil {
-		return l.rpcFail(resd.ErrorCtx(l.ctx, err))
-	}
-	_, err = userInfoModel.Update(data)
+	_, err := userInfoModel.WhereId(in.Id).Update(map[dao.TableField]any{
+		model.UserInfo_GraduateFrom: in.GraduateFrom,
+		model.UserInfo_BirthDate:    in.BirthDate,
+	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err, resd.MysqlUpdateErr)
 	}

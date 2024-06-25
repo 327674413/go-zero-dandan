@@ -95,6 +95,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) 
 			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
 			model.SocialFriendApply_IsRead:       0,
 			model.SocialFriendApply_Content:      string(newContent),
+			model.SocialFriend_StateEm:           constd.SocialFriendStateEmApply,
 		})
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "添加好友申请失败", resd.MysqlUpdateErr)
@@ -117,6 +118,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) 
 			ApplyLastMsg: in.ApplyMsg,
 			ApplyLastAt:  time.Now().Unix(),
 			ApplyStartAt: time.Now().Unix(),
+			StateEm:      constd.SocialFriendStateEmApply,
 			Content: sql.NullString{
 				String: string(newContent),
 				Valid:  true,

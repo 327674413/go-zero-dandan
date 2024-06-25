@@ -32,9 +32,9 @@ func (s *SocialServer) OperateFriendApply(ctx context.Context, in *pb.OperateFri
 	return l.OperateFriendApply(in)
 }
 
-func (s *SocialServer) GetUserFriendApplyList(ctx context.Context, in *pb.GetUserFriendApplyListReq) (*pb.FriendApplyListResp, error) {
-	l := logic.NewGetUserFriendApplyListLogic(ctx, s.svcCtx)
-	return l.GetUserFriendApplyList(in)
+func (s *SocialServer) GetUserFriendApplyPage(ctx context.Context, in *pb.GetUserFriendApplyPageReq) (*pb.FriendApplyPageResp, error) {
+	l := logic.NewGetUserFriendApplyPageLogic(ctx, s.svcCtx)
+	return l.GetUserFriendApplyPage(in)
 }
 
 func (s *SocialServer) GetUserFriendList(ctx context.Context, in *pb.GetUserFriendListReq) (*pb.FriendListResp, error) {
@@ -45,6 +45,11 @@ func (s *SocialServer) GetUserFriendList(ctx context.Context, in *pb.GetUserFrie
 func (s *SocialServer) GetFriendOnline(ctx context.Context, in *pb.GetFriendOnlineReq) (*pb.FriendOnlineResp, error) {
 	l := logic.NewGetFriendOnlineLogic(ctx, s.svcCtx)
 	return l.GetFriendOnline(in)
+}
+
+func (s *SocialServer) GetUserRelation(ctx context.Context, in *pb.GetUserRelationReq) (*pb.GetUserRelationResp, error) {
+	l := logic.NewGetUserRelationLogic(ctx, s.svcCtx)
+	return l.GetUserRelation(in)
 }
 
 func (s *SocialServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {

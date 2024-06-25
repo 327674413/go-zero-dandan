@@ -6,7 +6,7 @@ CopierErr = "copy data trans error"
 NotFound1 = "{{.Field1}} is not found"
 
 ReqFieldRequired1 = "Param {{.Field1}} is required"
-ReqFieldEmptyErr1 = "Param {{.Field1}} is empty"
+ReqFieldEmpty1 = "Param {{.Field1}} is empty"
 ReqPhoneErr = "Not a correct phone number"
 ReqGetPhoneVerifyCodeWait = "Too many requests for verification code. Please try again later"
 ReqGetPhoneVerifyCodeDayLimit="Too many requests for verification code today. Please try again tomorrow."
