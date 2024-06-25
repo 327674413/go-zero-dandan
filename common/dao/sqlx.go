@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logc"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"go-zero-dandan/common/redisd"
 	"go-zero-dandan/common/resd"
@@ -565,8 +566,8 @@ func (t *SqlxDao) Update(data map[TableField]any) (int64, error) {
 	} else {
 		sqlRes, err = t.conn.Exec(query, params...)
 	}
-
 	if err != nil {
+		logx.Info("update err sql：", query, params)
 		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
@@ -592,6 +593,7 @@ func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[TableField]any) (int64, error) {
 	}
 
 	if err != nil {
+		logx.Info("update err sql：", query, params)
 		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
@@ -656,6 +658,7 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 	}
 
 	if err != nil {
+		logx.Info("save err sql：", query, params)
 		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
@@ -719,6 +722,7 @@ func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 	}
 
 	if err != nil {
+		logx.Info("save err sql：", query, params)
 		return 0, resd.Error(err)
 	}
 	affectedRow, _ := sqlRes.RowsAffected()
@@ -739,6 +743,9 @@ func (t *SqlxDao) prepareUpdate(data map[string]any) (string, []any, error) {
 		updateStr = updateStr + fmt.Sprintf("%s=?,", utild.StrToSnake(k))
 		params = append(params, v)
 	}
+	//将修改条件参数也传入
+	params = append(params, t.whereData...)
+	//处理修改字段
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {

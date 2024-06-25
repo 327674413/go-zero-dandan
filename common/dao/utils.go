@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"database/sql"
 	"fmt"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -37,6 +38,15 @@ func PrepareData(source interface{}) (map[string]any, error) {
 					result[targetName] = fmt.Sprintf("%d", prtVal.Int())
 				case reflect.String:
 					result[targetName] = prtVal.String()
+				}
+			}
+		case reflect.Struct:
+			if field.Type() == reflect.TypeOf(sql.NullString{}) {
+				ns := field.Interface().(sql.NullString)
+				if ns.Valid {
+					result[targetName] = ns.String
+				} else {
+					result[targetName] = ""
 				}
 			}
 

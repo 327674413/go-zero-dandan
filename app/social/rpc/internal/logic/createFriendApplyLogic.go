@@ -2,6 +2,8 @@ package logic
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
@@ -25,6 +27,12 @@ func NewCreateFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 		svcCtx: svcCtx,
 		Logger: logx.WithContext(ctx),
 	}
+}
+
+type applyContent struct {
+	UserId string `json:"userId"`
+	TimeAt int64  `json:"timeAt"`
+	Text   string `json:"text"`
 }
 
 func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) (*pb.CreateFriendApplyResp, error) {
@@ -60,28 +68,59 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) 
 		}
 	}
 
+	//查看是否存在过申请
 	applyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
-	existApply, err := applyModel.Where("apply_uid = ?", in.UserId).Find()
+	existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
 	var applyId string
 	if existApply != nil {
+		//存在申请，更新与添加申请消息
 		applyId = existApply.Id
+		msgList := make([]*applyContent, 0)
+		if existApply.Content.String != "" {
+			_ = json.Unmarshal([]byte(existApply.Content.String), &msgList)
+		}
+		msgList = append([]*applyContent{
+			{
+				UserId: in.UserId,
+				TimeAt: time.Now().Unix(),
+				Text:   in.ApplyMsg,
+			},
+		}, msgList...)
+		newContent, _ := json.Marshal(msgList)
 		_, err = applyModel.WhereId(applyId).Update(map[dao.TableField]any{
 			model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
 			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
 			model.SocialFriendApply_IsRead:       0,
+			model.SocialFriendApply_Content:      string(newContent),
 		})
+		if err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "添加好友申请失败", resd.MysqlUpdateErr)
+		}
 	} else {
+		//不存在申请，创建新申请
 		applyId = utild.MakeId()
+		msgList := []*applyContent{
+			{
+				UserId: in.UserId,
+				TimeAt: time.Now().Unix(),
+				Text:   in.ApplyMsg,
+			},
+		}
+		newContent, _ := json.Marshal(msgList)
 		_, err = applyModel.Insert(&model.SocialFriendApply{
 			Id:           applyId,
 			UserId:       in.UserId,
-			ApplyUid:     in.FriendUid,
+			FriendUid:    in.FriendUid,
 			ApplyLastMsg: in.ApplyMsg,
 			ApplyLastAt:  time.Now().Unix(),
 			ApplyStartAt: time.Now().Unix(),
+			Content: sql.NullString{
+				String: string(newContent),
+				Valid:  true,
+			},
 		})
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "创建好友申请失败", resd.MysqlInsertErr)

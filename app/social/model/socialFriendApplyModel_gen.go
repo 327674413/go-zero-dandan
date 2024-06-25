@@ -27,7 +27,7 @@ var (
 const (
 	SocialFriendApply_Id             dao.TableField = "id"
 	SocialFriendApply_UserId         dao.TableField = "user_id"
-	SocialFriendApply_ApplyUid       dao.TableField = "apply_uid"
+	SocialFriendApply_FriendUid      dao.TableField = "friend_uid"
 	SocialFriendApply_ApplyLastMsg   dao.TableField = "apply_last_msg"
 	SocialFriendApply_ApplyStartAt   dao.TableField = "apply_start_at"
 	SocialFriendApply_ApplyLastAt    dao.TableField = "apply_last_at"
@@ -95,7 +95,7 @@ type (
 	SocialFriendApply struct {
 		Id             string         `db:"id"`
 		UserId         string         `db:"user_id"`          // 发起人id
-		ApplyUid       string         `db:"apply_uid"`        // 对方id
+		FriendUid      string         `db:"friend_uid"`       // 对方id
 		ApplyLastMsg   string         `db:"apply_last_msg"`   // 最后一次申请验证信息
 		ApplyStartAt   int64          `db:"apply_start_at"`   // 申请开始时间戳，用于过滤通过之前的历史申请
 		ApplyLastAt    int64          `db:"apply_last_at"`    // 最后一次申请时间，用来好申请列表排序用
