@@ -24,16 +24,36 @@ var (
 	goodsMainRowsWithPlaceHolder = strings.Join(stringx.Remove(goodsMainFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	GoodsMain_Id        dao.TableField = "id"
+	GoodsMain_Code      dao.TableField = "code"
+	GoodsMain_Name      dao.TableField = "name"
+	GoodsMain_Spec      dao.TableField = "spec"
+	GoodsMain_Cover     dao.TableField = "cover"
+	GoodsMain_SellPrice dao.TableField = "sell_price"
+	GoodsMain_StoreQty  dao.TableField = "store_qty"
+	GoodsMain_State     dao.TableField = "state"
+	GoodsMain_IsSpecial dao.TableField = "is_special"
+	GoodsMain_UnitId    dao.TableField = "unit_id"
+	GoodsMain_UnitName  dao.TableField = "unit_name"
+	GoodsMain_ViewNum   dao.TableField = "view_num"
+	GoodsMain_PlatId    dao.TableField = "plat_id"
+	GoodsMain_CreateAt  dao.TableField = "create_at"
+	GoodsMain_EditAt    dao.TableField = "edit_at"
+	GoodsMain_DeleteAt  dao.TableField = "delete_at"
+)
+
 type (
 	goodsMainModel interface {
-		Insert(data *GoodsMain) (int64, error)
-		TxInsert(tx *sql.Tx, data *GoodsMain) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *GoodsMain) (int64, error)
-		TxSave(tx *sql.Tx, data *GoodsMain) (int64, error)
+		Insert(data *GoodsMain) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *GoodsMain) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultGoodsMainModel
+		Except(fields ...string) *defaultGoodsMainModel
 		Alias(alias string) *defaultGoodsMainModel
 		Where(whereStr string, whereData ...any) *defaultGoodsMainModel
 		WhereId(id string) *defaultGoodsMainModel
@@ -124,6 +144,10 @@ func (m *defaultGoodsMainModel) Alias(alias string) *defaultGoodsMainModel {
 }
 func (m *defaultGoodsMainModel) Field(field string) *defaultGoodsMainModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultGoodsMainModel) Except(fields ...string) *defaultGoodsMainModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultGoodsMainModel) Order(order string) *defaultGoodsMainModel {
@@ -236,14 +260,14 @@ func (m *defaultGoodsMainModel) Page(page int64, size int64) *defaultGoodsMainMo
 	return m
 }
 
-func (m *defaultGoodsMainModel) Insert(data *GoodsMain) (int64, error) {
+func (m *defaultGoodsMainModel) Insert(data *GoodsMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultGoodsMainModel) TxInsert(tx *sql.Tx, data *GoodsMain) (int64, error) {
+func (m *defaultGoodsMainModel) TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -251,20 +275,20 @@ func (m *defaultGoodsMainModel) TxInsert(tx *sql.Tx, data *GoodsMain) (int64, er
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultGoodsMainModel) Update(data map[string]any) (int64, error) {
+func (m *defaultGoodsMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultGoodsMainModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultGoodsMainModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultGoodsMainModel) Save(data *GoodsMain) (int64, error) {
+func (m *defaultGoodsMainModel) Save(data *GoodsMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultGoodsMainModel) TxSave(tx *sql.Tx, data *GoodsMain) (int64, error) {
+func (m *defaultGoodsMainModel) TxSave(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

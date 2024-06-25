@@ -24,16 +24,32 @@ var (
 	platMainRowsWithPlaceHolder = strings.Join(stringx.Remove(platMainFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	PlatMain_Id          dao.TableField = "id"
+	PlatMain_Appid       dao.TableField = "appid"
+	PlatMain_Secret      dao.TableField = "secret"
+	PlatMain_StateEm     dao.TableField = "state_em"
+	PlatMain_RenterId    dao.TableField = "renter_id"
+	PlatMain_Name        dao.TableField = "name"
+	PlatMain_ClasEm      dao.TableField = "clas_em"
+	PlatMain_ExpireAt    dao.TableField = "expire_at"
+	PlatMain_DataLevelEm dao.TableField = "data_level_em"
+	PlatMain_CreateAt    dao.TableField = "create_at"
+	PlatMain_UpdateAt    dao.TableField = "update_at"
+	PlatMain_DeleteAt    dao.TableField = "delete_at"
+)
+
 type (
 	platMainModel interface {
-		Insert(data *PlatMain) (int64, error)
-		TxInsert(tx *sql.Tx, data *PlatMain) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *PlatMain) (int64, error)
-		TxSave(tx *sql.Tx, data *PlatMain) (int64, error)
+		Insert(data *PlatMain) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *PlatMain) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *PlatMain) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultPlatMainModel
+		Except(fields ...string) *defaultPlatMainModel
 		Alias(alias string) *defaultPlatMainModel
 		Where(whereStr string, whereData ...any) *defaultPlatMainModel
 		WhereId(id string) *defaultPlatMainModel
@@ -120,6 +136,10 @@ func (m *defaultPlatMainModel) Alias(alias string) *defaultPlatMainModel {
 }
 func (m *defaultPlatMainModel) Field(field string) *defaultPlatMainModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultPlatMainModel) Except(fields ...string) *defaultPlatMainModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultPlatMainModel) Order(order string) *defaultPlatMainModel {
@@ -232,14 +252,14 @@ func (m *defaultPlatMainModel) Page(page int64, size int64) *defaultPlatMainMode
 	return m
 }
 
-func (m *defaultPlatMainModel) Insert(data *PlatMain) (int64, error) {
+func (m *defaultPlatMainModel) Insert(data *PlatMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultPlatMainModel) TxInsert(tx *sql.Tx, data *PlatMain) (int64, error) {
+func (m *defaultPlatMainModel) TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -247,20 +267,20 @@ func (m *defaultPlatMainModel) TxInsert(tx *sql.Tx, data *PlatMain) (int64, erro
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultPlatMainModel) Update(data map[string]any) (int64, error) {
+func (m *defaultPlatMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultPlatMainModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultPlatMainModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultPlatMainModel) Save(data *PlatMain) (int64, error) {
+func (m *defaultPlatMainModel) Save(data *PlatMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultPlatMainModel) TxSave(tx *sql.Tx, data *PlatMain) (int64, error) {
+func (m *defaultPlatMainModel) TxSave(tx *sql.Tx, data *PlatMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

@@ -24,16 +24,36 @@ var (
 	socialFriendApplyRowsWithPlaceHolder = strings.Join(stringx.Remove(socialFriendApplyFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	SocialFriendApply_Id             dao.TableField = "id"
+	SocialFriendApply_UserId         dao.TableField = "user_id"
+	SocialFriendApply_ApplyUid       dao.TableField = "apply_uid"
+	SocialFriendApply_ApplyLastMsg   dao.TableField = "apply_last_msg"
+	SocialFriendApply_ApplyStartAt   dao.TableField = "apply_start_at"
+	SocialFriendApply_ApplyLastAt    dao.TableField = "apply_last_at"
+	SocialFriendApply_OperateMsg     dao.TableField = "operate_msg"
+	SocialFriendApply_OperateAt      dao.TableField = "operate_at"
+	SocialFriendApply_OperateStateEm dao.TableField = "operate_state_em"
+	SocialFriendApply_Remark         dao.TableField = "remark"
+	SocialFriendApply_IsRead         dao.TableField = "is_read"
+	SocialFriendApply_PlatId         dao.TableField = "plat_id"
+	SocialFriendApply_Content        dao.TableField = "content"
+	SocialFriendApply_CreateAt       dao.TableField = "create_at"
+	SocialFriendApply_UpdateAt       dao.TableField = "update_at"
+	SocialFriendApply_DeleteAt       dao.TableField = "delete_at"
+)
+
 type (
 	socialFriendApplyModel interface {
-		Insert(data *SocialFriendApply) (int64, error)
-		TxInsert(tx *sql.Tx, data *SocialFriendApply) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *SocialFriendApply) (int64, error)
-		TxSave(tx *sql.Tx, data *SocialFriendApply) (int64, error)
+		Insert(data *SocialFriendApply) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *SocialFriendApply) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultSocialFriendApplyModel
+		Except(fields ...string) *defaultSocialFriendApplyModel
 		Alias(alias string) *defaultSocialFriendApplyModel
 		Where(whereStr string, whereData ...any) *defaultSocialFriendApplyModel
 		WhereId(id string) *defaultSocialFriendApplyModel
@@ -73,19 +93,22 @@ type (
 	}
 
 	SocialFriendApply struct {
-		Id             string `db:"id"`
-		UserId         string `db:"user_id"`          // 归属用户id
-		ApplyUid       string `db:"apply_uid"`        // 申请成为好友的ID
-		ApplyMsg       string `db:"apply_msg"`        // 申请填写的内容
-		ApplyAt        int64  `db:"apply_at"`         // 申请时间戳
-		OperateMsg     string `db:"operate_msg"`      // 处理时填写的内容
-		OperateAt      int64  `db:"operate_at"`       // 处理时间戳
-		OperateStateEm int64  `db:"operate_state_em"` // 处理状态
-		Remark         string `db:"remark"`           // 备注
-		PlatId         string `db:"plat_id"`          // 应用id
-		CreateAt       int64  `db:"create_at"`        // 创建时间戳
-		UpdateAt       int64  `db:"update_at"`        // 更新时间戳
-		DeleteAt       int64  `db:"delete_at"`        // 删除时间戳
+		Id             string         `db:"id"`
+		UserId         string         `db:"user_id"`          // 发起人id
+		ApplyUid       string         `db:"apply_uid"`        // 对方id
+		ApplyLastMsg   string         `db:"apply_last_msg"`   // 最后一次申请验证信息
+		ApplyStartAt   int64          `db:"apply_start_at"`   // 申请开始时间戳，用于过滤通过之前的历史申请
+		ApplyLastAt    int64          `db:"apply_last_at"`    // 最后一次申请时间，用来好申请列表排序用
+		OperateMsg     string         `db:"operate_msg"`      // 处理时填写的内容
+		OperateAt      int64          `db:"operate_at"`       // 处理时间戳
+		OperateStateEm int64          `db:"operate_state_em"` // 处理状态
+		Remark         string         `db:"remark"`           // 备注
+		IsRead         int64          `db:"is_read"`          // apply_uid被申请人是否已读
+		PlatId         string         `db:"plat_id"`          // 应用id
+		Content        sql.NullString `db:"content"`          // 添加沟通记录
+		CreateAt       int64          `db:"create_at"`        // 创建时间戳
+		UpdateAt       int64          `db:"update_at"`        // 更新时间戳
+		DeleteAt       int64          `db:"delete_at"`        // 删除时间戳
 	}
 )
 
@@ -121,6 +144,10 @@ func (m *defaultSocialFriendApplyModel) Alias(alias string) *defaultSocialFriend
 }
 func (m *defaultSocialFriendApplyModel) Field(field string) *defaultSocialFriendApplyModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultSocialFriendApplyModel) Except(fields ...string) *defaultSocialFriendApplyModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultSocialFriendApplyModel) Order(order string) *defaultSocialFriendApplyModel {
@@ -233,14 +260,14 @@ func (m *defaultSocialFriendApplyModel) Page(page int64, size int64) *defaultSoc
 	return m
 }
 
-func (m *defaultSocialFriendApplyModel) Insert(data *SocialFriendApply) (int64, error) {
+func (m *defaultSocialFriendApplyModel) Insert(data *SocialFriendApply) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultSocialFriendApplyModel) TxInsert(tx *sql.Tx, data *SocialFriendApply) (int64, error) {
+func (m *defaultSocialFriendApplyModel) TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -248,20 +275,20 @@ func (m *defaultSocialFriendApplyModel) TxInsert(tx *sql.Tx, data *SocialFriendA
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultSocialFriendApplyModel) Update(data map[string]any) (int64, error) {
+func (m *defaultSocialFriendApplyModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultSocialFriendApplyModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultSocialFriendApplyModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultSocialFriendApplyModel) Save(data *SocialFriendApply) (int64, error) {
+func (m *defaultSocialFriendApplyModel) Save(data *SocialFriendApply) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultSocialFriendApplyModel) TxSave(tx *sql.Tx, data *SocialFriendApply) (int64, error) {
+func (m *defaultSocialFriendApplyModel) TxSave(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

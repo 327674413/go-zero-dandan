@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"fmt"
 	"github.com/zeromicro/go-zero/tools/goctl/model/sql/template"
 	"github.com/zeromicro/go-zero/tools/goctl/util"
 	"github.com/zeromicro/go-zero/tools/goctl/util/pathx"
@@ -18,7 +19,12 @@ func genTypes(table Table, methods string, withCache bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+	// ------danEditStart------
+	constDatabaseFields := ""
+	for _, field := range fields {
+		constDatabaseFields += fmt.Sprintf("%s_%s dao.TableField = \"%s\"\n", table.Name.ToCamel(), field.Name.ToCamel(), field.NameOriginal)
+	}
+	// ------danEditEnd------
 	output, err := util.With("types").
 		Parse(text).
 		Execute(map[string]any{
@@ -28,6 +34,9 @@ func genTypes(table Table, methods string, withCache bool) (string, error) {
 			"lowerStartCamelObject": stringx.From(table.Name.ToCamel()).Untitle(),
 			"fields":                fieldsString,
 			"data":                  table,
+			// ------danEditStart------
+			"constDatabaseFields": constDatabaseFields,
+			// ------danEditEnd------
 		})
 	if err != nil {
 		return "", err

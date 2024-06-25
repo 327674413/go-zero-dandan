@@ -24,16 +24,36 @@ var (
 	socialGroupMemberApplyRowsWithPlaceHolder = strings.Join(stringx.Remove(socialGroupMemberApplyFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	SocialGroupMemberApply_Id             dao.TableField = "id"
+	SocialGroupMemberApply_GroupId        dao.TableField = "group_id"
+	SocialGroupMemberApply_UserId         dao.TableField = "user_id"
+	SocialGroupMemberApply_ApplyMsg       dao.TableField = "apply_msg"
+	SocialGroupMemberApply_ApplyAt        dao.TableField = "apply_at"
+	SocialGroupMemberApply_JoinSourceEm   dao.TableField = "join_source_em"
+	SocialGroupMemberApply_InviteUid      dao.TableField = "invite_uid"
+	SocialGroupMemberApply_OperateUid     dao.TableField = "operate_uid"
+	SocialGroupMemberApply_OperateAt      dao.TableField = "operate_at"
+	SocialGroupMemberApply_OperateStateEm dao.TableField = "operate_state_em"
+	SocialGroupMemberApply_OperateMsg     dao.TableField = "operate_msg"
+	SocialGroupMemberApply_Remark         dao.TableField = "remark"
+	SocialGroupMemberApply_PlatId         dao.TableField = "plat_id"
+	SocialGroupMemberApply_CreateAt       dao.TableField = "create_at"
+	SocialGroupMemberApply_UpdateAt       dao.TableField = "update_at"
+	SocialGroupMemberApply_DeleteAt       dao.TableField = "delete_at"
+)
+
 type (
 	socialGroupMemberApplyModel interface {
-		Insert(data *SocialGroupMemberApply) (int64, error)
-		TxInsert(tx *sql.Tx, data *SocialGroupMemberApply) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *SocialGroupMemberApply) (int64, error)
-		TxSave(tx *sql.Tx, data *SocialGroupMemberApply) (int64, error)
+		Insert(data *SocialGroupMemberApply) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *SocialGroupMemberApply) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *SocialGroupMemberApply) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *SocialGroupMemberApply) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultSocialGroupMemberApplyModel
+		Except(fields ...string) *defaultSocialGroupMemberApplyModel
 		Alias(alias string) *defaultSocialGroupMemberApplyModel
 		Where(whereStr string, whereData ...any) *defaultSocialGroupMemberApplyModel
 		WhereId(id string) *defaultSocialGroupMemberApplyModel
@@ -124,6 +144,10 @@ func (m *defaultSocialGroupMemberApplyModel) Alias(alias string) *defaultSocialG
 }
 func (m *defaultSocialGroupMemberApplyModel) Field(field string) *defaultSocialGroupMemberApplyModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultSocialGroupMemberApplyModel) Except(fields ...string) *defaultSocialGroupMemberApplyModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultSocialGroupMemberApplyModel) Order(order string) *defaultSocialGroupMemberApplyModel {
@@ -236,14 +260,14 @@ func (m *defaultSocialGroupMemberApplyModel) Page(page int64, size int64) *defau
 	return m
 }
 
-func (m *defaultSocialGroupMemberApplyModel) Insert(data *SocialGroupMemberApply) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) Insert(data *SocialGroupMemberApply) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultSocialGroupMemberApplyModel) TxInsert(tx *sql.Tx, data *SocialGroupMemberApply) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) TxInsert(tx *sql.Tx, data *SocialGroupMemberApply) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -251,20 +275,20 @@ func (m *defaultSocialGroupMemberApplyModel) TxInsert(tx *sql.Tx, data *SocialGr
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultSocialGroupMemberApplyModel) Update(data map[string]any) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultSocialGroupMemberApplyModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultSocialGroupMemberApplyModel) Save(data *SocialGroupMemberApply) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) Save(data *SocialGroupMemberApply) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultSocialGroupMemberApplyModel) TxSave(tx *sql.Tx, data *SocialGroupMemberApply) (int64, error) {
+func (m *defaultSocialGroupMemberApplyModel) TxSave(tx *sql.Tx, data *SocialGroupMemberApply) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

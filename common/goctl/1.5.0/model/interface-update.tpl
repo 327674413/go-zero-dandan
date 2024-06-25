@@ -1,4 +1,4 @@
-Update(data map[string]any) (int64,error)
-TxUpdate(tx *sql.Tx, data map[string]any) (int64,error)
-Save(data *{{.upperStartCamelObject}}) (int64,error)
-TxSave(tx *sql.Tx, data *{{.upperStartCamelObject}}) (int64,error)
+Update(data map[dao.TableField]any) (effectRow int64,err error)
+TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64,err error)
+Save(data *{{.upperStartCamelObject}}) (effectRow int64,err error)
+TxSave(tx *sql.Tx, data *{{.upperStartCamelObject}}) (effectRow int64,err error)

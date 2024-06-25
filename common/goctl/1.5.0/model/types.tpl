@@ -1,3 +1,6 @@
+const(
+    {{.constDatabaseFields}}
+)
 type (
 	{{.lowerStartCamelObject}}Model interface{
 		{{.method}}

@@ -2,15 +2,15 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/pb"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"time"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CreateFriendApplyLogic struct {
@@ -61,18 +61,33 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) 
 	}
 
 	applyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
-	applyId := utild.MakeId()
-	addData := &model.SocialFriendApply{
-		Id:       applyId,
-		UserId:   in.UserId,
-		ApplyUid: in.FriendUid,
-		ApplyMsg: in.ApplyMsg,
-		ApplyAt:  time.Now().Unix(),
-	}
-	_, err = applyModel.Insert(addData)
+	existApply, err := applyModel.Where("apply_uid = ?", in.UserId).Find()
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, "创建好友申请失败", resd.MysqlInsertErr)
+		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
+	var applyId string
+	if existApply != nil {
+		applyId = existApply.Id
+		_, err = applyModel.WhereId(applyId).Update(map[dao.TableField]any{
+			model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
+			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
+			model.SocialFriendApply_IsRead:       0,
+		})
+	} else {
+		applyId = utild.MakeId()
+		_, err = applyModel.Insert(&model.SocialFriendApply{
+			Id:           applyId,
+			UserId:       in.UserId,
+			ApplyUid:     in.FriendUid,
+			ApplyLastMsg: in.ApplyMsg,
+			ApplyLastAt:  time.Now().Unix(),
+			ApplyStartAt: time.Now().Unix(),
+		})
+		if err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "创建好友申请失败", resd.MysqlInsertErr)
+		}
+	}
+
 	return &pb.CreateFriendApplyResp{
 		ApplyId: applyId,
 	}, nil

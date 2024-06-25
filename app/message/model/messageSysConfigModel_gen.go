@@ -24,16 +24,26 @@ var (
 	messageSysConfigRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSysConfigFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	MessageSysConfig_Id              dao.TableField = "id"
+	MessageSysConfig_SmsLimitHourNum dao.TableField = "sms_limit_hour_num"
+	MessageSysConfig_SmsLimitDayNum  dao.TableField = "sms_limit_day_num"
+	MessageSysConfig_CreateAt        dao.TableField = "create_at"
+	MessageSysConfig_UpdateAt        dao.TableField = "update_at"
+	MessageSysConfig_DeleteAt        dao.TableField = "delete_at"
+)
+
 type (
 	messageSysConfigModel interface {
-		Insert(data *MessageSysConfig) (int64, error)
-		TxInsert(tx *sql.Tx, data *MessageSysConfig) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *MessageSysConfig) (int64, error)
-		TxSave(tx *sql.Tx, data *MessageSysConfig) (int64, error)
+		Insert(data *MessageSysConfig) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *MessageSysConfig) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultMessageSysConfigModel
+		Except(fields ...string) *defaultMessageSysConfigModel
 		Alias(alias string) *defaultMessageSysConfigModel
 		Where(whereStr string, whereData ...any) *defaultMessageSysConfigModel
 		WhereId(id string) *defaultMessageSysConfigModel
@@ -114,6 +124,10 @@ func (m *defaultMessageSysConfigModel) Alias(alias string) *defaultMessageSysCon
 }
 func (m *defaultMessageSysConfigModel) Field(field string) *defaultMessageSysConfigModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultMessageSysConfigModel) Except(fields ...string) *defaultMessageSysConfigModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultMessageSysConfigModel) Order(order string) *defaultMessageSysConfigModel {
@@ -226,14 +240,14 @@ func (m *defaultMessageSysConfigModel) Page(page int64, size int64) *defaultMess
 	return m
 }
 
-func (m *defaultMessageSysConfigModel) Insert(data *MessageSysConfig) (int64, error) {
+func (m *defaultMessageSysConfigModel) Insert(data *MessageSysConfig) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConfig) (int64, error) {
+func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -241,20 +255,20 @@ func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConf
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultMessageSysConfigModel) Update(data map[string]any) (int64, error) {
+func (m *defaultMessageSysConfigModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultMessageSysConfigModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultMessageSysConfigModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultMessageSysConfigModel) Save(data *MessageSysConfig) (int64, error) {
+func (m *defaultMessageSysConfigModel) Save(data *MessageSysConfig) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig) (int64, error) {
+func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

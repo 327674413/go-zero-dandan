@@ -24,16 +24,30 @@ var (
 	messageSmsSendRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`char`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	MessageSmsSend_Char     dao.TableField = "char"
+	MessageSmsSend_Phone    dao.TableField = "phone"
+	MessageSmsSend_Content  dao.TableField = "content"
+	MessageSmsSend_StateEm  dao.TableField = "state_em"
+	MessageSmsSend_Err      dao.TableField = "err"
+	MessageSmsSend_TempId   dao.TableField = "temp_id"
+	MessageSmsSend_PlatId   dao.TableField = "plat_id"
+	MessageSmsSend_CreateAt dao.TableField = "create_at"
+	MessageSmsSend_UpdateAt dao.TableField = "update_at"
+	MessageSmsSend_DeleteAt dao.TableField = "delete_at"
+)
+
 type (
 	messageSmsSendModel interface {
-		Insert(data *MessageSmsSend) (int64, error)
-		TxInsert(tx *sql.Tx, data *MessageSmsSend) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *MessageSmsSend) (int64, error)
-		TxSave(tx *sql.Tx, data *MessageSmsSend) (int64, error)
+		Insert(data *MessageSmsSend) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *MessageSmsSend) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error)
 		Delete(ctx context.Context, char string) error
 		Field(field string) *defaultMessageSmsSendModel
+		Except(fields ...string) *defaultMessageSmsSendModel
 		Alias(alias string) *defaultMessageSmsSendModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsSendModel
 		WhereId(id string) *defaultMessageSmsSendModel
@@ -118,6 +132,10 @@ func (m *defaultMessageSmsSendModel) Alias(alias string) *defaultMessageSmsSendM
 }
 func (m *defaultMessageSmsSendModel) Field(field string) *defaultMessageSmsSendModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultMessageSmsSendModel) Except(fields ...string) *defaultMessageSmsSendModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultMessageSmsSendModel) Order(order string) *defaultMessageSmsSendModel {
@@ -230,14 +248,14 @@ func (m *defaultMessageSmsSendModel) Page(page int64, size int64) *defaultMessag
 	return m
 }
 
-func (m *defaultMessageSmsSendModel) Insert(data *MessageSmsSend) (int64, error) {
+func (m *defaultMessageSmsSendModel) Insert(data *MessageSmsSend) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSmsSendModel) TxInsert(tx *sql.Tx, data *MessageSmsSend) (int64, error) {
+func (m *defaultMessageSmsSendModel) TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -245,20 +263,20 @@ func (m *defaultMessageSmsSendModel) TxInsert(tx *sql.Tx, data *MessageSmsSend) 
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultMessageSmsSendModel) Update(data map[string]any) (int64, error) {
+func (m *defaultMessageSmsSendModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultMessageSmsSendModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultMessageSmsSendModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultMessageSmsSendModel) Save(data *MessageSmsSend) (int64, error) {
+func (m *defaultMessageSmsSendModel) Save(data *MessageSmsSend) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultMessageSmsSendModel) TxSave(tx *sql.Tx, data *MessageSmsSend) (int64, error) {
+func (m *defaultMessageSmsSendModel) TxSave(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

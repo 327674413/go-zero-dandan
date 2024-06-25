@@ -24,16 +24,32 @@ var (
 	messageSmsTempRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsTempFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	MessageSmsTemp_Id          dao.TableField = "id"
+	MessageSmsTemp_Name        dao.TableField = "name"
+	MessageSmsTemp_SecretId    dao.TableField = "secret_id"
+	MessageSmsTemp_SecretKey   dao.TableField = "secret_key"
+	MessageSmsTemp_Region      dao.TableField = "region"
+	MessageSmsTemp_SmsSdkAppid dao.TableField = "sms_sdk_appid"
+	MessageSmsTemp_SignName    dao.TableField = "sign_name"
+	MessageSmsTemp_TemplateId  dao.TableField = "template_id"
+	MessageSmsTemp_PlatId      dao.TableField = "plat_id"
+	MessageSmsTemp_CreateAt    dao.TableField = "create_at"
+	MessageSmsTemp_UpdateAt    dao.TableField = "update_at"
+	MessageSmsTemp_DeleteAt    dao.TableField = "delete_at"
+)
+
 type (
 	messageSmsTempModel interface {
-		Insert(data *MessageSmsTemp) (int64, error)
-		TxInsert(tx *sql.Tx, data *MessageSmsTemp) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *MessageSmsTemp) (int64, error)
-		TxSave(tx *sql.Tx, data *MessageSmsTemp) (int64, error)
+		Insert(data *MessageSmsTemp) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *MessageSmsTemp) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *MessageSmsTemp) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *MessageSmsTemp) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultMessageSmsTempModel
+		Except(fields ...string) *defaultMessageSmsTempModel
 		Alias(alias string) *defaultMessageSmsTempModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsTempModel
 		WhereId(id string) *defaultMessageSmsTempModel
@@ -120,6 +136,10 @@ func (m *defaultMessageSmsTempModel) Alias(alias string) *defaultMessageSmsTempM
 }
 func (m *defaultMessageSmsTempModel) Field(field string) *defaultMessageSmsTempModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultMessageSmsTempModel) Except(fields ...string) *defaultMessageSmsTempModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultMessageSmsTempModel) Order(order string) *defaultMessageSmsTempModel {
@@ -232,14 +252,14 @@ func (m *defaultMessageSmsTempModel) Page(page int64, size int64) *defaultMessag
 	return m
 }
 
-func (m *defaultMessageSmsTempModel) Insert(data *MessageSmsTemp) (int64, error) {
+func (m *defaultMessageSmsTempModel) Insert(data *MessageSmsTemp) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSmsTempModel) TxInsert(tx *sql.Tx, data *MessageSmsTemp) (int64, error) {
+func (m *defaultMessageSmsTempModel) TxInsert(tx *sql.Tx, data *MessageSmsTemp) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -247,20 +267,20 @@ func (m *defaultMessageSmsTempModel) TxInsert(tx *sql.Tx, data *MessageSmsTemp) 
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultMessageSmsTempModel) Update(data map[string]any) (int64, error) {
+func (m *defaultMessageSmsTempModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultMessageSmsTempModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultMessageSmsTempModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultMessageSmsTempModel) Save(data *MessageSmsTemp) (int64, error) {
+func (m *defaultMessageSmsTempModel) Save(data *MessageSmsTemp) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultMessageSmsTempModel) TxSave(tx *sql.Tx, data *MessageSmsTemp) (int64, error) {
+func (m *defaultMessageSmsTempModel) TxSave(tx *sql.Tx, data *MessageSmsTemp) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

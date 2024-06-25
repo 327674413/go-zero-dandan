@@ -24,16 +24,37 @@ var (
 	userMainRowsWithPlaceHolder = strings.Join(stringx.Remove(userMainFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	UserMain_Id        dao.TableField = "id"
+	UserMain_UnionId   dao.TableField = "union_id"
+	UserMain_StateEm   dao.TableField = "state_em"
+	UserMain_Account   dao.TableField = "account"
+	UserMain_Password  dao.TableField = "password"
+	UserMain_Code      dao.TableField = "code"
+	UserMain_Nickname  dao.TableField = "nickname"
+	UserMain_Phone     dao.TableField = "phone"
+	UserMain_PhoneArea dao.TableField = "phone_area"
+	UserMain_Email     dao.TableField = "email"
+	UserMain_AvatarImg dao.TableField = "avatar_img"
+	UserMain_Signature dao.TableField = "signature"
+	UserMain_SexEm     dao.TableField = "sex_em"
+	UserMain_PlatId    dao.TableField = "plat_id"
+	UserMain_CreateAt  dao.TableField = "create_at"
+	UserMain_UpdateAt  dao.TableField = "update_at"
+	UserMain_DeleteAt  dao.TableField = "delete_at"
+)
+
 type (
 	userMainModel interface {
-		Insert(data *UserMain) (int64, error)
-		TxInsert(tx *sql.Tx, data *UserMain) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *UserMain) (int64, error)
-		TxSave(tx *sql.Tx, data *UserMain) (int64, error)
+		Insert(data *UserMain) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *UserMain) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *UserMain) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *UserMain) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultUserMainModel
+		Except(fields ...string) *defaultUserMainModel
 		Alias(alias string) *defaultUserMainModel
 		Where(whereStr string, whereData ...any) *defaultUserMainModel
 		WhereId(id string) *defaultUserMainModel
@@ -125,6 +146,10 @@ func (m *defaultUserMainModel) Alias(alias string) *defaultUserMainModel {
 }
 func (m *defaultUserMainModel) Field(field string) *defaultUserMainModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultUserMainModel) Except(fields ...string) *defaultUserMainModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultUserMainModel) Order(order string) *defaultUserMainModel {
@@ -237,14 +262,14 @@ func (m *defaultUserMainModel) Page(page int64, size int64) *defaultUserMainMode
 	return m
 }
 
-func (m *defaultUserMainModel) Insert(data *UserMain) (int64, error) {
+func (m *defaultUserMainModel) Insert(data *UserMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, data *UserMain) (int64, error) {
+func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, data *UserMain) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -252,20 +277,20 @@ func (m *defaultUserMainModel) TxInsert(tx *sql.Tx, data *UserMain) (int64, erro
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultUserMainModel) Update(data map[string]any) (int64, error) {
+func (m *defaultUserMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultUserMainModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultUserMainModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultUserMainModel) Save(data *UserMain) (int64, error) {
+func (m *defaultUserMainModel) Save(data *UserMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultUserMainModel) TxSave(tx *sql.Tx, data *UserMain) (int64, error) {
+func (m *defaultUserMainModel) TxSave(tx *sql.Tx, data *UserMain) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

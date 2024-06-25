@@ -24,16 +24,43 @@ var (
 	assetNetdiskFileRowsWithPlaceHolder = strings.Join(stringx.Remove(assetNetdiskFileFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	AssetNetdiskFile_Id            dao.TableField = "id"
+	AssetNetdiskFile_AssetId       dao.TableField = "asset_id"
+	AssetNetdiskFile_Name          dao.TableField = "name"
+	AssetNetdiskFile_StateEm       dao.TableField = "state_em"
+	AssetNetdiskFile_ClasId        dao.TableField = "clas_id"
+	AssetNetdiskFile_AuthGroupId   dao.TableField = "auth_group_id"
+	AssetNetdiskFile_AuthGroupName dao.TableField = "auth_group_name"
+	AssetNetdiskFile_ClasName      dao.TableField = "clas_name"
+	AssetNetdiskFile_Sha1          dao.TableField = "sha1"
+	AssetNetdiskFile_OriginalName  dao.TableField = "original_name"
+	AssetNetdiskFile_ModeEm        dao.TableField = "mode_em"
+	AssetNetdiskFile_Mime          dao.TableField = "mime"
+	AssetNetdiskFile_SizeNum       dao.TableField = "size_num"
+	AssetNetdiskFile_SizeText      dao.TableField = "size_text"
+	AssetNetdiskFile_Ext           dao.TableField = "ext"
+	AssetNetdiskFile_Path          dao.TableField = "path"
+	AssetNetdiskFile_Url           dao.TableField = "url"
+	AssetNetdiskFile_UserId        dao.TableField = "user_id"
+	AssetNetdiskFile_FinishAt      dao.TableField = "finish_at"
+	AssetNetdiskFile_PlatId        dao.TableField = "plat_id"
+	AssetNetdiskFile_CreateAt      dao.TableField = "create_at"
+	AssetNetdiskFile_UpdateAt      dao.TableField = "update_at"
+	AssetNetdiskFile_DeleteAt      dao.TableField = "delete_at"
+)
+
 type (
 	assetNetdiskFileModel interface {
-		Insert(data *AssetNetdiskFile) (int64, error)
-		TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *AssetNetdiskFile) (int64, error)
-		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (int64, error)
+		Insert(data *AssetNetdiskFile) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *AssetNetdiskFile) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultAssetNetdiskFileModel
+		Except(fields ...string) *defaultAssetNetdiskFileModel
 		Alias(alias string) *defaultAssetNetdiskFileModel
 		Where(whereStr string, whereData ...any) *defaultAssetNetdiskFileModel
 		WhereId(id string) *defaultAssetNetdiskFileModel
@@ -131,6 +158,10 @@ func (m *defaultAssetNetdiskFileModel) Alias(alias string) *defaultAssetNetdiskF
 }
 func (m *defaultAssetNetdiskFileModel) Field(field string) *defaultAssetNetdiskFileModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultAssetNetdiskFileModel) Except(fields ...string) *defaultAssetNetdiskFileModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultAssetNetdiskFileModel) Order(order string) *defaultAssetNetdiskFileModel {
@@ -243,14 +274,14 @@ func (m *defaultAssetNetdiskFileModel) Page(page int64, size int64) *defaultAsse
 	return m
 }
 
-func (m *defaultAssetNetdiskFileModel) Insert(data *AssetNetdiskFile) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) Insert(data *AssetNetdiskFile) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -258,20 +289,20 @@ func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFi
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultAssetNetdiskFileModel) Update(data map[string]any) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultAssetNetdiskFileModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultAssetNetdiskFileModel) Save(data *AssetNetdiskFile) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) Save(data *AssetNetdiskFile) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile) (int64, error) {
+func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err

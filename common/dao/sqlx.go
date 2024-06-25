@@ -15,6 +15,9 @@ import (
 
 // todo::错误返回全部封装， 用resd来包装，这样错误吗就不用每次写了
 
+// TableField 自定义表字段常量，用于代码提醒使用
+type TableField string
+
 // SqlxDao 自用orm
 type SqlxDao struct {
 	conn             sqlx.SqlConn
@@ -545,9 +548,13 @@ func (t *SqlxDao) Page(page int64, size int64) *SqlxDao {
 }
 
 // Update 必须先设置where或在data中携带id，data中的id优先级高，若带id只能修改单个
-func (t *SqlxDao) Update(data map[string]any) (int64, error) {
+func (t *SqlxDao) Update(data map[TableField]any) (int64, error) {
 	defer t.Reinit()
-	query, params, err := t.prepareUpdate(data)
+	updateData := make(map[string]any)
+	for k, v := range data {
+		updateData[string(k)] = v
+	}
+	query, params, err := t.prepareUpdate(updateData)
 	if err != nil {
 		return 0, err
 	}
@@ -567,9 +574,13 @@ func (t *SqlxDao) Update(data map[string]any) (int64, error) {
 }
 
 // TxUpdate 同Update，事务专用
-func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (t *SqlxDao) TxUpdate(tx *sql.Tx, data map[TableField]any) (int64, error) {
 	defer t.Reinit()
-	query, params, err := t.prepareUpdate(data)
+	updateData := make(map[string]any)
+	for k, v := range data {
+		updateData[string(k)] = v
+	}
+	query, params, err := t.prepareUpdate(updateData)
 	if err != nil {
 		return 0, err
 	}

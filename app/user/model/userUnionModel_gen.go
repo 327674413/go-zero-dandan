@@ -24,16 +24,24 @@ var (
 	userUnionRowsWithPlaceHolder = strings.Join(stringx.Remove(userUnionFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
+const (
+	UserUnion_Id       dao.TableField = "id"
+	UserUnion_CreateAt dao.TableField = "create_at"
+	UserUnion_UpdateAt dao.TableField = "update_at"
+	UserUnion_DeleteAt dao.TableField = "delete_at"
+)
+
 type (
 	userUnionModel interface {
-		Insert(data *UserUnion) (int64, error)
-		TxInsert(tx *sql.Tx, data *UserUnion) (int64, error)
-		Update(data map[string]any) (int64, error)
-		TxUpdate(tx *sql.Tx, data map[string]any) (int64, error)
-		Save(data *UserUnion) (int64, error)
-		TxSave(tx *sql.Tx, data *UserUnion) (int64, error)
+		Insert(data *UserUnion) (effectRow int64, err error)
+		TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, err error)
+		Update(data map[dao.TableField]any) (effectRow int64, err error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
+		Save(data *UserUnion) (effectRow int64, err error)
+		TxSave(tx *sql.Tx, data *UserUnion) (effectRow int64, err error)
 		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultUserUnionModel
+		Except(fields ...string) *defaultUserUnionModel
 		Alias(alias string) *defaultUserUnionModel
 		Where(whereStr string, whereData ...any) *defaultUserUnionModel
 		WhereId(id string) *defaultUserUnionModel
@@ -112,6 +120,10 @@ func (m *defaultUserUnionModel) Alias(alias string) *defaultUserUnionModel {
 }
 func (m *defaultUserUnionModel) Field(field string) *defaultUserUnionModel {
 	m.dao.Field(field)
+	return m
+}
+func (m *defaultUserUnionModel) Except(fields ...string) *defaultUserUnionModel {
+	m.dao.Except(fields...)
 	return m
 }
 func (m *defaultUserUnionModel) Order(order string) *defaultUserUnionModel {
@@ -224,14 +236,14 @@ func (m *defaultUserUnionModel) Page(page int64, size int64) *defaultUserUnionMo
 	return m
 }
 
-func (m *defaultUserUnionModel) Insert(data *UserUnion) (int64, error) {
+func (m *defaultUserUnionModel) Insert(data *UserUnion) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, data *UserUnion) (int64, error) {
+func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, err error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
@@ -239,20 +251,20 @@ func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, data *UserUnion) (int64, er
 	return m.dao.TxInsert(tx, insertData)
 }
 
-func (m *defaultUserUnionModel) Update(data map[string]any) (int64, error) {
+func (m *defaultUserUnionModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
-func (m *defaultUserUnionModel) TxUpdate(tx *sql.Tx, data map[string]any) (int64, error) {
+func (m *defaultUserUnionModel) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.TxUpdate(tx, data)
 }
-func (m *defaultUserUnionModel) Save(data *UserUnion) (int64, error) {
+func (m *defaultUserUnionModel) Save(data *UserUnion) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Save(saveData)
 }
-func (m *defaultUserUnionModel) TxSave(tx *sql.Tx, data *UserUnion) (int64, error) {
+func (m *defaultUserUnionModel) TxSave(tx *sql.Tx, data *UserUnion) (effectRow int64, err error) {
 	saveData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
