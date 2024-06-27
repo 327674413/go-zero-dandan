@@ -1,17 +1,6 @@
 import (
 	"desc/main.api"
 )
-@server(
-	timeout: 30s
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
-	jwt: Auth
-	group: friend
-	prefix: social/v1
-)
-service im-api {
-	@handler getMyFriendList
-	post /getMyFriendList returns (FriendListResp)
-}
 
 @server(
 	timeout: 30s
@@ -22,20 +11,20 @@ service im-api {
 )
 service im-api {
 	@doc "好友申请"
-	@handler CreateFriendApply
+	@handler createFriendApply
 	post /friend/createFriendApply(CreateFriendApplyReq) returns(ResultResp)
 	
 	@doc "好友申请处理"
-	@handler OperateFriendApply
-	put  /friend/operateFriendApply(OperateFriendApplyReq) returns(ResultResp)
+	@handler operateMyRecvFriendApply
+	post  /friend/operateMyRecvFriendApply(OperateMyRecvFriendApplyReq) returns(ResultResp)
 	
-	@doc "好友申请列表"
-	@handler GetMyFriendApplyList
-	get  /friend/getMyFriendApplyRecvList returns(FriendApplyListResp)
+	@doc "好友申请列表，我收到的"
+	@handler getMyFriendApplyRecvPage
+	post  /friend/getMyFriendApplyRecvPage(GetMyFriendApplyRecvPageReq) returns(FriendApplyListResp)
 	
 	@doc "好友列表"
-	@handler GetMyFriendList
-	get  /friend/getMyFriendList returns(FriendListResp)
+	@handler getMyFriendList
+	post  /friend/getMyFriendList returns(FriendListResp)
 	
 	@doc "查找新好友"
 	@handler searchNewFriendPage
@@ -60,18 +49,18 @@ service im-api {
 	
 	@doc "申请进群处理"
 	@handler OperateGroupMemberApply
-	put  /group/operateGroupMemberApply(OperateGroupMemberApplyReq) returns(ResultResp)
+	post  /group/operateGroupMemberApply(OperateGroupMemberApplyReq) returns(ResultResp)
 	
 	@doc "申请进群列表"
 	@handler GetMyGroupApplyRecvList
-	get  /group/getMyGroupApplyRecvList returns(GroupApplyListResp)
+	post  /group/getMyGroupApplyRecvList returns(GroupApplyListResp)
 	
 	@doc "用户申群列表"
 	@handler GetMyGroupList
-	get  /groups/getMyGroupList returns(GroupListResp)
+	post  /groups/getMyGroupList returns(GroupListResp)
 	
 	@doc "成员列表"
 	@handler GetGroupMemberList
-	get  /group/getGroupMemberList(GetGroupMemberListReq) returns(GroupMemberListResp)
+	post  /group/getGroupMemberList(GetGroupMemberListReq) returns(GroupMemberListResp)
 	
 }

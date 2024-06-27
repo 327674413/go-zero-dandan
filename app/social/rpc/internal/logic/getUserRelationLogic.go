@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"strings"
@@ -27,7 +27,7 @@ func NewGetUserRelationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetUserRelationLogic) GetUserRelation(in *pb.GetUserRelationReq) (*pb.GetUserRelationResp, error) {
+func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq) (*socialRpc.GetUserRelationResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
@@ -43,10 +43,19 @@ func (l *GetUserRelationLogic) GetUserRelation(in *pb.GetUserRelationReq) (*pb.G
 	for i := range in.FriendUids {
 		placeholders[i] = "?"
 		friendUids[i] = in.FriendUids[i]
-		relats[in.FriendUids[i]] = constd.SocialFriendStateEmNoRelat
+		if in.FriendUids[i] == in.UserId {
+			relats[in.FriendUids[i]] = constd.SocialFriendStateEmSelf
+		} else {
+			relats[in.FriendUids[i]] = constd.SocialFriendStateEmNoRelat
+		}
+
 	}
 	friendModel := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
-	friends, err := friendModel.Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), friendUids...).Select()
+	whereData := make([]any, 0)
+	whereData = append(whereData, in.UserId)
+	whereData = append(whereData, friendUids...)
+
+	friends, err := friendModel.Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), whereData...).Select()
 	if err != nil {
 		return nil, resd.NewErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
@@ -54,7 +63,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *pb.GetUserRelationReq) (*pb.G
 		relats[v.FriendUid] = v.StateEm
 	}
 	friendApplyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
-	applys, err := friendApplyModel.Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), friendUids...).Select()
+	applys, err := friendApplyModel.Except("content").Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), whereData...).Select()
 	if err != nil {
 		return nil, resd.NewErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
@@ -64,11 +73,11 @@ func (l *GetUserRelationLogic) GetUserRelation(in *pb.GetUserRelationReq) (*pb.G
 			relats[v.FriendUid] = v.StateEm
 		}
 	}
-	return &pb.GetUserRelationResp{
+	return &socialRpc.GetUserRelationResp{
 		Relats: relats,
 	}, nil
 }
-func (l *GetUserRelationLogic) checkReqParams(in *pb.GetUserRelationReq) error {
+func (l *GetUserRelationLogic) checkReqParams(in *socialRpc.GetUserRelationReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

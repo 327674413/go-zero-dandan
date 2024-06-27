@@ -8,12 +8,12 @@ import (
 
 	"go-zero-dandan/app/social/rpc/internal/logic"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 )
 
 type SocialServer struct {
 	svcCtx *svc.ServiceContext
-	pb.UnimplementedSocialServer
+	socialRpc.UnimplementedSocialServer
 }
 
 func NewSocialServer(svcCtx *svc.ServiceContext) *SocialServer {
@@ -22,67 +22,67 @@ func NewSocialServer(svcCtx *svc.ServiceContext) *SocialServer {
 	}
 }
 
-func (s *SocialServer) CreateFriendApply(ctx context.Context, in *pb.CreateFriendApplyReq) (*pb.CreateFriendApplyResp, error) {
+func (s *SocialServer) CreateFriendApply(ctx context.Context, in *socialRpc.CreateFriendApplyReq) (*socialRpc.CreateFriendApplyResp, error) {
 	l := logic.NewCreateFriendApplyLogic(ctx, s.svcCtx)
 	return l.CreateFriendApply(in)
 }
 
-func (s *SocialServer) OperateFriendApply(ctx context.Context, in *pb.OperateFriendApplyReq) (*pb.ResultResp, error) {
+func (s *SocialServer) OperateFriendApply(ctx context.Context, in *socialRpc.OperateFriendApplyReq) (*socialRpc.ResultResp, error) {
 	l := logic.NewOperateFriendApplyLogic(ctx, s.svcCtx)
 	return l.OperateFriendApply(in)
 }
 
-func (s *SocialServer) GetUserFriendApplyPage(ctx context.Context, in *pb.GetUserFriendApplyPageReq) (*pb.FriendApplyPageResp, error) {
-	l := logic.NewGetUserFriendApplyPageLogic(ctx, s.svcCtx)
-	return l.GetUserFriendApplyPage(in)
+func (s *SocialServer) GetUserRecvFriendApplyPage(ctx context.Context, in *socialRpc.GetUserRecvFriendApplyPageReq) (*socialRpc.FriendApplyPageResp, error) {
+	l := logic.NewGetUserRecvFriendApplyPageLogic(ctx, s.svcCtx)
+	return l.GetUserRecvFriendApplyPage(in)
 }
 
-func (s *SocialServer) GetUserFriendList(ctx context.Context, in *pb.GetUserFriendListReq) (*pb.FriendListResp, error) {
+func (s *SocialServer) GetUserFriendList(ctx context.Context, in *socialRpc.GetUserFriendListReq) (*socialRpc.FriendListResp, error) {
 	l := logic.NewGetUserFriendListLogic(ctx, s.svcCtx)
 	return l.GetUserFriendList(in)
 }
 
-func (s *SocialServer) GetFriendOnline(ctx context.Context, in *pb.GetFriendOnlineReq) (*pb.FriendOnlineResp, error) {
+func (s *SocialServer) GetFriendOnline(ctx context.Context, in *socialRpc.GetFriendOnlineReq) (*socialRpc.FriendOnlineResp, error) {
 	l := logic.NewGetFriendOnlineLogic(ctx, s.svcCtx)
 	return l.GetFriendOnline(in)
 }
 
-func (s *SocialServer) GetUserRelation(ctx context.Context, in *pb.GetUserRelationReq) (*pb.GetUserRelationResp, error) {
+func (s *SocialServer) GetUserRelation(ctx context.Context, in *socialRpc.GetUserRelationReq) (*socialRpc.GetUserRelationResp, error) {
 	l := logic.NewGetUserRelationLogic(ctx, s.svcCtx)
 	return l.GetUserRelation(in)
 }
 
-func (s *SocialServer) CreateGroup(ctx context.Context, in *pb.CreateGroupReq) (*pb.CreateGroupResp, error) {
+func (s *SocialServer) CreateGroup(ctx context.Context, in *socialRpc.CreateGroupReq) (*socialRpc.CreateGroupResp, error) {
 	l := logic.NewCreateGroupLogic(ctx, s.svcCtx)
 	return l.CreateGroup(in)
 }
 
-func (s *SocialServer) CreateGroupMemberApply(ctx context.Context, in *pb.CreateGroupMemberApplyReq) (*pb.CreateGroupMemberApplyResp, error) {
+func (s *SocialServer) CreateGroupMemberApply(ctx context.Context, in *socialRpc.CreateGroupMemberApplyReq) (*socialRpc.CreateGroupMemberApplyResp, error) {
 	l := logic.NewCreateGroupMemberApplyLogic(ctx, s.svcCtx)
 	return l.CreateGroupMemberApply(in)
 }
 
-func (s *SocialServer) GetUserGroupMemberApplyList(ctx context.Context, in *pb.GetUserGroupMemberApplyListReq) (*pb.GroupMemberApplyListResp, error) {
+func (s *SocialServer) GetUserGroupMemberApplyList(ctx context.Context, in *socialRpc.GetUserGroupMemberApplyListReq) (*socialRpc.GroupMemberApplyListResp, error) {
 	l := logic.NewGetUserGroupMemberApplyListLogic(ctx, s.svcCtx)
 	return l.GetUserGroupMemberApplyList(in)
 }
 
-func (s *SocialServer) OperateGroupMemberApply(ctx context.Context, in *pb.OperateGroupMemberApplyReq) (*pb.ResultResp, error) {
+func (s *SocialServer) OperateGroupMemberApply(ctx context.Context, in *socialRpc.OperateGroupMemberApplyReq) (*socialRpc.ResultResp, error) {
 	l := logic.NewOperateGroupMemberApplyLogic(ctx, s.svcCtx)
 	return l.OperateGroupMemberApply(in)
 }
 
-func (s *SocialServer) GetUserGroupList(ctx context.Context, in *pb.GetUserGroupListReq) (*pb.GroupListResp, error) {
+func (s *SocialServer) GetUserGroupList(ctx context.Context, in *socialRpc.GetUserGroupListReq) (*socialRpc.GroupListResp, error) {
 	l := logic.NewGetUserGroupListLogic(ctx, s.svcCtx)
 	return l.GetUserGroupList(in)
 }
 
-func (s *SocialServer) GetGroupMemberList(ctx context.Context, in *pb.GetGroupMemberListReq) (*pb.GroupMemberListResp, error) {
+func (s *SocialServer) GetGroupMemberList(ctx context.Context, in *socialRpc.GetGroupMemberListReq) (*socialRpc.GroupMemberListResp, error) {
 	l := logic.NewGetGroupMemberListLogic(ctx, s.svcCtx)
 	return l.GetGroupMemberList(in)
 }
 
-func (s *SocialServer) GetGroupUserOnline(ctx context.Context, in *pb.GetGroupUserOnlineReq) (*pb.GroupUserOnlineResp, error) {
+func (s *SocialServer) GetGroupUserOnline(ctx context.Context, in *socialRpc.GetGroupUserOnlineReq) (*socialRpc.GroupUserOnlineResp, error) {
 	l := logic.NewGetGroupUserOnlineLogic(ctx, s.svcCtx)
 	return l.GetGroupUserOnline(in)
 }

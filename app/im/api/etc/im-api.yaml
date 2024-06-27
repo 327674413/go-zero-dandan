@@ -11,11 +11,13 @@ UserRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+  NonBlock: true
 SocialRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: social.rpc
+  NonBlock: true
 Prometheus:
   Host: 127.0.0.1
   Port: 9803

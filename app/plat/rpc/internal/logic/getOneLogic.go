@@ -5,7 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/plat/model"
 	"go-zero-dandan/app/plat/rpc/internal/svc"
-	"go-zero-dandan/app/plat/rpc/types/pb"
+	"go-zero-dandan/app/plat/rpc/types/platRpc"
 	"go-zero-dandan/common/resd"
 )
 
@@ -23,7 +23,7 @@ func NewGetOneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOneLogi
 	}
 }
 
-func (l *GetOneLogic) GetOne(in *pb.IdReq) (*pb.PlatInfo, error) {
+func (l *GetOneLogic) GetOne(in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
@@ -32,13 +32,13 @@ func (l *GetOneLogic) GetOne(in *pb.IdReq) (*pb.PlatInfo, error) {
 	if platMain == nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
-	res := &pb.PlatInfo{
+	res := &platRpc.PlatInfo{
 		Id:     platMain.Id,
 		ClasEm: platMain.ClasEm,
 	}
 	return res, nil
 }
-func (l *GetOneLogic) checkReqParams(in *pb.IdReq) error {
+func (l *GetOneLogic) checkReqParams(in *platRpc.IdReq) error {
 	if in.Id == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "参数缺少id", resd.ReqFieldRequired1, "id")
 	}

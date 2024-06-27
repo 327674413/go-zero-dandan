@@ -7,7 +7,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
@@ -35,7 +35,7 @@ type applyContent struct {
 	Text   string `json:"text"`
 }
 
-func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) (*pb.CreateFriendApplyResp, error) {
+func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApplyReq) (*socialRpc.CreateFriendApplyResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
@@ -129,11 +129,11 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *pb.CreateFriendApplyReq) 
 		}
 	}
 
-	return &pb.CreateFriendApplyResp{
+	return &socialRpc.CreateFriendApplyResp{
 		ApplyId: applyId,
 	}, nil
 }
-func (l *CreateFriendApplyLogic) checkReqParams(in *pb.CreateFriendApplyReq) error {
+func (l *CreateFriendApplyLogic) checkReqParams(in *socialRpc.CreateFriendApplyReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少PlatId", resd.ReqFieldRequired1, "PlatId")
 	}

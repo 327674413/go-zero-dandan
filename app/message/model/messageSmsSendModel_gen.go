@@ -59,6 +59,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*MessageSmsSend, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsSend, error)
 		Page(page int64, rows int64) *defaultMessageSmsSendModel
+		Total() (total int64, err error)
 		Select() ([]*MessageSmsSend, error)
 		SelectWithTotal() ([]*MessageSmsSend, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*MessageSmsSend, error)
@@ -216,7 +217,9 @@ func (m *defaultMessageSmsSendModel) CacheFindById(redis *redisd.Redisd, id stri
 	}
 	return resp, nil
 }
-
+func (m *defaultMessageSmsSendModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultMessageSmsSendModel) Select() ([]*MessageSmsSend, error) {
 	resp := make([]*MessageSmsSend, 0)
 	err := m.dao.Select(&resp)

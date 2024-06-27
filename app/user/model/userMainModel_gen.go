@@ -66,6 +66,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*UserMain, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*UserMain, error)
 		Page(page int64, rows int64) *defaultUserMainModel
+		Total() (total int64, err error)
 		Select() ([]*UserMain, error)
 		SelectWithTotal() ([]*UserMain, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*UserMain, error)
@@ -230,7 +231,9 @@ func (m *defaultUserMainModel) CacheFindById(redis *redisd.Redisd, id string) (*
 	}
 	return resp, nil
 }
-
+func (m *defaultUserMainModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultUserMainModel) Select() ([]*UserMain, error) {
 	resp := make([]*UserMain, 0)
 	err := m.dao.Select(&resp)

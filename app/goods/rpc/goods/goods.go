@@ -6,20 +6,20 @@ package goods
 import (
 	"context"
 
-	"go-zero-dandan/app/goods/rpc/types/pb"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	GetHotPageByCursorReq = pb.GetHotPageByCursorReq
-	GetPageByCursorResp   = pb.GetPageByCursorResp
-	GetPageReq            = pb.GetPageReq
-	GetPageResp           = pb.GetPageResp
-	GoodsInfo             = pb.GoodsInfo
-	IdReq                 = pb.IdReq
-	SuccResp              = pb.SuccResp
+	GetHotPageByCursorReq = goodsRpc.GetHotPageByCursorReq
+	GetPageByCursorResp   = goodsRpc.GetPageByCursorResp
+	GetPageReq            = goodsRpc.GetPageReq
+	GetPageResp           = goodsRpc.GetPageResp
+	GoodsInfo             = goodsRpc.GoodsInfo
+	IdReq                 = goodsRpc.IdReq
+	SuccResp              = goodsRpc.SuccResp
 
 	Goods interface {
 		GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GoodsInfo, error)
@@ -39,16 +39,16 @@ func NewGoods(cli zrpc.Client) Goods {
 }
 
 func (m *defaultGoods) GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*GoodsInfo, error) {
-	client := pb.NewGoodsClient(m.cli.Conn())
+	client := goodsRpc.NewGoodsClient(m.cli.Conn())
 	return client.GetOne(ctx, in, opts...)
 }
 
 func (m *defaultGoods) GetPage(ctx context.Context, in *GetPageReq, opts ...grpc.CallOption) (*GetPageResp, error) {
-	client := pb.NewGoodsClient(m.cli.Conn())
+	client := goodsRpc.NewGoodsClient(m.cli.Conn())
 	return client.GetPage(ctx, in, opts...)
 }
 
 func (m *defaultGoods) GetHotPageByCursor(ctx context.Context, in *GetHotPageByCursorReq, opts ...grpc.CallOption) (*GetPageByCursorResp, error) {
-	client := pb.NewGoodsClient(m.cli.Conn())
+	client := goodsRpc.NewGoodsClient(m.cli.Conn())
 	return client.GetHotPageByCursor(ctx, in, opts...)
 }

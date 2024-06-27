@@ -65,6 +65,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*GoodsMain, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*GoodsMain, error)
 		Page(page int64, rows int64) *defaultGoodsMainModel
+		Total() (total int64, err error)
 		Select() ([]*GoodsMain, error)
 		SelectWithTotal() ([]*GoodsMain, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*GoodsMain, error)
@@ -228,7 +229,9 @@ func (m *defaultGoodsMainModel) CacheFindById(redis *redisd.Redisd, id string) (
 	}
 	return resp, nil
 }
-
+func (m *defaultGoodsMainModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultGoodsMainModel) Select() ([]*GoodsMain, error) {
 	resp := make([]*GoodsMain, 0)
 	err := m.dao.Select(&resp)

@@ -2,10 +2,9 @@ package goodsInfo
 
 import (
 	"context"
-	"go-zero-dandan/app/goods/rpc/types/pb"
-
 	"go-zero-dandan/app/goods/api/internal/svc"
 	"go-zero-dandan/app/goods/api/internal/types"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
@@ -34,7 +33,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCurs
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &pb.GetHotPageByCursorReq{
+	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &goodsRpc.GetHotPageByCursorReq{
 		Size:   req.Size,
 		PlatId: l.platId,
 		Page:   req.Page,

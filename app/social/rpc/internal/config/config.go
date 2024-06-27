@@ -7,7 +7,8 @@ import (
 
 type Config struct {
 	zrpc.RpcServerConf
-	DB struct {
+	UserRpc zrpc.RpcClientConf
+	DB      struct {
 		DataSource string
 	}
 	RedisConf redis.RedisConf

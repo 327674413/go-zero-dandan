@@ -2,11 +2,10 @@ package logic
 
 import (
 	"context"
-
-	"go-zero-dandan/app/user/rpc/internal/svc"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/user/rpc/internal/svc"
 )
 
 type GetUserByIdLogic struct {
@@ -23,8 +22,8 @@ func NewGetUserByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUs
 	}
 }
 
-func (l *GetUserByIdLogic) GetUserById(in *pb.IdReq) (*pb.UserMainInfo, error) {
+func (l *GetUserByIdLogic) GetUserById(in *userRpc.IdReq) (*userRpc.UserMainInfo, error) {
 	// todo: add your logic here and delete this line
 
-	return &pb.UserMainInfo{}, nil
+	return &userRpc.UserMainInfo{}, nil
 }

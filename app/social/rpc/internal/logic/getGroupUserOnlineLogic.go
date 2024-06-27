@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,14 +24,14 @@ func NewGetGroupUserOnlineLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-func (l *GetGroupUserOnlineLogic) GetGroupUserOnline(in *pb.GetGroupUserOnlineReq) (*pb.GroupUserOnlineResp, error) {
+func (l *GetGroupUserOnlineLogic) GetGroupUserOnline(in *socialRpc.GetGroupUserOnlineReq) (*socialRpc.GroupUserOnlineResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	data, err := NewGetGroupMemberListLogic(l.ctx, l.svcCtx).GetGroupMemberList(&pb.GetGroupMemberListReq{
+	data, err := NewGetGroupMemberListLogic(l.ctx, l.svcCtx).GetGroupMemberList(&socialRpc.GetGroupMemberListReq{
 		GroupId: in.GroupId,
 		PlatId:  in.PlatId,
 	})
@@ -54,11 +54,11 @@ func (l *GetGroupUserOnlineLogic) GetGroupUserOnline(in *pb.GetGroupUserOnlineRe
 			onlineMap[uid] = false
 		}
 	}
-	return &pb.GroupUserOnlineResp{
+	return &socialRpc.GroupUserOnlineResp{
 		OnlineUser: onlineMap,
 	}, nil
 }
-func (l *GetGroupUserOnlineLogic) checkReqParams(in *pb.GetGroupUserOnlineReq) error {
+func (l *GetGroupUserOnlineLogic) checkReqParams(in *socialRpc.GetGroupUserOnlineReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

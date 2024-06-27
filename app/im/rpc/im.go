@@ -3,20 +3,20 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 
 	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
 	"go-zero-dandan/app/im/rpc/internal/config"
 	"go-zero-dandan/app/im/rpc/internal/server"
 	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/dev/im.yaml", "the config file")
+var configFile = flag.String("f", "etc/im.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		pb.RegisterImServer(grpcServer, server.NewImServer(ctx))
+		imRpc.RegisterImServer(grpcServer, server.NewImServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

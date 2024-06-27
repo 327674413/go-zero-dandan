@@ -17,6 +17,7 @@ type (
         CacheFind(redis *redisd.Redisd) (*{{.upperStartCamelObject}}, error)
         CacheFindById(redis *redisd.Redisd, id string) (*{{.upperStartCamelObject}}, error)
         Page(page int64, rows int64) *default{{.upperStartCamelObject}}Model
+        Total() (total int64,err error)
         Select() ([]*{{.upperStartCamelObject}}, error)
         SelectWithTotal() ([]*{{.upperStartCamelObject}}, int64, error)
         CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}}, error)

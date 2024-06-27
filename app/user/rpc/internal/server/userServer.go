@@ -8,12 +8,12 @@ import (
 
 	"go-zero-dandan/app/user/rpc/internal/logic"
 	"go-zero-dandan/app/user/rpc/internal/svc"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 )
 
 type UserServer struct {
 	svcCtx *svc.ServiceContext
-	pb.UnimplementedUserServer
+	userRpc.UnimplementedUserServer
 }
 
 func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
@@ -22,32 +22,37 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 	}
 }
 
-func (s *UserServer) GetUserByToken(ctx context.Context, in *pb.TokenReq) (*pb.UserMainInfo, error) {
+func (s *UserServer) GetUserByToken(ctx context.Context, in *userRpc.TokenReq) (*userRpc.UserMainInfo, error) {
 	l := logic.NewGetUserByTokenLogic(ctx, s.svcCtx)
 	return l.GetUserByToken(in)
 }
 
-func (s *UserServer) EditUserInfo(ctx context.Context, in *pb.EditUserInfoReq) (*pb.SuccResp, error) {
+func (s *UserServer) EditUserInfo(ctx context.Context, in *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
 	l := logic.NewEditUserInfoLogic(ctx, s.svcCtx)
 	return l.EditUserInfo(in)
 }
 
-func (s *UserServer) RegByAccount(ctx context.Context, in *pb.RegByAccountReq) (*pb.LoginResp, error) {
+func (s *UserServer) RegByAccount(ctx context.Context, in *userRpc.RegByAccountReq) (*userRpc.LoginResp, error) {
 	l := logic.NewRegByAccountLogic(ctx, s.svcCtx)
 	return l.RegByAccount(in)
 }
 
-func (s *UserServer) GetUserById(ctx context.Context, in *pb.IdReq) (*pb.UserMainInfo, error) {
+func (s *UserServer) GetUserById(ctx context.Context, in *userRpc.IdReq) (*userRpc.UserMainInfo, error) {
 	l := logic.NewGetUserByIdLogic(ctx, s.svcCtx)
 	return l.GetUserById(in)
 }
 
-func (s *UserServer) GetUserPage(ctx context.Context, in *pb.GetUserPageReq) (*pb.GetUserPageResp, error) {
+func (s *UserServer) GetUserPage(ctx context.Context, in *userRpc.GetUserPageReq) (*userRpc.GetUserPageResp, error) {
 	l := logic.NewGetUserPageLogic(ctx, s.svcCtx)
 	return l.GetUserPage(in)
 }
 
-func (s *UserServer) BindUnionUser(ctx context.Context, in *pb.BindUnionUserReq) (*pb.BindUnionUserResp, error) {
+func (s *UserServer) BindUnionUser(ctx context.Context, in *userRpc.BindUnionUserReq) (*userRpc.BindUnionUserResp, error) {
 	l := logic.NewBindUnionUserLogic(ctx, s.svcCtx)
 	return l.BindUnionUser(in)
+}
+
+func (s *UserServer) GetUserNormalInfo(ctx context.Context, in *userRpc.GetUserInfoReq) (*userRpc.GetUserNormalInfoResp, error) {
+	l := logic.NewGetUserNormalInfoLogic(ctx, s.svcCtx)
+	return l.GetUserNormalInfo(in)
 }

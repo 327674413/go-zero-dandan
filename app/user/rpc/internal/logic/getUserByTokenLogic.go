@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/internal/svc"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 )
@@ -23,10 +23,10 @@ func NewGetUserByTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 	}
 }
 
-func (l *GetUserByTokenLogic) GetUserByToken(in *pb.TokenReq) (*pb.UserMainInfo, error) {
-	userInfo := &pb.UserMainInfo{}
+func (l *GetUserByTokenLogic) GetUserByToken(in *userRpc.TokenReq) (*userRpc.UserMainInfo, error) {
+	userInfo := &userRpc.UserMainInfo{}
 	//return nil, resd.NewRpcErrCtx(l.ctx, "1111", resd.AuthUserNotLoginErr)
-	err := l.svcCtx.Redis.GetData(constd.RedisKeyUserToken, in.Token, userInfo)
+	_, err := l.svcCtx.Redis.GetData(constd.RedisKeyUserToken, in.Token, userInfo)
 	if err != nil {
 		//有报错
 		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.RedisGetUserTokenErr))

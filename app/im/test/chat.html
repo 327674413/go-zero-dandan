@@ -132,7 +132,11 @@
                         <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.nickname.substring(0,1).toUpperCase()}}</div>
                         <div class="friend-name">{{item.nickname}}</div>
                     </div>
-                    <el-tag effect="plain" class="btn" @click="tapCreateAddFriendApply(item)">添加</el-tag>
+                    <el-tag effect="plain" class="btn" v-if="item.stateEm == 0" @click="tapCreateAddFriendApply(item)">添加</el-tag>
+                    <el-tag effect="plain" class="btn" v-if="item.stateEm == 1" @click="tapCreateAddFriendApply(item)">待验证</el-tag>
+                    <el-tag type="warning" class="btn" v-if="item.stateEm == 99" >本人</el-tag>
+                    <el-tag type="success" effect="plain" class="btn" v-if="item.stateEm == 2">好友</el-tag>
+                    <el-tag type="info" class="btn" v-if="item.stateEm == -2">黑名单</el-tag>
                 </div>
                 <div class="fc search-result" v-if="friendAddSearchListState != ''">
                     <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
@@ -144,19 +148,24 @@
     </el-dialog>
 
     <el-dialog title="好友申请列表"  :close-on-click-modal="false" :visible.sync="friendNewApplyShow" width="500">
-        <div class="friend-add-search-list">
+        <div class="friend-add-search-list" v-infinite-scroll="getRecvFriendApplyList" infinite-scroll-disabled="recvFriendApplyListState != '' && recvFriendApplyListState != 'error'">
             <div class="friend-list">
-                <div class="fb friend-item" v-for="item in friendAddSearchList" :key="item.id">
+                <div class="fb friend-item" v-for="(item,index) in recvFriendApplyList" :key="item.id">
                     <div class="fl">
-                        <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
-                        <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.nickname.substring(0,1).toUpperCase()}}</div>
-                        <div class="friend-name">{{item.nickname}}</div>
+                        <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.userAvatarImg" />
+                        <div class="friend-avatar friend-avatar-text fc" v-if="!item.userAvatarImg">{{item.userName.substring(0,1).toUpperCase()}}</div>
+                        <div class="friend-name">{{item.userName}}</div>
                     </div>
-                    <el-tag effect="plain" class="btn" @click="tapCreateAddFriendApply(item)">添加</el-tag>
+                    <div class="fr" v-if="item.stateEm == 1">
+                        <el-tag effect="plain" class="btn" @click="tapOperateFriendApply(index,1)">通过</el-tag>
+                        <el-tag type="danger" style="margin-left:10px;" effect="plain" class="btn"  @click="tapOperateFriendApply(index,-1)">拒绝</el-tag>
+                    </div>
+
+                    <el-tag effect="plain" class="btn" v-if="item.stateEm == 2">已通过</el-tag>
                 </div>
-                <div class="fc search-result" v-if="friendAddSearchListState != ''">
-                    <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
-                    <div class="fc" v-if="friendAddSearchListState == 'none'">未搜索到信息</div>
+                <div class="fc search-result" v-if="recvFriendApplyListState != ''">
+                    <div v-loading="loading" class="fc search-loading" v-if="recvFriendApplyListState == 'loading'"></div>
+                    <div class="fc" v-if="recvFriendApplyListState == 'none'">未查询到信息</div>
                 </div>
 
             </div>
@@ -184,7 +193,9 @@
                 friendAddSearchListState:'',
                 friendNewNum:10,
                 friendNewApplyShow:false,
-
+                recvFriendApplyList:[],
+                recvFriendApplyListState:'',
+                recvFriendApplyListNextPage:1,
 
                 searchGroupVal:'',
                 groupList:[],
@@ -214,7 +225,7 @@
             },
             getMyFriendList(){
                 request({
-                    url:'http://localhost:8812/social/v1/getMyFriendList',
+                    url:'http://localhost:8812/social/v1/friend/getMyFriendList',
                     headers:{
                         'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
                         'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
@@ -224,7 +235,38 @@
                 })
             },
             tapShowFriendNewApply(){
-              this.friendNewApplyShow = true
+                this.friendNewApplyShow = true
+                this.getRecvFriendApplyList(true)
+            },
+            getRecvFriendApplyList(isReload){
+                if (isReload){
+                    this.recvFriendApplyListNextPage = 1
+                    this.recvFriendApplyList = []
+                }
+                this.friendAddSearchListState = "loading"
+                request({
+                    url:'http://localhost:8812/social/v1/friend/getMyFriendApplyRecvPage',
+                    headers:{
+                        'token':'04bd9323ac95a28978fbe166d55b33c75ab9bcc02f52cae2de54b0fff44a27a6',
+                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
+                    },
+                    data:{
+                        page:this.recvFriendApplyListNextPage,
+                        size:20,
+                    }
+                }).then(res=>{
+                    this.recvFriendApplyList = res.list
+                    if (this.recvFriendApplyList.length == 0){
+                        this.recvFriendApplyListState = 'none'
+                    } else if(res.list.length == 0) {
+                        this.recvFriendApplyListState = 'end'
+                    } else {
+                        this.recvFriendApplyListState = ''
+                        this.recvFriendApplyListNextPage++
+                    }
+                }).catch(err=>{
+                    this.recvFriendApplyListState = 'error'
+                })
             },
             tapShowFriendAdd(){
                 this.showAddFriendDialog = true
@@ -254,8 +296,43 @@
                     } else {
                         this.friendAddSearchListState = ''
                     }
+                }).catch(err=>{
+                    this.friendAddSearchListState = 'error'
                 })
 
+            },
+            tapOperateFriendApply(index,state){
+                if (state == 1) {
+                    this.operateFriendApply(index,{
+                        applyId:this.recvFriendApplyList[index].applyId,
+                        stateEm:2,
+                    })
+                } else {
+                    this.$prompt('请输入拒绝原因', '拒绝好友申请-'+this.recvFriendApplyList[index].userName, {
+                        confirmButtonText: '提交',
+                        cancelButtonText: '取消',
+                        closeOnClickModal: false
+                    }).then(({ value }) => {
+                        this.operateFriendApply(index,{
+                            applyId:this.recvFriendApplyList[index].applyId,
+                            stateEm:-2,
+                        })
+                    })
+                }
+            },
+            operateFriendApply(index,data){
+                request({
+                    url:'http://localhost:8812/social/v1/friend/operateMyRecvFriendApply',
+                    headers:{
+                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
+                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
+                    },
+                    loading:'提交中',
+                    data
+                }).then(res=>{
+                    this.recvFriendApplyList[index].stateEm = data.stateEm
+                    tool.toastSucc('提交成功')
+                })
             },
             tapCreateAddFriendApply(friend){
                 this.$prompt('请输入验证消息', '添加好友申请-'+friend.nickname, {

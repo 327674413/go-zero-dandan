@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: plat.proto
 
-package pb
+package platRpc
 
 import (
 	context "context"

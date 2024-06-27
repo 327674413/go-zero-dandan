@@ -8,12 +8,12 @@ import (
 
 	"go-zero-dandan/app/goods/rpc/internal/logic"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
-	"go-zero-dandan/app/goods/rpc/types/pb"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 )
 
 type GoodsServer struct {
 	svcCtx *svc.ServiceContext
-	pb.UnimplementedGoodsServer
+	goodsRpc.UnimplementedGoodsServer
 }
 
 func NewGoodsServer(svcCtx *svc.ServiceContext) *GoodsServer {
@@ -22,17 +22,17 @@ func NewGoodsServer(svcCtx *svc.ServiceContext) *GoodsServer {
 	}
 }
 
-func (s *GoodsServer) GetOne(ctx context.Context, in *pb.IdReq) (*pb.GoodsInfo, error) {
+func (s *GoodsServer) GetOne(ctx context.Context, in *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
 	l := logic.NewGetOneLogic(ctx, s.svcCtx)
 	return l.GetOne(in)
 }
 
-func (s *GoodsServer) GetPage(ctx context.Context, in *pb.GetPageReq) (*pb.GetPageResp, error) {
+func (s *GoodsServer) GetPage(ctx context.Context, in *goodsRpc.GetPageReq) (*goodsRpc.GetPageResp, error) {
 	l := logic.NewGetPageLogic(ctx, s.svcCtx)
 	return l.GetPage(in)
 }
 
-func (s *GoodsServer) GetHotPageByCursor(ctx context.Context, in *pb.GetHotPageByCursorReq) (*pb.GetPageByCursorResp, error) {
+func (s *GoodsServer) GetHotPageByCursor(ctx context.Context, in *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
 	l := logic.NewGetHotPageByCursorLogic(ctx, s.svcCtx)
 	return l.GetHotPageByCursor(in)
 }

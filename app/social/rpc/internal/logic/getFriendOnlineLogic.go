@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,11 +24,11 @@ func NewGetFriendOnlineLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetFriendOnlineLogic) GetFriendOnline(in *pb.GetFriendOnlineReq) (*pb.FriendOnlineResp, error) {
+func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq) (*socialRpc.FriendOnlineResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	data, err := NewGetUserFriendListLogic(l.ctx, l.svcCtx).GetUserFriendList(&pb.GetUserFriendListReq{
+	data, err := NewGetUserFriendListLogic(l.ctx, l.svcCtx).GetUserFriendList(&socialRpc.GetUserFriendListReq{
 		UserId: in.UserId,
 		PlatId: in.PlatId,
 	})
@@ -51,12 +51,12 @@ func (l *GetFriendOnlineLogic) GetFriendOnline(in *pb.GetFriendOnlineReq) (*pb.F
 			onlineMap[uid] = false
 		}
 	}
-	return &pb.FriendOnlineResp{
+	return &socialRpc.FriendOnlineResp{
 		OnlineUser: onlineMap,
 	}, nil
 
 }
-func (l *GetFriendOnlineLogic) checkReqParams(in *pb.GetFriendOnlineReq) error {
+func (l *GetFriendOnlineLogic) checkReqParams(in *socialRpc.GetFriendOnlineReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

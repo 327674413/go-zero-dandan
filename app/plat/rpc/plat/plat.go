@@ -6,15 +6,15 @@ package plat
 import (
 	"context"
 
-	"go-zero-dandan/app/plat/rpc/types/pb"
+	"go-zero-dandan/app/plat/rpc/types/platRpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	IdReq    = pb.IdReq
-	PlatInfo = pb.PlatInfo
+	IdReq    = platRpc.IdReq
+	PlatInfo = platRpc.PlatInfo
 
 	Plat interface {
 		GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*PlatInfo, error)
@@ -32,6 +32,6 @@ func NewPlat(cli zrpc.Client) Plat {
 }
 
 func (m *defaultPlat) GetOne(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*PlatInfo, error) {
-	client := pb.NewPlatClient(m.cli.Conn())
+	client := platRpc.NewPlatClient(m.cli.Conn())
 	return client.GetOne(ctx, in, opts...)
 }

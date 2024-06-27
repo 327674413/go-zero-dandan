@@ -5,15 +5,22 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-dandan/app/im/api/internal/logic/friend"
 	"go-zero-dandan/app/im/api/internal/svc"
+	"go-zero-dandan/app/im/api/internal/types"
 	"go-zero-dandan/common/land"
 	"go-zero-dandan/common/resd"
 	"net/http"
 )
 
-func GetMyFriendApplyListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func OperateMyRecvFriendApplyHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		l := friend.NewGetMyFriendApplyListLogic(r.Context(), svcCtx)
-		resp, err := l.GetMyFriendApplyList()
+		var req types.OperateMyRecvFriendApplyReq
+		if err := httpx.Parse(r, &req); err != nil {
+			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
+			return
+		}
+
+		l := friend.NewOperateMyRecvFriendApplyLogic(r.Context(), svcCtx)
+		resp, err := l.OperateMyRecvFriendApply(&req)
 		if err != nil {
 			if danErr, ok := resd.AssertErr(err); ok {
 				localizer, ok := r.Context().Value("lang").(*i18n.Localizer)

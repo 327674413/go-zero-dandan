@@ -2,61 +2,67 @@
 package types
 
 type FriendInfo struct {
-	Id          string `json:"id,optional"`
-	FriendUid   string `json:"friendUid,optional"`
-	FriendName  string `json:"friendName,optional"`
-	FriendAlias string `json:"friendAlias,optional"`
-	FriendIcon  string `json:"friendIcon,optional"`
-	SourceEm    int64  `json:"sourcEm,optional"`
-	Remark      string `json:"remark,optional"`
+	Id          string `json:"id"`
+	FriendUid   string `json:"friendUid"`
+	FriendName  string `json:"friendName"`
+	FriendAlias string `json:"friendAlias"`
+	FriendIcon  string `json:"friendIcon"`
+	SourceEm    int64  `json:"sourcEm"`
+	Remark      string `json:"remark"`
 }
 
 type FriendApply struct {
-	Id             string `json:"id,optional"`
-	UserId         string `json:"userId,optional"`
-	ApplyUid       string `json:"applyUid,optional"`
-	ApplyMsg       string `json:"applyMsg,optional"`
-	ApplyAt        int64  `json:"applyAt,optional"`
-	OperateMsg     string `json:"operateMsg,optional"`
-	OperateAt      int64  `json:"operateAt,optional"`
-	OperateStateEm int64  `json:"operateStateEm,optional"`
+	Id              string `json:"id"`
+	UserId          string `json:"userId"`
+	FriendUid       string `json:"friendUid"`
+	ApplyLastMsg    string `json:"applyLastMsg"`
+	ApplyLastAt     int64  `json:"applyLastAt"`
+	OperateMsg      string `json:"operateMsg"`
+	OperateAt       int64  `json:"operateAt"`
+	StateEm         int64  `json:"stateEm"`
+	UserName        string `json:"userName"`
+	UserSex         int64  `json:"userSex"`
+	UserAvatarImg   string `json:"userAvatarImg"`
+	FriendName      string `json:"friendName"`
+	FriendSex       int64  `json:"friendSex"`
+	FriendAvatarImg string `json:"friendAvatarImg"`
 }
 
 type GroupInfo struct {
-	Id          string         `json:"id,optional"`
-	Name        string         `json:"name,optional"`
-	StateEm     int64          `json:"stateEm,optional"`
-	TypeEm      int64          `json:"typeEm,optional"`
-	IsVerify    int64          `json:"isVerify,optional"`
-	NotiContent string         `json:"notiContent,optional"`
-	NotiUid     string         `json:"notiUid,optional"`
-	MemberList  []*GroupMember `json:"memberList,optional"`
-	CreateAt    int64          `json:"create_at,optional"`
+	Id          string         `json:"id"`
+	Name        string         `json:"name"`
+	StateEm     int64          `json:"stateEm"`
+	TypeEm      int64          `json:"typeEm"`
+	IsVerify    int64          `json:"isVerify"`
+	NotiContent string         `json:"notiContent"`
+	NotiUid     string         `json:"notiUid"`
+	MemberList  []*GroupMember `json:"memberList"`
+	CreateAt    int64          `json:"create_at"`
 }
 
 type GroupMember struct {
-	Id           string `json:"id,optional"`
-	GroupId      string `json:"groupId,optional"`
-	UserId       string `json:"userId,optional"`
-	RoleLevel    int64  `json:"roleLevel,optional"`
-	JoinAt       int64  `json:"joinAt,optional"`
-	JoinSourceEm int64  `json:"joinSourceEm,optional"`
-	InviteUid    string `json:"inviteUid,optional"`
-	OperateUid   string `json:"operateUid,optional"`
+	Id           string `json:"id"`
+	GroupId      string `json:"groupId"`
+	UserId       string `json:"userId"`
+	RoleLevel    int64  `json:"roleLevel"`
+	JoinAt       int64  `json:"joinAt"`
+	JoinSourceEm int64  `json:"joinSourceEm"`
+	InviteUid    string `json:"inviteUid"`
+	OperateUid   string `json:"operateUid"`
 }
 
 type GroupMemberApply struct {
-	Id             string `json:"id,optional"`
-	GroupId        string `json:"groupId,optional"`
-	UserId         string `json:"userId,optional"`
-	ApplyMsg       string `json:"applyMsg,optional"`
-	ApplyAt        int64  `json:"applyAt,optional"`
-	OperateUid     string `json:"operateUid,optional"`
-	OperateMsg     string `json:"operateMsg,optional"`
-	OperateAt      int64  `json:"operateAt,optional"`
-	OperateStateEm int64  `json:"operateStateEm,optional"`
-	JoinSourceEm   int64  `json:"joinSourceEm,optional"`
-	InviteUid      string `json:"inviteUid,optional"`
+	Id             string `json:"id"`
+	GroupId        string `json:"groupId"`
+	UserId         string `json:"userId"`
+	ApplyMsg       string `json:"applyMsg"`
+	ApplyAt        int64  `json:"applyAt"`
+	OperateUid     string `json:"operateUid"`
+	OperateMsg     string `json:"operateMsg"`
+	OperateAt      int64  `json:"operateAt"`
+	OperateStateEm int64  `json:"operateStateEm"`
+	JoinSourceEm   int64  `json:"joinSourceEm"`
+	InviteUid      string `json:"inviteUid"`
 }
 
 type ResultResp struct {
@@ -76,9 +82,9 @@ type CreateGroupResp struct {
 	GroupId *string `json:"groupId,optional"`
 }
 
-type OperateFriendApplyReq struct {
-	ApplyId        *string `json:"applyId"`
-	OperateStateEm *int64  `json:"operateStateEm"` // 处理结果
+type OperateMyRecvFriendApplyReq struct {
+	ApplyId *string `json:"applyId"`
+	StateEm *int64  `json:"stateEm"` // 处理结果
 }
 
 type CreateGroupMemberApplyReq struct {
@@ -89,7 +95,7 @@ type CreateGroupMemberApplyReq struct {
 }
 
 type CreateGroupMemberApplyResp struct {
-	ApplyId *string `json:"applyId,optional"`
+	ApplyId string `json:"applyId"`
 }
 
 type OperateGroupMemberApplyReq struct {
@@ -102,6 +108,11 @@ type GetGroupMemberListReq struct {
 	GroupId *string `json:"groupId,optional"`
 }
 
+type GetMyFriendApplyRecvPageReq struct {
+	Page *int64 `json:"page,optional"`
+	Size *int64 `json:"size,optional"`
+}
+
 type FriendApplyListResp struct {
 	List []*FriendApply `json:"list"`
 }
@@ -111,15 +122,15 @@ type FriendListResp struct {
 }
 
 type GroupListResp struct {
-	List []*GroupInfo `json:"list,optional"`
+	List []*GroupInfo `json:"list"`
 }
 
 type GroupMemberListResp struct {
-	List []*GroupMember `json:"List,optional"`
+	List []*GroupMember `json:"List"`
 }
 
 type GroupApplyListResp struct {
-	List []*GroupMemberApply `json:"List,optional"`
+	List []*GroupMemberApply `json:"List"`
 }
 
 type IdReq struct {

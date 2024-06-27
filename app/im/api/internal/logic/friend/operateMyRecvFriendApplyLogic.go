@@ -2,6 +2,8 @@ package friend
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
@@ -12,7 +14,7 @@ import (
 	"go-zero-dandan/common/utild"
 )
 
-type OperateFriendApplyLogic struct {
+type OperateMyRecvFriendApplyLogic struct {
 	logx.Logger
 	ctx          context.Context
 	svcCtx       *svc.ServiceContext
@@ -21,23 +23,38 @@ type OperateFriendApplyLogic struct {
 	platClasEm   int64
 }
 
-func NewOperateFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OperateFriendApplyLogic {
-	return &OperateFriendApplyLogic{
+func NewOperateMyRecvFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OperateMyRecvFriendApplyLogic {
+	return &OperateMyRecvFriendApplyLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *OperateFriendApplyLogic) OperateFriendApply(req *types.OperateFriendApplyReq) (resp *types.ResultResp, err error) {
+func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.OperateMyRecvFriendApplyReq) (resp *types.ResultResp, err error) {
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
+	if err = l.initUser(); err != nil {
+		return nil, resd.ErrorCtx(l.ctx, err)
+	}
+	if req.ApplyId == nil {
+		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少参数applyId", resd.ReqFieldRequired1, "applyId")
+	}
+	applyId := strings.TrimSpace(*req.ApplyId)
+	if applyId == "" {
+		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少参数applyId", resd.ReqFieldEmpty1, "applyId")
+	}
+	if req.StateEm == nil {
+		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少参数stateEm", resd.ReqFieldRequired1, "stateEm")
+	}
+	StateEm := *req.StateEm
 
+	fmt.Println(StateEm)
 	return
 }
 
-func (l *OperateFriendApplyLogic) initUser() (err error) {
+func (l *OperateMyRecvFriendApplyLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
 		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
@@ -46,7 +63,7 @@ func (l *OperateFriendApplyLogic) initUser() (err error) {
 	return nil
 }
 
-func (l *OperateFriendApplyLogic) initPlat() (err error) {
+func (l *OperateMyRecvFriendApplyLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
 		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)

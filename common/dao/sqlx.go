@@ -27,6 +27,7 @@ type SqlxDao struct {
 	defaultRowField  string
 	exceptRowFields  []string
 	defaultQuerySize int64
+	maxQuerySize     int64
 	softDeleteField  string
 	softDeletable    bool
 
@@ -59,6 +60,7 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 		whereData:          make([]any, 0),
 		joinTables:         make([]string, 0),
 		defaultQuerySize:   10,
+		maxQuerySize:       99999,
 		emptyQueryCacheSec: 0,
 		defaultCacheSec:    0, //默认0，永久不失效
 	}
@@ -175,8 +177,8 @@ func (t *SqlxDao) getFieldParam() string {
 		fields := strings.Split(field, ",")
 		resField := ""
 		for _, v := range fields {
-			if _, ok := fieldMap[v]; !ok {
-				resField = v + ","
+			if isExcept := fieldMap[v]; !isExcept {
+				resField += v + ","
 			}
 		}
 		if len(resField) > 0 {
@@ -221,8 +223,9 @@ func (t *SqlxDao) getWhereParam() string {
 }
 func (t *SqlxDao) getPageParam() string {
 	if t.querySize == 0 {
-		return ""
 		t.querySize = t.defaultQuerySize
+	} else if t.querySize > t.maxQuerySize {
+		t.querySize = t.maxQuerySize
 	}
 	if t.queryPage <= 0 {
 		t.queryPage = 1
@@ -271,6 +274,34 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	} else {
 		return nil
 	}
+}
+
+// Total 查询总数
+func (t *SqlxDao) Total() (int64, error) {
+	defer t.Reinit()
+	var total int64
+	err := t.validate()
+	if err != nil {
+		return 0, err
+	}
+	tableParam := t.getTableParam()
+	whereParam := t.getWhereParam()
+	checkParamsNum := strings.Count(whereParam, "?")
+	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
+		return 0, resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
+	}
+
+	sql := fmt.Sprintf("select COUNT(*) from %s where "+whereParam, tableParam)
+	if t.ctx != nil {
+		err = t.conn.QueryRowPartialCtx(t.ctx, &total, sql, t.whereData...)
+	} else {
+		err = t.conn.QueryRowPartial(&total, sql, t.whereData...)
+	}
+	t.lastQuerySql = sql //Todo::这里不是真实执行的sql，不知道怎么获取
+	t.lastQueryPage = 0
+	t.lastQuerySize = 0
+	t.lastQueryIsCache = false
+	return total, nil
 }
 
 // Select 查询所有数据,需传入目标结构体切片的指针
@@ -336,8 +367,8 @@ func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
 	}
 	cacheField, cacheKey := t.getSelectCacheKey()
-	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
-	if err == nil {
+	state, err := redis.GetData(cacheField, cacheKey, targetStructPtr)
+	if state == true {
 		t.lastQueryPage = t.queryPage
 		t.lastQuerySize = t.querySize
 		t.lastQueryIsCache = true
@@ -364,8 +395,8 @@ func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
 	}
 	cacheField, cacheKey := t.getSelectCacheKey()
-	err := redis.GetData(cacheField, cacheKey, targetStructPtr)
-	if err == nil {
+	state, err := redis.GetData(cacheField, cacheKey, targetStructPtr)
+	if state == true {
 		t.lastQueryIsCache = true
 		return nil
 	}
@@ -387,13 +418,13 @@ func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id string) (err error) {
 	defer t.Reinit()
 	cacheField := t.getCachePrefixField()
+	var state bool
 	if t.ctx == nil {
-		err = redis.GetData(cacheField, id, targetStructPtr)
+		state, err = redis.GetData(cacheField, id, targetStructPtr)
 	} else {
-		err = redis.GetDataCtx(t.ctx, cacheField, id, targetStructPtr)
+		state, err = redis.GetDataCtx(t.ctx, cacheField, id, targetStructPtr)
 	}
-
-	if err == nil {
+	if state == true {
 		t.lastQueryIsCache = true
 		return nil
 	}

@@ -4,13 +4,12 @@ import (
 	"context"
 	"fmt"
 	"go-zero-dandan/app/im/modelMongo"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/resd"
 
-	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/im/rpc/internal/svc"
 )
 
 type CreateGroupConversationLogic struct {
@@ -27,8 +26,8 @@ func NewCreateGroupConversationLogic(ctx context.Context, svcCtx *svc.ServiceCon
 	}
 }
 
-func (l *CreateGroupConversationLogic) CreateGroupConversation(in *pb.CreateGroupConversationReq) (*pb.CreateGroupConversationResp, error) {
-	res := &pb.CreateGroupConversationResp{}
+func (l *CreateGroupConversationLogic) CreateGroupConversation(in *imRpc.CreateGroupConversationReq) (*imRpc.CreateGroupConversationResp, error) {
+	res := &imRpc.CreateGroupConversationResp{}
 	_, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, in.GroupId)
 	//未报错则有数据，已存在
 	if err == nil {
@@ -44,7 +43,7 @@ func (l *CreateGroupConversationLogic) CreateGroupConversation(in *pb.CreateGrou
 		ChatType:       websocketd.GroupChatType,
 	})
 	//创建群后，需要创建用户的会话列表
-	_, err = NewSetUpUserConversationLogic(l.ctx, l.svcCtx).SetUpUserConversation(&pb.SetUpUserConversationReq{
+	_, err = NewSetUpUserConversationLogic(l.ctx, l.svcCtx).SetUpUserConversation(&imRpc.SetUpUserConversationReq{
 		SendId:   in.CreateId,
 		RecvId:   in.GroupId,
 		ChatType: int64(websocketd.GroupChatType),

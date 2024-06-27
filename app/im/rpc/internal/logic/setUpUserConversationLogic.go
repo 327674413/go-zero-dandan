@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -28,7 +28,7 @@ func NewSetUpUserConversationLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 // SetUpUserConversation 建立会话: 群聊, 私聊
-func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConversationReq) (*pb.SetUpUserConversationResp, error) {
+func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserConversationReq) (*imRpc.SetUpUserConversationResp, error) {
 	switch websocketd.ChatType(in.ChatType) {
 	case websocketd.SingleChatType:
 		//生成会话id
@@ -37,7 +37,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 		conversationRes, err := l.svcCtx.ConversationModel.FindByCode(l.ctx, conversationId)
 		if conversationRes != nil {
 			//有查到数据，已经建立过了
-			return &pb.SetUpUserConversationResp{}, nil
+			return &imRpc.SetUpUserConversationResp{}, nil
 		} else if err != nil && err == modelMongo.ErrNotFound {
 			//没查到数据，建立会话
 			err := l.svcCtx.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{
@@ -67,7 +67,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *pb.SetUpUserConve
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
 	}
-	return &pb.SetUpUserConversationResp{}, nil
+	return &imRpc.SetUpUserConversationResp{}, nil
 }
 
 func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string, userId, recvId string, chatType websocketd.ChatType, isShow bool) error {

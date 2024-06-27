@@ -53,6 +53,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*UserUnion, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*UserUnion, error)
 		Page(page int64, rows int64) *defaultUserUnionModel
+		Total() (total int64, err error)
 		Select() ([]*UserUnion, error)
 		SelectWithTotal() ([]*UserUnion, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*UserUnion, error)
@@ -204,7 +205,9 @@ func (m *defaultUserUnionModel) CacheFindById(redis *redisd.Redisd, id string) (
 	}
 	return resp, nil
 }
-
+func (m *defaultUserUnionModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultUserUnionModel) Select() ([]*UserUnion, error) {
 	resp := make([]*UserUnion, 0)
 	err := m.dao.Select(&resp)

@@ -2,10 +2,10 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8085
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: user.rpc
 DB:
-  DataSource: DB_USER:DB_PASS@tcp(DB_IP:DB_PORT)/DB_NAME?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Mode: dev
 Conf:
   LoginTokenExSec: 60480

@@ -2,7 +2,17 @@ syntax = "proto3";
 
 package social;
 
-option go_package = "./pb";
+option go_package = "./socialRpc";
+
+message MatchField {
+  optional string type = 1;
+  optional string str = 2;
+  repeated string strs= 3;
+  optional int64 num = 4;
+  repeated int64 nums = 5;
+  optional bool isFuzzy = 6;
+  repeated string raws = 7;
+}
 
 // 获取用户关系
 message GetUserRelationReq{
@@ -30,13 +40,19 @@ message FriendInfo {
 message FriendApply {
   string id = 1;
   string userId = 2;
-  string applyUid = 3;
-  string applyMsg = 4;
-  int64 applyAt = 5;
+  string friendUid = 3;
+  string applyLastMsg = 4;
+  int64 applyLastAt = 5;
   string operateMsg = 6;
   int64 operateAt = 7;
-  int64 operateStateEm = 8;
+  int64 stateEm = 8;
   string platId = 9;
+  string friendName = 10;
+  string friendAvatarImg = 11;
+  int64 friendSex = 12;
+  string userName = 13;
+  string userAvatarImg =14;
+  int64 userSex = 15;
 }
 
 message GroupInfo {
@@ -100,15 +116,18 @@ message OperateFriendApplyReq {
   string platId = 4;
 }
 
-message GetUserFriendApplyPageReq{
+message GetUserRecvFriendApplyPageReq{
   string userId = 1;
   string platId = 2;
   int64 page = 3;
   int64 size = 4;
+  int64 isNeedTotal = 5;
+  map<string,MatchField> match = 6;
 }
 
 message FriendApplyPageResp{
   repeated FriendApply list = 1;
+  optional int64 total = 2;
 }
 
 message GetUserFriendListReq{
@@ -195,7 +214,7 @@ service social {
 
   rpc CreateFriendApply(CreateFriendApplyReq) returns(CreateFriendApplyResp);
   rpc OperateFriendApply(OperateFriendApplyReq) returns(ResultResp);
-  rpc GetUserFriendApplyPage(GetUserFriendApplyPageReq) returns(FriendApplyPageResp);
+  rpc GetUserRecvFriendApplyPage(GetUserRecvFriendApplyPageReq) returns(FriendApplyPageResp);
   rpc GetUserFriendList(GetUserFriendListReq) returns (FriendListResp);
   rpc GetFriendOnline(GetFriendOnlineReq) returns (FriendOnlineResp);
   rpc GetUserRelation(GetUserRelationReq) returns (GetUserRelationResp);

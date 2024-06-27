@@ -6,26 +6,29 @@ package user
 import (
 	"context"
 
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	BindUnionUserReq  = pb.BindUnionUserReq
-	BindUnionUserResp = pb.BindUnionUserResp
-	EditUserInfoReq   = pb.EditUserInfoReq
-	GetUserPageReq    = pb.GetUserPageReq
-	GetUserPageResp   = pb.GetUserPageResp
-	IdReq             = pb.IdReq
-	LoginByAccountReq = pb.LoginByAccountReq
-	LoginResp         = pb.LoginResp
-	MatchField        = pb.MatchField
-	RegByAccountReq   = pb.RegByAccountReq
-	SuccResp          = pb.SuccResp
-	TokenReq          = pb.TokenReq
-	UserMainInfo      = pb.UserMainInfo
+	BindUnionUserReq      = userRpc.BindUnionUserReq
+	BindUnionUserResp     = userRpc.BindUnionUserResp
+	EditUserInfoReq       = userRpc.EditUserInfoReq
+	GetUserInfoReq        = userRpc.GetUserInfoReq
+	GetUserNormalInfoResp = userRpc.GetUserNormalInfoResp
+	GetUserPageReq        = userRpc.GetUserPageReq
+	GetUserPageResp       = userRpc.GetUserPageResp
+	IdReq                 = userRpc.IdReq
+	LoginByAccountReq     = userRpc.LoginByAccountReq
+	LoginResp             = userRpc.LoginResp
+	MatchField            = userRpc.MatchField
+	RegByAccountReq       = userRpc.RegByAccountReq
+	SuccResp              = userRpc.SuccResp
+	TokenReq              = userRpc.TokenReq
+	UserMainInfo          = userRpc.UserMainInfo
+	UserNormalInfo        = userRpc.UserNormalInfo
 
 	User interface {
 		GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error)
@@ -34,6 +37,7 @@ type (
 		GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 		GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error)
 		BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error)
+		GetUserNormalInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserNormalInfoResp, error)
 	}
 
 	defaultUser struct {
@@ -48,31 +52,36 @@ func NewUser(cli zrpc.Client) User {
 }
 
 func (m *defaultUser) GetUserByToken(ctx context.Context, in *TokenReq, opts ...grpc.CallOption) (*UserMainInfo, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.GetUserByToken(ctx, in, opts...)
 }
 
 func (m *defaultUser) EditUserInfo(ctx context.Context, in *EditUserInfoReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.EditUserInfo(ctx, in, opts...)
 }
 
 func (m *defaultUser) RegByAccount(ctx context.Context, in *RegByAccountReq, opts ...grpc.CallOption) (*LoginResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.RegByAccount(ctx, in, opts...)
 }
 
 func (m *defaultUser) GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.GetUserById(ctx, in, opts...)
 }
 
 func (m *defaultUser) GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.GetUserPage(ctx, in, opts...)
 }
 
 func (m *defaultUser) BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error) {
-	client := pb.NewUserClient(m.cli.Conn())
+	client := userRpc.NewUserClient(m.cli.Conn())
 	return client.BindUnionUser(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetUserNormalInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserNormalInfoResp, error) {
+	client := userRpc.NewUserClient(m.cli.Conn())
+	return client.GetUserNormalInfo(ctx, in, opts...)
 }

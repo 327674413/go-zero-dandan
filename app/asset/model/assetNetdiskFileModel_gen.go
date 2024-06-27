@@ -72,6 +72,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*AssetNetdiskFile, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*AssetNetdiskFile, error)
 		Page(page int64, rows int64) *defaultAssetNetdiskFileModel
+		Total() (total int64, err error)
 		Select() ([]*AssetNetdiskFile, error)
 		SelectWithTotal() ([]*AssetNetdiskFile, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*AssetNetdiskFile, error)
@@ -242,7 +243,9 @@ func (m *defaultAssetNetdiskFileModel) CacheFindById(redis *redisd.Redisd, id st
 	}
 	return resp, nil
 }
-
+func (m *defaultAssetNetdiskFileModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultAssetNetdiskFileModel) Select() ([]*AssetNetdiskFile, error) {
 	resp := make([]*AssetNetdiskFile, 0)
 	err := m.dao.Select(&resp)

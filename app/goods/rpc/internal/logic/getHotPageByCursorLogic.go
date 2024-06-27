@@ -8,7 +8,7 @@ import (
 	"github.com/zeromicro/go-zero/core/threading"
 	"go-zero-dandan/app/goods/model"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
-	"go-zero-dandan/app/goods/rpc/types/pb"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 	"go-zero-dandan/common/resd"
 	"math"
 	"sort"
@@ -42,7 +42,7 @@ func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 // 这个方式缺陷还挺多：在边界时只能返回缓存剩余数据，导致数量不满足分页要求 和 关联引发的系列问题；当然在高并发和加载更多时可能可以忽略
 
-func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorReq) (*pb.GetPageByCursorResp, error) {
+func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
 	var size int64
 	if in.Size > 0 {
 		size = in.Size
@@ -66,7 +66,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 		respCursor     int64
 		isCache, isEnd bool
 	)
-	currPageGoodses := make([]*pb.GoodsInfo, 0)
+	currPageGoodses := make([]*goodsRpc.GoodsInfo, 0)
 	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
 	if len(ids) > 0 {
 		//存在缓存
@@ -85,7 +85,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 			return list[i].ViewNum > list[j].ViewNum
 		})
 		for _, item := range list {
-			currPageGoodses = append(currPageGoodses, &pb.GoodsInfo{
+			currPageGoodses = append(currPageGoodses, &goodsRpc.GoodsInfo{
 				Id:        item.Id,
 				Name:      item.Name,
 				Spec:      item.Spec,
@@ -130,7 +130,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 			isEnd = true
 		}
 		for _, item := range firstPageList {
-			currPageGoodses = append(currPageGoodses, &pb.GoodsInfo{
+			currPageGoodses = append(currPageGoodses, &goodsRpc.GoodsInfo{
 				Id:        item.Id,
 				Name:      item.Name,
 				Spec:      item.Spec,
@@ -165,7 +165,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *pb.GetHotPageByCursorRe
 			}
 		})
 	}
-	return &pb.GetPageByCursorResp{
+	return &goodsRpc.GetPageByCursorResp{
 		Size:    size,
 		List:    currPageGoodses,
 		IsCache: isCache,

@@ -2,7 +2,7 @@ package friend
 
 import (
 	"context"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"strings"
 	"time"
 
@@ -44,7 +44,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyR
 	if err = l.checkParam(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = l.svcCtx.SocialRpc.CreateFriendApply(l.ctx, &pb.CreateFriendApplyReq{
+	_, err = l.svcCtx.SocialRpc.CreateFriendApply(l.ctx, &socialRpc.CreateFriendApplyReq{
 		PlatId:    l.platId,
 		UserId:    l.userMainInfo.Id,
 		FriendUid: l.friendUid,
@@ -58,11 +58,11 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyR
 }
 func (l *CreateFriendApplyLogic) checkParam(req *types.CreateFriendApplyReq) error {
 	if req.FriendUid == nil {
-		return resd.NewErrWithTempCtx(l.ctx, "", resd.ReqFieldRequired1, "friendUid")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数friendUid", resd.ReqFieldRequired1, "friendUid")
 	}
 	l.friendUid = strings.TrimSpace(*req.FriendUid)
 	if l.friendUid == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "", resd.ReqFieldEmpty1, "friendUid")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数friendUid", resd.ReqFieldEmpty1, "friendUid")
 	}
 	if req.ApplyMsg != nil {
 		l.applyMsg = strings.TrimSpace(*req.ApplyMsg)

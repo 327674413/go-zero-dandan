@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: social.proto
 
-package pb
+package socialRpc
 
 import (
 	context "context"
@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Social_CreateFriendApply_FullMethodName           = "/social.social/CreateFriendApply"
 	Social_OperateFriendApply_FullMethodName          = "/social.social/OperateFriendApply"
-	Social_GetUserFriendApplyPage_FullMethodName      = "/social.social/GetUserFriendApplyPage"
+	Social_GetUserRecvFriendApplyPage_FullMethodName  = "/social.social/GetUserRecvFriendApplyPage"
 	Social_GetUserFriendList_FullMethodName           = "/social.social/GetUserFriendList"
 	Social_GetFriendOnline_FullMethodName             = "/social.social/GetFriendOnline"
 	Social_GetUserRelation_FullMethodName             = "/social.social/GetUserRelation"
@@ -40,7 +40,7 @@ const (
 type SocialClient interface {
 	CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error)
 	OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
-	GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error)
+	GetUserRecvFriendApplyPage(ctx context.Context, in *GetUserRecvFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error)
 	GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
 	GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
 	GetUserRelation(ctx context.Context, in *GetUserRelationReq, opts ...grpc.CallOption) (*GetUserRelationResp, error)
@@ -79,9 +79,9 @@ func (c *socialClient) OperateFriendApply(ctx context.Context, in *OperateFriend
 	return out, nil
 }
 
-func (c *socialClient) GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error) {
+func (c *socialClient) GetUserRecvFriendApplyPage(ctx context.Context, in *GetUserRecvFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error) {
 	out := new(FriendApplyPageResp)
-	err := c.cc.Invoke(ctx, Social_GetUserFriendApplyPage_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Social_GetUserRecvFriendApplyPage_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (c *socialClient) GetGroupUserOnline(ctx context.Context, in *GetGroupUserO
 type SocialServer interface {
 	CreateFriendApply(context.Context, *CreateFriendApplyReq) (*CreateFriendApplyResp, error)
 	OperateFriendApply(context.Context, *OperateFriendApplyReq) (*ResultResp, error)
-	GetUserFriendApplyPage(context.Context, *GetUserFriendApplyPageReq) (*FriendApplyPageResp, error)
+	GetUserRecvFriendApplyPage(context.Context, *GetUserRecvFriendApplyPageReq) (*FriendApplyPageResp, error)
 	GetUserFriendList(context.Context, *GetUserFriendListReq) (*FriendListResp, error)
 	GetFriendOnline(context.Context, *GetFriendOnlineReq) (*FriendOnlineResp, error)
 	GetUserRelation(context.Context, *GetUserRelationReq) (*GetUserRelationResp, error)
@@ -208,8 +208,8 @@ func (UnimplementedSocialServer) CreateFriendApply(context.Context, *CreateFrien
 func (UnimplementedSocialServer) OperateFriendApply(context.Context, *OperateFriendApplyReq) (*ResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OperateFriendApply not implemented")
 }
-func (UnimplementedSocialServer) GetUserFriendApplyPage(context.Context, *GetUserFriendApplyPageReq) (*FriendApplyPageResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserFriendApplyPage not implemented")
+func (UnimplementedSocialServer) GetUserRecvFriendApplyPage(context.Context, *GetUserRecvFriendApplyPageReq) (*FriendApplyPageResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserRecvFriendApplyPage not implemented")
 }
 func (UnimplementedSocialServer) GetUserFriendList(context.Context, *GetUserFriendListReq) (*FriendListResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserFriendList not implemented")
@@ -290,20 +290,20 @@ func _Social_OperateFriendApply_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Social_GetUserFriendApplyPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserFriendApplyPageReq)
+func _Social_GetUserRecvFriendApplyPage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserRecvFriendApplyPageReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SocialServer).GetUserFriendApplyPage(ctx, in)
+		return srv.(SocialServer).GetUserRecvFriendApplyPage(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Social_GetUserFriendApplyPage_FullMethodName,
+		FullMethod: Social_GetUserRecvFriendApplyPage_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SocialServer).GetUserFriendApplyPage(ctx, req.(*GetUserFriendApplyPageReq))
+		return srv.(SocialServer).GetUserRecvFriendApplyPage(ctx, req.(*GetUserRecvFriendApplyPageReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -504,8 +504,8 @@ var Social_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Social_OperateFriendApply_Handler,
 		},
 		{
-			MethodName: "GetUserFriendApplyPage",
-			Handler:    _Social_GetUserFriendApplyPage_Handler,
+			MethodName: "GetUserRecvFriendApplyPage",
+			Handler:    _Social_GetUserRecvFriendApplyPage_Handler,
 		},
 		{
 			MethodName: "GetUserFriendList",

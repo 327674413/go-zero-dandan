@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: im.proto
 
-package pb
+package imRpc
 
 import (
 	context "context"

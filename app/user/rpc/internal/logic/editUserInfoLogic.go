@@ -5,7 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/app/user/rpc/internal/svc"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
 )
@@ -25,7 +25,7 @@ func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Edit
 	}
 }
 
-func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, error) {
+func (l *EditUserInfoLogic) EditUserInfo(in *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
 	userInfoModel := model.NewUserInfoModel(l.svcCtx.SqlConn, l.platId)
 	_, err := userInfoModel.WhereId(in.Id).Update(map[dao.TableField]any{
 		model.UserInfo_GraduateFrom: in.GraduateFrom,
@@ -43,7 +43,7 @@ func (l *EditUserInfoLogic) EditUserInfo(in *pb.EditUserInfoReq) (*pb.SuccResp, 
 		return nil, resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr)
 	}
 
-	return &pb.SuccResp{Code: 200}, nil
+	return &userRpc.SuccResp{Code: 200}, nil
 }
 
 func (l *EditUserInfoLogic) Plat(platId string) *EditUserInfoLogic {
@@ -51,6 +51,6 @@ func (l *EditUserInfoLogic) Plat(platId string) *EditUserInfoLogic {
 	return l
 }
 
-func (l *EditUserInfoLogic) rpcFail(err error) (*pb.SuccResp, error) {
+func (l *EditUserInfoLogic) rpcFail(err error) (*userRpc.SuccResp, error) {
 	return nil, resd.RpcErrEncode(err)
 }

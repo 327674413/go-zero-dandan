@@ -312,27 +312,37 @@ func (t *Redisd) SetDataExCtx(ctx context.Context, field string, key string, dat
 }
 
 // GetData 获取数据并且转json
-func (t *Redisd) GetData(field string, key string, targetStructPointer any) error {
+func (t *Redisd) GetData(field string, key string, targetStructPointer any) (isSucc bool, err error) {
 	str, err := t.Get(field, key)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if str == "" {
-		return nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		return false, nil
 	}
-	return json.Unmarshal([]byte(str), targetStructPointer)
+	err = json.Unmarshal([]byte(str), targetStructPointer)
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
 }
 
 // GetDataCtx 获取数据并且转json,带上下文
-func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targetStructPointer any) error {
+func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targetStructPointer any) (isSucc bool, err error) {
 	str, err := t.GetCtx(ctx, field, key)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if str == "" {
-		return nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		return false, nil
 	}
-	return json.Unmarshal([]byte(str), targetStructPointer)
+	err = json.Unmarshal([]byte(str), targetStructPointer)
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
 }
 
 // Exists 校验key是否存在

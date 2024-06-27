@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
 
@@ -26,7 +26,7 @@ func NewGetConversationsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 // GetConversations 获取会话
-func (l *GetConversationsLogic) GetConversations(in *pb.GetConversationsReq) (*pb.GetConversationsResp, error) {
+func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) (*imRpc.GetConversationsResp, error) {
 	//在用户会话关系表中，查询用户所有会话
 	logx.Info("1111")
 	data, err := l.svcCtx.ConversationsModel.FindByUserId(l.ctx, in.UserId)
@@ -35,12 +35,12 @@ func (l *GetConversationsLogic) GetConversations(in *pb.GetConversationsReq) (*p
 		if err == modelMongo.ErrNotFound {
 			logx.Info("333333")
 			//没有会话记录
-			return &pb.GetConversationsResp{}, nil
+			return &imRpc.GetConversationsResp{}, nil
 		}
 		logx.Info("444444")
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
-	res := &pb.GetConversationsResp{}
+	res := &imRpc.GetConversationsResp{}
 	err = copier.Copy(&res, data)
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())

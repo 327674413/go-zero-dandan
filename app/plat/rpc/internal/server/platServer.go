@@ -8,12 +8,12 @@ import (
 
 	"go-zero-dandan/app/plat/rpc/internal/logic"
 	"go-zero-dandan/app/plat/rpc/internal/svc"
-	"go-zero-dandan/app/plat/rpc/types/pb"
+	"go-zero-dandan/app/plat/rpc/types/platRpc"
 )
 
 type PlatServer struct {
 	svcCtx *svc.ServiceContext
-	pb.UnimplementedPlatServer
+	platRpc.UnimplementedPlatServer
 }
 
 func NewPlatServer(svcCtx *svc.ServiceContext) *PlatServer {
@@ -22,7 +22,7 @@ func NewPlatServer(svcCtx *svc.ServiceContext) *PlatServer {
 	}
 }
 
-func (s *PlatServer) GetOne(ctx context.Context, in *pb.IdReq) (*pb.PlatInfo, error) {
+func (s *PlatServer) GetOne(ctx context.Context, in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
 	l := logic.NewGetOneLogic(ctx, s.svcCtx)
 	return l.GetOne(in)
 }

@@ -55,6 +55,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*MessageSysConfig, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*MessageSysConfig, error)
 		Page(page int64, rows int64) *defaultMessageSysConfigModel
+		Total() (total int64, err error)
 		Select() ([]*MessageSysConfig, error)
 		SelectWithTotal() ([]*MessageSysConfig, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*MessageSysConfig, error)
@@ -208,7 +209,9 @@ func (m *defaultMessageSysConfigModel) CacheFindById(redis *redisd.Redisd, id st
 	}
 	return resp, nil
 }
-
+func (m *defaultMessageSysConfigModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultMessageSysConfigModel) Select() ([]*MessageSysConfig, error) {
 	resp := make([]*MessageSysConfig, 0)
 	err := m.dao.Select(&resp)

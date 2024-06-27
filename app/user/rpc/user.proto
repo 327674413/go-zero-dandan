@@ -59,6 +59,17 @@ message LoginResp{
   int64 expireAt = 3;
   UserMainInfo userInfo = 4;
 }
+
+message GetUserInfoReq{
+  repeated string ids = 1;
+  string platId = 2;
+}
+message UserNormalInfo{
+  UserMainInfo mainInfo = 1;
+}
+message GetUserNormalInfoResp{
+  map<string,UserNormalInfo> users = 1;
+}
 message UserMainInfo {
   string id = 1;
   string unionId = 2;
@@ -101,8 +112,9 @@ service user {
   rpc getUserByToken(TokenReq) returns(UserMainInfo);
   rpc editUserInfo(EditUserInfoReq) returns(SuccResp);
 
-  rpc RegByAccount(RegByAccountReq) returns (LoginResp);
-  rpc GetUserById(IdReq) returns (UserMainInfo);
-  rpc GetUserPage(GetUserPageReq) returns (GetUserPageResp);
-  rpc BindUnionUser(BindUnionUserReq) returns (BindUnionUserResp);
+  rpc regByAccount(RegByAccountReq) returns (LoginResp);
+  rpc getUserById(IdReq) returns (UserMainInfo);
+  rpc getUserPage(GetUserPageReq) returns (GetUserPageResp);
+  rpc bindUnionUser(BindUnionUserReq) returns (BindUnionUserResp);
+  rpc getUserNormalInfo(GetUserInfoReq) returns (GetUserNormalInfoResp);
 }

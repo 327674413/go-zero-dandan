@@ -5,7 +5,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/resd"
 )
@@ -25,7 +25,7 @@ func NewPutConversationsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 // PutConversations 更新会话
-func (l *PutConversationsLogic) PutConversations(in *pb.PutConversationsReq) (*pb.PutConversationsResp, error) {
+func (l *PutConversationsLogic) PutConversations(in *imRpc.PutConversationsReq) (*imRpc.PutConversationsResp, error) {
 	//获取用户的会话列表
 	data, err := l.svcCtx.ConversationsModel.FindByUserId(l.ctx, in.UserId)
 	if err != nil {
@@ -55,5 +55,5 @@ func (l *PutConversationsLogic) PutConversations(in *pb.PutConversationsReq) (*p
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
-	return &pb.PutConversationsResp{}, nil
+	return &imRpc.PutConversationsResp{}, nil
 }

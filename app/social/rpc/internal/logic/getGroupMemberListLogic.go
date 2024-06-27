@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,7 +24,7 @@ func NewGetGroupMemberListLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-func (l *GetGroupMemberListLogic) GetGroupMemberList(in *pb.GetGroupMemberListReq) (*pb.GroupMemberListResp, error) {
+func (l *GetGroupMemberListLogic) GetGroupMemberList(in *socialRpc.GetGroupMemberListReq) (*socialRpc.GroupMemberListResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
@@ -33,9 +33,9 @@ func (l *GetGroupMemberListLogic) GetGroupMemberList(in *pb.GetGroupMemberListRe
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
-	resp := &pb.GroupMemberListResp{List: make([]*pb.GroupMember, 0, len(list))}
+	resp := &socialRpc.GroupMemberListResp{List: make([]*socialRpc.GroupMember, 0, len(list))}
 	for _, item := range list {
-		resp.List = append(resp.List, &pb.GroupMember{
+		resp.List = append(resp.List, &socialRpc.GroupMember{
 			Id:           item.Id,
 			GroupId:      item.GroupId,
 			UserId:       item.UserId,
@@ -47,9 +47,9 @@ func (l *GetGroupMemberListLogic) GetGroupMemberList(in *pb.GetGroupMemberListRe
 			PlatId:       item.PlatId,
 		})
 	}
-	return &pb.GroupMemberListResp{}, nil
+	return &socialRpc.GroupMemberListResp{}, nil
 }
-func (l *GetGroupMemberListLogic) checkReqParams(in *pb.GetGroupMemberListReq) error {
+func (l *GetGroupMemberListLogic) checkReqParams(in *socialRpc.GetGroupMemberListReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

@@ -62,6 +62,7 @@ type (
 		CacheFind(redis *redisd.Redisd) (*SocialGroupMember, error)
 		CacheFindById(redis *redisd.Redisd, id string) (*SocialGroupMember, error)
 		Page(page int64, rows int64) *defaultSocialGroupMemberModel
+		Total() (total int64, err error)
 		Select() ([]*SocialGroupMember, error)
 		SelectWithTotal() ([]*SocialGroupMember, int64, error)
 		CacheSelect(redis *redisd.Redisd) ([]*SocialGroupMember, error)
@@ -222,7 +223,9 @@ func (m *defaultSocialGroupMemberModel) CacheFindById(redis *redisd.Redisd, id s
 	}
 	return resp, nil
 }
-
+func (m *defaultSocialGroupMemberModel) Total() (total int64, err error) {
+	return m.dao.Total()
+}
 func (m *defaultSocialGroupMemberModel) Select() ([]*SocialGroupMember, error) {
 	resp := make([]*SocialGroupMember, 0)
 	err := m.dao.Select(&resp)

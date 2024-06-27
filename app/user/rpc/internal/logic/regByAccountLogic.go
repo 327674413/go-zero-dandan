@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go-zero-dandan/app/user/model"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
@@ -11,10 +12,8 @@ import (
 	"go-zero-dandan/common/utild/copier"
 	"strings"
 
-	"go-zero-dandan/app/user/rpc/internal/svc"
-	"go-zero-dandan/app/user/rpc/types/pb"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/user/rpc/internal/svc"
 )
 
 type RegByAccountLogic struct {
@@ -31,7 +30,7 @@ func NewRegByAccountLogic(ctx context.Context, svcCtx *svc.ServiceContext) *RegB
 	}
 }
 
-func (l *RegByAccountLogic) RegByAccount(in *pb.RegByAccountReq) (*pb.LoginResp, error) {
+func (l *RegByAccountLogic) RegByAccount(in *userRpc.RegByAccountReq) (*userRpc.LoginResp, error) {
 	// 校验表单
 	account := strings.TrimSpace(in.Account)
 	if account == "" {
@@ -77,21 +76,21 @@ func (l *RegByAccountLogic) RegByAccount(in *pb.RegByAccountReq) (*pb.LoginResp,
 			return nil, resd.RpcErrEncode(resd.NewErrCtx(l.ctx, "缓存失败", resd.RedisSetErr))
 		}
 		userInfo.PlatId = in.PlatId
-		return &pb.LoginResp{
+		return &userRpc.LoginResp{
 			Id:       addData.Id,
 			Token:    token,
 			ExpireAt: nowStamp + int64(expireNum),
 			UserInfo: userInfo,
 		}, nil
 	} else {
-		return &pb.LoginResp{
+		return &userRpc.LoginResp{
 			Id: addData.Id,
 		}, nil
 	}
 
 }
 
-func (l *RegByAccountLogic) prepareUserMain(in *pb.RegByAccountReq) (*model.UserMain, error) {
+func (l *RegByAccountLogic) prepareUserMain(in *userRpc.RegByAccountReq) (*model.UserMain, error) {
 	addData := &model.UserMain{
 		StateEm: constd.UserStateEmNormal,
 	}

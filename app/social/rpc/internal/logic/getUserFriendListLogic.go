@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
 
@@ -25,7 +25,7 @@ func NewGetUserFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-func (l *GetUserFriendListLogic) GetUserFriendList(in *pb.GetUserFriendListReq) (*pb.FriendListResp, error) {
+func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendListReq) (*socialRpc.FriendListResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
@@ -39,16 +39,16 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *pb.GetUserFriendListReq) 
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
-	resp := &pb.FriendListResp{
-		List: make([]*pb.FriendInfo, 0),
+	resp := &socialRpc.FriendListResp{
+		List: make([]*socialRpc.FriendInfo, 0),
 	}
 	if err = copier.Copy(&resp.List, list); err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
 	return resp, nil
-	return &pb.FriendListResp{}, nil
+	return &socialRpc.FriendListResp{}, nil
 }
-func (l *GetUserFriendListLogic) checkReqParams(in *pb.GetUserFriendListReq) error {
+func (l *GetUserFriendListLogic) checkReqParams(in *socialRpc.GetUserFriendListReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

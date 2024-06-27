@@ -36,7 +36,9 @@ func (m *default{{.upperStartCamelObject}}Model) CacheFindById( redis *redisd.Re
     }
     return resp, nil
 }
-
+func (m *default{{.upperStartCamelObject}}Model) Total() (total int64,err error) {
+	return m.dao.Total()
+}
 func (m *default{{.upperStartCamelObject}}Model) Select() ([]*{{.upperStartCamelObject}},error) {
 	resp := make([]*{{.upperStartCamelObject}},0)
 	err := m.dao.Select(&resp)

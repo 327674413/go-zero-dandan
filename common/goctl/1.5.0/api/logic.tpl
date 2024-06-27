@@ -28,6 +28,9 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 	if err = l.initPlat(); err != nil {
     	return nil,resd.ErrorCtx(l.ctx,err)
     }
+    if err = l.initUser(); err != nil {
+        return nil,resd.ErrorCtx(l.ctx,err)
+    }
 
 	{{.returnString}}
 }

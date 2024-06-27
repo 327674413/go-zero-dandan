@@ -3,12 +3,11 @@ package logic
 import (
 	"context"
 	"go-zero-dandan/app/im/rpc/im"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/common/resd"
 
-	"go-zero-dandan/app/im/rpc/internal/svc"
-	"go-zero-dandan/app/im/rpc/types/pb"
-
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/im/rpc/internal/svc"
 )
 
 type GetChatLogLogic struct {
@@ -26,15 +25,15 @@ func NewGetChatLogLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetCha
 }
 
 // GetChatLog 获取会话记录
-func (l *GetChatLogLogic) GetChatLog(in *pb.GetChatLogReq) (*pb.GetChatLogResp, error) {
+func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLogResp, error) {
 	// 根据id
 	if in.MsgId != "" {
 		chatLog, err := l.svcCtx.ChatLogModel.FindOne(l.ctx, in.MsgId)
 		if err != nil {
 			return nil, resd.ErrorCtx(l.ctx, err)
 		}
-		return &pb.GetChatLogResp{
-			List: []*pb.ChatLog{
+		return &imRpc.GetChatLogResp{
+			List: []*imRpc.ChatLog{
 				{
 					Id:             chatLog.ID.Hex(),
 					SendTime:       chatLog.SendTime,
@@ -68,7 +67,7 @@ func (l *GetChatLogLogic) GetChatLog(in *pb.GetChatLogReq) (*pb.GetChatLogResp, 
 			ReadRecords:    item.ReadRecords,
 		})
 	}
-	return &pb.GetChatLogResp{
+	return &imRpc.GetChatLogResp{
 		List: list,
 	}, nil
 }

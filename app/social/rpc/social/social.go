@@ -6,48 +6,49 @@ package social
 import (
 	"context"
 
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	CreateFriendApplyReq           = pb.CreateFriendApplyReq
-	CreateFriendApplyResp          = pb.CreateFriendApplyResp
-	CreateGroupMemberApplyReq      = pb.CreateGroupMemberApplyReq
-	CreateGroupMemberApplyResp     = pb.CreateGroupMemberApplyResp
-	CreateGroupReq                 = pb.CreateGroupReq
-	CreateGroupResp                = pb.CreateGroupResp
-	FriendApply                    = pb.FriendApply
-	FriendApplyPageResp            = pb.FriendApplyPageResp
-	FriendInfo                     = pb.FriendInfo
-	FriendListResp                 = pb.FriendListResp
-	FriendOnlineResp               = pb.FriendOnlineResp
-	GetFriendOnlineReq             = pb.GetFriendOnlineReq
-	GetGroupMemberListReq          = pb.GetGroupMemberListReq
-	GetGroupUserOnlineReq          = pb.GetGroupUserOnlineReq
-	GetUserFriendApplyPageReq      = pb.GetUserFriendApplyPageReq
-	GetUserFriendListReq           = pb.GetUserFriendListReq
-	GetUserGroupListReq            = pb.GetUserGroupListReq
-	GetUserGroupMemberApplyListReq = pb.GetUserGroupMemberApplyListReq
-	GetUserRelationReq             = pb.GetUserRelationReq
-	GetUserRelationResp            = pb.GetUserRelationResp
-	GroupInfo                      = pb.GroupInfo
-	GroupListResp                  = pb.GroupListResp
-	GroupMember                    = pb.GroupMember
-	GroupMemberApply               = pb.GroupMemberApply
-	GroupMemberApplyListResp       = pb.GroupMemberApplyListResp
-	GroupMemberListResp            = pb.GroupMemberListResp
-	GroupUserOnlineResp            = pb.GroupUserOnlineResp
-	OperateFriendApplyReq          = pb.OperateFriendApplyReq
-	OperateGroupMemberApplyReq     = pb.OperateGroupMemberApplyReq
-	ResultResp                     = pb.ResultResp
+	CreateFriendApplyReq           = socialRpc.CreateFriendApplyReq
+	CreateFriendApplyResp          = socialRpc.CreateFriendApplyResp
+	CreateGroupMemberApplyReq      = socialRpc.CreateGroupMemberApplyReq
+	CreateGroupMemberApplyResp     = socialRpc.CreateGroupMemberApplyResp
+	CreateGroupReq                 = socialRpc.CreateGroupReq
+	CreateGroupResp                = socialRpc.CreateGroupResp
+	FriendApply                    = socialRpc.FriendApply
+	FriendApplyPageResp            = socialRpc.FriendApplyPageResp
+	FriendInfo                     = socialRpc.FriendInfo
+	FriendListResp                 = socialRpc.FriendListResp
+	FriendOnlineResp               = socialRpc.FriendOnlineResp
+	GetFriendOnlineReq             = socialRpc.GetFriendOnlineReq
+	GetGroupMemberListReq          = socialRpc.GetGroupMemberListReq
+	GetGroupUserOnlineReq          = socialRpc.GetGroupUserOnlineReq
+	GetUserFriendListReq           = socialRpc.GetUserFriendListReq
+	GetUserGroupListReq            = socialRpc.GetUserGroupListReq
+	GetUserGroupMemberApplyListReq = socialRpc.GetUserGroupMemberApplyListReq
+	GetUserRecvFriendApplyPageReq  = socialRpc.GetUserRecvFriendApplyPageReq
+	GetUserRelationReq             = socialRpc.GetUserRelationReq
+	GetUserRelationResp            = socialRpc.GetUserRelationResp
+	GroupInfo                      = socialRpc.GroupInfo
+	GroupListResp                  = socialRpc.GroupListResp
+	GroupMember                    = socialRpc.GroupMember
+	GroupMemberApply               = socialRpc.GroupMemberApply
+	GroupMemberApplyListResp       = socialRpc.GroupMemberApplyListResp
+	GroupMemberListResp            = socialRpc.GroupMemberListResp
+	GroupUserOnlineResp            = socialRpc.GroupUserOnlineResp
+	MatchField                     = socialRpc.MatchField
+	OperateFriendApplyReq          = socialRpc.OperateFriendApplyReq
+	OperateGroupMemberApplyReq     = socialRpc.OperateGroupMemberApplyReq
+	ResultResp                     = socialRpc.ResultResp
 
 	Social interface {
 		CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error)
 		OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error)
-		GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error)
+		GetUserRecvFriendApplyPage(ctx context.Context, in *GetUserRecvFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error)
 		GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error)
 		GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error)
 		GetUserRelation(ctx context.Context, in *GetUserRelationReq, opts ...grpc.CallOption) (*GetUserRelationResp, error)
@@ -72,66 +73,66 @@ func NewSocial(cli zrpc.Client) Social {
 }
 
 func (m *defaultSocial) CreateFriendApply(ctx context.Context, in *CreateFriendApplyReq, opts ...grpc.CallOption) (*CreateFriendApplyResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.CreateFriendApply(ctx, in, opts...)
 }
 
 func (m *defaultSocial) OperateFriendApply(ctx context.Context, in *OperateFriendApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.OperateFriendApply(ctx, in, opts...)
 }
 
-func (m *defaultSocial) GetUserFriendApplyPage(ctx context.Context, in *GetUserFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
-	return client.GetUserFriendApplyPage(ctx, in, opts...)
+func (m *defaultSocial) GetUserRecvFriendApplyPage(ctx context.Context, in *GetUserRecvFriendApplyPageReq, opts ...grpc.CallOption) (*FriendApplyPageResp, error) {
+	client := socialRpc.NewSocialClient(m.cli.Conn())
+	return client.GetUserRecvFriendApplyPage(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserFriendList(ctx context.Context, in *GetUserFriendListReq, opts ...grpc.CallOption) (*FriendListResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetUserFriendList(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetFriendOnline(ctx context.Context, in *GetFriendOnlineReq, opts ...grpc.CallOption) (*FriendOnlineResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetFriendOnline(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserRelation(ctx context.Context, in *GetUserRelationReq, opts ...grpc.CallOption) (*GetUserRelationResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetUserRelation(ctx, in, opts...)
 }
 
 func (m *defaultSocial) CreateGroup(ctx context.Context, in *CreateGroupReq, opts ...grpc.CallOption) (*CreateGroupResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.CreateGroup(ctx, in, opts...)
 }
 
 func (m *defaultSocial) CreateGroupMemberApply(ctx context.Context, in *CreateGroupMemberApplyReq, opts ...grpc.CallOption) (*CreateGroupMemberApplyResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.CreateGroupMemberApply(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserGroupMemberApplyList(ctx context.Context, in *GetUserGroupMemberApplyListReq, opts ...grpc.CallOption) (*GroupMemberApplyListResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetUserGroupMemberApplyList(ctx, in, opts...)
 }
 
 func (m *defaultSocial) OperateGroupMemberApply(ctx context.Context, in *OperateGroupMemberApplyReq, opts ...grpc.CallOption) (*ResultResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.OperateGroupMemberApply(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetUserGroupList(ctx context.Context, in *GetUserGroupListReq, opts ...grpc.CallOption) (*GroupListResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetUserGroupList(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetGroupMemberList(ctx context.Context, in *GetGroupMemberListReq, opts ...grpc.CallOption) (*GroupMemberListResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetGroupMemberList(ctx, in, opts...)
 }
 
 func (m *defaultSocial) GetGroupUserOnline(ctx context.Context, in *GetGroupUserOnlineReq, opts ...grpc.CallOption) (*GroupUserOnlineResp, error) {
-	client := pb.NewSocialClient(m.cli.Conn())
+	client := socialRpc.NewSocialClient(m.cli.Conn())
 	return client.GetGroupUserOnline(ctx, in, opts...)
 }

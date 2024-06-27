@@ -3,7 +3,7 @@ package logic
 import (
 	"context"
 	"go-zero-dandan/app/social/rpc/internal/svc"
-	"go-zero-dandan/app/social/rpc/types/pb"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -23,14 +23,14 @@ func NewCreateGroupMemberApplyLogic(ctx context.Context, svcCtx *svc.ServiceCont
 	}
 }
 
-func (l *CreateGroupMemberApplyLogic) CreateGroupMemberApply(in *pb.CreateGroupMemberApplyReq) (*pb.CreateGroupMemberApplyResp, error) {
+func (l *CreateGroupMemberApplyLogic) CreateGroupMemberApply(in *socialRpc.CreateGroupMemberApplyReq) (*socialRpc.CreateGroupMemberApplyResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
 
-	return &pb.CreateGroupMemberApplyResp{}, nil
+	return &socialRpc.CreateGroupMemberApplyResp{}, nil
 }
-func (l *CreateGroupMemberApplyLogic) checkReqParams(in *pb.CreateGroupMemberApplyReq) error {
+func (l *CreateGroupMemberApplyLogic) checkReqParams(in *socialRpc.CreateGroupMemberApplyReq) error {
 	if in.PlatId == "" {
 		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
 	}

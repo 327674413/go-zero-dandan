@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: user.proto
 
-package pb
+package userRpc
 
 import (
 	context "context"
@@ -19,12 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_GetUserByToken_FullMethodName = "/user.user/getUserByToken"
-	User_EditUserInfo_FullMethodName   = "/user.user/editUserInfo"
-	User_RegByAccount_FullMethodName   = "/user.user/RegByAccount"
-	User_GetUserById_FullMethodName    = "/user.user/GetUserById"
-	User_GetUserPage_FullMethodName    = "/user.user/GetUserPage"
-	User_BindUnionUser_FullMethodName  = "/user.user/BindUnionUser"
+	User_GetUserByToken_FullMethodName    = "/user.user/getUserByToken"
+	User_EditUserInfo_FullMethodName      = "/user.user/editUserInfo"
+	User_RegByAccount_FullMethodName      = "/user.user/regByAccount"
+	User_GetUserById_FullMethodName       = "/user.user/getUserById"
+	User_GetUserPage_FullMethodName       = "/user.user/getUserPage"
+	User_BindUnionUser_FullMethodName     = "/user.user/bindUnionUser"
+	User_GetUserNormalInfo_FullMethodName = "/user.user/getUserNormalInfo"
 )
 
 // UserClient is the client API for User service.
@@ -37,6 +38,7 @@ type UserClient interface {
 	GetUserById(ctx context.Context, in *IdReq, opts ...grpc.CallOption) (*UserMainInfo, error)
 	GetUserPage(ctx context.Context, in *GetUserPageReq, opts ...grpc.CallOption) (*GetUserPageResp, error)
 	BindUnionUser(ctx context.Context, in *BindUnionUserReq, opts ...grpc.CallOption) (*BindUnionUserResp, error)
+	GetUserNormalInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserNormalInfoResp, error)
 }
 
 type userClient struct {
@@ -101,6 +103,15 @@ func (c *userClient) BindUnionUser(ctx context.Context, in *BindUnionUserReq, op
 	return out, nil
 }
 
+func (c *userClient) GetUserNormalInfo(ctx context.Context, in *GetUserInfoReq, opts ...grpc.CallOption) (*GetUserNormalInfoResp, error) {
+	out := new(GetUserNormalInfoResp)
+	err := c.cc.Invoke(ctx, User_GetUserNormalInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -111,6 +122,7 @@ type UserServer interface {
 	GetUserById(context.Context, *IdReq) (*UserMainInfo, error)
 	GetUserPage(context.Context, *GetUserPageReq) (*GetUserPageResp, error)
 	BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error)
+	GetUserNormalInfo(context.Context, *GetUserInfoReq) (*GetUserNormalInfoResp, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -135,6 +147,9 @@ func (UnimplementedUserServer) GetUserPage(context.Context, *GetUserPageReq) (*G
 }
 func (UnimplementedUserServer) BindUnionUser(context.Context, *BindUnionUserReq) (*BindUnionUserResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BindUnionUser not implemented")
+}
+func (UnimplementedUserServer) GetUserNormalInfo(context.Context, *GetUserInfoReq) (*GetUserNormalInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserNormalInfo not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -257,6 +272,24 @@ func _User_BindUnionUser_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetUserNormalInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetUserNormalInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetUserNormalInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetUserNormalInfo(ctx, req.(*GetUserInfoReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -273,20 +306,24 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_EditUserInfo_Handler,
 		},
 		{
-			MethodName: "RegByAccount",
+			MethodName: "regByAccount",
 			Handler:    _User_RegByAccount_Handler,
 		},
 		{
-			MethodName: "GetUserById",
+			MethodName: "getUserById",
 			Handler:    _User_GetUserById_Handler,
 		},
 		{
-			MethodName: "GetUserPage",
+			MethodName: "getUserPage",
 			Handler:    _User_GetUserPage_Handler,
 		},
 		{
-			MethodName: "BindUnionUser",
+			MethodName: "bindUnionUser",
 			Handler:    _User_BindUnionUser_Handler,
+		},
+		{
+			MethodName: "getUserNormalInfo",
+			Handler:    _User_GetUserNormalInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
