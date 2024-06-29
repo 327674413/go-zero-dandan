@@ -1,6 +1,7 @@
 AuthUserNotLoginErr = "您还未登录"
 AuthPlatErr = "无效应用"
 SysErr = "遇到了点小问题"
+DataBizErr = "业务数据异常"
 
 CopierErr = "内部数据格式转换失败"
 NotFound1 = "{{.Field1}}不存在"

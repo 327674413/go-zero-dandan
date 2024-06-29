@@ -106,14 +106,19 @@ message CreateFriendApplyReq {
   string friendUid = 3;
   string applyMsg = 4;
   int64  applyAt = 5;
+  int64  sourceEm = 6;
 }
 message CreateFriendApplyResp {
   string applyId = 1;
 }
 message OperateFriendApplyReq {
   string  applyId = 1;
-  int64 processStateEm = 3; // 处理结果
+  string operateUid = 2;
+  int64 operateStateEm = 3;
   string platId = 4;
+  string operateMsg = 5;
+  string sysRoleEm = 6;
+  string sysRoleUid = 7;
 }
 
 message GetUserRecvFriendApplyPageReq{

@@ -52,7 +52,6 @@ func genTypes(dir string, cfg *config.Config, api *spec.ApiSpec) error {
 	typeFilename = typeFilename + ".go"
 	filename := path.Join(dir, typesDir, typeFilename)
 	os.Remove(filename)
-
 	return genFile(fileGenConfig{
 		dir:             dir,
 		subdir:          typesDir,

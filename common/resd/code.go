@@ -7,6 +7,8 @@ const (
 	Auth                            = 400   //权限异常
 	AuthPlatErr                     = 40101 // 无效应用
 	AuthUserNotLoginErr             = 40201 // 用户未登录
+	AuthOperateUserErr              = 40301 //用户无操作权限
+	AuthOperateStateErr             = 40302 //数据状态不允许操作
 	SysErr                          = 500   //系统异常
 	UserMainInfoErr                 = 50001 //系统异常
 	MysqlErr                        = 501   //mysql异常
@@ -26,13 +28,14 @@ const (
 	RedisSetVerifyCodeIntervalErr   = 502010002
 	RedisSetUserLoginStateErr       = 502010003
 	RedisGetUserTokenErr            = 502020001
+	DataBizErr                      = 503 //业务数据异常
 	CopierErr                       = 521 //工具类失败
 	RpcResDecodeErr                 = 510
 	ReqKeyRequired                  = 600   //未提供主键
 	ReqFieldRequired1               = 601   //未提供比必填字段
 	ReqFieldEmpty1                  = 60101 //参数不得为空值
 	ReqParamErr                     = 602   //请求参数不正确
-	ReqParamFormatErr1              = 60201 //参数格式不正确
+	ReqParamFormatErr1              = 60201 //参数不符合要求
 	ConfigNotInit1                  = 603   //未配置参数
 	PlatInvalid                     = 604   //无效应用
 	PlatIdErr                       = 60400001

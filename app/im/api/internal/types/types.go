@@ -71,7 +71,8 @@ type ResultResp struct {
 
 type CreateFriendApplyReq struct {
 	ApplyMsg  *string `json:"applyMsg,optional"`
-	FriendUid *string `json:"friendUid,optional"`
+	FriendUid *string `json:"friendUid,optional" check:"required"`
+	SourceEm  *int64  `json:"sourceEm,optional" check:"required"`
 }
 
 type CreateGroupReq struct {
@@ -83,8 +84,9 @@ type CreateGroupResp struct {
 }
 
 type OperateMyRecvFriendApplyReq struct {
-	ApplyId *string `json:"applyId"`
-	StateEm *int64  `json:"stateEm"` // 处理结果
+	ApplyId        *string `json:"applyId,optional" check:"required"`
+	OperateStateEm *int64  `json:"operateStateEm,optional" check:"required"`
+	OperateMsg     *string `json:"operaeteMsg,optional"`
 }
 
 type CreateGroupMemberApplyReq struct {
@@ -95,7 +97,7 @@ type CreateGroupMemberApplyReq struct {
 }
 
 type CreateGroupMemberApplyResp struct {
-	ApplyId string `json:"applyId"`
+	ApplyId *string `json:"applyId,optional"`
 }
 
 type OperateGroupMemberApplyReq struct {

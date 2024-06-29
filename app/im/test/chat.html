@@ -24,7 +24,6 @@
         .friend-new{padding:10px 20px;border-bottom: 1px solid #e0e0e0;}
         .friend-new-num{flex:0 0 25px;width:25px;height:25px;background: #f56c6c;border-radius: 50%;color:#fff;font-size: 12px;}
         .friend-item{padding:10px;}
-        .friend-item:hover{cursor: pointer;}
         .friend-avatar{flex:0 0 32px;margin-right:6px;border-radius: 6px;width:32px;height:32px;}
         .friend-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
         .friend-name{font-size: 15px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
@@ -96,7 +95,7 @@
                         <div class="fc friend-new-num" v-if="friendNewNum > 0">{{friendNewNum > 99 ? '99+':friendNewNum}}</div>
                     </div>
                     <div class="friend-list">
-                        <div class="fl friend-item" v-for="item in friendListCpd" :key="item.id">
+                        <div class="fl btn friend-item" v-for="item in friendListCpd" :key="item.id">
                             <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
                             <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
                             <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
@@ -134,9 +133,9 @@
                     </div>
                     <el-tag effect="plain" class="btn" v-if="item.stateEm == 0" @click="tapCreateAddFriendApply(item)">添加</el-tag>
                     <el-tag effect="plain" class="btn" v-if="item.stateEm == 1" @click="tapCreateAddFriendApply(item)">待验证</el-tag>
-                    <el-tag type="warning" class="btn" v-if="item.stateEm == 99" >本人</el-tag>
-                    <el-tag type="success" effect="plain" class="btn" v-if="item.stateEm == 2">好友</el-tag>
-                    <el-tag type="info" class="btn" v-if="item.stateEm == -2">黑名单</el-tag>
+                    <el-tag type="warning"  v-if="item.stateEm == 99" >本人</el-tag>
+                    <el-tag type="success" effect="plain" v-if="item.stateEm == 2">好友</el-tag>
+                    <el-tag type="info" v-if="item.stateEm == -2">黑名单</el-tag>
                 </div>
                 <div class="fc search-result" v-if="friendAddSearchListState != ''">
                     <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
@@ -161,7 +160,8 @@
                         <el-tag type="danger" style="margin-left:10px;" effect="plain" class="btn"  @click="tapOperateFriendApply(index,-1)">拒绝</el-tag>
                     </div>
 
-                    <el-tag effect="plain" class="btn" v-if="item.stateEm == 2">已通过</el-tag>
+                    <el-tag effect="plain" type="success"  v-if="item.stateEm == 2">已通过</el-tag>
+                    <el-tag effect="plain" type="info" v-if="item.stateEm == -2">已拒绝</el-tag>
                 </div>
                 <div class="fc search-result" v-if="recvFriendApplyListState != ''">
                     <div v-loading="loading" class="fc search-loading" v-if="recvFriendApplyListState == 'loading'"></div>
@@ -304,8 +304,8 @@
             tapOperateFriendApply(index,state){
                 if (state == 1) {
                     this.operateFriendApply(index,{
-                        applyId:this.recvFriendApplyList[index].applyId,
-                        stateEm:2,
+                        applyId:this.recvFriendApplyList[index].id,
+                        operateStateEm:2,
                     })
                 } else {
                     this.$prompt('请输入拒绝原因', '拒绝好友申请-'+this.recvFriendApplyList[index].userName, {
@@ -314,8 +314,9 @@
                         closeOnClickModal: false
                     }).then(({ value }) => {
                         this.operateFriendApply(index,{
-                            applyId:this.recvFriendApplyList[index].applyId,
-                            stateEm:-2,
+                            applyId:this.recvFriendApplyList[index].id,
+                            operateStateEm:-2,
+                            operateMsg:value
                         })
                     })
                 }
@@ -330,7 +331,7 @@
                     loading:'提交中',
                     data
                 }).then(res=>{
-                    this.recvFriendApplyList[index].stateEm = data.stateEm
+                    this.recvFriendApplyList[index].stateEm = data.operateStateEm
                     tool.toastSucc('提交成功')
                 })
             },
@@ -349,7 +350,8 @@
                         loading:'提交中',
                         data:{
                             applyMsg:value,
-                            friendUid:friend.id
+                            friendUid:friend.id,
+                            sourceEm:1,// 1根据手机号搜索
                         }
                     }).then(res=>{
                         tool.toastSucc('提交成功')

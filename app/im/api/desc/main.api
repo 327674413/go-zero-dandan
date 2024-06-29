@@ -70,7 +70,8 @@ type ResultResp{
 type (
 	CreateFriendApplyReq {
 		ApplyMsg  *string `json:"applyMsg,optional"`
-		FriendUid  *string `json:"friendUid,optional"`
+		FriendUid  *string `json:"friendUid,optional" check:"required"`
+		SourceEm  *int64 `json:"sourceEm,optional" check:"required"`
 	}
 	CreateGroupReq {
 		Name *string `json:"name,optional"`
@@ -79,8 +80,9 @@ type (
 		GroupId *string `json:"groupId,optional"`
 	}
 	OperateMyRecvFriendApplyReq {
-		ApplyId  *string `json:"applyId"`
-		stateEm *int64 `json:"stateEm"` // 处理结果
+		ApplyId  *string `json:"applyId,optional" check:"required"`
+		OperateStateEm *int64 `json:"operateStateEm,optional" check:"required"`
+		OperateMsg *string `json:"operaeteMsg,optional"`
 	}
 	CreateGroupMemberApplyReq {
 		GroupId    *string `json:"groupId,optional"`
@@ -89,7 +91,7 @@ type (
 		SourceEm *int64  `json:"sourceEm,optional"`
 	}
 	CreateGroupMemberApplyResp {
-		ApplyId string `json:"applyId"`
+		ApplyId *string `json:"applyId,optional"`
 	}
 	OperateGroupMemberApplyReq {
 		ApplyId   *string  `json:"applyId,optional"`

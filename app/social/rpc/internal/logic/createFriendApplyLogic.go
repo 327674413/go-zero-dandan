@@ -3,9 +3,9 @@ package logic
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/social/model"
+	"go-zero-dandan/app/social/rpc/biz"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/constd"
@@ -29,42 +29,82 @@ func NewCreateFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 	}
 }
 
-type applyContent struct {
-	UserId string `json:"userId"`
-	TimeAt int64  `json:"timeAt"`
-	Text   string `json:"text"`
-}
-
 func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApplyReq) (*socialRpc.CreateFriendApplyResp, error) {
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
 	friendModel := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
-	//查询我加对方
+	//我申请别人为好友，UserId是我，FriendUid是好友
+	//查询我-对方好友数据
 	existSelf, err := friendModel.Where("user_id = ? and friend_uid = ?", in.UserId, in.FriendUid).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
-	//查询对方加我
+	//查询对方-我好友数据
 	existFriend, err := friendModel.Where("friend_uid = ? and user_id = ?", in.UserId, in.FriendUid).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
-	//如果我加了对方
+	//分析我-对方的关系
 	if existSelf != nil {
-		//如果我加对方是好友， 对方加我也是好友
+		//如果我-对方是好友 并且 对方-我也是好友
 		if existSelf.StateEm == constd.SocialFriendStateEmPass && existFriend != nil && existFriend.StateEm == constd.SocialFriendStateEmPass {
 			return nil, resd.NewRpcErrCtx(l.ctx, "已经是好友", resd.SocialAlreadyFriend)
 		}
-	} else if existFriend != nil {
-		//我没有加对方，但对方有加我
-		//我被拉黑
+	}
+	//分析对方-我的关系
+	if existFriend != nil {
+		//对方拉黑了我，不允许申请
 		if existFriend.StateEm == constd.SocialFriendStateEmBlack {
 			return nil, resd.NewRpcErrCtx(l.ctx, "对方把你拉黑", resd.SocialAlreadyBlackMe)
 		}
-		//我还是对方好友
+		//对方还是我的好友，而我不是对方好友
 		if existFriend.StateEm == constd.SocialFriendStateEmPass {
 			//先当作还是要对方点同意来弄，所以先不用处理
+		}
+	}
+	//基础校验完成，可以添加，开启事务
+	tx, err := dao.StartTrans(l.svcCtx.SqlConn, l.ctx)
+	if err != nil {
+		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlStartTransErr)
+	}
+	//确保有我 - 对方的关系
+	if existSelf == nil {
+		// 不存在，创建
+		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
+			Id:        utild.MakeId(),
+			UserId:    in.UserId,
+			FriendUid: in.FriendUid,
+			StateEm:   constd.SocialFriendStateEmApply,
+		}); err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "创建我的好友申请失败", resd.MysqlInsertErr)
+		}
+	} else {
+		//存在，更新我 - 对方的状态
+		if _, err = friendModel.WhereId(existSelf.Id).TxUpdate(tx, map[dao.TableField]any{
+			model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
+		}); err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "更新我的好友表失败", resd.MysqlUpdateErr)
+		}
+
+	}
+	//确保有对方 - 我的关系
+	if existFriend == nil {
+		//不存在，创建
+		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
+			Id:        utild.MakeId(),
+			UserId:    in.FriendUid,
+			FriendUid: in.UserId,
+			StateEm:   constd.SocialFriendStateEmApply,
+		}); err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "创建对方申请失败", resd.MysqlInsertErr)
+		}
+	} else {
+		//存在，更新 对我 - 我的状态
+		if _, err = friendModel.WhereId(existFriend.Id).TxUpdate(tx, map[dao.TableField]any{
+			model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
+		}); err != nil {
+			return nil, resd.NewRpcErrCtx(l.ctx, "更新对方的好友表失败", resd.MysqlUpdateErr)
 		}
 	}
 
@@ -78,40 +118,23 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if existApply != nil {
 		//存在申请，更新与添加申请消息
 		applyId = existApply.Id
-		msgList := make([]*applyContent, 0)
-		if existApply.Content.String != "" {
-			_ = json.Unmarshal([]byte(existApply.Content.String), &msgList)
-		}
-		msgList = append([]*applyContent{
-			{
-				UserId: in.UserId,
-				TimeAt: time.Now().Unix(),
-				Text:   in.ApplyMsg,
-			},
-		}, msgList...)
-		newContent, _ := json.Marshal(msgList)
-		_, err = applyModel.WhereId(applyId).Update(map[dao.TableField]any{
+		newContent := biz.AddApplyRecord(existApply.Content.String, in.UserId, in.ApplyMsg, in.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+		if _, err = applyModel.WhereId(applyId).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
 			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
 			model.SocialFriendApply_IsRead:       0,
-			model.SocialFriendApply_Content:      string(newContent),
+			model.SocialFriendApply_Content:      newContent,
 			model.SocialFriend_StateEm:           constd.SocialFriendStateEmApply,
-		})
-		if err != nil {
+			model.SocialFriend_SourceEm:          in.SourceEm,
+		}); err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "添加好友申请失败", resd.MysqlUpdateErr)
 		}
+
 	} else {
 		//不存在申请，创建新申请
 		applyId = utild.MakeId()
-		msgList := []*applyContent{
-			{
-				UserId: in.UserId,
-				TimeAt: time.Now().Unix(),
-				Text:   in.ApplyMsg,
-			},
-		}
-		newContent, _ := json.Marshal(msgList)
-		_, err = applyModel.Insert(&model.SocialFriendApply{
+		newContent := biz.AddApplyRecord("", in.UserId, in.ApplyMsg, in.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+		if _, err = applyModel.TxInsert(tx, &model.SocialFriendApply{
 			Id:           applyId,
 			UserId:       in.UserId,
 			FriendUid:    in.FriendUid,
@@ -119,16 +142,19 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 			ApplyLastAt:  time.Now().Unix(),
 			ApplyStartAt: time.Now().Unix(),
 			StateEm:      constd.SocialFriendStateEmApply,
+			SourceEm:     in.SourceEm,
 			Content: sql.NullString{
-				String: string(newContent),
+				String: newContent,
 				Valid:  true,
 			},
-		})
-		if err != nil {
+		}); err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "创建好友申请失败", resd.MysqlInsertErr)
 		}
-	}
 
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlCommitErr)
+	}
 	return &socialRpc.CreateFriendApplyResp{
 		ApplyId: applyId,
 	}, nil

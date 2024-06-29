@@ -36,6 +36,7 @@ const (
 	SocialFriendApply_StateEm      dao.TableField = "state_em"
 	SocialFriendApply_Remark       dao.TableField = "remark"
 	SocialFriendApply_IsRead       dao.TableField = "is_read"
+	SocialFriendApply_SourceEm     dao.TableField = "source_em"
 	SocialFriendApply_PlatId       dao.TableField = "plat_id"
 	SocialFriendApply_Content      dao.TableField = "content"
 	SocialFriendApply_CreateAt     dao.TableField = "create_at"
@@ -104,7 +105,8 @@ type (
 		OperateAt    int64          `db:"operate_at"`     // 处理时间戳
 		StateEm      int64          `db:"state_em"`       // 申请状态
 		Remark       string         `db:"remark"`         // 备注
-		IsRead       int64          `db:"is_read"`        // apply_uid被申请人是否已读
+		IsRead       int64          `db:"is_read"`        // friend_uid被申请人是否已读
+		SourceEm     int64          `db:"source_em"`      // 来源枚举
 		PlatId       string         `db:"plat_id"`        // 应用id
 		Content      sql.NullString `db:"content"`        // 添加沟通记录
 		CreateAt     int64          `db:"create_at"`      // 创建时间戳

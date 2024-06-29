@@ -60,7 +60,7 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 		whereData:          make([]any, 0),
 		joinTables:         make([]string, 0),
 		defaultQuerySize:   10,
-		maxQuerySize:       99999,
+		maxQuerySize:       1000, //有些查询通过where in组装，gpt是说超过1000 - 2000最优，1000页够用，选1000
 		emptyQueryCacheSec: 0,
 		defaultCacheSec:    0, //默认0，永久不失效
 	}
@@ -222,10 +222,8 @@ func (t *SqlxDao) getWhereParam() string {
 	return where
 }
 func (t *SqlxDao) getPageParam() string {
-	if t.querySize == 0 {
+	if t.querySize <= 0 {
 		t.querySize = t.defaultQuerySize
-	} else if t.querySize > t.maxQuerySize {
-		t.querySize = t.maxQuerySize
 	}
 	if t.queryPage <= 0 {
 		t.queryPage = 1
@@ -304,7 +302,7 @@ func (t *SqlxDao) Total() (int64, error) {
 	return total, nil
 }
 
-// Select 查询所有数据,需传入目标结构体切片的指针
+// Select 查询所有数据，有默认最大条数限制，需传入目标结构体切片的指针
 func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	defer t.Reinit()
 	err := t.validate()
@@ -315,6 +313,7 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	tableParam := t.getTableParam()
 	whereParam := t.getWhereParam()
 	pageParam := t.getPageParam()
+
 	orderSql := ""
 	if t.orderSql != "" {
 		orderSql = " ORDER BY " + t.orderSql
@@ -348,6 +347,7 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	}
 	return nil
 }
+
 func (t *SqlxDao) getSelectCacheKey() (cacheField string, cacheKey string) {
 	cacheField = t.getCachePrefixField()
 	if t.queryPage > 0 {
@@ -360,7 +360,7 @@ func (t *SqlxDao) getSelectCacheKey() (cacheField string, cacheKey string) {
 	return cacheField, cacheKey
 }
 
-// CacheSelect 缓存查数据
+// CacheSelect 缓存查数据，有默认条数上限
 func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 	defer t.Reinit()
 	if targetStructPtr == nil {
@@ -572,10 +572,15 @@ func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
 	return affectedRow, nil
 }
 
-// Page 设置当前查询第几页，查多少行
+// Page 设置当前查询第几页，查多少行, 有默认最大条数限制，防止c端分野查询参数直接用查太多，后端的select查询就不管了，自己注意
 func (t *SqlxDao) Page(page int64, size int64) *SqlxDao {
+	if size > t.maxQuerySize {
+		t.querySize = t.maxQuerySize
+	} else {
+		t.querySize = size
+	}
 	t.queryPage = page
-	t.querySize = size
+
 	return t
 }
 
