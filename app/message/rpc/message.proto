@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 // protoc-gen-go 版本大于1.4.0, proto文件需要加上go_package,否则无法生成
-option go_package = "./pb";
+option go_package = "./messageRpc";
 
 package message;
 
@@ -9,7 +9,20 @@ message SendPhoneReq {
   string phone = 1;
   string phoneArea = 2;
   repeated string tempData = 3;
-  int64 tempId = 4;
+  string tempId = 4;
+}
+message SendImReq {
+  string channelId = 1;
+  int64 chatType=2;
+  string sendUid=4;
+  string recvUid =5;
+  repeated string recvUids=6;
+  int64 sendAt=7;
+  int64 msgType=8;
+  string content=9;
+  string platId=10;
+  string msgId=11;
+  int64 contentType=12;
 }
 message SuccResp{
   //交易状态，默认200
@@ -21,5 +34,8 @@ message SuccResp{
 
 service message {
   rpc sendPhone(SendPhoneReq) returns(SuccResp);
-  rpc sendSMSAsync(SendPhoneReq) returns(SuccResp);
+  rpc sendPhoneAsync(SendPhoneReq) returns(SuccResp);
+
+  rpc sendIm(SendImReq) returns(SuccResp);
+  rpc sendImAsync(SendImReq) returns(SuccResp);
 }

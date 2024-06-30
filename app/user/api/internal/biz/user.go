@@ -9,7 +9,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 	"go-zero-dandan/app/user/model"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -100,7 +100,7 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 	} else {
 		_, rpcErr := t.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
 			Phone:    phone,
-			TempId:   1,
+			TempId:   "1",
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
@@ -131,7 +131,7 @@ func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error)
 	s := fmt.Sprintf("%d-%d-%d", userInfo.Id, utild.GetStamp(), utild.Rand(11111, 99999))
 	token := utild.Sha256(s)
 	// 因userInfo的id转json是字符串，rpc取出来转化int64会报错，这里用rpc的结构体来缓存
-	cacheData := &pb.UserMainInfo{
+	cacheData := &userRpc.UserMainInfo{
 		Id:        userInfo.Id,
 		UnionId:   userInfo.UnionId,
 		Account:   userInfo.Account,
@@ -140,7 +140,7 @@ func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error)
 		PhoneArea: userInfo.PhoneArea,
 		SexEm:     userInfo.SexEm,
 		Email:     userInfo.Email,
-		Avatar:    userInfo.Avatar,
+		AvatarImg: userInfo.Avatar,
 		PlatId:    userInfo.PlatId,
 	}
 	err := t.svcCtx.Redis.SetDataExCtx(t.ctx, "userToken", token, cacheData, t.svcCtx.Config.Conf.LoginTokenExSec)
@@ -149,7 +149,7 @@ func (t *UserBiz) CreateLoginState(userInfo *types.UserInfoResp) (string, error)
 	}
 	return token, nil
 }
-func (t *UserBiz) EditUserInfo(editUserInfoReq *pb.EditUserInfoReq) error {
+func (t *UserBiz) EditUserInfo(editUserInfoReq *userRpc.EditUserInfoReq) error {
 	userRpc := t.svcCtx.UserRpc
 	_, err := userRpc.EditUserInfo(t.ctx, editUserInfoReq)
 	if err != nil {

@@ -6,19 +6,22 @@ package message
 import (
 	"context"
 
-	"go-zero-dandan/app/message/rpc/types/pb"
+	"go-zero-dandan/app/message/rpc/types/messageRpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
 	"google.golang.org/grpc"
 )
 
 type (
-	SendPhoneReq = pb.SendPhoneReq
-	SuccResp     = pb.SuccResp
+	SendImReq    = messageRpc.SendImReq
+	SendPhoneReq = messageRpc.SendPhoneReq
+	SuccResp     = messageRpc.SuccResp
 
 	Message interface {
 		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
-		SendSMSAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
+		SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
+		SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
+		SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
 	}
 
 	defaultMessage struct {
@@ -33,11 +36,21 @@ func NewMessage(cli zrpc.Client) Message {
 }
 
 func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	client := pb.NewMessageClient(m.cli.Conn())
+	client := messageRpc.NewMessageClient(m.cli.Conn())
 	return client.SendPhone(ctx, in, opts...)
 }
 
-func (m *defaultMessage) SendSMSAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	client := pb.NewMessageClient(m.cli.Conn())
-	return client.SendSMSAsync(ctx, in, opts...)
+func (m *defaultMessage) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
+	client := messageRpc.NewMessageClient(m.cli.Conn())
+	return client.SendPhoneAsync(ctx, in, opts...)
+}
+
+func (m *defaultMessage) SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
+	client := messageRpc.NewMessageClient(m.cli.Conn())
+	return client.SendIm(ctx, in, opts...)
+}
+
+func (m *defaultMessage) SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
+	client := messageRpc.NewMessageClient(m.cli.Conn())
+	return client.SendImAsync(ctx, in, opts...)
 }

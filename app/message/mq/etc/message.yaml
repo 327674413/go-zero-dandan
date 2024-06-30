@@ -1,8 +1,5 @@
 Name: message-mq
-Host: 0.0.0.0
-Port: 8806
 Mode: dev
-
 KqConsumerConf:
   Name: message-kq-consumer
   Brokers:

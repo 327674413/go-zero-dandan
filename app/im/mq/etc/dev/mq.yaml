@@ -5,6 +5,14 @@ Etcd:
   Hosts:
     - 127.0.0.1:2379
   Key: im.mq
+MessageImSend:
+  Name: MessageImSend
+  Brokers:
+    - 127.0.0.1:9092
+  Group: kafka
+  Topic: messageImSend
+  Offset: first
+  Consumers: 1
 MsgChatTransfer:
   Name: MsgChatTransfer
   Brokers:

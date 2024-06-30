@@ -18,12 +18,12 @@ type (
 )
 
 // NewMessageSmsSendModel returns a model for the database table.
-func NewMessageSmsSendModel(conn sqlx.SqlConn, platId ...int64) MessageSmsSendModel {
-	var platid int64
+func NewMessageSmsSendModel(conn sqlx.SqlConn, platId ...string) MessageSmsSendModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customMessageSmsSendModel{
 		defaultMessageSmsSendModel: newMessageSmsSendModel(conn, platid),

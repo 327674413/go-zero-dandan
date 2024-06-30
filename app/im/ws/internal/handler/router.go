@@ -9,6 +9,7 @@ import (
 )
 
 func RegisterHandlers(server *websocketd.Server, svc *svc.ServiceContext) {
+	// 提供给客户端调用的路由方法
 	server.AddRoutes([]websocketd.Route{
 		{
 			Method:  "user.online", //获取在线用户（暂时好像无用）

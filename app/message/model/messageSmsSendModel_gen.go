@@ -21,11 +21,11 @@ var (
 	messageSmsSendRows                = strings.Join(messageSmsSendFieldNames, ",")
 	defaultMessageSmsSendFields       = strings.Join(messageSmsSendFieldNames, ",")
 	messageSmsSendRowsExpectAutoSet   = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`delete_at`"), ",")
-	messageSmsSendRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`char`", "`delete_at`"), "=?,") + "=?"
+	messageSmsSendRowsWithPlaceHolder = strings.Join(stringx.Remove(messageSmsSendFieldNames, "`id`", "`delete_at`"), "=?,") + "=?"
 )
 
 const (
-	MessageSmsSend_Char     dao.TableField = "char"
+	MessageSmsSend_Id       dao.TableField = "id"
 	MessageSmsSend_Phone    dao.TableField = "phone"
 	MessageSmsSend_Content  dao.TableField = "content"
 	MessageSmsSend_StateEm  dao.TableField = "state_em"
@@ -45,7 +45,7 @@ type (
 		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
 		Save(data *MessageSmsSend) (effectRow int64, err error)
 		TxSave(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error)
-		Delete(ctx context.Context, char string) error
+		Delete(ctx context.Context, id string) error
 		Field(field string) *defaultMessageSmsSendModel
 		Except(fields ...string) *defaultMessageSmsSendModel
 		Alias(alias string) *defaultMessageSmsSendModel
@@ -88,7 +88,7 @@ type (
 	}
 
 	MessageSmsSend struct {
-		Char     string `db:"char"`
+		Id       string `db:"id"`
 		Phone    string `db:"phone"`     // 发送手机号
 		Content  string `db:"content"`   // 发送手机号
 		StateEm  int64  `db:"state_em"`  // 发送状态枚举
@@ -173,9 +173,9 @@ func (m *defaultMessageSmsSendModel) Reinit() *defaultMessageSmsSendModel {
 func (m *defaultMessageSmsSendModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, char string) error {
-	query := fmt.Sprintf("delete from %s where `char` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, char)
+func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, id string) error {
+	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+	_, err := m.conn.ExecCtx(ctx, query, id)
 	return err
 }
 

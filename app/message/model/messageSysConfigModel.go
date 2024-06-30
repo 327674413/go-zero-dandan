@@ -18,12 +18,12 @@ type (
 )
 
 // NewMessageSysConfigModel returns a model for the database table.
-func NewMessageSysConfigModel(conn sqlx.SqlConn, platId ...int64) MessageSysConfigModel {
-	var platid int64
+func NewMessageSysConfigModel(conn sqlx.SqlConn, platId ...string) MessageSysConfigModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customMessageSysConfigModel{
 		defaultMessageSysConfigModel: newMessageSysConfigModel(conn, platid),

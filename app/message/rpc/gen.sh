@@ -2,7 +2,7 @@
 
 # 公共路径变量
 PROJECT_PATH="/Users/yelin/go_dev/project/src/go-zero-dandan"
-SERVICE_NAME="social"
+SERVICE_NAME="message"
 
 # 根据第一个参数执行相应的命令
 case $1 in

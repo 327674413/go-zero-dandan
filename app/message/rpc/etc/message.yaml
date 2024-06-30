@@ -2,15 +2,20 @@ Name: message.rpc
 ListenOn: 127.0.0.1:8802
 Mode: dev
 DB:
-  DataSource:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: message.rpc
-KafkaPusherConf:
+KqImPusher:
+  Topic: messageImSend
   Addrs:
     - 127.0.0.1:9092
-  Topic: message-sms
+KqSmsPusher:
+  Topic: messageSmsSend
+  Addrs:
+    - 127.0.0.1:9092
+
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node

@@ -18,15 +18,38 @@ func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			single(server, &data, data.RecvId)
 		case websocketd.GroupChatType:
 			group(server, &data)
+		case websocketd.ChannelChatType:
+			channel(server, &data, data.RecvId)
 		}
 
 	}
+}
+func channel(server *websocketd.Server, data *websocketd.Push, recvId string) error {
+	//发送
+	rconn := server.GetConn(recvId)
+	if rconn == nil {
+		server.Info("推送目标对用户id【", recvId, "】离线")
+		//离线
+		return nil
+	}
+
+	return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
+		ConversationId: data.ConversationId,
+		Msg: websocketd.Msg{
+			Content:     data.Content,
+			MsgType:     data.MsgType,
+			MsgId:       data.MsgId,
+			ReadRecords: data.ReadRecords,
+		},
+		ChatType: data.ChatType,
+		SendTime: data.SendTime,
+	}), rconn)
 }
 func single(server *websocketd.Server, data *websocketd.Push, recvId string) error {
 	//发送
 	rconn := server.GetConn(recvId)
 	if rconn == nil {
-		server.Info("推送目标对象", recvId, "离线")
+		server.Info("推送用户id【", recvId, "】离线")
 		//离线
 		return nil
 	}

@@ -29,6 +29,7 @@ const (
 	RedisSetUserLoginStateErr       = 502010003
 	RedisGetUserTokenErr            = 502020001
 	DataBizErr                      = 503 //业务数据异常
+	MqPushErr                       = 504 //MQ推送异常
 	CopierErr                       = 521 //工具类失败
 	RpcResDecodeErr                 = 510
 	ReqKeyRequired                  = 600   //未提供主键

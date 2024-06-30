@@ -24,8 +24,11 @@ func NewUserAuth(svc *svc.ServiceContext) *UserAuth {
 }
 
 func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
-	//userToken := r.Header.Get("token")
-	userToken := r.Header.Get("sec-websocket-protocol")
+	userToken := r.Header.Get("token")
+	if userToken == "" {
+		//目前web端没通过url获取，放在这个协议里
+		userToken = r.Header.Get("sec-websocket-protocol")
+	}
 	if userToken == "" {
 		logx.Info("ws连接未携带token")
 		return false

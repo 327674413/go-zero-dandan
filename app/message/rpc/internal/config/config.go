@@ -10,8 +10,12 @@ type Config struct {
 	Db struct {
 		DataSource string
 	}
-	RedisConf       redis.RedisConf
-	KafkaPusherConf struct {
+	RedisConf  redis.RedisConf
+	KqImPusher struct {
+		Addrs []string
+		Topic string
+	}
+	KqSmsPusher struct {
 		Addrs []string
 		Topic string
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/message/model"
 	"go-zero-dandan/app/message/rpc/internal/svc"
-	"go-zero-dandan/app/message/rpc/types/pb"
+	"go-zero-dandan/app/message/rpc/types/messageRpc"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
@@ -32,7 +32,7 @@ func NewSendPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendPho
 	}
 }
 
-func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
+func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.SuccResp, error) {
 
 	if err := l.checkReq(in); err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 	}
 	sms := smsd.NewSmsTencent(smsTemp.SecretId, smsTemp.SecretKey)
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
-	resp := &pb.SuccResp{}
+	resp := &messageRpc.SuccResp{}
 	if err != nil {
 		smsSendData.Err = err.Error()
 		smsSendData.StateEm = -1
@@ -73,9 +73,9 @@ func (l *SendPhoneLogic) SendPhone(in *pb.SendPhoneReq) (*pb.SuccResp, error) {
 
 }
 
-func (l *SendPhoneLogic) checkReq(in *pb.SendPhoneReq) error {
+func (l *SendPhoneLogic) checkReq(in *messageRpc.SendPhoneReq) error {
 	//校验模版id
-	if in.TempId == 0 {
+	if in.TempId == "" {
 		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired1, "TempId")
 	}
 	//校验手机号
@@ -99,7 +99,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	}
 	//获取系统短信配置
 	messageSysConfigModel := model.NewMessageSysConfigModel(l.svcCtx.SqlConn)
-	sysConfig, err := messageSysConfigModel.Ctx(l.ctx).WhereId(1).CacheFind(l.svcCtx.Redis)
+	sysConfig, err := messageSysConfigModel.Ctx(l.ctx).WhereId("1").CacheFind(l.svcCtx.Redis)
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)
 	}
@@ -137,7 +137,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	}
 	return nil
 }
-func (l *SendPhoneLogic) rpcFail(err error) (*pb.SuccResp, error) {
+func (l *SendPhoneLogic) rpcFail(err error) (*messageRpc.SuccResp, error) {
 	return nil, resd.RpcErrEncode(err)
 }
 func (l *SendPhoneLogic) initUser() (err error) {

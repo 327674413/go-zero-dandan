@@ -18,12 +18,12 @@ type (
 )
 
 // NewMessageSmsTempModel returns a model for the database table.
-func NewMessageSmsTempModel(conn sqlx.SqlConn, platId ...int64) MessageSmsTempModel {
-	var platid int64
+func NewMessageSmsTempModel(conn sqlx.SqlConn, platId ...string) MessageSmsTempModel {
+	var platid string
 	if len(platId) > 0 {
 		platid = platId[0]
 	} else {
-		platid = 0
+		platid = ""
 	}
 	return &customMessageSmsTempModel{
 		defaultMessageSmsTempModel: newMessageSmsTempModel(conn, platid),

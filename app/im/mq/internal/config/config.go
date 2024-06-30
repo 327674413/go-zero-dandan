@@ -12,6 +12,7 @@ type Config struct {
 	ListenOn        string
 	MsgChatTransfer kq.KqConf
 	MsgReadTransfer kq.KqConf
+	MessageImSend   kq.KqConf
 	RedisConf       redis.RedisConf
 	MsgReadHandler  struct {
 		GroupMsgReadHandler          int

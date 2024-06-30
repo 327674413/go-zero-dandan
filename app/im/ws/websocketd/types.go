@@ -15,6 +15,7 @@ type ChatType int
 const (
 	GroupChatType ChatType = iota + 1
 	SingleChatType
+	ChannelChatType
 )
 
 type AckType int
@@ -30,6 +31,9 @@ type ContentType int
 const (
 	ContentChatMsg ContentType = iota
 	ContentMakeRead
+	ContentSystemAnnounceNew
+	ContentFriendApplyNew
+	ContentFriendApplyOperated
 )
 
 func (t AckType) ToString() string {

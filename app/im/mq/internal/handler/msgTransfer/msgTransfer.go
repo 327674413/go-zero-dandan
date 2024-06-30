@@ -29,8 +29,20 @@ func (t *baseMsgTransfer) Transfer(ctx context.Context, data *websocketd.Push) e
 		err = t.single(ctx, data)
 	case websocketd.GroupChatType:
 		err = t.group(ctx, data)
+	case websocketd.ChannelChatType:
+		err = t.channel(ctx, data)
 	}
 	return err
+}
+
+// channel 渠道消息发送，借助ws客户端，走ws的push类型消息的方式发送
+func (t *baseMsgTransfer) channel(ctx context.Context, data *websocketd.Push) error {
+	return t.svc.WsClient.Send(websocketd.Message{
+		FrameType: websocketd.FrameData,
+		Method:    "push",
+		FormCode:  "chat_system_root", //目前这个formcode的作用不清楚
+		Data:      data,
+	})
 }
 
 // single 私聊消息发送，借助ws客户端，走ws的push类型消息的方式发送
@@ -46,7 +58,7 @@ func (t *baseMsgTransfer) single(ctx context.Context, data *websocketd.Push) err
 // group 群聊消息发送，借助ws客户端，走ws的push类型消息的方式发送
 func (t *baseMsgTransfer) group(ctx context.Context, data *websocketd.Push) error {
 	//群聊时，根据消息数据中的接受者id，即群id，查询出该群的用户列表
-	users, err := t.svc.SocialRpc.GroupUsers(ctx, &social.GroupUsersReq{
+	users, err := t.svc.SocialRpc.GetGroupMemberList(ctx, &social.GetGroupMemberListReq{
 		GroupId: data.RecvId,
 		PlatId:  "1",
 	})

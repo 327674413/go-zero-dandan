@@ -59,7 +59,7 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 	} else {
 		_, rpcErr := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
 			Phone:    phone,
-			TempId:   1,
+			TempId:   "1",
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {

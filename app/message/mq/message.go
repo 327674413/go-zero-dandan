@@ -13,7 +13,7 @@ import (
 	"go-zero-dandan/app/message/mq/internal/svc"
 )
 
-var configFile = flag.String("f", "etc/message-dev.yaml", "the config file")
+var configFile = flag.String("f", "etc/message.yaml", "the config file")
 
 func main() {
 	flag.Parse()

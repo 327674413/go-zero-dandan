@@ -6,7 +6,7 @@ import (
 	"go-zero-dandan/app/user/api/internal/biz"
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
-	"go-zero-dandan/app/user/rpc/types/pb"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
@@ -35,7 +35,7 @@ func (l *EditMyInfoLogic) EditMyInfo(req *types.EditMyInfoReq) (resp *types.Succ
 		return nil, resd.NewErr("获取用户信息失败")
 	}
 	userBiz := biz.NewUserBiz(l.ctx, l.svcCtx)
-	editUserInfo := &pb.EditUserInfoReq{}
+	editUserInfo := &userRpc.EditUserInfoReq{}
 	copier.Copy(&editUserInfo, req)
 	editUserInfo.Id = userInfo.Id
 	err = userBiz.EditUserInfo(editUserInfo)
