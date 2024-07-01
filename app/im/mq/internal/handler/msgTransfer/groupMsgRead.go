@@ -76,7 +76,7 @@ func (t *groupMsgRead) transfer() {
 				t.mu.Unlock()
 				// 使得msgReadTransfer释放
 				t.pushCh <- &websocketd.Push{
-					ChatType:       websocketd.GroupChatType,
+					ChatType:       websocketd.ChatTypeGroup,
 					ConversationId: t.conversationId,
 				}
 				continue

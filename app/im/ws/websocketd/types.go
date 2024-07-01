@@ -1,9 +1,12 @@
 package websocketd
 
+import "go-zero-dandan/common/constd"
+
 type MsgType int
 
 const (
-	TextMsgType MsgType = iota //iota常量自动从0递增的赋值
+	TextMsgEmpty = constd.MsgTypeEmEmpty
+	TextMsgType  = constd.MsgTypeEmText
 )
 const (
 	RedisSystemRootToken = "system:root:token"
@@ -13,34 +16,33 @@ const (
 type ChatType int
 
 const (
-	GroupChatType ChatType = iota + 1
-	SingleChatType
-	ChannelChatType
+	ChatTypeGroup  ChatType = iota + 1 //发到群组
+	ChatTypeSingle                     //发到个人
 )
 
 type AckType int
 
 const (
-	NoAck AckType = iota
-	OnlyAck
-	RigorAck
+	AckTypeNoAck AckType = iota
+	AckTypeOnlyAck
+	AckTypeRigorAck
 )
 
-type ContentType int
+type MsgClas int
 
 const (
-	ContentChatMsg ContentType = iota
-	ContentMakeRead
-	ContentSystemAnnounceNew
-	ContentFriendApplyNew
-	ContentFriendApplyOperated
+	MsgClasChatMsg             = constd.MsgClasEmChat
+	MsgClasMakeRead            = constd.MsgClasEmMarkRead
+	MsgClasSysAnnounceNew      = constd.MsgClasEmSysAnnounceNew
+	MsgClasFriendApplyNew      = constd.MsgClasEmFriendApplyNew
+	MsgClasFriendApplyOperated = constd.MsgClasEmFriendApplyOperated
 )
 
 func (t AckType) ToString() string {
 	switch t {
-	case OnlyAck:
+	case AckTypeOnlyAck:
 		return "OnlyAck"
-	case RigorAck:
+	case AckTypeRigorAck:
 		return "RigorAck"
 	}
 	return "NoAck"
@@ -59,20 +61,20 @@ type (
 		RecvId         string `mapstructure:"recvId"`
 		Msg            `mapstructure:"msg"`
 		ChatType       `mapstructure:"chatType"`
-		SendTime       int64 `mapstructure:"sendTime"`
+		SendTime       string `mapstructure:"sendTime"`
 	}
 	Push struct {
 		ConversationId string `mapstructure:"conversationId"`
 		ChatType       `mapstructure:"chatType"`
-		MsgId          string            `mapstructure:"msgId"`
-		SendId         string            `mapstructure:"sendId,string"`
-		RecvId         string            `mapstructure:"recvId,string"`
-		RecvIds        []string          `mapstructure:"recvIds"`
-		SendTime       int64             `mapstructure:"sendTime"`
-		ReadRecords    map[string]string `mapstructure:"readRecords"`
-		ContentType    ContentType       `mapstructure:"contentType"`
-		MsgType        `mapstructure:"msgType"`
-		Content        string `mapstructure:"content"`
+		MsgId          string                   `mapstructure:"msgId"`
+		SendId         string                   `mapstructure:"sendId,string"`
+		RecvId         string                   `mapstructure:"recvId,string"`
+		RecvIds        []string                 `mapstructure:"recvIds"`
+		SendTime       string                   `mapstructure:"sendTime"`
+		ReadRecords    map[string]string        `mapstructure:"readRecords"`
+		MsgClas        MsgClas                  `mapstructure:"contentType"` //业务类型：0聊天消息 1消息已读等
+		MsgType        `mapstructure:"msgType"` //消息数据类型：文本消息、图片消息等
+		Content        string                   `mapstructure:"content"`
 	}
 	MarkRead struct {
 		ChatType       `mapstructure:"chatType"`

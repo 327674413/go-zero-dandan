@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/threading"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/biz"
 	"go-zero-dandan/app/social/rpc/internal/svc"
@@ -16,15 +18,15 @@ import (
 )
 
 type CreateFriendApplyLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
+	ctx context.Context
+	svc *svc.ServiceContext
 	logx.Logger
 }
 
-func NewCreateFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateFriendApplyLogic {
+func NewCreateFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *CreateFriendApplyLogic {
 	return &CreateFriendApplyLogic{
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
 		Logger: logx.WithContext(ctx),
 	}
 }
@@ -33,7 +35,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	friendModel := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
+	friendModel := model.NewSocialFriendModel(l.svc.SqlConn, in.PlatId)
 	//我申请别人为好友，UserId是我，FriendUid是好友
 	//查询我-对方好友数据
 	existSelf, err := friendModel.Where("user_id = ? and friend_uid = ?", in.UserId, in.FriendUid).Find()
@@ -64,7 +66,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 		}
 	}
 	//基础校验完成，可以添加，开启事务
-	tx, err := dao.StartTrans(l.svcCtx.SqlConn, l.ctx)
+	tx, err := dao.StartTrans(l.svc.SqlConn, l.ctx)
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlStartTransErr)
 	}
@@ -109,7 +111,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	}
 
 	//查看是否存在过申请
-	applyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
+	applyModel := model.NewSocialFriendApplyModel(l.svc.SqlConn, in.PlatId)
 	existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
@@ -155,6 +157,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if err := tx.Commit(); err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlCommitErr)
 	}
+	l.sendNotice(in)
 	return &socialRpc.CreateFriendApplyResp{
 		ApplyId: applyId,
 	}, nil
@@ -173,4 +176,15 @@ func (l *CreateFriendApplyLogic) checkReqParams(in *socialRpc.CreateFriendApplyR
 		return resd.NewRpcErrCtx(l.ctx, "不能添加自己", resd.SocialNotAddSelf)
 	}
 	return nil
+}
+func (l *CreateFriendApplyLogic) sendNotice(in *socialRpc.CreateFriendApplyReq) {
+	logx.Debug("推送新好友申请通知")
+	threading.GoSafe(func() {
+		l.svc.ImRpc.SendSysMsg(context.Background(), &imRpc.SendSysMsgReq{
+			PlatId:    in.PlatId,
+			UserId:    in.FriendUid,
+			SendTime:  utild.NowTime(),
+			MsgClasEm: constd.MsgClasEmFriendApplyNew,
+		})
+	})
 }

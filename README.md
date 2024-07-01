@@ -87,10 +87,14 @@ go run user.go -f etc/user-api.yaml
 docker-compose -f docker-compose-test.yml up --detach
 ```
 
-### kafka测试发消息
+### kafka
 ```
+#删除topic
+docker exec -it kafka kafka-topics.sh --delete --topic 主题名 --bootstrap-server 127.0.0.1:9092
+#创建topic
+docker exec -it kafka kafka-topics.sh --create --topic 主题名 --bootstrap-server 127.0.0.1:9092 --partitions 3 --replication-factor 1
 #往docker里的kafka测试发消息
-docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic msgChatTransfer
+docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic 主题名
 ```
 ### 获取模版
 ```

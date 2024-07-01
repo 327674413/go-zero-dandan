@@ -9,12 +9,12 @@ import (
 
 type Config struct {
 	service.ServiceConf
-	ListenOn        string
-	MsgChatTransfer kq.KqConf
-	MsgReadTransfer kq.KqConf
-	MessageImSend   kq.KqConf
-	RedisConf       redis.RedisConf
-	MsgReadHandler  struct {
+	ListenOn          string
+	MsgChatTransfer   kq.KqConf
+	MsgReadTransfer   kq.KqConf
+	SysToUserTransfer kq.KqConf
+	RedisConf         redis.RedisConf
+	MsgReadHandler    struct {
 		GroupMsgReadHandler          int
 		GroupMsgReadRecordDelayTime  int64
 		GroupMsgReadRecordDelayCount int

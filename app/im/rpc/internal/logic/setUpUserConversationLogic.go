@@ -30,7 +30,7 @@ func NewSetUpUserConversationLogic(ctx context.Context, svcCtx *svc.ServiceConte
 // SetUpUserConversation 建立会话: 群聊, 私聊
 func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserConversationReq) (*imRpc.SetUpUserConversationResp, error) {
 	switch websocketd.ChatType(in.ChatType) {
-	case websocketd.SingleChatType:
+	case websocketd.ChatTypeSingle:
 		//生成会话id
 		conversationId := utild.CombineId(in.SendId, in.RecvId)
 		//验证是否建立过会话
@@ -42,7 +42,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserCo
 			//没查到数据，建立会话
 			err := l.svcCtx.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{
 				ConversationId: conversationId,
-				ChatType:       websocketd.SingleChatType,
+				ChatType:       websocketd.ChatTypeSingle,
 			})
 			if err != nil {
 				return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
@@ -61,7 +61,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserCo
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 		}
-	case websocketd.GroupChatType:
+	case websocketd.ChatTypeGroup:
 		err := l.setupUserConversation(in.RecvId, in.SendId, in.RecvId, websocketd.ChatType(in.ChatType), true)
 		if err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, err.Error())

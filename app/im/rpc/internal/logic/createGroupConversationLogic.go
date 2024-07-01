@@ -40,13 +40,13 @@ func (l *CreateGroupConversationLogic) CreateGroupConversation(in *imRpc.CreateG
 	//未找到，创建
 	err = l.svcCtx.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{
 		ConversationId: in.GroupId,
-		ChatType:       websocketd.GroupChatType,
+		ChatType:       websocketd.ChatTypeGroup,
 	})
 	//创建群后，需要创建用户的会话列表
 	_, err = NewSetUpUserConversationLogic(l.ctx, l.svcCtx).SetUpUserConversation(&imRpc.SetUpUserConversationReq{
 		SendId:   in.CreateId,
 		RecvId:   in.GroupId,
-		ChatType: int64(websocketd.GroupChatType),
+		ChatType: int64(websocketd.ChatTypeGroup),
 	})
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, fmt.Sprintf("创建会话失败：%v", err))

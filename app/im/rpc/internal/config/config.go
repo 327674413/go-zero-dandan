@@ -8,4 +8,8 @@ type Config struct {
 		Url string
 		Db  string
 	}
+	MsgSysTransfer struct {
+		Topic string
+		Addrs []string
+	}
 }

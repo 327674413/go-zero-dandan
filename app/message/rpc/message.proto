@@ -11,31 +11,25 @@ message SendPhoneReq {
   repeated string tempData = 3;
   string tempId = 4;
 }
-message SendImReq {
+message SendImChannelMsgReq {
   string channelId = 1;
-  int64 chatType=2;
-  string sendUid=4;
+  int64 sendType=2;
   string recvUid =5;
-  repeated string recvUids=6;
   int64 sendAt=7;
   int64 msgType=8;
-  string content=9;
+  string msgContent=9;
   string platId=10;
-  string msgId=11;
-  int64 contentType=12;
 }
-message SuccResp{
-  //交易状态，默认200
+message ResultResp{
   int64 code = 1;
-  //成功返回的数据，用json来处理，暂未知是否需要这样
   string content = 2;
 }
 
 
 service message {
-  rpc sendPhone(SendPhoneReq) returns(SuccResp);
-  rpc sendPhoneAsync(SendPhoneReq) returns(SuccResp);
+  rpc sendPhone(SendPhoneReq) returns(ResultResp);
+  rpc sendPhoneAsync(SendPhoneReq) returns(ResultResp);
 
-  rpc sendIm(SendImReq) returns(SuccResp);
-  rpc sendImAsync(SendImReq) returns(SuccResp);
+  rpc sendImChannelMsg(SendImChannelMsgReq) returns(ResultResp);
+  rpc sendImChannelMsgAsync(SendImChannelMsgReq) returns(ResultResp);
 }

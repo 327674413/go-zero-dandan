@@ -10,11 +10,8 @@ type Config struct {
 	Db struct {
 		DataSource string
 	}
-	RedisConf  redis.RedisConf
-	KqImPusher struct {
-		Addrs []string
-		Topic string
-	}
+	RedisConf   redis.RedisConf
+	ImRpc       zrpc.RpcClientConf
 	KqSmsPusher struct {
 		Addrs []string
 		Topic string

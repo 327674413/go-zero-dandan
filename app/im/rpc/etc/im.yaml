@@ -7,3 +7,7 @@ Etcd:
 Mongo:
   Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
   Db: chat
+MsgSysTransfer:
+  Topic: msgSysTransfer
+  Addrs:
+    - 127.0.0.1:9092

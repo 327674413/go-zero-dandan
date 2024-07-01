@@ -5,12 +5,12 @@ Etcd:
   Hosts:
     - 127.0.0.1:2379
   Key: im.mq
-MessageImSend:
-  Name: MessageImSend
+SysToUserTransfer:
+  Name: SysToUserTransfer
   Brokers:
     - 127.0.0.1:9092
   Group: kafka
-  Topic: messageImSend
+  Topic: imSysToUserTransfer
   Offset: first
   Consumers: 1
 MsgChatTransfer:
@@ -18,7 +18,7 @@ MsgChatTransfer:
   Brokers:
     - 127.0.0.1:9092
   Group: kafka
-  Topic: msgChatTransfer
+  Topic: imMsgChatTransfer
   Offset: first
   Consumers: 1
 MsgReadTransfer:
@@ -26,7 +26,7 @@ MsgReadTransfer:
   Brokers:
     - 127.0.0.1:9092
   Group: kafka
-  Topic: msgReadTransfer
+  Topic: imMsgReadTransfer
   Offset: first
   Consumers: 1
 MsgReadHandler:
@@ -45,6 +45,7 @@ SocialRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: social.rpc
+  NonBlock: true
 Ws:
   Host: 127.0.0.1:8808
   SysToken: "123456"

@@ -70,15 +70,15 @@ func (t *MsgReadTransfer) Consume(key, value string) error {
 		ChatType:       data.ChatType,
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
-		ContentType:    websocketd.ContentMakeRead,
+		MsgClas:        websocketd.MsgClasMakeRead,
 		ReadRecords:    readRecords,
 	}
 	switch data.ChatType {
-	case websocketd.SingleChatType:
+	case websocketd.ChatTypeSingle:
 		logx.Infof("私聊消息发送%v：", push.ConversationId)
 		//私聊，直接推送
 		t.push <- push
-	case websocketd.GroupChatType:
+	case websocketd.ChatTypeGroup:
 		logx.Infof("群聊消息发送%v：", push.ConversationId)
 		// 判断是否开合并推送
 		if t.svc.Config.MsgReadHandler.GroupMsgReadHandler == GroupMsgReadHandlerAtTransfer {
@@ -112,9 +112,9 @@ func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.Ms
 	// 处理已读
 	for _, chatLog := range chatLogs {
 		switch chatLog.ChatType {
-		case websocketd.SingleChatType:
+		case websocketd.ChatTypeSingle:
 			chatLog.ReadRecords = []byte{1}
-		case websocketd.GroupChatType:
+		case websocketd.ChatTypeGroup:
 			readRecords := bitmapd.Load(chatLog.ReadRecords)
 			readRecords.SetId(data.SendId)
 			chatLog.ReadRecords = readRecords.Export()
@@ -140,7 +140,7 @@ func (t *MsgReadTransfer) transfer() {
 		}
 		logx.Infof("消息转化：没有发送对象%v", push.ConversationId)
 		//私聊
-		if push.ChatType == websocketd.SingleChatType {
+		if push.ChatType == websocketd.ChatTypeSingle {
 			logx.Info("消息转化：私聊世界结束")
 			continue
 		}

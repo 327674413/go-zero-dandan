@@ -29,7 +29,7 @@ func NewSendPhoneAsyncLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Se
 	}
 }
 
-func (l *SendSMSAsyncLogic) SendPhoneAsync(in *messageRpc.SendPhoneReq) (*messageRpc.SuccResp, error) {
+func (l *SendSMSAsyncLogic) SendPhoneAsync(in *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
 	if err := l.checkReq(in); err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (l *SendSMSAsyncLogic) SendPhoneAsync(in *messageRpc.SendPhoneReq) (*messag
 		fmt.Println("推送成功")
 		return
 	})
-	return &messageRpc.SuccResp{Code: 200}, nil
+	return &messageRpc.ResultResp{Code: constd.ResultFinish}, nil
 
 }
 func (l *SendSMSAsyncLogic) checkReq(in *messageRpc.SendPhoneReq) error {

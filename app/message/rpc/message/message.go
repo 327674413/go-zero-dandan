@@ -13,15 +13,15 @@ import (
 )
 
 type (
-	SendImReq    = messageRpc.SendImReq
-	SendPhoneReq = messageRpc.SendPhoneReq
-	SuccResp     = messageRpc.SuccResp
+	ResultResp          = messageRpc.ResultResp
+	SendImChannelMsgReq = messageRpc.SendImChannelMsgReq
+	SendPhoneReq        = messageRpc.SendPhoneReq
 
 	Message interface {
-		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
-		SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
-		SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
-		SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
+		SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error)
+		SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error)
+		SendImChannelMsg(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
+		SendImChannelMsgAsync(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 	}
 
 	defaultMessage struct {
@@ -35,22 +35,22 @@ func NewMessage(cli zrpc.Client) Message {
 	}
 }
 
-func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
+func (m *defaultMessage) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := messageRpc.NewMessageClient(m.cli.Conn())
 	return client.SendPhone(ctx, in, opts...)
 }
 
-func (m *defaultMessage) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
+func (m *defaultMessage) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := messageRpc.NewMessageClient(m.cli.Conn())
 	return client.SendPhoneAsync(ctx, in, opts...)
 }
 
-func (m *defaultMessage) SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
+func (m *defaultMessage) SendImChannelMsg(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := messageRpc.NewMessageClient(m.cli.Conn())
-	return client.SendIm(ctx, in, opts...)
+	return client.SendImChannelMsg(ctx, in, opts...)
 }
 
-func (m *defaultMessage) SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
+func (m *defaultMessage) SendImChannelMsgAsync(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := messageRpc.NewMessageClient(m.cli.Conn())
-	return client.SendImAsync(ctx, in, opts...)
+	return client.SendImChannelMsgAsync(ctx, in, opts...)
 }

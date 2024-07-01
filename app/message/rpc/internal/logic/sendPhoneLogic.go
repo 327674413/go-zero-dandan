@@ -32,7 +32,7 @@ func NewSendPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendPho
 	}
 }
 
-func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.SuccResp, error) {
+func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
 
 	if err := l.checkReq(in); err != nil {
 		return nil, err
@@ -59,14 +59,14 @@ func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.Suc
 	}
 	sms := smsd.NewSmsTencent(smsTemp.SecretId, smsTemp.SecretKey)
 	err = sms.Send(in.Phone, smsTemp.SmsSdkAppid, smsTemp.SignName, smsTemp.TemplateId, in.TempData)
-	resp := &messageRpc.SuccResp{}
+	resp := &messageRpc.ResultResp{}
 	if err != nil {
 		smsSendData.Err = err.Error()
 		smsSendData.StateEm = -1
 
 	} else {
 		smsSendData.StateEm = 1
-		resp.Code = 200
+		resp.Code = constd.ResultFinish
 	}
 	_, err = messageSmsSendModel.Insert(smsSendData)
 	return resp, nil
@@ -137,7 +137,7 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 	}
 	return nil
 }
-func (l *SendPhoneLogic) rpcFail(err error) (*messageRpc.SuccResp, error) {
+func (l *SendPhoneLogic) rpcFail(err error) (*messageRpc.ResultResp, error) {
 	return nil, resd.RpcErrEncode(err)
 }
 func (l *SendPhoneLogic) initUser() (err error) {

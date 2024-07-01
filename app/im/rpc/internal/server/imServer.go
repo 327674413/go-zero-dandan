@@ -50,3 +50,9 @@ func (s *ImServer) CreateGroupConversation(ctx context.Context, in *imRpc.Create
 	l := logic.NewCreateGroupConversationLogic(ctx, s.svcCtx)
 	return l.CreateGroupConversation(in)
 }
+
+// 发送系统消息
+func (s *ImServer) SendSysMsg(ctx context.Context, in *imRpc.SendSysMsgReq) (*imRpc.ResultResp, error) {
+	l := logic.NewSendSysMsgLogic(ctx, s.svcCtx)
+	return l.SendSysMsg(in)
+}

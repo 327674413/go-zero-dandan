@@ -3,6 +3,8 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/threading"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
@@ -131,7 +133,15 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	if err := tx.Commit(); err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, "", resd.MysqlCommitErr)
 	}
-	//todo::给对方发消息，通知对方通过
+	//异步发送好友通过的通知
+	threading.GoSafe(func() {
+		l.svc.ImRpc.SendSysMsg(l.ctx, &imRpc.SendSysMsgReq{
+			PlatId:     in.PlatId,
+			UserId:     apply.UserId,
+			MsgClasEm:  constd.MsgClasEmFriendApplyOperated,
+			MsgContent: apply.Id,
+		})
+	})
 	return &socialRpc.ResultResp{Result: true}, nil
 }
 func (l *OperateFriendApplyLogic) checkReqParams(in *socialRpc.OperateFriendApplyReq) error {

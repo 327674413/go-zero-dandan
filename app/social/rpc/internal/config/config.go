@@ -8,6 +8,7 @@ import (
 type Config struct {
 	zrpc.RpcServerConf
 	UserRpc zrpc.RpcClientConf
+	ImRpc   zrpc.RpcClientConf
 	DB      struct {
 		DataSource string
 	}

@@ -21,21 +21,19 @@ func NewBaseMsgTransfer(svcCtx *svc.ServiceContext) *baseMsgTransfer {
 	}
 }
 
-// Transfer 消息发送的工厂入口，根据消息类型执行不同的发送方法
+// Transfer 消息发送的工厂入口，根据消息类型执行不同的发送方法，目前来看分为单用户推送、群组推送（往群找人），todo::后面可能要加组织推送
 func (t *baseMsgTransfer) Transfer(ctx context.Context, data *websocketd.Push) error {
 	var err error
 	switch data.ChatType {
-	case websocketd.SingleChatType:
+	case websocketd.ChatTypeSingle:
 		err = t.single(ctx, data)
-	case websocketd.GroupChatType:
+	case websocketd.ChatTypeGroup:
 		err = t.group(ctx, data)
-	case websocketd.ChannelChatType:
-		err = t.channel(ctx, data)
 	}
 	return err
 }
 
-// channel 渠道消息发送，借助ws客户端，走ws的push类型消息的方式发送
+// channel 跟私聊应该一样，但可能需要检测不存在会话就先创建会话
 func (t *baseMsgTransfer) channel(ctx context.Context, data *websocketd.Push) error {
 	return t.svc.WsClient.Send(websocketd.Message{
 		FrameType: websocketd.FrameData,

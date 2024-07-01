@@ -13,6 +13,9 @@ import (
 func GetStamp() int64 {
 	return time.Now().Unix()
 }
+func NowTime() string {
+	return Date("Y-m-d H:i:s")
+}
 
 // Date 格式化时间,默认当前时间
 func Date(format string, timestamp ...int64) string {

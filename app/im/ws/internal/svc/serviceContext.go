@@ -3,7 +3,7 @@ package svc
 import (
 	"github.com/zeromicro/go-zero/zrpc"
 	"go-zero-dandan/app/im/modelMongo"
-	"go-zero-dandan/app/im/mq/mqclient"
+	"go-zero-dandan/app/im/mq/mqClient"
 	"go-zero-dandan/app/im/ws/internal/config"
 	"go-zero-dandan/app/plat/rpc/plat"
 	"go-zero-dandan/app/user/rpc/user"
@@ -16,8 +16,8 @@ type ServiceContext struct {
 	UserRpc user.User
 	PlatRpc plat.Plat
 	modelMongo.ChatLogModel
-	mqclient.MsgChatTransferClient
-	mqclient.MsgReadTransferClient
+	mqClient.MsgChatTransferClient
+	mqClient.MsgReadTransferClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -29,7 +29,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		UserRpc:               UserRpc,
 		PlatRpc:               PlatRpc,
 		ChatLogModel:          modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
-		MsgChatTransferClient: mqclient.NewMsgChatTransferClient(c.MsgChatTransfer.Addrs, c.MsgChatTransfer.Topic),
-		MsgReadTransferClient: mqclient.NewMsgReadTransferClient(c.MsgReadTransfer.Addrs, c.MsgReadTransfer.Topic),
+		MsgChatTransferClient: mqClient.NewMsgChatTransferClient(c.MsgChatTransfer.Addrs, c.MsgChatTransfer.Topic),
+		MsgReadTransferClient: mqClient.NewMsgReadTransferClient(c.MsgReadTransfer.Addrs, c.MsgReadTransfer.Topic),
 	}
 }

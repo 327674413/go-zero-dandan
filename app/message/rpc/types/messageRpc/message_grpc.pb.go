@@ -19,20 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Message_SendPhone_FullMethodName      = "/message.message/sendPhone"
-	Message_SendPhoneAsync_FullMethodName = "/message.message/sendPhoneAsync"
-	Message_SendIm_FullMethodName         = "/message.message/sendIm"
-	Message_SendImAsync_FullMethodName    = "/message.message/sendImAsync"
+	Message_SendPhone_FullMethodName             = "/message.message/sendPhone"
+	Message_SendPhoneAsync_FullMethodName        = "/message.message/sendPhoneAsync"
+	Message_SendImChannelMsg_FullMethodName      = "/message.message/sendImChannelMsg"
+	Message_SendImChannelMsgAsync_FullMethodName = "/message.message/sendImChannelMsgAsync"
 )
 
 // MessageClient is the client API for Message service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MessageClient interface {
-	SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
-	SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error)
-	SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
-	SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error)
+	SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error)
+	SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error)
+	SendImChannelMsg(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
+	SendImChannelMsgAsync(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 }
 
 type messageClient struct {
@@ -43,8 +43,8 @@ func NewMessageClient(cc grpc.ClientConnInterface) MessageClient {
 	return &messageClient{cc}
 }
 
-func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	out := new(SuccResp)
+func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
 	err := c.cc.Invoke(ctx, Message_SendPhone_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,8 +52,8 @@ func (c *messageClient) SendPhone(ctx context.Context, in *SendPhoneReq, opts ..
 	return out, nil
 }
 
-func (c *messageClient) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	out := new(SuccResp)
+func (c *messageClient) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
 	err := c.cc.Invoke(ctx, Message_SendPhoneAsync_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -61,18 +61,18 @@ func (c *messageClient) SendPhoneAsync(ctx context.Context, in *SendPhoneReq, op
 	return out, nil
 }
 
-func (c *messageClient) SendIm(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	out := new(SuccResp)
-	err := c.cc.Invoke(ctx, Message_SendIm_FullMethodName, in, out, opts...)
+func (c *messageClient) SendImChannelMsg(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Message_SendImChannelMsg_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *messageClient) SendImAsync(ctx context.Context, in *SendImReq, opts ...grpc.CallOption) (*SuccResp, error) {
-	out := new(SuccResp)
-	err := c.cc.Invoke(ctx, Message_SendImAsync_FullMethodName, in, out, opts...)
+func (c *messageClient) SendImChannelMsgAsync(ctx context.Context, in *SendImChannelMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Message_SendImChannelMsgAsync_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +83,10 @@ func (c *messageClient) SendImAsync(ctx context.Context, in *SendImReq, opts ...
 // All implementations must embed UnimplementedMessageServer
 // for forward compatibility
 type MessageServer interface {
-	SendPhone(context.Context, *SendPhoneReq) (*SuccResp, error)
-	SendPhoneAsync(context.Context, *SendPhoneReq) (*SuccResp, error)
-	SendIm(context.Context, *SendImReq) (*SuccResp, error)
-	SendImAsync(context.Context, *SendImReq) (*SuccResp, error)
+	SendPhone(context.Context, *SendPhoneReq) (*ResultResp, error)
+	SendPhoneAsync(context.Context, *SendPhoneReq) (*ResultResp, error)
+	SendImChannelMsg(context.Context, *SendImChannelMsgReq) (*ResultResp, error)
+	SendImChannelMsgAsync(context.Context, *SendImChannelMsgReq) (*ResultResp, error)
 	mustEmbedUnimplementedMessageServer()
 }
 
@@ -94,17 +94,17 @@ type MessageServer interface {
 type UnimplementedMessageServer struct {
 }
 
-func (UnimplementedMessageServer) SendPhone(context.Context, *SendPhoneReq) (*SuccResp, error) {
+func (UnimplementedMessageServer) SendPhone(context.Context, *SendPhoneReq) (*ResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPhone not implemented")
 }
-func (UnimplementedMessageServer) SendPhoneAsync(context.Context, *SendPhoneReq) (*SuccResp, error) {
+func (UnimplementedMessageServer) SendPhoneAsync(context.Context, *SendPhoneReq) (*ResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendPhoneAsync not implemented")
 }
-func (UnimplementedMessageServer) SendIm(context.Context, *SendImReq) (*SuccResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendIm not implemented")
+func (UnimplementedMessageServer) SendImChannelMsg(context.Context, *SendImChannelMsgReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendImChannelMsg not implemented")
 }
-func (UnimplementedMessageServer) SendImAsync(context.Context, *SendImReq) (*SuccResp, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendImAsync not implemented")
+func (UnimplementedMessageServer) SendImChannelMsgAsync(context.Context, *SendImChannelMsgReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendImChannelMsgAsync not implemented")
 }
 func (UnimplementedMessageServer) mustEmbedUnimplementedMessageServer() {}
 
@@ -155,38 +155,38 @@ func _Message_SendPhoneAsync_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Message_SendIm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendImReq)
+func _Message_SendImChannelMsg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendImChannelMsgReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MessageServer).SendIm(ctx, in)
+		return srv.(MessageServer).SendImChannelMsg(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Message_SendIm_FullMethodName,
+		FullMethod: Message_SendImChannelMsg_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServer).SendIm(ctx, req.(*SendImReq))
+		return srv.(MessageServer).SendImChannelMsg(ctx, req.(*SendImChannelMsgReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Message_SendImAsync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendImReq)
+func _Message_SendImChannelMsgAsync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendImChannelMsgReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MessageServer).SendImAsync(ctx, in)
+		return srv.(MessageServer).SendImChannelMsgAsync(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Message_SendImAsync_FullMethodName,
+		FullMethod: Message_SendImChannelMsgAsync_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessageServer).SendImAsync(ctx, req.(*SendImReq))
+		return srv.(MessageServer).SendImChannelMsgAsync(ctx, req.(*SendImChannelMsgReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -207,12 +207,12 @@ var Message_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Message_SendPhoneAsync_Handler,
 		},
 		{
-			MethodName: "sendIm",
-			Handler:    _Message_SendIm_Handler,
+			MethodName: "sendImChannelMsg",
+			Handler:    _Message_SendImChannelMsg_Handler,
 		},
 		{
-			MethodName: "sendImAsync",
-			Handler:    _Message_SendImAsync_Handler,
+			MethodName: "sendImChannelMsgAsync",
+			Handler:    _Message_SendImChannelMsgAsync_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

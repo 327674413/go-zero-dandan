@@ -23,6 +23,8 @@ type (
 	GetConversationsResp        = imRpc.GetConversationsResp
 	PutConversationsReq         = imRpc.PutConversationsReq
 	PutConversationsResp        = imRpc.PutConversationsResp
+	ResultResp                  = imRpc.ResultResp
+	SendSysMsgReq               = imRpc.SendSysMsgReq
 	SetUpUserConversationReq    = imRpc.SetUpUserConversationReq
 	SetUpUserConversationResp   = imRpc.SetUpUserConversationResp
 
@@ -36,6 +38,8 @@ type (
 		// 更新会话
 		PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 		CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
+		// 发送系统消息
+		SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 	}
 
 	defaultIm struct {
@@ -76,4 +80,10 @@ func (m *defaultIm) PutConversations(ctx context.Context, in *PutConversationsRe
 func (m *defaultIm) CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.CreateGroupConversation(ctx, in, opts...)
+}
+
+// 发送系统消息
+func (m *defaultIm) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	client := imRpc.NewImClient(m.cli.Conn())
+	return client.SendSysMsg(ctx, in, opts...)
 }

@@ -15,7 +15,7 @@ type ChatLog struct {
 	ChatType       websocketd.ChatType `bson:"chatType"`
 	MsgType        websocketd.MsgType  `bson:"msgType"`
 	MsgContent     string              `bson:"msgContent"`
-	SendTime       int64               `bson:"sendTime"`
+	SendTime       string              `bson:"sendTime"`
 	State          int                 `bson:"state"`
 	ReadRecords    []byte              `bson:"readRecords"`
 	PlatId         string              `bson:"platId"`

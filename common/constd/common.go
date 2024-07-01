@@ -6,6 +6,11 @@ const (
 
 )
 const (
+	ResultFinish  = 0  //成功，且同步完成
+	ResultTasking = 1  //成功，提交任务，不确定是否完成
+	ResultFail    = -1 //失败
+)
+const (
 	SysRoleEmUser   = "user"
 	SysRoleEmAdmin  = "admin"
 	SysRoleEmSystem = "system"

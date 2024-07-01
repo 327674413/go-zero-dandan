@@ -7,10 +7,11 @@ Etcd:
   Hosts:
   - 127.0.0.1:2379
   Key: message.rpc
-KqImPusher:
-  Topic: messageImSend
-  Addrs:
-    - 127.0.0.1:9092
+MessageRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: message.rpc
 KqSmsPusher:
   Topic: messageSmsSend
   Addrs:

@@ -13,20 +13,22 @@ UserRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+  NonBlock: true
 PlatRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: plat.rpc
+  NonBlock: true
 Mongo:
   Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
   Db: chat
 MsgChatTransfer:
-  Topic: msgChatTransfer
+  Topic: imMsgChatTransfer
   Addrs:
     - 127.0.0.1:9092
 MsgReadTransfer:
-  Topic: msgReadTransfer
+  Topic: imMsgReadTransfer
   Addrs:
     - 127.0.0.1:9092
 #Brokers:

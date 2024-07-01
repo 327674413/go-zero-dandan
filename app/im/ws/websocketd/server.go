@@ -200,9 +200,9 @@ func (t *Server) handlerConn(conn *Conn) {
 }
 func (t *Server) isAck(message *Message) bool {
 	if message == nil {
-		return t.opt.ack != NoAck
+		return t.opt.ack != AckTypeNoAck
 	}
-	return t.opt.ack != NoAck && message.FrameType != FrameNoAck
+	return t.opt.ack != AckTypeNoAck && message.FrameType != FrameNoAck
 }
 
 // 读取消息ack处理的写协程
@@ -253,7 +253,7 @@ func (t *Server) readAck(conn *Conn) {
 		}
 		//判断当前ack方式
 		switch t.opt.ack {
-		case OnlyAck:
+		case AckTypeOnlyAck:
 			logx.Info("单次ack机制处理，则直接确认，发送消息")
 			//单次ack确认，即可以发送成功，回复该发送者，服务器已处理消息
 			if err := send(&Message{
@@ -268,7 +268,7 @@ func (t *Server) readAck(conn *Conn) {
 			conn.messageMu.Unlock()
 			// 将消息放入发送队列，发送给接收者
 			conn.readMessageChan <- ackMessage
-		case RigorAck:
+		case AckTypeRigorAck:
 			//应答模式
 			//判断是否是未确认过的消息
 			if ackMessage.AckSeq == 0 {

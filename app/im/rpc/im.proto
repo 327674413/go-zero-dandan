@@ -13,7 +13,7 @@ message ChatLog {
   int64 msgType = 5;
   string msgContent = 6;
   int64 chatType = 7;
-  int64 SendTime = 8;
+  string sendTime = 8;
   bytes readRecords = 9;
 }
 message Conversation {
@@ -36,6 +36,16 @@ message GetConversationsReq {
 message GetConversationsResp {
   map<string, Conversation> conversationList = 2;
 }
+
+message SendSysMsgReq{
+  string platId = 1;
+  string userId = 2;
+  int64 msgTypeEm = 3;
+  string msgContent = 4;
+  string sendTime = 5;
+  int64 msgClasEm = 6;
+}
+
 
 message PutConversationsReq {
   string id = 1;
@@ -67,6 +77,11 @@ message CreateGroupConversationReq {
 }
 message CreateGroupConversationResp {}
 
+message ResultResp{
+  int64 code = 1;
+  string content = 2;
+}
+
 service Im {
   // 获取会话记录
   rpc GetChatLog(GetChatLogReq) returns(GetChatLogResp);
@@ -78,4 +93,8 @@ service Im {
   rpc PutConversations(PutConversationsReq)  returns(PutConversationsResp);
 
   rpc CreateGroupConversation(CreateGroupConversationReq) returns(CreateGroupConversationResp);
+
+  // 发送系统消息
+  rpc SendSysMsg(SendSysMsgReq) returns(ResultResp);
+
 }

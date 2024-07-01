@@ -31,7 +31,7 @@ func ws() {
 		c.ListenOn,
 		websocketd.WithServerAuthentication(handler.NewUserAuth(svcCtx)),
 		websocketd.WithServerMaxConnectionIdle(600*time.Second), // 超时自动断开时间
-		websocketd.WithServerAck(websocketd.NoAck),
+		websocketd.WithServerAck(websocketd.AckTypeNoAck),
 	)
 
 	defer server.Stop()

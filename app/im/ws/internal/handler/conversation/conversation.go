@@ -3,12 +3,12 @@ package conversation
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/pkg/mapd"
-	"time"
 )
 
 // Chat 聊天核心方法，包括私聊、群聊等
@@ -23,26 +23,27 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 		// 当会话id不存在时进行处理
 		if data.ConversationId == "" {
 			switch data.ChatType {
-			case websocketd.SingleChatType: //私聊，将两个用户的id组装成会话id
+			case websocketd.ChatTypeSingle: //私聊，将两个用户的id组装成会话id
 				data.ConversationId = utild.CombineId(conn.Uid, data.RecvId)
-			case websocketd.GroupChatType: //群聊，recivId为群id,作为会话id
+			case websocketd.ChatTypeGroup: //群聊，recivId为群id,作为会话id
 				data.ConversationId = data.RecvId
 			}
 		}
 		// 根据不同消息类型，做不同的二次处理
 		switch data.ChatType {
-		case websocketd.SingleChatType:
+		case websocketd.ChatTypeSingle:
 
-		case websocketd.GroupChatType:
+		case websocketd.ChatTypeGroup:
 
 		}
+		logx.Info("推送消息到kafka")
 		// 将消息转化为mq消息的格式，并发送的mq
 		err := svc.MsgChatTransferClient.Push(&kafkad.MsgChatTransfer{
 			ConversationId: data.ConversationId,
 			ChatType:       data.ChatType,
 			SendId:         conn.Uid,
 			RecvId:         data.RecvId,
-			SendTime:       time.Now().UnixNano(),
+			SendTime:       utild.Date("Y-m-d H:i:s"),
 			MsgType:        data.Msg.MsgType,
 			Content:        data.Msg.Content,
 			MsgId:          data.MsgId,
