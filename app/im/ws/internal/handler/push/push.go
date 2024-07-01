@@ -1,15 +1,16 @@
 package push
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
-	"go-zero-dandan/pkg/mapd"
+	"go-zero-dandan/common/constd"
 )
 
 func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 	return func(server *websocketd.Server, conn *websocketd.Conn, msg *websocketd.Message) {
 		var data websocketd.Push
-		if err := mapd.AnyToStruct(msg.Data, &data); err != nil {
+		if err := mapstructure.Decode(msg.Data, &data); err != nil {
 			server.Send(websocketd.NewErrMessage(err))
 			return
 		}
@@ -22,17 +23,7 @@ func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 
 	}
 }
-func multi(server *websocketd.Server, data *websocketd.Push) error {
-	for _, id := range data.RecvIds {
-		func(id string) {
-			server.Schedule(func() {
-				server.Info("推送群发消息给：", id)
-				single(server, data, id)
-			})
-		}(id)
-	}
-	return nil
-}
+
 func single(server *websocketd.Server, data *websocketd.Push, recvId string) error {
 	//发送
 	rconn := server.GetConn(recvId)
@@ -41,18 +32,28 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 		//离线
 		return nil
 	}
+	//普通聊天消息内容
+	if data.MsgClas == constd.MsgClasEmChat {
+		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
+			ConversationId: data.ConversationId,
+			Msg: websocketd.Msg{
+				Content:     data.Content,
+				MsgType:     data.MsgType,
+				MsgId:       data.MsgId,
+				ReadRecords: data.ReadRecords,
+			},
+			ChatType: data.ChatType,
+			SendTime: data.SendTime,
+		}), rconn)
+	} else {
+		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.SysMsg{
+			MsgClas:    data.MsgClas,
+			MsgType:    data.MsgType,
+			MsgContent: data.Content,
+			SendTime:   data.SendTime,
+		}), rconn)
+	}
 
-	return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
-		ConversationId: data.ConversationId,
-		Msg: websocketd.Msg{
-			Content:     data.Content,
-			MsgType:     data.MsgType,
-			MsgId:       data.MsgId,
-			ReadRecords: data.ReadRecords,
-		},
-		ChatType: data.ChatType,
-		SendTime: data.SendTime,
-	}), rconn)
 }
 func group(server *websocketd.Server, data *websocketd.Push) error {
 	for _, id := range data.RecvIds {

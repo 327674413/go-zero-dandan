@@ -141,7 +141,7 @@ func (t *MsgReadTransfer) transfer() {
 		logx.Infof("消息转化：没有发送对象%v", push.ConversationId)
 		//私聊
 		if push.ChatType == websocketd.ChatTypeSingle {
-			logx.Info("消息转化：私聊世界结束")
+			logx.Info("消息转化：私聊结束")
 			continue
 		}
 		//及时处理
