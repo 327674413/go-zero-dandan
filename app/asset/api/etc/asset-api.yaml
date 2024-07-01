@@ -2,6 +2,9 @@ Name: asset-api
 Host: 0.0.0.0
 Port: 8803
 MaxBytes: 1048576000
+Log:
+  ServiceName: asset-api
+  Level: debug
 DB:
   DataSource:
 Auth:

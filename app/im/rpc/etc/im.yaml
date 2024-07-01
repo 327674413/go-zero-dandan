@@ -1,5 +1,8 @@
 Name: im.rpc
 ListenOn: 0.0.0.0:8809
+Log:
+  ServiceName: im-rpc
+  Level: debug
 Etcd:
   Hosts:
   - 127.0.0.1:2379
@@ -7,7 +10,7 @@ Etcd:
 Mongo:
   Url: "mongodb://root:8a7yNLrsThjw3jra@127.0.0.1:27017"
   Db: chat
-MsgSysTransfer:
-  Topic: msgSysTransfer
+SysToUserTransfer:
+  Topic: imSysToUserTransfer
   Addrs:
     - 127.0.0.1:9092

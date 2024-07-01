@@ -3,6 +3,9 @@ Host: 0.0.0.0
 Port: 8808
 Mode: dev
 ListenOn: 0.0.0.0:8808
+Log:
+  ServiceName: im-ws
+  Level: debug
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000

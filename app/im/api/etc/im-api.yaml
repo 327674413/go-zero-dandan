@@ -1,6 +1,9 @@
 Name: im-api
 Host: 0.0.0.0
 Port: 8812
+Log:
+  ServiceName: im-api
+  Level: debug
 DB:
   DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Auth:

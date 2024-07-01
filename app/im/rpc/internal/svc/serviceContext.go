@@ -12,16 +12,16 @@ type ServiceContext struct {
 	modelMongo.ChatLogModel
 	modelMongo.ConversationModel
 	modelMongo.ConversationsModel
-	mqClient.SysMsgTransferClient
+	mqClient.SysToUserTransferClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:               c,
-		Mode:                 c.Mode,
-		ChatLogModel:         modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
-		ConversationModel:    modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
-		ConversationsModel:   modelMongo.MustConversationsModel(c.Mongo.Url, c.Mongo.Db),
-		SysMsgTransferClient: mqClient.NewSysMsgTransferClient(c.MsgSysTransfer.Addrs, c.MsgSysTransfer.Topic),
+		Config:                  c,
+		Mode:                    c.Mode,
+		ChatLogModel:            modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
+		ConversationModel:       modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
+		ConversationsModel:      modelMongo.MustConversationsModel(c.Mongo.Url, c.Mongo.Db),
+		SysToUserTransferClient: mqClient.NewSysToUserTransferClient(c.SysToUserTransfer.Addrs, c.SysToUserTransfer.Topic),
 	}
 }

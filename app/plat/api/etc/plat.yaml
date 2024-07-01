@@ -1,12 +1,15 @@
 Name: plat-api
 Host: 0.0.0.0
 Port: 8800
+Log:
+  ServiceName: plat-api
+  Level: debug
 DB:
-  DataSource: DB_USER:DB_PASS@tcp(DB_IP:DB_PORT)/DB_NAME?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
-Env: dev
+  DataSource: "root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+Mode: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
-  AccessExpire: 604800
+  AccessExpire: 6048000
 Prometheus:
   Host: 127.0.0.1
   Port: 9800

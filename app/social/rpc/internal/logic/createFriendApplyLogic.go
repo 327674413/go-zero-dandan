@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"database/sql"
+	"github.com/zeromicro/go-zero/core/contextx"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
@@ -88,7 +89,6 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 		}); err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "更新我的好友表失败", resd.MysqlUpdateErr)
 		}
-
 	}
 	//确保有对方 - 我的关系
 	if existFriend == nil {
@@ -157,7 +157,20 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if err := tx.Commit(); err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlCommitErr)
 	}
-	l.sendNotice(in)
+	asyncCtx := contextx.ValueOnlyFrom(l.ctx)
+	threading.GoSafe(func() {
+		_, err := l.svc.ImRpc.SendSysMsg(asyncCtx, &imRpc.SendSysMsgReq{
+			PlatId:    in.PlatId,
+			UserId:    in.FriendUid,
+			SendTime:  utild.NowTime(),
+			MsgClasEm: constd.MsgClasEmFriendApplyNew,
+		})
+		if err != nil {
+			logx.Error(err)
+		} else {
+			logx.Debug("推送新好友通知")
+		}
+	})
 	return &socialRpc.CreateFriendApplyResp{
 		ApplyId: applyId,
 	}, nil
@@ -176,15 +189,4 @@ func (l *CreateFriendApplyLogic) checkReqParams(in *socialRpc.CreateFriendApplyR
 		return resd.NewRpcErrCtx(l.ctx, "不能添加自己", resd.SocialNotAddSelf)
 	}
 	return nil
-}
-func (l *CreateFriendApplyLogic) sendNotice(in *socialRpc.CreateFriendApplyReq) {
-	logx.Debug("推送新好友申请通知")
-	threading.GoSafe(func() {
-		l.svc.ImRpc.SendSysMsg(context.Background(), &imRpc.SendSysMsgReq{
-			PlatId:    in.PlatId,
-			UserId:    in.FriendUid,
-			SendTime:  utild.NowTime(),
-			MsgClasEm: constd.MsgClasEmFriendApplyNew,
-		})
-	})
 }

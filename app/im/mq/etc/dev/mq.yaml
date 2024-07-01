@@ -1,6 +1,9 @@
 Name: im.mq
 ListenOn: 0.0.0.0:8823
 Mode: dev
+Log:
+  ServiceName: im-mq
+  Level: debug
 Etcd:
   Hosts:
     - 127.0.0.1:2379

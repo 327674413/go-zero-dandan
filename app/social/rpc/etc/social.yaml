@@ -33,4 +33,4 @@ Telemetry:
   Batcher: jaeger
 Log:
   ServiceName: social-rpc
-  Level: info
+  Level: debug

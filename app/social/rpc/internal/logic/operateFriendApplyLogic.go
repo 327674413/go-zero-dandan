@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/contextx"
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
@@ -134,8 +135,9 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 		return nil, resd.NewRpcErrCtx(l.ctx, "", resd.MysqlCommitErr)
 	}
 	//异步发送好友通过的通知
+	asyncCtx := contextx.ValueOnlyFrom(l.ctx)
 	threading.GoSafe(func() {
-		l.svc.ImRpc.SendSysMsg(l.ctx, &imRpc.SendSysMsgReq{
+		l.svc.ImRpc.SendSysMsg(asyncCtx, &imRpc.SendSysMsgReq{
 			PlatId:     in.PlatId,
 			UserId:     apply.UserId,
 			MsgClasEm:  constd.MsgClasEmFriendApplyOperated,

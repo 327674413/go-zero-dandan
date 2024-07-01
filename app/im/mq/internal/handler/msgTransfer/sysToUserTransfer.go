@@ -23,7 +23,7 @@ func (t *SysToUserTransfer) Consume(key, value string) error {
 		data *kafkad.SysToUserMsg
 		ctx  = context.Background()
 	)
-	logx.Info("消费：", value)
+	logx.Debug("消费：", value)
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
 		t.Errorf("msgTransfer 消费失败,err:%v", err)
 	}
@@ -31,8 +31,9 @@ func (t *SysToUserTransfer) Consume(key, value string) error {
 	return t.Transfer(ctx, &websocketd.Push{
 		MsgClas:  websocketd.MsgClasFriendApplyOperated,
 		RecvId:   data.UserId,
-		MsgType:  websocketd.MsgType(data.MsgType),
+		MsgType:  data.MsgType,
 		Content:  data.MsgContent,
 		SendTime: data.SendTime,
+		ChatType: websocketd.ChatTypeSingle,
 	})
 }

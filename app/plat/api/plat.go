@@ -13,7 +13,7 @@ import (
 	"sync"
 )
 
-var configFile = flag.String("f", "etc/plat-api-dev.yaml", "the config file")
+var configFile = flag.String("f", "etc/plat.yaml", "the config file")
 var restartCh = make(chan config.Config)
 var shutdownCh = make(chan struct{})
 var once sync.Once

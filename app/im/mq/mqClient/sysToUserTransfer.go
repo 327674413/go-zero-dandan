@@ -6,8 +6,8 @@ import (
 	"go-zero-dandan/app/im/mq/kafkad"
 )
 
-// SysMsgTransferClient 系统消息
-type SysMsgTransferClient interface {
+// SysToUserTransferClient 系统消息
+type SysToUserTransferClient interface {
 	Push(msg *kafkad.SysToUserMsg) error
 }
 
@@ -16,7 +16,7 @@ type sysMsgTransferClient struct {
 	pusher *kq.Pusher
 }
 
-func NewSysMsgTransferClient(addr []string, topic string, opts ...kq.PushOption) SysMsgTransferClient {
+func NewSysToUserTransferClient(addr []string, topic string, opts ...kq.PushOption) SysToUserTransferClient {
 	return &sysMsgTransferClient{
 		pusher: kq.NewPusher(addr, topic, opts...),
 	}

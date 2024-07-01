@@ -2,6 +2,7 @@ package msgTransfer
 
 import (
 	"context"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/mq/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
@@ -29,6 +30,8 @@ func (t *baseMsgTransfer) Transfer(ctx context.Context, data *websocketd.Push) e
 		err = t.single(ctx, data)
 	case websocketd.ChatTypeGroup:
 		err = t.group(ctx, data)
+	default:
+		return fmt.Errorf("push暂不支持的chatType：%d", data.ChatType)
 	}
 	return err
 }

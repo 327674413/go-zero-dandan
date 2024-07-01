@@ -2,23 +2,25 @@ Name: user-api
 Host: 0.0.0.0
 Port: 8801
 DB:
-  DataSource: DB_USER:DB_PASS@tcp(DB_IP:DB_PORT)/DB_NAME?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Mode: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
-  AccessExpire: 604800
+  AccessExpire: 6048000
 Conf:
-  LoginTokenExSec: 60480
+  LoginTokenExSec: 6048000
 MessageRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: message.rpc
+  NonBlock: true
 UserRpc:
   Etcd:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+  NonBlock: true
 RedisConf:
   Host: 127.0.0.1:6379
   Type: node
@@ -32,3 +34,7 @@ Telemetry:
   Endpoint: http://localhost:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
+Log:
+  ServiceName: user-api
+  Level: debug
+

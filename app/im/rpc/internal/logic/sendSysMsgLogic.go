@@ -31,7 +31,7 @@ func (l *SendSysMsgLogic) SendSysMsg(in *imRpc.SendSysMsgReq) (*imRpc.ResultResp
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	err := l.svc.SysMsgTransferClient.Push(&kafkad.SysToUserMsg{
+	err := l.svc.SysToUserTransferClient.Push(&kafkad.SysToUserMsg{
 		MsgClas:    websocketd.MsgClas(in.MsgClasEm),
 		UserId:     in.UserId,
 		SendTime:   in.SendTime,
