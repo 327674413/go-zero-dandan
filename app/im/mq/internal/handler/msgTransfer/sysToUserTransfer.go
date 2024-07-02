@@ -3,6 +3,7 @@ package msgTransfer
 import (
 	"context"
 	"encoding/json"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/mq/internal/svc"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/websocketd"
@@ -22,6 +23,7 @@ func (t *SysToUserTransfer) Consume(key, value string) error {
 		data *kafkad.SysToUserMsg
 		ctx  = context.Background()
 	)
+	logx.Debug("消费：", value)
 	if err := json.Unmarshal([]byte(value), &data); err != nil {
 		t.Errorf("msgTransfer 消费失败,err:%v", err)
 	}

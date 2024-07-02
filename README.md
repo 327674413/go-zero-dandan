@@ -4,6 +4,7 @@
 
 # 近期待办
 - kafka第一条消息没有消费到的问题？比如重启ws服务，添加好友申请，第一条申请没有收到，可能是没推给kafka？
+- 让logx支持颜色，标注重点信息和字符串格式化
 - 完善resd，i18n返回中文好像又有问题，rpc返回，并且支持Info和Err， 正常业务校验可以Info类型，确实报错用err
 - 将rpc全定义成指针类型，参考api的做法，生成属性判断和必填校验
 - gozero的kq发送消息是异步的，无法知道是否推送成功，有些消息队列场景需要确保投递成功的
@@ -97,7 +98,7 @@ docker exec -it kafka kafka-topics.sh --create --topic 主题名 --bootstrap-ser
 #往docker里的kafka测试发消息
 docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic 主题名
 #查看当前所有topic
-
+docker exec -it kafka kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092
 ```
 ### 获取模版
 ```
