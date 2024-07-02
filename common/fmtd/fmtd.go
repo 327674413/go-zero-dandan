@@ -17,10 +17,20 @@ const (
 	ColorReset   = "\033[0m"
 )
 
+// Logger 结构体包含日志相关的信息
+type Logger struct {
+	callerDepth int
+}
+
+// WithCaller 设置调用者信息的深度
+func WithCaller(depth int) *Logger {
+	return &Logger{callerDepth: depth}
+}
+
 // Info 打印日志到控制台
-func Info(content string) {
+func (l *Logger) Info(content string) {
 	// 获取调用者的信息
-	_, file, line, ok := runtime.Caller(1)
+	_, file, line, ok := runtime.Caller(l.callerDepth + 1)
 	if !ok {
 		log.Println("Failed to get caller info")
 		return
@@ -35,4 +45,9 @@ func Info(content string) {
 		ColorCyan, currentTime, ColorReset,
 		ColorMagenta, file, line, ColorReset,
 		ColorGreen, content, ColorReset)
+}
+
+// Info 方法，使用默认的调用者深度
+func Info(content string) {
+	WithCaller(1).Info(content)
 }

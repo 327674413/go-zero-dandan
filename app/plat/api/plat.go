@@ -1,83 +1,41 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/proc"
-	"github.com/zeromicro/go-zero/rest"
 	"go-zero-dandan/app/plat/api/internal/config"
 	"go-zero-dandan/app/plat/api/internal/handler"
 	"go-zero-dandan/app/plat/api/internal/svc"
-	"go-zero-dandan/common/configServer"
-	"sync"
+	"net/http"
+
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/plat.yaml", "the config file")
-var restartCh = make(chan config.Config)
-var shutdownCh = make(chan struct{})
-var once sync.Once
+var configFile = flag.String("f", "etc/plat-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
 
-	go watchConfigChanges()
-
 	var c config.Config
-	// Initial load of the configuration
-	err := configServer.NewConfigServer(*configFile, configServer.NewSail(&configServer.Config{
-		ETCDEndpoints:  "127.0.0.1:2379",
-		ProjectKey:     "2-public",
-		Namespace:      "plat",
-		Configs:        "plat-api.yaml",
-		ConfigFilePath: "./etc/conf",
-		LogLevel:       "DEBUG",
-	})).MustLoad(&c, func(bytes []byte) error {
-		logx.Info("配置发生变化，重新加载")
-		var newConf config.Config
-		configServer.LoadFromJsonBytes(bytes, &newConf)
-		restartCh <- newConf
-		return nil
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	restartCh <- c
-	select {}
-}
-
-func watchConfigChanges() {
-	var wg sync.WaitGroup
-
-	for c := range restartCh {
-		wg.Add(1)
-		go func(conf config.Config) {
-			defer wg.Done()
-			runServer(conf)
-		}(c)
-
-		// Wait for the old server to shutdown
-		<-shutdownCh
-	}
-
-	wg.Wait()
-}
-
-func runServer(c config.Config) {
-	server := rest.MustNewServer(c.RestConf)
-	defer func() {
-		server.Stop()
-		shutdownCh <- struct{}{}
-	}()
-
-	once.Do(func() {
-		proc.WrapUp()
-	})
+	conf.MustLoad(*configFile, &c)
+	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
+		// 将错误对象转换为 JSON 格式，并写入响应
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"code":   401,
+			"result": false,
+			"msg":    err.Error(),
+		})
+	}), rest.WithCors())
+	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-	logx.DisableStat() // Disabling periodic console logging
+	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }
