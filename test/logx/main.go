@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-zero-dandan/common/fmtd"
+	"go-zero-dandan/common/resd"
 )
 
 const (
@@ -14,7 +14,27 @@ const (
 	ColorReset   = "\033[0m"
 )
 
+var res *resd.Resp
+
 func main() {
-	//fmt.Println(ColorRed + "红色文字" + ColorReset)
-	fmtd.Info("aaa")
+	res = resd.NewResd(nil, "dev")
+	err := f1()
+	a, _ := resd.AssertErr(err)
+	if a != nil {
+
+	}
+}
+func f1() error {
+	return res.Error(f2())
+}
+func f2() error {
+	err := res.Error(f3())
+	return err
+}
+func f3() error {
+	err := res.Error(f4())
+	return err
+}
+func f4() error {
+	return res.NewError("aaa")
 }

@@ -10,29 +10,58 @@ import (
 	"strings"
 )
 
+// danError自定义错误类型，兼容rpc错误
 type danError struct {
 	Result     bool     `json:"result"`
 	Code       int      `json:"code"`
 	Msg        string   `json:"msg"`
 	temps      []string `json:"-"`
-	callerSkip int
+	level      string   `json:"-"`
+	callers    []string `json:"-"`
+	callerSkip int      `json:"-"`
 }
 
+// error实现
 func (t *danError) Error() string {
 	return fmt.Sprintf("%s", t.Msg)
 }
+
+// SetTemps 设置模i18n的模版
 func (t *danError) SetTemps(temps []string) *danError {
 	t.temps = temps
 	return t
 }
+
+// GetTemps 获取当前设置了的模版
 func (t *danError) GetTemps() []string {
 	return t.temps
 }
+
+func (t *danError) AppendCaller(caller string) *danError {
+	t.callers = append(t.callers, caller)
+	return t
+}
+
+// 创建错误
 func newDanErr(msg string, errCode int, tempStr ...string) *danError {
+	res := &danError{
+		Result:  false,
+		Code:    errCode,
+		Msg:     msg,
+		level:   levelError,
+		callers: make([]string, 0),
+	}
+	if len(tempStr) > 0 {
+		res.SetTemps(tempStr)
+	}
+	return res
+}
+func newDanInfo(msg string, errCode int, tempStr ...string) *danError {
 	res := &danError{
 		Result: false,
 		Code:   errCode,
 		Msg:    msg,
+		level:  levelInfo,
 	}
 	if len(tempStr) > 0 {
 		res.SetTemps(tempStr)
@@ -178,6 +207,7 @@ func RpcErrEncode(err error) error {
 
 func AssertErr(failErr error) (*danError, bool) {
 	if err, ok := failErr.(*danError); ok {
+		fmt.Println(err.callers)
 		return err, ok
 	} else {
 		return nil, false
