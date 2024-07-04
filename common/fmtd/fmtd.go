@@ -28,13 +28,17 @@ func WithCaller(depth int) *logger {
 }
 
 // Info 打印日志到控制台
-func (l *logger) Info(content string) {
-	l.print(content, "info")
+func (l *logger) Info(content ...any) {
+	for _, v := range content {
+		l.print(fmt.Sprintf("%v", v), "info")
+	}
 }
 
 // Error 打印日志到控制台
-func (l *logger) Error(content string) {
-	l.print(content, "error")
+func (l *logger) Error(content ...any) {
+	for _, v := range content {
+		l.print(fmt.Sprintf("%v", v), "error")
+	}
 }
 func (l *logger) print(content string, level string) {
 	// 获取调用者的信息
@@ -64,11 +68,11 @@ func (l *logger) print(content string, level string) {
 }
 
 // Info 方法，使用默认的调用者深度
-func Info(content string) {
-	WithCaller(1).Info(content)
+func Info(content any) {
+	WithCaller(2).Info(content)
 }
 
 // Error 方法，使用默认的调用者深度
-func Error(content string) {
-	WithCaller(1).Error(content)
+func Error(content any) {
+	WithCaller(2).Error(content)
 }

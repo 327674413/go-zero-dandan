@@ -7,6 +7,11 @@ Log:
 DB:
   DataSource: "root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
 Mode: dev
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/land/en_us.toml"
+    - "../../../common/land/zh_cn.toml"
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000

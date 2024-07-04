@@ -10,6 +10,7 @@ import (
 type Resp struct {
 	ctx  context.Context
 	mode string
+	*Transfer
 }
 
 const (
@@ -23,22 +24,24 @@ const (
 )
 
 // NewResd 创建统一错误返回
-func NewResd(ctx context.Context, mode string) *Resp {
-	if ctx == nil {
+func NewResd(ctxOrNil context.Context, langTransfer *Transfer, mode string) *Resp {
+	if ctxOrNil == nil {
 		return &Resp{
-			ctx:  context.Background(),
-			mode: mode,
+			ctx:      context.Background(),
+			mode:     mode,
+			Transfer: langTransfer,
 		}
 	} else {
 		return &Resp{
-			ctx:  ctx,
-			mode: mode,
+			ctx:      ctxOrNil,
+			mode:     mode,
+			Transfer: langTransfer,
 		}
 	}
 }
 
 // 错误返回中的错误方法，可以多次嵌套Error，追溯整个来源
-func (r *Resp) Error(err error, initErrCode ...int) error {
+func (t *Resp) Error(err error, initErrCode ...int) error {
 	errorCode := SysErr
 	if len(initErrCode) > 0 {
 		errorCode = initErrCode[0]
@@ -59,12 +62,10 @@ func (r *Resp) Error(err error, initErrCode ...int) error {
 		//不是自定义错误，创建
 		danErr = newDanErr(err.Error(), errorCode)
 	}
-	if r.mode != "prod" {
-		fmtd.WithCaller(skip).Error(err.Error())
-	}
+	t.fmtdError(skip, errorCode, danErr)
 	return danErr
 }
-func (r *Resp) ErrorWithTemp(err error, errorCode int, temps ...string) error {
+func (t *Resp) ErrorWithTemp(err error, errorCode int, temps ...string) error {
 	skip := 2
 	danErr, ok := err.(*danError)
 	if ok {
@@ -80,38 +81,57 @@ func (r *Resp) ErrorWithTemp(err error, errorCode int, temps ...string) error {
 		//不是自定义错误，创建
 		danErr = newDanErr(err.Error(), errorCode, temps...)
 	}
-	if r.mode != "prod" {
-		fmtd.WithCaller(skip).Error(err.Error())
-	}
+	t.fmtdError(skip, errorCode, danErr)
 	return danErr
 }
-func (r *Resp) NewError(msg string, initErrCode ...int) error {
+func (t *Resp) NewErr(initErrCode ...int) error {
 	errorCode := SysErr
 	if len(initErrCode) > 0 {
 		errorCode = initErrCode[0]
 	}
 	skip := 2
+
 	var danErr *danError
-	if r.mode != "prod" {
-		fmtd.WithCaller(skip).Error(msg)
-	}
-	danErr = newDanErr(msg, errorCode)
+	danErr = newDanErr("", errorCode)
 	_, file, line, ok := runtime.Caller(skip - 1)
 	if ok {
 		danErr.AppendCaller(fmt.Sprintf("%s:%d", file, line))
 	}
+	t.fmtdError(skip, errorCode, danErr)
 	return danErr
 }
-func (r *Resp) NewErrorWithTemp(msg string, errorCode int, temps ...string) error {
+func (t *Resp) NewErrWithTemp(errorCode int, temps ...string) error {
 	skip := 2
 	var danErr *danError
-	if r.mode != "prod" {
-		fmtd.WithCaller(skip).Error(msg)
-	}
-	danErr = newDanErr(msg, errorCode, temps...)
+
+	danErr = newDanErr("", errorCode, temps...)
 	_, file, line, ok := runtime.Caller(skip - 1)
 	if ok {
 		danErr.AppendCaller(fmt.Sprintf("%s:%d", file, line))
 	}
+	t.fmtdError(skip, errorCode, danErr)
 	return danErr
+}
+
+// fmtdError 打印调试信息
+func (t *Resp) fmtdError(skip int, errCode int, danErr *danError) {
+	if t.mode != "prod" {
+		if t.Transfer == nil {
+			fmtd.Error("not set transfer")
+			if danErr.level == levelInfo {
+				fmtd.WithCaller(skip + 1).Info(t.Msg(SysErr))
+			} else {
+				fmtd.WithCaller(skip + 1).Error(t.Msg(SysErr))
+			}
+
+		} else {
+
+			if danErr.level == levelInfo {
+				fmtd.WithCaller(skip + 1).Info(fmt.Sprintf("%d %s", errCode, t.Msg(errCode)))
+			} else {
+				fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("%d %s", errCode, t.Msg(errCode)))
+			}
+		}
+
+	}
 }

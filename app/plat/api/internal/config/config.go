@@ -13,6 +13,10 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 }
 
 var Conf Config

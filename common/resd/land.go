@@ -1,10 +1,11 @@
-package land
+package resd
 
 import (
 	"errors"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"go-zero-dandan/common/fmtd"
 	"golang.org/x/text/language"
 	"path/filepath"
 	"strings"
@@ -51,6 +52,11 @@ func NewI18n(conf *I18nConfig) (*I18n, error) {
 }
 
 func (t *I18n) NewLang(lang string) *Transfer {
+	if t == nil {
+		fmtd.Info("进入到nil了")
+		return nil
+	}
+	//测试模版路径错误时的场景
 	if _, ok := t.acceptLangMap[lang]; !ok {
 		lang = t.defaultLang
 	}
@@ -59,7 +65,10 @@ func (t *I18n) NewLang(lang string) *Transfer {
 
 // Trans 将模版变量注入模版
 func (t *Transfer) Trans(temp string, tempData ...map[string]string) string {
-
+	if t == nil {
+		fmtd.Info("进入到nil了")
+		return ""
+	}
 	var data map[string]string
 	if len(tempData) > 0 {
 		data = tempData[0]
@@ -94,6 +103,9 @@ func (t *Transfer) Msg(msgCode int, tempDataArr ...[]string) string {
 		tempData = tempDataArr[0]
 	}
 	m := make(map[string]string)
+	if t == nil {
+		fmtd.Error("msg的t也是nil")
+	}
 	for i, v := range tempData {
 		key := "Field" + fmt.Sprint(i+1)
 		//*开头的用原值，不进行映射
@@ -104,12 +116,11 @@ func (t *Transfer) Msg(msgCode int, tempDataArr ...[]string) string {
 		}
 
 	}
-	return ""
-	//if code, ok := resd.Msg[msgCode]; ok {
-	//	return t.Trans(code, m)
-	//} else {
-	//	return t.Trans(resd.Msg[resd.SysErr], m)
-	//}
+	if code, ok := Msg[msgCode]; ok {
+		return t.Trans(code, m)
+	} else {
+		return t.Trans(Msg[SysErr], m)
+	}
 
 }
 

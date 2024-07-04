@@ -15,17 +15,17 @@ func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} 
 }
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
     if err = l.init(req);err != nil{
-         return nil,resd.ErrorCtx(l.ctx,err)
+         return l.resd.Error(err)
     }
 
 	{{.returnString}}
 }
 func (l *{{.logic}}) init({{.request}}) (err error) {
-    if err = l.initReq(req);err != nil{
-         return resd.ErrorCtx(l.ctx,err)
+    if err = l.initReq(req); err != nil {
+        return l.resd.Error(err)
     }
     if err = l.initUser(); err != nil {
-        return resd.ErrorCtx(l.ctx,err)
+        return l.resd.Error(err)
     }
     return nil
 }

@@ -16,7 +16,9 @@ import (
 type GetTokenLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -30,11 +32,14 @@ type GetTokenLogicGen struct {
 	}
 }
 
-func NewGetTokenLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *GetTokenLogicGen {
+func NewGetTokenLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetTokenLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetTokenLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, svc.I18n.NewLang(lang), svc.Config.Mode),
 	}
 }
 

@@ -10,7 +10,9 @@ import (
 type {{.logic}} struct {
 	logx.Logger
 	ctx    context.Context
-	svcCtx *svc.ServiceContext
+	svc *svc.ServiceContext
+	resd   *resd.Resp
+	lang string
 	userMainInfo *user.UserMainInfo
 	platId     string
     platClasEm int64
@@ -19,11 +21,14 @@ type {{.logic}} struct {
     {{.danLogicVars}}
 }
 
-func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} {
+func New{{.logic}}(ctx context.Context, svc *svc.ServiceContext) *{{.logic}} {
+    lang, _ := ctx.Value("lang").(string)
 	return &{{.logic}}{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc: svc,
+		lang:lang,
+		resd:   resd.NewResd(ctx, svc.I18n.NewLang(lang), svc.Config.Mode),
 	}
 }
 
