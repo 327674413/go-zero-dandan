@@ -13,9 +13,9 @@
 自己重新改了goctl工具，在cmd/goctl目录下，模版文件在common/goctl/1.5.0下，可以将项目目录下的godan.sh放到gobin目录里，然后建立软链接：
 
 ```
-sudo ln -s /Users/yelin/go_dev/go/bin/godan.sh /usr/local/bin/godan
+sudo ln -s /Users/yelin/go_dev/project/src/go-zero-dandan/godan.sh /usr/local/bin/godan
 ```
-建立完毕后，可以直接通过godan命令生成代码
+建立完毕后，可以直接通过godan命令生成代码,如果有重名连接，可以sudo rm /usr/local/bin/godan 来删除
 ```
 #生成user-api
 godan api user
