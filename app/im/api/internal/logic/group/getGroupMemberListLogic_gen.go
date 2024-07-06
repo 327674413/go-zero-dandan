@@ -16,7 +16,9 @@ import (
 type GetGroupMemberListLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -28,11 +30,14 @@ type GetGroupMemberListLogicGen struct {
 	}
 }
 
-func NewGetGroupMemberListLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *GetGroupMemberListLogicGen {
+func NewGetGroupMemberListLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetGroupMemberListLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetGroupMemberListLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

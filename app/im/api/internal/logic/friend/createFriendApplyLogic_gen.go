@@ -16,7 +16,9 @@ import (
 type CreateFriendApplyLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -32,11 +34,14 @@ type CreateFriendApplyLogicGen struct {
 	}
 }
 
-func NewCreateFriendApplyLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *CreateFriendApplyLogicGen {
+func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateFriendApplyLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &CreateFriendApplyLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

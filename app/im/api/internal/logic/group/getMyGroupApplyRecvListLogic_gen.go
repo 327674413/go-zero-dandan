@@ -15,7 +15,9 @@ import (
 type GetMyGroupApplyRecvListLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -25,11 +27,14 @@ type GetMyGroupApplyRecvListLogicGen struct {
 	}
 }
 
-func NewGetMyGroupApplyRecvListLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyGroupApplyRecvListLogicGen {
+func NewGetMyGroupApplyRecvListLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetMyGroupApplyRecvListLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetMyGroupApplyRecvListLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

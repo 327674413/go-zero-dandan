@@ -1,4 +1,4 @@
-import "types/user.api"
+import "desc/main.api"
 @server(
 	jwt: Auth
 	middleware: LangMiddleware

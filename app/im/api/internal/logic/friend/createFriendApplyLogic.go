@@ -14,16 +14,16 @@ type CreateFriendApplyLogic struct {
 	*CreateFriendApplyLogicGen
 }
 
-func NewCreateFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateFriendApplyLogic {
+func NewCreateFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *CreateFriendApplyLogic {
 	return &CreateFriendApplyLogic{
-		CreateFriendApplyLogicGen: NewCreateFriendApplyLogicGen(ctx, svcCtx),
+		CreateFriendApplyLogicGen: NewCreateFriendApplyLogicGen(ctx, svc),
 	}
 }
 func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyReq) (resp *types.ResultResp, err error) {
 	if err = l.init(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = l.svcCtx.SocialRpc.CreateFriendApply(l.ctx, &socialRpc.CreateFriendApplyReq{
+	_, err = l.svc.SocialRpc.CreateFriendApply(l.ctx, &socialRpc.CreateFriendApplyReq{
 		PlatId:    l.platId,
 		UserId:    l.userMainInfo.Id,
 		FriendUid: l.ReqFriendUid,
@@ -35,7 +35,6 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyR
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.ResultResp{Result: true}, nil
-	return
 }
 func (l *CreateFriendApplyLogic) init(req *types.CreateFriendApplyReq) (err error) {
 	if err = l.initReq(req); err != nil {

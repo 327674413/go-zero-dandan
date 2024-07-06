@@ -4,47 +4,56 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/rest"
-	"go-zero-dandan/app/user/api/global"
 	"go-zero-dandan/app/user/api/internal/config"
 	"go-zero-dandan/app/user/api/internal/handler"
 	"go-zero-dandan/app/user/api/internal/svc"
+	"go-zero-dandan/common/resd"
 	"net/http"
+
+	"github.com/zeromicro/go-zero/core/conf"
+	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/user.yaml", "the config file")
+var configFile = flag.String("f", "etc/user-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-	fmt.Printf("------------Mode：%s-----------\n", c.Mode)
-	global.Config = c //自定义应用内全局的配置参数，在其他文件里使用
+	var err error
+	resd.Mode = c.Mode
+	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
+		LangPathList: c.I18n.Langs,
+		DefaultLang:  c.I18n.Default,
+	})
+	if err != nil {
+		panic(err)
+	}
 	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
-		// 将错误对象转换为 JSON 格式，并写入响应
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"code":   401,
+			"code":   resd.AuthPlatErr,
 			"result": false,
-			"msg":    err.Error(),
+			"msg":    resd.I18n.NewLang(r.FormValue("lang")).Msg(resd.AuthPlatErr),
 		})
 	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
 		//跨域处理
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
+		//w.Header().Set("Access-Control-Allow-Credentials", "true") //允许传输cookies
 	}, "*"))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-
-	logx.DisableStat() //去掉定时出现的控制台打印
+	if c.Mode != "prod" {
+		logx.DisableStat() //去掉定时出现的控制台打印
+	}
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }

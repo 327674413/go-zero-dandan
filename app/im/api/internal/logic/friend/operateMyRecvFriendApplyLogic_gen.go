@@ -16,7 +16,9 @@ import (
 type OperateMyRecvFriendApplyLogicGen struct {
 	logx.Logger
 	ctx               context.Context
-	svcCtx            *svc.ServiceContext
+	svc               *svc.ServiceContext
+	resd              *resd.Resp
+	lang              string
 	userMainInfo      *user.UserMainInfo
 	platId            string
 	platClasEm        int64
@@ -32,11 +34,14 @@ type OperateMyRecvFriendApplyLogicGen struct {
 	}
 }
 
-func NewOperateMyRecvFriendApplyLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *OperateMyRecvFriendApplyLogicGen {
+func NewOperateMyRecvFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *OperateMyRecvFriendApplyLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &OperateMyRecvFriendApplyLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

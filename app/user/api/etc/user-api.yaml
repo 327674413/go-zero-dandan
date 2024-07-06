@@ -9,6 +9,11 @@ Auth:
   AccessExpire: 6048000
 Conf:
   LoginTokenExSec: 6048000
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
 MessageRpc:
   Etcd:
     Hosts:

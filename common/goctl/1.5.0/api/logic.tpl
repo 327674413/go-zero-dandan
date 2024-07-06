@@ -8,9 +8,9 @@ type {{.logic}} struct {
 	*{{.logic}}Gen
 }
 
-func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} {
+func New{{.logic}}(ctx context.Context, svc *svc.ServiceContext) *{{.logic}} {
 	return &{{.logic}}{
-		{{.logic}}Gen: New{{.logic}}Gen(ctx,svcCtx),
+		{{.logic}}Gen: New{{.logic}}Gen(ctx,svc),
 	}
 }
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {

@@ -16,7 +16,9 @@ import (
 type GetMyFriendApplyRecvPageLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -30,11 +32,14 @@ type GetMyFriendApplyRecvPageLogicGen struct {
 	}
 }
 
-func NewGetMyFriendApplyRecvPageLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyFriendApplyRecvPageLogicGen {
+func NewGetMyFriendApplyRecvPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendApplyRecvPageLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetMyFriendApplyRecvPageLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

@@ -11,11 +11,13 @@ import (
 	"strings"
 )
 
+var I18n *DanI18n
+
 type I18nConfig struct {
 	LangPathList []string
 	DefaultLang  string
 }
-type I18n struct {
+type DanI18n struct {
 	bundle        *i18n.Bundle
 	acceptLangMap map[string]bool
 	defaultLang   string
@@ -25,7 +27,7 @@ type Transfer struct {
 }
 
 // NewI18n 使用I18nConfig，其中文件名必须是xxx.toml，xxx会作为NewLang的key
-func NewI18n(conf *I18nConfig) (*I18n, error) {
+func NewI18n(conf *I18nConfig) (*DanI18n, error) {
 	if len(conf.LangPathList) == 0 {
 		return nil, errors.New("param LangPathList required")
 	}
@@ -43,7 +45,7 @@ func NewI18n(conf *I18nConfig) (*I18n, error) {
 		acceptLangMap[strings.TrimSuffix(fileName, filepath.Ext(fileName))] = true
 	}
 
-	return &I18n{
+	return &DanI18n{
 		bundle:        bundle,
 		acceptLangMap: acceptLangMap,
 		defaultLang:   conf.DefaultLang,
@@ -51,7 +53,7 @@ func NewI18n(conf *I18nConfig) (*I18n, error) {
 
 }
 
-func (t *I18n) NewLang(lang string) *Transfer {
+func (t *DanI18n) NewLang(lang string) *Transfer {
 	if t == nil {
 		fmtd.Info("进入到nil了")
 		return nil

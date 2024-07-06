@@ -7,20 +7,21 @@ import (
 )
 
 const (
-	category            = "api"
-	configTemplateFile  = "config.tpl"
-	contextTemplateFile = "context.tpl"
-	etcTemplateFile     = "etc.tpl"
-	handlerTemplateFile = "handler.tpl"
-	logicTemplateFile   = "logic.tpl"
-	// ------danEditStart------
-	logicGenTemplateFile = "logic_gen.tpl"
-	// ------danEditEnd------
+	category                    = "api"
+	configTemplateFile          = "config.tpl"
+	contextTemplateFile         = "context.tpl"
+	etcTemplateFile             = "etc.tpl"
+	handlerTemplateFile         = "handler.tpl"
+	logicTemplateFile           = "logic.tpl"
 	mainTemplateFile            = "main.tpl"
 	middlewareImplementCodeFile = "middleware.tpl"
 	routesTemplateFile          = "routes.tpl"
 	routesAdditionTemplateFile  = "route-addition.tpl"
 	typesTemplateFile           = "types.tpl"
+	// ------danEditStart------
+	logicGenTemplateFile   = "logic_gen.tpl"
+	handlerGenTemplateFile = "handler_gen.tpl"
+	// ------danEditEnd------
 )
 
 var templates = map[string]string{
@@ -30,7 +31,8 @@ var templates = map[string]string{
 	handlerTemplateFile: handlerTemplate,
 	logicTemplateFile:   logicTemplate,
 	// ------danEditStart------
-	logicGenTemplateFile: logicGenTemplate,
+	logicGenTemplateFile:   logicGenTemplate,
+	handlerGenTemplateFile: handlerGenTemplate,
 	// ------danEditEnd------
 	mainTemplateFile:            mainTemplate,
 	middlewareImplementCodeFile: middlewareImplementCode,

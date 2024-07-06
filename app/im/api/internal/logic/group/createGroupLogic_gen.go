@@ -16,7 +16,9 @@ import (
 type CreateGroupLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -28,11 +30,14 @@ type CreateGroupLogicGen struct {
 	}
 }
 
-func NewCreateGroupLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *CreateGroupLogicGen {
+func NewCreateGroupLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateGroupLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &CreateGroupLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

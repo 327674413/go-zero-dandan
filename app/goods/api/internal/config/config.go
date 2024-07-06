@@ -15,6 +15,10 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 	RedisConf redis.RedisConf
 	GoodsRpc  zrpc.RpcClientConf
 }

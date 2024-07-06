@@ -16,20 +16,12 @@ func GetTokenHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
 			return
 		}
-
 		l := logic.NewGetTokenLogic(r.Context(), svcCtx)
 		resp, err := l.GetToken(&req)
 		if err != nil {
-			if danErr, ok := resd.AssertErr(err); ok {
-				if ok {
-					danErr.Msg = svcCtx.I18n.NewLang(r.FormValue("lang")).Msg(danErr.Code, danErr.GetTemps())
-				}
-				httpx.OkJsonCtx(r.Context(), w, danErr)
-			} else {
-				httpx.OkJsonCtx(r.Context(), w, err)
-			}
+			resd.ApiFail(w, r, err)
 		} else {
-			httpx.OkJsonCtx(r.Context(), w, resd.Succ(resp))
+			resd.ApiOk(w, r, resp)
 		}
 	}
 }

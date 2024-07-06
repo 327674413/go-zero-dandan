@@ -15,9 +15,9 @@ type OperateMyRecvFriendApplyLogic struct {
 	*OperateMyRecvFriendApplyLogicGen
 }
 
-func NewOperateMyRecvFriendApplyLogic(ctx context.Context, svcCtx *svc.ServiceContext) *OperateMyRecvFriendApplyLogic {
+func NewOperateMyRecvFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *OperateMyRecvFriendApplyLogic {
 	return &OperateMyRecvFriendApplyLogic{
-		OperateMyRecvFriendApplyLogicGen: NewOperateMyRecvFriendApplyLogicGen(ctx, svcCtx),
+		OperateMyRecvFriendApplyLogicGen: NewOperateMyRecvFriendApplyLogicGen(ctx, svc),
 	}
 }
 func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.OperateMyRecvFriendApplyReq) (resp *types.ResultResp, err error) {
@@ -28,7 +28,7 @@ func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.Oper
 	if !arrd.InArray(l.ReqOperateStateEm, []int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}) {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "", resd.ReqParamFormatErr1, "stateEm")
 	}
-	_, err = l.svcCtx.SocialRpc.OperateFriendApply(l.ctx, &socialRpc.OperateFriendApplyReq{
+	_, err = l.svc.SocialRpc.OperateFriendApply(l.ctx, &socialRpc.OperateFriendApplyReq{
 		ApplyId:        l.ReqApplyId,
 		OperateStateEm: l.ReqOperateStateEm,
 		PlatId:         l.platId,

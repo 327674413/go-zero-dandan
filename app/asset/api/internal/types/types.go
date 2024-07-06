@@ -30,11 +30,11 @@ type MultipartUploadInitReq struct {
 }
 
 type MultipartUploadInitRes struct {
-	UserId        string  `json:"userId,omitempty"`
+	UserId        string  `json:"userId,optional"`
 	State         int64   `json:"state"`
 	FileSha1      string  `json:"fileSha1"`
 	FileSize      int64   `json:"fileSize"`
-	UploadId      string  `json:"uploadId,omitempty"`
+	UploadId      string  `json:"uploadId,optional"`
 	ChunkSize     int64   `json:"chunkSize"`
 	ChunkCount    int64   `json:"chunkCount"`
 	ChunkComplete []int64 `json:"chunkComplete"`

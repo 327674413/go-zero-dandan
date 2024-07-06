@@ -9,26 +9,18 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
 type SearchNewFriendPageLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	*SearchNewFriendPageLogicGen
 }
 
-func NewSearchNewFriendPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchNewFriendPageLogic {
+func NewSearchNewFriendPageLogic(ctx context.Context, svc *svc.ServiceContext) *SearchNewFriendPageLogic {
 	return &SearchNewFriendPageLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		SearchNewFriendPageLogicGen: NewSearchNewFriendPageLogicGen(ctx, svc),
 	}
 }
 
@@ -46,7 +38,7 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 	if keyword == "" {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ReqFieldRequired1, "keyword")
 	}
-	searchRes, err := l.svcCtx.UserRpc.GetUserPage(l.ctx, &userRpc.GetUserPageReq{
+	searchRes, err := l.svc.UserRpc.GetUserPage(l.ctx, &userRpc.GetUserPageReq{
 		PlatId: l.platId,
 		Match: map[string]*userRpc.MatchField{
 			"phone": {Str: &keyword},
@@ -67,7 +59,7 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 		ids = append(ids, v.Id)
 	}
 	if len(list) > 0 {
-		relatsRes, err := l.svcCtx.SocialRpc.GetUserRelation(l.ctx, &socialRpc.GetUserRelationReq{
+		relatsRes, err := l.svc.SocialRpc.GetUserRelation(l.ctx, &socialRpc.GetUserRelationReq{
 			UserId:     l.userMainInfo.Id,
 			FriendUids: ids,
 			PlatId:     l.platId,

@@ -16,7 +16,9 @@ import (
 type SearchNewFriendPageLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -28,11 +30,14 @@ type SearchNewFriendPageLogicGen struct {
 	}
 }
 
-func NewSearchNewFriendPageLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *SearchNewFriendPageLogicGen {
+func NewSearchNewFriendPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *SearchNewFriendPageLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &SearchNewFriendPageLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

@@ -18,6 +18,10 @@ const defaultLogicPackage = "logic"
 //go:embed handler.tpl
 var handlerTemplate string
 
+// ------danEditStart------
+var handlerGenTemplate string
+
+// ------danEditEnd------
 type handlerInfo struct {
 	PkgName            string
 	ImportPackages     string
@@ -61,6 +65,23 @@ func doGenToFile(dir, handler string, cfg *config.Config, group spec.Group,
 	if err != nil {
 		return err
 	}
+
+	// ------danEditStart------
+	// 后来发现好像用公共函数更合适，不然文件上传下载的参数不好定义，暂时又不用了
+	//subDir := getHandlerFolderPath(group, route)
+	//os.Remove(path.Join(dir, subDir, filename+"_gen.go"))
+	//genFile(fileGenConfig{
+	//	dir:             dir,
+	//	subdir:          subDir,
+	//	filename:        filename + "_gen.go",
+	//	templateName:    "handlerTemplate",
+	//	category:        category,
+	//	templateFile:    handlerGenTemplateFile,
+	//	builtinTemplate: handlerTemplate,
+	//	data:            handleObj,
+	//})
+
+	// ------danEditEnd------
 
 	return genFile(fileGenConfig{
 		dir:             dir,

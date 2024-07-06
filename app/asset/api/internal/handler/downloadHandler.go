@@ -20,7 +20,7 @@ func DownloadHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		l := logic.NewDownloadLogic(r.Context(), svcCtx)
 		err := l.Download(w, &req, r)
 		if err != nil {
-			httpx.OkJsonCtx(r.Context(), w, err)
+			resd.ApiFail(w, r, err)
 		}
 	}
 }

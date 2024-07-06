@@ -9,41 +9,23 @@
 
 # 笔记
 
-### 创建user api
-```goctl api new user```
-### 编辑user.api后重新生成代码
-```
-#生成api，进user的desc目录执行
-goctl api go -api user.api -dir ../ -style goZero -home ../../../../common/goctl/1.5.0 
-
-#生成api，在普通的无desc的目录执行
-goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0
-
-#mac电脑可以vim ~/.bash_profile 
-然后加入
-alias gozeroApi='goctl api go -api *.api -dir ./ -style goZero -home ../../../common/goctl/1.5.0'
-```
-### rpc服务创建
-```
-#在rpc目录里新建一个proto文件，然后执行
-goctl rpc protoc social.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+## 代码生成
+自己重新改了goctl工具，在cmd/goctl目录下，模版文件在common/goctl/1.5.0下，可以将项目目录下的godan.sh放到gobin目录里，然后建立软链接：
 
 ```
-### 创建user model
+sudo ln -s /Users/yelin/go_dev/go/bin/godan.sh /usr/local/bin/godan
 ```
-#先创建sql建表文件，如user.sql
-#进入到目录下，执行model生成脚本
-goctl model mysql ddl --src user.sql --dir . -style goZero -home ../../../common/goctl/1.5.0
-#或者直接连接数据库创建
-goctl model mysql datasource --ignore-columns="delete_at" -url="${DB_USER}:${$DB_PASS}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}" -table="${DB_TABLE}" . -style goZero -home ../../../common/goctl/1.5.0
+建立完毕后，可以直接通过godan命令生成代码
 ```
-### 创建mongo的model
-```
-#在根目录下执行，往im/ws/model目录下生成chatlog的model
-goctl model mongo -style goZero --type chatlog --dir ./app/im/modelMongo
+#生成user-api
+godan api user
 
-```
+#生成user-rpc
+godan rpc user
 
+#生成model
+godan model
+```
 
 ### 标准表模版
 ```

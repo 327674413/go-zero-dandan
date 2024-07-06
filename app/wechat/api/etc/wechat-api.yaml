@@ -8,3 +8,8 @@ RedisConf:
   Host: 127.0.0.1:6379
   Type: node
   Pass: G62m50oigInC30sf
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"

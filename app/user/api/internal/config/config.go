@@ -18,6 +18,10 @@ type Config struct {
 	Conf struct {
 		LoginTokenExSec int
 	}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 	MessageRpc zrpc.RpcClientConf
 	UserRpc    zrpc.RpcClientConf
 	RedisConf  redis.RedisConf

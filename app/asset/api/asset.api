@@ -69,7 +69,7 @@ service asset-api {
 )
 service asset-api {
 	@handler Download
-	post /download(DownloadReq)
+	post /download(DownloadReq) returns ()
 	@handler MultipartUploadInit
 	post /multipartUpload/init (MultipartUploadInitReq) returns (MultipartUploadInitRes)
 	

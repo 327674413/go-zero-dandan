@@ -41,6 +41,10 @@ type Config struct {
 	DB        struct {
 		DataSource string
 	}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 }
 
 var Conf Config

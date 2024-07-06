@@ -7,26 +7,18 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
 type GetMyFriendApplyRecvPageLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	*GetMyFriendApplyRecvPageLogicGen
 }
 
-func NewGetMyFriendApplyRecvPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyFriendApplyRecvPageLogic {
+func NewGetMyFriendApplyRecvPageLogic(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendApplyRecvPageLogic {
 	return &GetMyFriendApplyRecvPageLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		GetMyFriendApplyRecvPageLogicGen: NewGetMyFriendApplyRecvPageLogicGen(ctx, svc),
 	}
 }
 
@@ -47,7 +39,7 @@ func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(req *types.GetM
 	if req.Size != nil {
 		rpcReq.Size = *req.Size
 	}
-	res, err := l.svcCtx.SocialRpc.GetUserRecvFriendApplyPage(l.ctx, rpcReq)
+	res, err := l.svc.SocialRpc.GetUserRecvFriendApplyPage(l.ctx, rpcReq)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}

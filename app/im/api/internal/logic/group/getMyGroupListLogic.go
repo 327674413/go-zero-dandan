@@ -6,26 +6,18 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
 type GetMyGroupListLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	*GetMyGroupListLogicGen
 }
 
-func NewGetMyGroupListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyGroupListLogic {
+func NewGetMyGroupListLogic(ctx context.Context, svc *svc.ServiceContext) *GetMyGroupListLogic {
 	return &GetMyGroupListLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		GetMyGroupListLogicGen: NewGetMyGroupListLogicGen(ctx, svc),
 	}
 }
 

@@ -8,26 +8,18 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
 type GetMyFriendListLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	*GetMyFriendListLogicGen
 }
 
-func NewGetMyFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyFriendListLogic {
+func NewGetMyFriendListLogic(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendListLogic {
 	return &GetMyFriendListLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		GetMyFriendListLogicGen: NewGetMyFriendListLogicGen(ctx, svc),
 	}
 }
 
@@ -38,7 +30,7 @@ func (l *GetMyFriendListLogic) GetMyFriendList() (resp *types.FriendListResp, er
 	if err = l.initUser(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	friends, err := l.svcCtx.SocialRpc.GetUserFriendList(l.ctx, &social.GetUserFriendListReq{
+	friends, err := l.svc.SocialRpc.GetUserFriendList(l.ctx, &social.GetUserFriendListReq{
 		UserId: l.userMainInfo.Id,
 		PlatId: l.platId,
 	})

@@ -15,7 +15,9 @@ import (
 type GetMyFriendListLogicGen struct {
 	logx.Logger
 	ctx          context.Context
-	svcCtx       *svc.ServiceContext
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	lang         string
 	userMainInfo *user.UserMainInfo
 	platId       string
 	platClasEm   int64
@@ -25,11 +27,14 @@ type GetMyFriendListLogicGen struct {
 	}
 }
 
-func NewGetMyFriendListLogicGen(ctx context.Context, svcCtx *svc.ServiceContext) *GetMyFriendListLogicGen {
+func NewGetMyFriendListLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendListLogicGen {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetMyFriendListLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
-		svcCtx: svcCtx,
+		svc:    svc,
+		lang:   lang,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

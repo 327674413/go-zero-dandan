@@ -7,6 +7,8 @@ import (
 	"runtime"
 )
 
+var Mode string
+
 type Resp struct {
 	ctx  context.Context
 	mode string
@@ -24,17 +26,15 @@ const (
 )
 
 // NewResd 创建统一错误返回
-func NewResd(ctxOrNil context.Context, langTransfer *Transfer, mode string) *Resp {
+func NewResd(ctxOrNil context.Context, langTransfer *Transfer) *Resp {
 	if ctxOrNil == nil {
 		return &Resp{
 			ctx:      context.Background(),
-			mode:     mode,
 			Transfer: langTransfer,
 		}
 	} else {
 		return &Resp{
 			ctx:      ctxOrNil,
-			mode:     mode,
 			Transfer: langTransfer,
 		}
 	}

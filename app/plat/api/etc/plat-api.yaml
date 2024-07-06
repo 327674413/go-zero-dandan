@@ -10,8 +10,8 @@ Mode: dev
 I18n:
   Default: zh-cn
   Langs:
-    - "../../../common/land/en_us.toml"
-    - "../../../common/land/zh_cn.toml"
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000

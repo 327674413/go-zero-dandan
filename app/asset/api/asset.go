@@ -8,27 +8,36 @@ import (
 	"go-zero-dandan/app/asset/api/internal/config"
 	"go-zero-dandan/app/asset/api/internal/handler"
 	"go-zero-dandan/app/asset/api/internal/svc"
+	"go-zero-dandan/common/resd"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/asset-api-dev.yaml", "the config file")
+var configFile = flag.String("f", "etc/asset-api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
 
 	var c config.Config
+	var err error
 	conf.MustLoad(*configFile, &c)
+	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
+		LangPathList: c.I18n.Langs,
+		DefaultLang:  c.I18n.Default,
+	})
+	if err != nil {
+		panic(err)
+	}
 	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
 		// 将错误对象转换为 JSON 格式，并写入响应
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"code":   401,
+			"code":   resd.AuthPlatErr,
 			"result": false,
-			"msg":    err.Error(),
+			"msg":    resd.I18n.NewLang(r.FormValue("lang")).Msg(resd.AuthPlatErr),
 		})
 	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
 		//跨域处理

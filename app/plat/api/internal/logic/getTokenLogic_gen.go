@@ -39,7 +39,7 @@ func NewGetTokenLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetToken
 		ctx:    ctx,
 		svc:    svc,
 		lang:   lang,
-		resd:   resd.NewResd(ctx, svc.I18n.NewLang(lang), svc.Config.Mode),
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 

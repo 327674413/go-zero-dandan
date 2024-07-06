@@ -12,9 +12,9 @@ type CreateGroupLogic struct {
 	*CreateGroupLogicGen
 }
 
-func NewCreateGroupLogic(ctx context.Context, svcCtx *svc.ServiceContext) *CreateGroupLogic {
+func NewCreateGroupLogic(ctx context.Context, svc *svc.ServiceContext) *CreateGroupLogic {
 	return &CreateGroupLogic{
-		CreateGroupLogicGen: NewCreateGroupLogicGen(ctx, svcCtx),
+		CreateGroupLogicGen: NewCreateGroupLogicGen(ctx, svc),
 	}
 }
 func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupReq) (resp *types.CreateGroupResp, err error) {
