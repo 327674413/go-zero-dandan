@@ -113,10 +113,28 @@ type (
 	}
 )
 
-func newSocialGroupMemberApplyModel(conn sqlx.SqlConn, platId string) *defaultSocialGroupMemberApplyModel {
+// NewSocialGroupMemberApplyModel returns a model for the database table.
+func NewSocialGroupMemberApplyModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) SocialGroupMemberApplyModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customSocialGroupMemberApplyModel{
+		defaultSocialGroupMemberApplyModel: newSocialGroupMemberApplyModel(ctxOrNil, conn, platid),
+		softDeletable:                      softDeletableSocialGroupMemberApply,
+	}
+}
+func newSocialGroupMemberApplyModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultSocialGroupMemberApplyModel {
 	dao := dao.NewSqlxDao(conn, "`social_group_member_apply`", defaultSocialGroupMemberApplyFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultSocialGroupMemberApplyModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`social_group_member_apply`",

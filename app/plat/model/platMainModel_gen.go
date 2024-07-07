@@ -90,25 +90,43 @@ type (
 	}
 
 	PlatMain struct {
-		Id          string `db:"id"`
-		Appid       string `db:"appid"`         // 对外应用标识
-		Secret      string `db:"secret"`        // 对外应用密钥
-		StateEm     int64  `db:"state_em"`      // 应用状态
-		RenterId    int64  `db:"renter_id"`     // 租户id
-		Name        string `db:"name"`          // 应用名称
-		ClasEm      int64  `db:"clas_em"`       // 应用类型
-		ExpireAt    int64  `db:"expire_at"`     // 应用到期时间戳
-		DataLevelEm int64  `db:"data_level_em"` // 应用数据隔离级别，0单应用级，1同用户所有应用，99不隔离平台应用
-		CreateAt    int64  `db:"create_at"`     // 创建时间戳
-		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
-		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
+		Id          string `db:"id" json:"id"`
+		Appid       string `db:"appid" json:"appid"`               // 对外应用标识
+		Secret      string `db:"secret" json:"secret"`             // 对外应用密钥
+		StateEm     int64  `db:"state_em" json:"stateEm"`          // 应用状态
+		RenterId    int64  `db:"renter_id" json:"renterId"`        // 租户id
+		Name        string `db:"name" json:"name"`                 // 应用名称
+		ClasEm      int64  `db:"clas_em" json:"clasEm"`            // 应用类型
+		ExpireAt    int64  `db:"expire_at" json:"expireAt"`        // 应用到期时间戳
+		DataLevelEm int64  `db:"data_level_em" json:"dataLevelEm"` // 应用数据隔离级别，0单应用级，1同用户所有应用，99不隔离平台应用
+		CreateAt    int64  `db:"create_at" json:"createAt"`        // 创建时间戳
+		UpdateAt    int64  `db:"update_at" json:"updateAt"`        // 更新时间戳
+		DeleteAt    int64  `db:"delete_at" json:"deleteAt"`        // 删除时间戳
 	}
 )
 
-func newPlatMainModel(conn sqlx.SqlConn, platId string) *defaultPlatMainModel {
+// NewPlatMainModel returns a model for the database table.
+func NewPlatMainModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) PlatMainModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customPlatMainModel{
+		defaultPlatMainModel: newPlatMainModel(ctxOrNil, conn, platid),
+		softDeletable:        softDeletablePlatMain,
+	}
+}
+func newPlatMainModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultPlatMainModel {
 	dao := dao.NewSqlxDao(conn, "`plat_main`", defaultPlatMainFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultPlatMainModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`plat_main`",

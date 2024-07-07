@@ -32,7 +32,7 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendLi
 	if in.UserId == "" {
 		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "缺少UserId", resd.ReqFieldRequired1, "*UserId")
 	}
-	m := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
+	m := model.NewSocialFriendModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 
 	list, err := m.Where("user_id = ?", in.UserId).Select()
 

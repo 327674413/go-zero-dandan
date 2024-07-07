@@ -37,7 +37,7 @@ func (l *GetUserByIdLogic) GetUserById(in *userRpc.IdReq) (*userRpc.UserMainInfo
 		return userInfo, nil
 	}
 	//没数据，从数据库查询
-	userModel := model.NewUserMainModel(l.svcCtx.SqlConn, in.PlatId)
+	userModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	userMain, err := userModel.WhereId(in.Id).Find()
 	if err != nil {
 		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr))

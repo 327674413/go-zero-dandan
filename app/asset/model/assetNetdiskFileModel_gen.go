@@ -127,10 +127,28 @@ type (
 	}
 )
 
-func newAssetNetdiskFileModel(conn sqlx.SqlConn, platId string) *defaultAssetNetdiskFileModel {
+// NewAssetNetdiskFileModel returns a model for the database table.
+func NewAssetNetdiskFileModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) AssetNetdiskFileModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customAssetNetdiskFileModel{
+		defaultAssetNetdiskFileModel: newAssetNetdiskFileModel(ctxOrNil, conn, platid),
+		softDeletable:                softDeletableAssetNetdiskFile,
+	}
+}
+func newAssetNetdiskFileModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultAssetNetdiskFileModel {
 	dao := dao.NewSqlxDao(conn, "`asset_netdisk_file`", defaultAssetNetdiskFileFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultAssetNetdiskFileModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`asset_netdisk_file`",

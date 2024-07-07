@@ -34,16 +34,27 @@ case $1 in
            goctl rpc protoc $SERVICE_NAME.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
         else
             # 开发模式构建并执行命令
-            cd $PROJECT_PATH/cmd/goctl/
-            go build goctl.go
-            cd $PROJECT_PATH/app/$SERVICE_NAME/rpc
-            $PROJECT_PATH/cmd/goctl/goctl rpc protoc $SERVICE_NAME.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+            cd $PROJECT_PATH/cmd/genProto/
+            output=$(go run . -rpc="$SERVICE_NAME")
+            # 检查输出是否包含 "gen proto success"
+            if echo "$output" | grep -q "gen proto success"; then
+                cd $PROJECT_PATH/cmd/goctl/
+                go build goctl.go
+                cd $PROJECT_PATH/cmd/goctl/
+                go build goctl.go
+                cd $PROJECT_PATH/app/$SERVICE_NAME/rpc
+                $PROJECT_PATH/cmd/goctl/goctl rpc protoc $SERVICE_NAME.proto --go_out=./types --go-grpc_out=./types --zrpc_out=. -style goZero -home ../../../common/goctl/1.5.0
+            else
+                echo $output
+                echo -e "\033[0;31mError：Proto generation failed\033[0m"
+                exit 1
+            fi
         fi
         ;;
     model)
-        cd $PROJECT_PATH/cmd/updateModel/
-        if [ "$2" == "-prod" ]; then
-            echo "暂无 model -prod命令"
+        cd $PROJECT_PATH/cmd/genModel/
+        if [ "$2" != "" ]; then
+            go run ./ -tb="$2" -dev
         else
             go run ./ -dev
         fi

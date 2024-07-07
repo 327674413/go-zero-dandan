@@ -35,6 +35,7 @@ var appPath = path.Join(rootPath, "app")
 var goctlDevPath = path.Join(rootPath, "cmd/goctl")
 
 var isDev = flag.Bool("dev", false, "run mode")
+var singleTb = flag.String("tb", "", "single table")
 var goctlPrefix string
 
 func main() {
@@ -62,6 +63,9 @@ func main() {
 
 	for _, cmd := range commands {
 		for _, table := range cmd.Tables {
+			if *singleTb != "" && *singleTb != table {
+				continue
+			}
 			err = updateModelFile(cmd.Path, table)
 			if err != nil {
 				fmt.Printf("------------- Error: Path: %s , Table:%s , Update Fail:%v -----------", cmd.Path, table, err)

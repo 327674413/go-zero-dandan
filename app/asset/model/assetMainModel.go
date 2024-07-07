@@ -1,8 +1,7 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
-
 var _ AssetMainModel = (*customAssetMainModel)(nil)
+var softDeletableAssetMain = true
 
 type (
 	// AssetMainModel is an interface to be customized, add more methods here,
@@ -15,18 +14,5 @@ type (
 		*defaultAssetMainModel
 		softDeletable bool
 	}
+	// 自定义方法加在customAssetMainModel上
 )
-
-// NewAssetMainModel returns a model for the database table.
-func NewAssetMainModel(conn sqlx.SqlConn, platId ...string) AssetMainModel {
-	var platid string
-	if len(platId) > 0 {
-		platid = platId[0]
-	} else {
-		platid = ""
-	}
-	return &customAssetMainModel{
-		defaultAssetMainModel: newAssetMainModel(conn, platid),
-		softDeletable:         true, //是否启用软删除
-	}
-}

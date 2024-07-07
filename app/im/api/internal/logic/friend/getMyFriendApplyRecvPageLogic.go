@@ -2,7 +2,9 @@ package friend
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/trace"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
+	"go-zero-dandan/common/fmtd"
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
@@ -39,6 +41,7 @@ func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(req *types.GetM
 	if req.Size != nil {
 		rpcReq.Size = *req.Size
 	}
+	fmtd.Info(trace.TraceIDFromContext(l.ctx))
 	res, err := l.svc.SocialRpc.GetUserRecvFriendApplyPage(l.ctx, rpcReq)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)

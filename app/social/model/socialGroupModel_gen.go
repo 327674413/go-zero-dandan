@@ -109,10 +109,28 @@ type (
 	}
 )
 
-func newSocialGroupModel(conn sqlx.SqlConn, platId string) *defaultSocialGroupModel {
+// NewSocialGroupModel returns a model for the database table.
+func NewSocialGroupModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) SocialGroupModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customSocialGroupModel{
+		defaultSocialGroupModel: newSocialGroupModel(ctxOrNil, conn, platid),
+		softDeletable:           softDeletableSocialGroup,
+	}
+}
+func newSocialGroupModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultSocialGroupModel {
 	dao := dao.NewSqlxDao(conn, "`social_group`", defaultSocialGroupFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultSocialGroupModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`social_group`",

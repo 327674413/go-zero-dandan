@@ -105,10 +105,28 @@ type (
 	}
 )
 
-func newMessageSmsTempModel(conn sqlx.SqlConn, platId string) *defaultMessageSmsTempModel {
+// NewMessageSmsTempModel returns a model for the database table.
+func NewMessageSmsTempModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) MessageSmsTempModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customMessageSmsTempModel{
+		defaultMessageSmsTempModel: newMessageSmsTempModel(ctxOrNil, conn, platid),
+		softDeletable:              softDeletableMessageSmsTemp,
+	}
+}
+func newMessageSmsTempModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultMessageSmsTempModel {
 	dao := dao.NewSqlxDao(conn, "`message_sms_temp`", defaultMessageSmsTempFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultMessageSmsTempModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`message_sms_temp`",

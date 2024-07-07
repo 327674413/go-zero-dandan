@@ -115,10 +115,28 @@ type (
 	}
 )
 
-func newSocialFriendApplyModel(conn sqlx.SqlConn, platId string) *defaultSocialFriendApplyModel {
+// NewSocialFriendApplyModel returns a model for the database table.
+func NewSocialFriendApplyModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) SocialFriendApplyModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customSocialFriendApplyModel{
+		defaultSocialFriendApplyModel: newSocialFriendApplyModel(ctxOrNil, conn, platid),
+		softDeletable:                 softDeletableSocialFriendApply,
+	}
+}
+func newSocialFriendApplyModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultSocialFriendApplyModel {
 	dao := dao.NewSqlxDao(conn, "`social_friend_apply`", defaultSocialFriendApplyFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultSocialFriendApplyModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`social_friend_apply`",

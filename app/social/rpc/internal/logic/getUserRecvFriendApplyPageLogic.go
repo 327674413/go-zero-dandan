@@ -29,7 +29,7 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	applyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	list, err := applyModel.Where("friend_uid = ?", in.UserId).Except("content").Order("apply_last_at DESC").Page(in.Page, in.Size).Select()
 	if err != nil {
 		return nil, resd.NewRpcErrWithTempCtx(l.ctx, err.Error(), resd.MysqlSelectErr)

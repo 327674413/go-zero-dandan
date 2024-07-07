@@ -1,7 +1,25 @@
-func new{{.upperStartCamelObject}}Model(conn sqlx.SqlConn,platId string) *default{{.upperStartCamelObject}}Model {
+// New{{.upperStartCamelObject}}Model returns a model for the database table.
+func New{{.upperStartCamelObject}}Model(ctxOrNil context.Context,conn sqlx.SqlConn,platId ...string) {{.upperStartCamelObject}}Model {
+	var platid string
+    if len(platId) > 0 {
+        platid = platId[0]
+    } else {
+        platid = ""
+    }
+    if ctxOrNil == nil {
+        ctxOrNil = context.Background()
+    }
+	return &custom{{.upperStartCamelObject}}Model{
+		default{{.upperStartCamelObject}}Model: new{{.upperStartCamelObject}}Model(ctxOrNil,conn,platid),
+		softDeletable:softDeletable{{.upperStartCamelObject}},
+	}
+}
+func new{{.upperStartCamelObject}}Model(ctx context.Context,conn sqlx.SqlConn,platId string) *default{{.upperStartCamelObject}}Model {
 	dao := dao.NewSqlxDao(conn, {{.table}}, default{{.upperStartCamelObject}}Fields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &default{{.upperStartCamelObject}}Model{
+	    ctx:ctx,
 		conn:       conn,
 		dao:        dao,
 		table:      {{.table}},

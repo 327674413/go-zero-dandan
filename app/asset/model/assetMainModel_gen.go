@@ -111,10 +111,28 @@ type (
 	}
 )
 
-func newAssetMainModel(conn sqlx.SqlConn, platId string) *defaultAssetMainModel {
+// NewAssetMainModel returns a model for the database table.
+func NewAssetMainModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) AssetMainModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customAssetMainModel{
+		defaultAssetMainModel: newAssetMainModel(ctxOrNil, conn, platid),
+		softDeletable:         softDeletableAssetMain,
+	}
+}
+func newAssetMainModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultAssetMainModel {
 	dao := dao.NewSqlxDao(conn, "`asset_main`", defaultAssetMainFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultAssetMainModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`asset_main`",

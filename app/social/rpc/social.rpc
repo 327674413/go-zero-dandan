@@ -1,0 +1,258 @@
+type MatchField {
+  Type string
+  Str string
+  Strs string
+  Num int64
+  Nums []int64
+  IsFuzzy bool
+  Raws []string
+}
+type GetUserRelationReq{
+  PlatId string
+  UserId string
+  friendUids []string
+}
+type GetUserRelationResp{
+  Relats map[string]int64
+}
+
+// 好友信息
+type FriendInfo {
+  Id string
+  UserId string
+  Remark string
+  SourceEm int64
+  FriendUid string
+  PlatId string
+  FriendName string
+  FriendAlias string
+  FriendIcon string
+}
+
+
+
+type FriendApply {
+  Id             string
+  UserId         string
+  FriendUid      string
+  ApplyLastMsg   string
+  ApplyLastAt    int64
+  OperateMsg     string
+  OperateAt      int64
+  StateEm        int64
+  PlatId         string
+  FriendName     string
+  FriendAvatarImg string
+  FriendSex      int64
+  UserName       string
+  UserAvatarImg  string
+  UserSex        int64
+}
+
+type GroupInfo {
+  Id          string
+  Name        string
+  StateEm     int64
+  TypeEm      int64
+  CreateUid   string
+  IsVerify    int64
+  NotiContent string
+  NotiUid     string
+  PlatId      string
+  Code        string
+}
+
+type GroupMember {
+  Id           string
+  GroupId      string
+  UserId       string
+  RoleLevel    int64
+  JoinAt       int64
+  JoinSourceEm int64
+  InviteUid    string
+  OperateUid   string
+  PlatId       string
+}
+
+type GroupMemberApply {
+  Id             string
+  GroupId        string
+  UserId         string
+  ApplyMsg       string
+  ApplyAt        int64
+  JoinSourceEm   int64
+  InviteUid      string
+  OperateUid     string
+  OperateStateEm int64 // 处理结果
+  OperateAt      int64
+  PlatId         string
+  OperateMsg     string
+}
+// req resp
+type ResultResp struct {
+  Result bool
+  Msg    string
+}
+
+type CreateFriendApplyReq struct {
+  PlatId    string
+  UserId    string
+  FriendUid string
+  ApplyMsg  string
+  ApplyAt   int64
+  SourceEm  int64
+}
+
+type CreateFriendApplyResp struct {
+  ApplyId string
+}
+
+type OperateFriendApplyReq struct {
+  ApplyId        string
+  OperateUid     string
+  OperateStateEm int64
+  PlatId         string
+  OperateMsg     string
+  SysRoleEm      string
+  SysRoleUid     string
+}
+
+type GetUserRecvFriendApplyPageReq struct {
+  UserId      string
+  PlatId      string
+  Page        int64
+  Size        int64
+  IsNeedTotal int64
+  Match       map[string]MatchField
+}
+
+type FriendApplyPageResp struct {
+  List  []FriendApply
+  Total int64
+}
+
+type GetUserFriendListReq struct {
+  UserId string
+  PlatId string
+}
+
+type FriendListResp struct {
+  List []FriendInfo
+}
+
+type GetFriendOnlineReq struct {
+  UserId string
+  PlatId string
+}
+
+type FriendOnlineResp struct {
+  OnlineUser map[string]bool
+}
+
+// 群
+type GetGroupUserOnlineReq struct {
+  GroupId string
+  PlatId  string
+}
+
+type GroupUserOnlineResp struct {
+  OnlineUser map[string]bool
+}
+
+type CreateGroupReq struct {
+  Name      string
+  Status    int64
+  CreateUid string
+  PlatId    string
+}
+
+type CreateGroupResp struct {
+  Id string
+}
+
+type CreateGroupMemberApplyReq struct {
+  PlatId      string
+  GroupId     string
+  ApplyMsg    string
+  JoinSourceEm int64
+  InviteUid   string
+}
+
+type CreateGroupMemberApplyResp struct {
+  ApplyId string
+}
+
+type GetUserGroupMemberApplyListReq struct {
+  UserId string
+  PlatId string
+}
+
+type GroupMemberApplyListResp struct {
+  List []GroupMemberApply
+}
+
+type OperateGroupMemberApplyReq struct {
+  ApplyId        string
+  GroupId        string
+  OperateUid     string
+  OperateStateEm int64 // 处理结果
+  PlatId         string
+  OperateMsg     string
+}
+
+type GetUserGroupListReq struct {
+  UserId string
+  PlatId string
+}
+
+type GroupListResp struct {
+  List []GroupInfo
+}
+
+type GetGroupMemberListReq struct {
+  GroupId string
+  PlatId  string
+}
+
+type GroupMemberListResp struct {
+  List []GroupMember
+}
+@server(
+  middleware: LangMiddleware
+)
+
+service social{
+  @handler CreateFriendApply
+  post /CreateFriendApply(CreateFriendApplyReq) returns (CreateFriendApplyResp)
+  @handler OperateFriendApply
+  post /OperateFriendApply(OperateFriendApplyReq) returns (ResultResp)
+  @handler GetUserRecvFriendApplyPage
+  post /GetUserRecvFriendApplyPage(GetUserRecvFriendApplyPageReq) returns (FriendApplyPageResp)
+  @handler GetUserFriendList
+  post /GetUserFriendList(GetUserFriendListReq) returns (FriendListResp)
+  @handler GetFriendOnline
+  post /GetFriendOnline(GetFriendOnlineReq) returns (FriendOnlineResp)
+  @handler GetUserRelation
+  post /GetUserRelation(GetUserRelationReq) returns (GetUserRelationResp)
+  @handler CreateGroup
+  post /CreateGroup(CreateGroupReq) returns (CreateGroupResp)
+  @handler CreateGroupMemberApply
+  post /CreateGroupMemberApply(CreateGroupMemberApplyReq) returns (CreateGroupMemberApplyResp)
+
+  @handler GetUserGroupMemberApplyList
+  post /GetUserGroupMemberApplyList(GetUserGroupMemberApplyListReq) returns (GroupMemberApplyListResp)
+
+  @handler OperateGroupMemberApply
+  post /OperateGroupMemberApply(OperateGroupMemberApplyReq) returns (ResultResp)
+
+
+  @handler GetUserGroupList
+  post /GetUserGroupList(GetUserGroupListReq) returns (GroupListResp)
+
+  @handler GetGroupMemberList
+  post /GetGroupMemberList(GetGroupMemberListReq) returns (GroupMemberListResp)
+
+  @handler GetGroupUserOnline
+  post /GetGroupUserOnline(GetGroupUserOnlineReq) returns (GroupUserOnlineResp)
+
+}

@@ -15,11 +15,14 @@ const (
 	etcTemplateFileFile               = "etc.tpl"
 	logicTemplateFileFile             = "logic.tpl"
 	logicFuncTemplateFileFile         = "logic-func.tpl"
-	mainTemplateFile                  = "main.tpl"
-	serverTemplateFile                = "server.tpl"
-	serverFuncTemplateFile            = "server-func.tpl"
-	svcTemplateFile                   = "svc.tpl"
-	rpcTemplateFile                   = "template.tpl"
+	// ------danEditStart------
+	logicGenTemplateFileFile = "login_gen.tpl"
+	// ------danEditEnd------
+	mainTemplateFile       = "main.tpl"
+	serverTemplateFile     = "server.tpl"
+	serverFuncTemplateFile = "server-func.tpl"
+	svcTemplateFile        = "svc.tpl"
+	rpcTemplateFile        = "template.tpl"
 )
 
 var templates = map[string]string{

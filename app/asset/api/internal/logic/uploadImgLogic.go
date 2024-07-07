@@ -63,7 +63,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		Path:     res.Path,
 	}
-	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
+	assetMainModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
 	_, err = assetMainModel.Insert(assetMainData)
 	if err != nil {
 		return nil, resd.Error(err)

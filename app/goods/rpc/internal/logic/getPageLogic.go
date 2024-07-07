@@ -4,7 +4,7 @@ import (
 	"context"
 	"go-zero-dandan/app/goods/model"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
-	"go-zero-dandan/app/goods/rpc/types/pb"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,23 +24,23 @@ func NewGetPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPageLo
 	}
 }
 
-func (l *GetPageLogic) GetPage(in *pb.GetPageReq) (*pb.GetPageResp, error) {
+func (l *GetPageLogic) GetPage(in *goodsRpc.GetPageReq) (*goodsRpc.GetPageResp, error) {
 	page := in.Page
 	size := in.Size
 	sort := in.Sort
 	if size == 0 {
 		size = defaultPageSize
 	}
-	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
+	goodsModel := model.NewGoodsMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	list, err := goodsModel.Ctx(l.ctx).Page(page, size).Order(sort).CacheSelect(l.svcCtx.Redis)
 	if err != nil {
 		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err))
 	}
 	page, size = goodsModel.Dao().GetLastQueryPageAndSize()
 	isCache := goodsModel.Dao().GetLastQueryIsCache()
-	goodsList := make([]*pb.GoodsInfo, 0)
+	goodsList := make([]*goodsRpc.GoodsInfo, 0)
 	for _, item := range list {
-		goodsList = append(goodsList, &pb.GoodsInfo{
+		goodsList = append(goodsList, &goodsRpc.GoodsInfo{
 			Id:        item.Id,
 			Name:      item.Name,
 			Spec:      item.Spec,
@@ -54,7 +54,7 @@ func (l *GetPageLogic) GetPage(in *pb.GetPageReq) (*pb.GetPageResp, error) {
 			PlatId:    item.PlatId,
 		})
 	}
-	return &pb.GetPageResp{
+	return &goodsRpc.GetPageResp{
 		Page:    page,
 		Size:    size,
 		List:    goodsList,

@@ -11,21 +11,24 @@ import (
 
 type GetUserByTokenLogic struct {
 	ctx    context.Context
+	resd   *resd.Resp
 	svcCtx *svc.ServiceContext
 	logx.Logger
 }
 
 func NewGetUserByTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserByTokenLogic {
+	lang, _ := ctx.Value("lang").(string)
 	return &GetUserByTokenLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
+		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
 		Logger: logx.WithContext(ctx),
 	}
 }
 
 func (l *GetUserByTokenLogic) GetUserByToken(in *userRpc.TokenReq) (*userRpc.UserMainInfo, error) {
 	userInfo := &userRpc.UserMainInfo{}
-	_, err := l.svcCtx.Redis.GetData(constd.RedisKeyUserToken, in.Token, userInfo)
+	_, err := l.svcCtx.Redis.GetDataCtx(l.ctx, constd.RedisKeyUserToken, in.Token, userInfo)
 	if err != nil {
 		//有报错
 		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.RedisGetUserTokenErr))

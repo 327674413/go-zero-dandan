@@ -22,7 +22,7 @@ type DanI18n struct {
 	acceptLangMap map[string]bool
 	defaultLang   string
 }
-type Transfer struct {
+type Lang struct {
 	localizer *i18n.Localizer
 }
 
@@ -53,20 +53,20 @@ func NewI18n(conf *I18nConfig) (*DanI18n, error) {
 
 }
 
-func (t *DanI18n) NewLang(lang string) *Transfer {
+func (t *DanI18n) NewLang(lang string) *Lang {
 	if t == nil {
-		fmtd.Info("进入到nil了")
+		//fmtd.Info("进入到nil了")
 		return nil
 	}
 	//测试模版路径错误时的场景
 	if _, ok := t.acceptLangMap[lang]; !ok {
 		lang = t.defaultLang
 	}
-	return &Transfer{localizer: i18n.NewLocalizer(t.bundle, lang)}
+	return &Lang{localizer: i18n.NewLocalizer(t.bundle, lang)}
 }
 
 // Trans 将模版变量注入模版
-func (t *Transfer) Trans(temp string, tempData ...map[string]string) string {
+func (t *Lang) Trans(temp string, tempData ...map[string]string) string {
 	if t == nil {
 		fmtd.Info("进入到nil了")
 		return ""
@@ -99,7 +99,7 @@ func (t *Transfer) Trans(temp string, tempData ...map[string]string) string {
 		TemplateData: data,
 	})*/
 }
-func (t *Transfer) Msg(msgCode int, tempDataArr ...[]string) string {
+func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 	tempData := make([]string, 0)
 	if len(tempDataArr) > 0 {
 		tempData = tempDataArr[0]

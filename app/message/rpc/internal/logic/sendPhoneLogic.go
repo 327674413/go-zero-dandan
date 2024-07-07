@@ -37,12 +37,12 @@ func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.Res
 	if err := l.checkReq(in); err != nil {
 		return nil, err
 	}
-	messageSmsSendModel := model.NewMessageSmsSendModel(l.svcCtx.SqlConn)
+	messageSmsSendModel := model.NewMessageSmsSendModel(l.ctx, l.svcCtx.SqlConn)
 	if err := l.checkSmsLimit(in.Phone, messageSmsSendModel); err != nil {
 		return nil, err
 	}
-	messageSmsTempModel := model.NewMessageSmsTempModel(l.svcCtx.SqlConn)
-	smsTemp, err := messageSmsTempModel.Ctx(l.ctx).WhereId(in.TempId).CacheFind(l.svcCtx.Redis)
+	messageSmsTempModel := model.NewMessageSmsTempModel(l.ctx, l.svcCtx.SqlConn)
+	smsTemp, err := messageSmsTempModel.WhereId(in.TempId).CacheFind(l.svcCtx.Redis)
 	if err != nil {
 		l.rpcFail(err)
 	}
@@ -98,8 +98,8 @@ func (l *SendPhoneLogic) checkSmsLimit(phone string, messageSmsSendModel model.M
 		return resd.NewErrCtx(l.ctx, "获取验证码太频繁", resd.ReqGetPhoneVerifyCodeWait)
 	}
 	//获取系统短信配置
-	messageSysConfigModel := model.NewMessageSysConfigModel(l.svcCtx.SqlConn)
-	sysConfig, err := messageSysConfigModel.Ctx(l.ctx).WhereId("1").CacheFind(l.svcCtx.Redis)
+	messageSysConfigModel := model.NewMessageSysConfigModel(l.ctx, l.svcCtx.SqlConn)
+	sysConfig, err := messageSysConfigModel.WhereId("1").CacheFind(l.svcCtx.Redis)
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)
 	}

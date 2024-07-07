@@ -20,8 +20,8 @@ func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetToken
 	}
 }
 func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
-	platModel := model.NewPlatMainModel(l.svc.SqlConn)
-	platMain, err := platModel.Ctx(l.ctx).Where("appid = ? and secret = ?", req.Appid, req.Secret).Find()
+	platModel := model.NewPlatMainModel(l.ctx, l.svc.SqlConn)
+	platMain, err := platModel.Where("appid = ? and secret = ?", req.Appid, req.Secret).Find()
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}

@@ -93,10 +93,28 @@ type (
 	}
 )
 
-func newMessageSysConfigModel(conn sqlx.SqlConn, platId string) *defaultMessageSysConfigModel {
+// NewMessageSysConfigModel returns a model for the database table.
+func NewMessageSysConfigModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) MessageSysConfigModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customMessageSysConfigModel{
+		defaultMessageSysConfigModel: newMessageSysConfigModel(ctxOrNil, conn, platid),
+		softDeletable:                softDeletableMessageSysConfig,
+	}
+}
+func newMessageSysConfigModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultMessageSysConfigModel {
 	dao := dao.NewSqlxDao(conn, "`message_sys_config`", defaultMessageSysConfigFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultMessageSysConfigModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`message_sys_config`",

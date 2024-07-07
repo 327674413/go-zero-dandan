@@ -1,8 +1,7 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
-
 var _ MessageSysConfigModel = (*customMessageSysConfigModel)(nil)
+var softDeletableMessageSysConfig = true
 
 type (
 	// MessageSysConfigModel is an interface to be customized, add more methods here,
@@ -15,18 +14,5 @@ type (
 		*defaultMessageSysConfigModel
 		softDeletable bool
 	}
+	// 自定义方法加在customMessageSysConfigModel上
 )
-
-// NewMessageSysConfigModel returns a model for the database table.
-func NewMessageSysConfigModel(conn sqlx.SqlConn, platId ...string) MessageSysConfigModel {
-	var platid string
-	if len(platId) > 0 {
-		platid = platId[0]
-	} else {
-		platid = ""
-	}
-	return &customMessageSysConfigModel{
-		defaultMessageSysConfigModel: newMessageSysConfigModel(conn, platid),
-		softDeletable:                true, //是否启用软删除
-	}
-}

@@ -29,7 +29,7 @@ func (l *GetUserNormalInfoLogic) GetUserNormalInfo(in *userRpc.GetUserInfoReq) (
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	userMainModel := model.NewUserMainModel(l.svcCtx.SqlConn, in.PlatId)
+	userMainModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	userInfoMap, err := l.getNormalInfoByIds(in.Ids, userMainModel)
 	data := make(map[string]*userRpc.UserNormalInfo)
 	for _, id := range in.Ids {

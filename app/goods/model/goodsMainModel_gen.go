@@ -113,10 +113,28 @@ type (
 	}
 )
 
-func newGoodsMainModel(conn sqlx.SqlConn, platId string) *defaultGoodsMainModel {
+// NewGoodsMainModel returns a model for the database table.
+func NewGoodsMainModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) GoodsMainModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customGoodsMainModel{
+		defaultGoodsMainModel: newGoodsMainModel(ctxOrNil, conn, platid),
+		softDeletable:         softDeletableGoodsMain,
+	}
+}
+func newGoodsMainModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultGoodsMainModel {
 	dao := dao.NewSqlxDao(conn, "`goods_main`", defaultGoodsMainFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultGoodsMainModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`goods_main`",

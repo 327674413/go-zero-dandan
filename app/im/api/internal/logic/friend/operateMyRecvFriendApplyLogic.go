@@ -25,7 +25,7 @@ func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.Oper
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//合法性校验
-	if !arrd.InArray(l.ReqOperateStateEm, []int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}) {
+	if !arrd.Contain([]int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}, l.ReqOperateStateEm) {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "", resd.ReqParamFormatErr1, "stateEm")
 	}
 	_, err = l.svc.SocialRpc.OperateFriendApply(l.ctx, &socialRpc.OperateFriendApplyReq{

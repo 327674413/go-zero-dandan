@@ -2,35 +2,30 @@ package logic
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/plat/model"
 	"go-zero-dandan/app/plat/rpc/internal/svc"
 	"go-zero-dandan/app/plat/rpc/types/platRpc"
-	"go-zero-dandan/common/resd"
 )
 
 type GetOneLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetOneLogicGen
 }
 
-func NewGetOneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOneLogic {
+func NewGetOneLogic(ctx context.Context, svc *svc.ServiceContext) *GetOneLogic {
 	return &GetOneLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetOneLogicGen: NewGetOneLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetOneLogic) GetOne(in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+func (l *GetOneLogic) GetOne(req *platRpc.IdReq) (*platRpc.PlatInfo, error) {
+	if err := l.init(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	platModel := model.NewPlatMainModel(l.svcCtx.SqlConn)
-	platMain, err := platModel.Ctx(l.ctx).WhereId(in.Id).Find()
+
+	platModel := model.NewPlatMainModel(l.ctx, l.svc.SqlConn)
+	platMain, err := platModel.WhereId(l.ReqId).Find()
 	if platMain == nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	res := &platRpc.PlatInfo{
 		Id:     platMain.Id,
@@ -38,9 +33,13 @@ func (l *GetOneLogic) GetOne(in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
 	}
 	return res, nil
 }
-func (l *GetOneLogic) checkReqParams(in *platRpc.IdReq) error {
-	if in.Id == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "参数缺少id", resd.ReqFieldRequired1, "id")
+
+func (l *GetOneLogic) init(req *platRpc.IdReq) (err error) {
+	if err = l.initReq(req); err != nil {
+		return l.resd.Error(err)
+	}
+	if err = l.initUser(); err != nil {
+		return l.resd.Error(err)
 	}
 	return nil
 }

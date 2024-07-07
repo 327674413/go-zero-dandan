@@ -89,10 +89,28 @@ type (
 	}
 )
 
-func newUserUnionModel(conn sqlx.SqlConn, platId string) *defaultUserUnionModel {
+// NewUserUnionModel returns a model for the database table.
+func NewUserUnionModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) UserUnionModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customUserUnionModel{
+		defaultUserUnionModel: newUserUnionModel(ctxOrNil, conn, platid),
+		softDeletable:         softDeletableUserUnion,
+	}
+}
+func newUserUnionModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultUserUnionModel {
 	dao := dao.NewSqlxDao(conn, "`user_union`", defaultUserUnionFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultUserUnionModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`user_union`",

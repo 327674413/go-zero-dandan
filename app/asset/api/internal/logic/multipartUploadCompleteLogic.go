@@ -38,7 +38,7 @@ func NewMultipartUploadCompleteLogic(ctx context.Context, svcCtx *svc.ServiceCon
 
 func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.MultipartUploadCompleteReq) (*types.MultipartUploadCompleteRes, error) {
 	//先判断是否存在该上传任务
-	netdiskFileModel := model.NewAssetNetdiskFileModel(l.svcCtx.SqlConn)
+	netdiskFileModel := model.NewAssetNetdiskFileModel(l.ctx, l.svcCtx.SqlConn)
 	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(req.UploadId)
 	if err != nil {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "该分片上传id不存在", resd.NotFound1, "UpoladTask")
@@ -85,7 +85,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	assetMainModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
+	assetMainModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
 	tx, err := dao.StartTrans(l.svcCtx.SqlConn)
 	if err != nil {
 		return nil, resd.Error(err)
@@ -112,15 +112,15 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = netdiskFileModel.TxUpdate(tx, map[string]any{
-		"id":        uploadTask.Id,
-		"state_em":  2,
-		"mime":      uploadTask.Mime,
-		"ext":       uploadTask.Ext,
-		"url":       mergeRes.Url,
-		"path":      mergeRes.Path,
-		"asset_id":  assetId,
-		"finish_at": utild.GetStamp(),
+	_, err = netdiskFileModel.TxUpdate(tx, map[dao.TableField]any{
+		model.AssetNetdiskFile_Id:       uploadTask.Id,
+		model.AssetNetdiskFile_StateEm:  2,
+		model.AssetNetdiskFile_Mime:     uploadTask.Mime,
+		model.AssetNetdiskFile_Ext:      uploadTask.Ext,
+		model.AssetNetdiskFile_Url:      mergeRes.Url,
+		model.AssetNetdiskFile_Path:     mergeRes.Path,
+		model.AssetNetdiskFile_AssetId:  uploadTask.AssetId,
+		model.AssetNetdiskFile_FinishAt: utild.GetStamp(),
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)

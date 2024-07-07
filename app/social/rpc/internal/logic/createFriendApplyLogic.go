@@ -36,7 +36,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	friendModel := model.NewSocialFriendModel(l.svc.SqlConn, in.PlatId)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, in.PlatId)
 	//我申请别人为好友，UserId是我，FriendUid是好友
 	//查询我-对方好友数据
 	existSelf, err := friendModel.Where("user_id = ? and friend_uid = ?", in.UserId, in.FriendUid).Find()
@@ -111,7 +111,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	}
 
 	//查看是否存在过申请
-	applyModel := model.NewSocialFriendApplyModel(l.svc.SqlConn, in.PlatId)
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, in.PlatId)
 	existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)

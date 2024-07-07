@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/zeromicro/go-zero/core/logx"
 	redisx "github.com/zeromicro/go-zero/core/stores/redis"
+	"go-zero-dandan/common/fmtd"
 	"strconv"
 )
 
@@ -200,14 +202,18 @@ func (t *Redisd) Get(field string, key string) (string, error) {
 
 // GetCtx 获取值，带上下文, 单个时key用id，多个时key可以用list、info之类的字符串标识
 func (t *Redisd) GetCtx(ctx context.Context, field string, key string) (string, error) {
-	str, err := t.redisConn.GetCtx(ctx, t.FieldKey(field, key))
+	k := t.FieldKey(field, key)
+	str, err := t.redisConn.GetCtx(ctx, k)
 	if err != nil && err != redis.Nil {
 		//报错返回错误信息
+		fmtd.Error(fmt.Sprintf("redis获取%s值为失败：%v", k, err))
 		return "", err
 	} else if str == "" {
+		fmtd.Info(fmt.Sprintf("redis获取%s值为空", k))
 		//没找到数据，按空返回
 		return "", nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	} else {
+		logx.WithContext(ctx).Infof("redis获取%s值为：%s", k, str)
 		return str, err
 	}
 }
@@ -332,6 +338,7 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) (isS
 func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targetStructPointer any) (isSucc bool, err error) {
 	str, err := t.GetCtx(ctx, field, key)
 	if err != nil {
+		fmtd.Error(err)
 		return false, err
 	}
 	if str == "" {
@@ -339,6 +346,7 @@ func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targe
 	}
 	err = json.Unmarshal([]byte(str), targetStructPointer)
 	if err != nil {
+		fmtd.Error("json解析失败：", err.Error())
 		return false, err
 	} else {
 		return true, nil

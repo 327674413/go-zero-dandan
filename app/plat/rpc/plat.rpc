@@ -1,0 +1,15 @@
+type IdReq {
+	Id  *string `json:"id" check:"required"`
+}
+
+type PlatInfo {
+	Id     string `json:"id""`
+	ClasEm int64 `json:"clasEm"`
+}
+@server(
+	middleware: LangMiddleware
+)
+service plat {
+	@handler GetOne
+	post /GetOne(IdReq) returns (PlatInfo)
+}

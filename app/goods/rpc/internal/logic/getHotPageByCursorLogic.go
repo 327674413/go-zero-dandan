@@ -67,7 +67,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCu
 		isCache, isEnd bool
 	)
 	currPageGoodses := make([]*goodsRpc.GoodsInfo, 0)
-	goodsModel := model.NewGoodsMainModel(l.svcCtx.SqlConn, in.PlatId)
+	goodsModel := model.NewGoodsMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	if len(ids) > 0 {
 		//存在缓存
 		isCache = true

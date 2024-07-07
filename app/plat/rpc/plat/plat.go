@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	EmptyReq = platRpc.EmptyReq
 	IdReq    = platRpc.IdReq
 	PlatInfo = platRpc.PlatInfo
 

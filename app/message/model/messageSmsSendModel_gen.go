@@ -101,10 +101,28 @@ type (
 	}
 )
 
-func newMessageSmsSendModel(conn sqlx.SqlConn, platId string) *defaultMessageSmsSendModel {
+// NewMessageSmsSendModel returns a model for the database table.
+func NewMessageSmsSendModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) MessageSmsSendModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customMessageSmsSendModel{
+		defaultMessageSmsSendModel: newMessageSmsSendModel(ctxOrNil, conn, platid),
+		softDeletable:              softDeletableMessageSmsSend,
+	}
+}
+func newMessageSmsSendModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultMessageSmsSendModel {
 	dao := dao.NewSqlxDao(conn, "`message_sms_send`", defaultMessageSmsSendFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultMessageSmsSendModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`message_sms_send`",

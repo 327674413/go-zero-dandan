@@ -3,6 +3,7 @@ package resd
 import (
 	"context"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/fmtd"
 	"runtime"
 )
@@ -12,30 +13,25 @@ var Mode string
 type Resp struct {
 	ctx  context.Context
 	mode string
-	*Transfer
+	*Lang
 }
 
 const (
 	levelError = "error" //真正的异常报错，需要关注
 	levelInfo  = "info"  //正常业务逻辑校验的问题
 )
-const (
-	modeDev  = "dev"
-	modeTest = "test"
-	modeProd = "prod"
-)
 
 // NewResd 创建统一错误返回
-func NewResd(ctxOrNil context.Context, langTransfer *Transfer) *Resp {
+func NewResd(ctxOrNil context.Context, i18nLang *Lang) *Resp {
 	if ctxOrNil == nil {
 		return &Resp{
-			ctx:      context.Background(),
-			Transfer: langTransfer,
+			ctx:  context.Background(),
+			Lang: i18nLang,
 		}
 	} else {
 		return &Resp{
-			ctx:      ctxOrNil,
-			Transfer: langTransfer,
+			ctx:  ctxOrNil,
+			Lang: i18nLang,
 		}
 	}
 }
@@ -116,7 +112,7 @@ func (t *Resp) NewErrWithTemp(errorCode int, temps ...string) error {
 // fmtdError 打印调试信息
 func (t *Resp) fmtdError(skip int, errCode int, danErr *danError) {
 	if t.mode != "prod" {
-		if t.Transfer == nil {
+		if t.Lang == nil {
 			fmtd.Error("not set transfer")
 			if danErr.level == levelInfo {
 				fmtd.WithCaller(skip + 1).Info(t.Msg(SysErr))
@@ -125,11 +121,24 @@ func (t *Resp) fmtdError(skip int, errCode int, danErr *danError) {
 			}
 
 		} else {
-
+			//生产环境用logx配合日志采集
 			if danErr.level == levelInfo {
 				fmtd.WithCaller(skip + 1).Info(fmt.Sprintf("%d %s", errCode, t.Msg(errCode)))
 			} else {
 				fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("%d %s", errCode, t.Msg(errCode)))
+			}
+		}
+
+	} else {
+		if t.Lang == nil {
+			if danErr.level == levelError {
+				logx.WithCallerSkip(skip + 1).WithContext(t.ctx).Error(t.Msg(SysErr))
+			}
+
+		} else {
+			//生产环境用logx配合日志采集
+			if danErr.level == levelError {
+				logx.WithCallerSkip(skip + 1).WithContext(t.ctx).Error(fmt.Sprintf("%d %s", errCode, t.Msg(errCode)))
 			}
 		}
 

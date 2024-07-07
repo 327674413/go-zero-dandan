@@ -1,8 +1,7 @@
 package model
 
-import "github.com/zeromicro/go-zero/core/stores/sqlx"
-
 var _ MessageSmsSendModel = (*customMessageSmsSendModel)(nil)
+var softDeletableMessageSmsSend = true
 
 type (
 	// MessageSmsSendModel is an interface to be customized, add more methods here,
@@ -15,18 +14,5 @@ type (
 		*defaultMessageSmsSendModel
 		softDeletable bool
 	}
+	// 自定义方法加在customMessageSmsSendModel上
 )
-
-// NewMessageSmsSendModel returns a model for the database table.
-func NewMessageSmsSendModel(conn sqlx.SqlConn, platId ...string) MessageSmsSendModel {
-	var platid string
-	if len(platId) > 0 {
-		platid = platId[0]
-	} else {
-		platid = ""
-	}
-	return &customMessageSmsSendModel{
-		defaultMessageSmsSendModel: newMessageSmsSendModel(conn, platid),
-		softDeletable:              true, //是否启用软删除
-	}
-}

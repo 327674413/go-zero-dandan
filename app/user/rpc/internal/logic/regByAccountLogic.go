@@ -41,7 +41,7 @@ func (l *RegByAccountLogic) RegByAccount(in *userRpc.RegByAccountReq) (*userRpc.
 		return nil, resd.RpcErrEncode(resd.NewErrWithTempCtx(l.ctx, "密码不符合安全要求", resd.ReqParamFormatErr1, resd.VarPassword))
 	}
 	// 验证是否已注册
-	userModel := model.NewUserMainModel(l.svcCtx.SqlConn, in.PlatId)
+	userModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	existUser, err := userModel.Ctx(l.ctx).Where("account = ?", account).Find()
 	if err != nil {
 		return nil, resd.RpcErrEncode(err)

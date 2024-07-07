@@ -5,7 +5,7 @@ type GetTokenReq {
 
 type GetTokenResp {
 	Token     string `json:"token"`
-	ExpireSec int64  `json:"expire_sec""`
+	ExpireSec int64  `json:"expireSec""`
 }
 @server(
 	middleware: LangMiddleware

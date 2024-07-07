@@ -33,7 +33,7 @@ func NewDownloadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Download
 }
 
 func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, r *http.Request) (err error) {
-	assetModel := model.NewAssetMainModel(l.svcCtx.SqlConn)
+	assetModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
 	asset, err := assetModel.FindById(req.Id)
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)

@@ -50,7 +50,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 		}
 
 	}
-	friendModel := model.NewSocialFriendModel(l.svcCtx.SqlConn, in.PlatId)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	whereData := make([]any, 0)
 	whereData = append(whereData, in.UserId)
 	whereData = append(whereData, friendUids...)
@@ -62,7 +62,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	for _, v := range friends {
 		relats[v.FriendUid] = v.StateEm
 	}
-	friendApplyModel := model.NewSocialFriendApplyModel(l.svcCtx.SqlConn, in.PlatId)
+	friendApplyModel := model.NewSocialFriendApplyModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	applys, err := friendApplyModel.Except("content").Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), whereData...).Select()
 	if err != nil {
 		return nil, resd.NewErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)

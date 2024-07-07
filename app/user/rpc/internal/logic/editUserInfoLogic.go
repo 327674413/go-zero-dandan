@@ -26,7 +26,7 @@ func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Edit
 }
 
 func (l *EditUserInfoLogic) EditUserInfo(in *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
-	userInfoModel := model.NewUserInfoModel(l.svcCtx.SqlConn, l.platId)
+	userInfoModel := model.NewUserInfoModel(l.ctx, l.svcCtx.SqlConn, l.platId)
 	_, err := userInfoModel.WhereId(in.Id).Update(map[dao.TableField]any{
 		model.UserInfo_GraduateFrom: in.GraduateFrom,
 		model.UserInfo_BirthDate:    in.BirthDate,
@@ -34,7 +34,7 @@ func (l *EditUserInfoLogic) EditUserInfo(in *userRpc.EditUserInfoReq) (*userRpc.
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err, resd.MysqlUpdateErr)
 	}
-	/*userModel := model.NewUserMainModel(l.svcCtx.SqlConn, l.platId)
+	/*userModel := model.NewUserMainModel(l.ctx,l.svcCtx.SqlConn, l.platId)
 	data := utild.StructToStrMapExcept(*in, "sizeCache", "unknownFields", "state")
 	err := userModel.Update(l.ctx, data)
 	*/

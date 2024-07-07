@@ -97,10 +97,28 @@ type (
 	}
 )
 
-func newUserInfoModel(conn sqlx.SqlConn, platId string) *defaultUserInfoModel {
+// NewUserInfoModel returns a model for the database table.
+func NewUserInfoModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) UserInfoModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customUserInfoModel{
+		defaultUserInfoModel: newUserInfoModel(ctxOrNil, conn, platid),
+		softDeletable:        softDeletableUserInfo,
+	}
+}
+func newUserInfoModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultUserInfoModel {
 	dao := dao.NewSqlxDao(conn, "`user_info`", defaultUserInfoFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultUserInfoModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`user_info`",

@@ -115,10 +115,28 @@ type (
 	}
 )
 
-func newUserMainModel(conn sqlx.SqlConn, platId string) *defaultUserMainModel {
+// NewUserMainModel returns a model for the database table.
+func NewUserMainModel(ctxOrNil context.Context, conn sqlx.SqlConn, platId ...string) UserMainModel {
+	var platid string
+	if len(platId) > 0 {
+		platid = platId[0]
+	} else {
+		platid = ""
+	}
+	if ctxOrNil == nil {
+		ctxOrNil = context.Background()
+	}
+	return &customUserMainModel{
+		defaultUserMainModel: newUserMainModel(ctxOrNil, conn, platid),
+		softDeletable:        softDeletableUserMain,
+	}
+}
+func newUserMainModel(ctx context.Context, conn sqlx.SqlConn, platId string) *defaultUserMainModel {
 	dao := dao.NewSqlxDao(conn, "`user_main`", defaultUserMainFields, true, "delete_at")
 	dao.Plat(platId)
+	dao.Ctx(ctx)
 	return &defaultUserMainModel{
+		ctx:             ctx,
 		conn:            conn,
 		dao:             dao,
 		table:           "`user_main`",

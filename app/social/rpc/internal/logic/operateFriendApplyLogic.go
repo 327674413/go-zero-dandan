@@ -35,7 +35,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 		return nil, err
 	}
 	//查询申请信息
-	applyModel := model.NewSocialFriendApplyModel(l.svc.SqlConn, in.PlatId)
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, in.PlatId)
 	apply, err := applyModel.WhereId(in.ApplyId).Find()
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
@@ -74,7 +74,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 		return nil, resd.NewRpcErrCtx(l.ctx, "", resd.AuthOperateStateErr)
 	}
 	// 查询好友数据
-	friendModel := model.NewSocialFriendModel(l.svc.SqlConn)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn)
 	// 查询 对方 - 我， 处理加我申请，所以FriendUid是我， UserId是对方
 	friendRelat, err := friendModel.Where("user_id = ? and friend_uid = ?", apply.UserId, apply.FriendUid).Find()
 	if err != nil {

@@ -3,6 +3,7 @@ package fmtd
 import (
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 	"time"
 )
@@ -20,11 +21,6 @@ const (
 // logger 结构体包含日志相关的信息
 type logger struct {
 	callerDepth int
-}
-
-// WithCaller 设置调用者信息的深度
-func WithCaller(depth int) *logger {
-	return &logger{callerDepth: depth}
 }
 
 // Info 打印日志到控制台
@@ -68,11 +64,20 @@ func (l *logger) print(content string, level string) {
 }
 
 // Info 方法，使用默认的调用者深度
-func Info(content any) {
-	WithCaller(2).Info(content)
+func Info(content ...any) {
+	WithCaller(2).Info(content...)
 }
 
 // Error 方法，使用默认的调用者深度
-func Error(content any) {
-	WithCaller(2).Error(content)
+func Error(content ...any) {
+	WithCaller(2).Error(content...)
+}
+func Fatal(content ...any) {
+	WithCaller(2).Error(content...)
+	os.Exit(1)
+}
+
+// WithCaller 设置调用者信息的深度
+func WithCaller(depth int) *logger {
+	return &logger{callerDepth: depth}
 }

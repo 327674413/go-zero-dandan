@@ -31,7 +31,7 @@ func (l *GetUserPageLogic) GetUserPage(in *userRpc.GetUserPageReq) (*userRpc.Get
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	userModel := model.NewUserMainModel(l.svcCtx.SqlConn, in.PlatId)
+	userModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
 	if in.Match != nil {
 		strMatchs := []string{"phone", "nickname"}
 		for _, field := range strMatchs {
