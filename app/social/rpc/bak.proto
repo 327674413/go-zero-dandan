@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package social;
+
+option go_package = "./socialRpc";
+
+message MatchField {
+  optional string type = 1;
+  optional string str = 2;
+  repeated string strs= 3;
+  optional int64 num = 4;
+  repeated int64 nums = 5;
+  optional bool isFuzzy = 6;
+  repeated string raws = 7;
+}
+
+// 获取用户关系
+message GetUserRelationReq{
+  string platId = 1;
+  string userId = 2;
+  repeated string friendUids = 3;
+}
+message GetUserRelationResp{
+  map<string,int64> relats = 1;
+}
+
+// 好友信息
+message FriendInfo {
+  string id = 1;
+  string userId = 2;
+  string remark = 3;
+  int64 sourceEm = 4; // 添加来源
+  string friendUid = 5;
+  string platId = 6;
+  string friendName = 7;
+  string friendAlias = 8;
+  string friendIcon = 9;
+}
+
+message FriendApply {
+  string id = 1;
+  string userId = 2;
+  string friendUid = 3;
+  string applyLastMsg = 4;
+  int64 applyLastAt = 5;
+  string operateMsg = 6;
+  int64 operateAt = 7;
+  int64 stateEm = 8;
+  string platId = 9;
+  string friendName = 10;
+  string friendAvatarImg = 11;
+  int64 friendSex = 12;
+  string userName = 13;
+  string userAvatarImg =14;
+  int64 userSex = 15;
+}
+
+message GroupInfo {
+  string id = 1;
+  string name = 2;
+  int64 stateEm = 3;
+  int64 typeEm = 4;
+  string createUid = 5;
+  int64 isVerify = 6;
+  string notiContent = 7;
+  string notiUid = 8;
+  string platId = 9;
+  string code = 10;
+}
+
+message GroupMember {
+  string id = 1;
+  string groupId = 2;
+  string userId = 3;
+  int64 roleLevel = 6;
+  int64 joinAt = 7;
+  int64 joinSourceEm = 8;
+  string inviteUid = 9;
+  string operateUid = 10;
+  string platId = 11;
+}
+
+message GroupMemberApply {
+  string id = 1;
+  string groupId = 2;
+  string userId = 3;
+  string applyMsg = 4;
+  int64 applyAt = 5;
+  int64 joinSourceEm = 6;
+  string inviteUid = 7;
+  string operateUid = 8;
+  int64 operateStateEm = 9; // 处理结果
+  int64 operateAt = 10;
+  string platId = 11;
+  string operateMsg = 12;
+}
+
+// req resp
+message ResultResp {
+  bool result = 1;
+  string msg = 2;
+}
+message CreateFriendApplyReq {
+  string platId = 1;
+  string userId = 2;
+  string friendUid = 3;
+  string applyMsg = 4;
+  int64  applyAt = 5;
+  int64  sourceEm = 6;
+}
+message CreateFriendApplyResp {
+  string applyId = 1;
+}
+message OperateFriendApplyReq {
+  string  applyId = 1;
+  string operateUid = 2;
+  int64 operateStateEm = 3;
+  string platId = 4;
+  string operateMsg = 5;
+  string sysRoleEm = 6;
+  string sysRoleUid = 7;
+}
+
+message GetUserRecvFriendApplyPageReq{
+  string userId = 1;
+  string platId = 2;
+  int64 page = 3;
+  int64 size = 4;
+  int64 isNeedTotal = 5;
+  map<string,MatchField> match = 6;
+}
+
+message FriendApplyPageResp{
+  repeated FriendApply list = 1;
+  optional int64 total = 2;
+}
+
+message GetUserFriendListReq{
+  string userId = 1;
+  string platId = 2;
+}
+
+message FriendListResp{
+  repeated FriendInfo list = 1;
+}
+message GetFriendOnlineReq{
+  string userId = 1;
+  string platId = 2;
+}
+message FriendOnlineResp{
+  map<string, bool> onlineUser = 1;
+}
+
+// 群
+message GetGroupUserOnlineReq{
+  string groupId = 1;
+  string platId = 2;
+}
+message GroupUserOnlineResp{
+  map<string, bool> onlineUser = 1;
+}
+message CreateGroupReq {
+  string name = 1;
+  int64  status = 2;
+  string createUid = 3;
+  string platId = 4;
+}
+message CreateGroupResp {
+  string id = 1;
+}
+
+message CreateGroupMemberApplyReq {
+  string platId = 1;
+  string groupId = 2;
+  string applyMsg = 4;
+  int64  joinSourceEm = 6;
+  string inviteUid = 7;
+}
+message CreateGroupMemberApplyResp {
+  string applyId = 1;
+}
+
+message GetUserGroupMemberApplyListReq {
+  string userId = 1;
+  string platId = 2;
+}
+message GroupMemberApplyListResp {
+  repeated GroupMemberApply list = 1;
+}
+
+message OperateGroupMemberApplyReq {
+  string  applyId = 1;
+  string groupId = 2;
+  string operateUid = 3;
+  int64  operateStateEm = 4; // 处理结果
+  string platId = 5;
+  string operateMsg = 6;
+}
+message GetUserGroupListReq{
+  string userId = 1;
+  string platId = 2;
+}
+message GroupListResp{
+  repeated GroupInfo list = 1;
+}
+
+message GetGroupMemberListReq {
+  string groupId = 1;
+  string platId = 2;
+}
+message GroupMemberListResp {
+  repeated GroupMember list = 1;
+}
+
+
+// svc
+service social {
+  // 好友业务：请求好友、通过或拒绝申请、好友列表
+
+  rpc CreateFriendApply(CreateFriendApplyReq) returns(CreateFriendApplyResp);
+  rpc OperateFriendApply(OperateFriendApplyReq) returns(ResultResp);
+  rpc GetUserRecvFriendApplyPage(GetUserRecvFriendApplyPageReq) returns(FriendApplyPageResp);
+  rpc GetUserFriendList(GetUserFriendListReq) returns (FriendListResp);
+  rpc GetFriendOnline(GetFriendOnlineReq) returns (FriendOnlineResp);
+  rpc GetUserRelation(GetUserRelationReq) returns (GetUserRelationResp);
+  // 群业务：创建群，修改群，群公告，申请群，用户群列表，群成员，申请群，群退出..
+
+  rpc CreateGroup(CreateGroupReq) returns (CreateGroupResp);
+  rpc CreateGroupMemberApply(CreateGroupMemberApplyReq) returns (CreateGroupMemberApplyResp);
+  rpc GetUserGroupMemberApplyList(GetUserGroupMemberApplyListReq) returns (GroupMemberApplyListResp);
+  rpc OperateGroupMemberApply(OperateGroupMemberApplyReq) returns(ResultResp);
+  rpc GetUserGroupList(GetUserGroupListReq) returns (GroupListResp);
+  rpc GetGroupMemberList(GetGroupMemberListReq) returns (GroupMemberListResp);
+  rpc GetGroupUserOnline(GetGroupUserOnlineReq) returns (GroupUserOnlineResp);
+  // ..
+}
