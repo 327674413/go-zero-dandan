@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"text/template"
 	"unicode"
 )
@@ -154,16 +155,15 @@ func toFirstLower(s string) string {
 	return string(r)
 }
 func transReqType(typeName string, isReq bool) (fieldType, fieldAttr string) {
+	if typeName == "" {
+		fmtd.Fatal("typeName is empty")
+	}
+	fmt.Println(typeName)
+	if typeName[:1] == "*" {
+		typeName = typeName[1:]
+	}
 	fieldType = typeName
 	fieldAttr = "optional"
-	switch typeName {
-	case "*string":
-		fieldType = "string"
-	case "*int64":
-		fieldType = "int64"
-	case "*bool":
-		fieldType = "bool"
-	}
 	// 如果不是req参数，不用指针类型
 	if !isReq {
 		fieldAttr = ""
@@ -171,6 +171,49 @@ func transReqType(typeName string, isReq bool) (fieldType, fieldAttr string) {
 	if len(typeName) > 3 && typeName[:3] == "[]*" {
 		fieldAttr = "repeated"
 		fieldType = typeName[3:]
+	} else if len(typeName) > 2 && typeName[:2] == "[]" {
+		fieldAttr = "repeated"
+		if typeName[2:3] == "*" {
+			fieldType = typeName[3:]
+		} else {
+			fieldType = typeName[2:]
+		}
+
+	} else if len(typeName) > 4 && typeName[:4] == "map[" {
+		fieldAttr = ""
+		fieldType = convertGoMapToProto(typeName)
 	}
 	return
+}
+
+func convertGoMapToProto(goMapStr string) string {
+	// Remove the "map[" and "]" parts
+	trimmed := strings.TrimPrefix(strings.TrimSuffix(goMapStr, "]"), "map[")
+	// Split the key and value types
+	parts := strings.Split(trimmed, "]")
+
+	// If the parts are not as expected, return an empty string or an error message
+	if len(parts) != 2 {
+		return "Invalid Go map type"
+	}
+
+	keyType := parts[0]
+	valueType := parts[1]
+
+	// Handle Go to Protobuf type conversion
+	switch valueType {
+	case "int":
+		valueType = "int32"
+	case "int64":
+		valueType = "int64"
+	case "string":
+		valueType = "string"
+	case "bool":
+		valueType = "bool"
+	// Add more type conversions as needed
+	default:
+		valueType = valueType // Use the same type if no conversion is needed
+	}
+
+	return fmt.Sprintf("map<%s, %s>", keyType, valueType)
 }

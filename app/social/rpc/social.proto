@@ -11,17 +11,17 @@ message MatchField {
 	 string str = 2;
 	 string strs = 3;
 	 int64 num = 4;
-	 []int64 nums = 5;
+	repeated int64 nums = 5;
 	 bool isFuzzy = 6;
-	 []string raws = 7;
+	repeated string raws = 7;
 }
 message GetUserRelationReq {
 	optional string platId = 1;
 	optional string userId = 2;
-	optional []string friendUids = 3;
+	repeated string friendUids = 3;
 }
 message GetUserRelationResp {
-	 map[string]int64 relats = 1;
+	 map<string, int64> relats = 1;
 }
 message FriendInfo {
 	 string id = 1;
@@ -118,10 +118,10 @@ message GetUserRecvFriendApplyPageReq {
 	optional int64 page = 3;
 	optional int64 size = 4;
 	optional int64 isNeedTotal = 5;
-	optional map[string]MatchField match = 6;
+	 map<string, MatchField> match = 6;
 }
 message FriendApplyPageResp {
-	 []FriendApply list = 1;
+	repeated FriendApply list = 1;
 	 int64 total = 2;
 }
 message GetUserFriendListReq {
@@ -129,21 +129,21 @@ message GetUserFriendListReq {
 	optional string platId = 2;
 }
 message FriendListResp {
-	 []FriendInfo list = 1;
+	repeated FriendInfo list = 1;
 }
 message GetFriendOnlineReq {
 	optional string userId = 1;
 	optional string platId = 2;
 }
 message FriendOnlineResp {
-	 map[string]bool onlineUser = 1;
+	 map<string, bool> onlineUser = 1;
 }
 message GetGroupUserOnlineReq {
 	optional string groupId = 1;
 	optional string platId = 2;
 }
 message GroupUserOnlineResp {
-	 map[string]bool onlineUser = 1;
+	 map<string, bool> onlineUser = 1;
 }
 message CreateGroupReq {
 	optional string name = 1;
@@ -169,7 +169,7 @@ message GetUserGroupMemberApplyListReq {
 	optional string platId = 2;
 }
 message GroupMemberApplyListResp {
-	 []GroupMemberApply list = 1;
+	repeated GroupMemberApply list = 1;
 }
 message OperateGroupMemberApplyReq {
 	optional string applyId = 1;
@@ -184,14 +184,14 @@ message GetUserGroupListReq {
 	optional string platId = 2;
 }
 message GroupListResp {
-	 []GroupInfo list = 1;
+	repeated GroupInfo list = 1;
 }
 message GetGroupMemberListReq {
 	optional string groupId = 1;
 	optional string platId = 2;
 }
 message GroupMemberListResp {
-	 []GroupMember list = 1;
+	repeated GroupMember list = 1;
 }
 
 	

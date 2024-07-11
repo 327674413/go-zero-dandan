@@ -7,21 +7,15 @@ import (
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserFriendListLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserFriendListLogicGen
 }
 
-func NewGetUserFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserFriendListLogic {
+func NewGetUserFriendListLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserFriendListLogic {
 	return &GetUserFriendListLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserFriendListLogicGen: NewGetUserFriendListLogicGen(ctx, svc),
 	}
 }
 
@@ -29,10 +23,7 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendLi
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	if in.UserId == "" {
-		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "缺少UserId", resd.ReqFieldRequired1, "*UserId")
-	}
-	m := model.NewSocialFriendModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
+	m := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
 
 	list, err := m.Where("user_id = ?", in.UserId).Select()
 
@@ -49,8 +40,5 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendLi
 	return &socialRpc.FriendListResp{}, nil
 }
 func (l *GetUserFriendListLogic) checkReqParams(in *socialRpc.GetUserFriendListReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/collection"
+	"github.com/zeromicro/go-zero/tools/goctl/api/gogen"
 	apiParser "github.com/zeromicro/go-zero/tools/goctl/api/parser"
 	"github.com/zeromicro/go-zero/tools/goctl/api/spec"
 	conf "github.com/zeromicro/go-zero/tools/goctl/config"
@@ -15,6 +16,7 @@ import (
 	"github.com/zeromicro/go-zero/tools/goctl/util/stringx"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -82,8 +84,9 @@ func (g *Generator) genLogicInCompatibility(ctx DirContext, proto parser.Proto,
 			return err
 		}
 		defineVars, initVars := getDanGenVars(&getDanGenVarsReq{
-			api:    api,
-			reqKey: fmt.Sprintf("%v", rpc.RequestType),
+			api:         api,
+			reqKey:      fmt.Sprintf("%v", rpc.RequestType),
+			serviceName: service,
 		})
 		err = g.genLogicFunction(service, proto.PbPackage, logicName, rpc, filepath.Join(dir.Filename, logicFilename+".go"), strings.Join(imports.KeysStr(), pathx.NL))
 		if err != nil {
@@ -114,8 +117,9 @@ func (g *Generator) genLogicInCompatibility(ctx DirContext, proto parser.Proto,
 
 // ------danEditStart------
 type getDanGenVarsReq struct {
-	api    *spec.ApiSpec
-	reqKey string
+	api         *spec.ApiSpec
+	reqKey      string
+	serviceName string
 }
 
 // ------danEditEnd------
@@ -137,10 +141,21 @@ func transReqType(typeName string) string {
 	case "*bool":
 		return "bool"
 	}
-	return "string"
+	return typeName
 }
 
 // ------danEditStart------
+func transRpcVarsType(typeName string, rpcName string) string {
+	// 首先进行前缀检查
+	if len(typeName) > 4 && typeName[:4] == "map[" {
+		// 正则表达式匹配 map[aaa]bbb 格式
+		re := regexp.MustCompile(`^map\[(\w+)](\w+)$`)
+		// 替换成 map[aaa]*bbb 格式
+		return re.ReplaceAllString(typeName, "map[$1]*"+rpcName+"Rpc.$2")
+	}
+	// 如果不匹配则按原值返回
+	return typeName
+}
 func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 	hasStr := ""
 	for _, tp := range params.api.Types {
@@ -152,47 +167,24 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-				defineVars += fmt.Sprintf("Req%s %s %s\n", fieldName, fieldType, field.Tag)
+				defineVars += fmt.Sprintf("Req%s %s %s\n", fieldName, transRpcVarsType(fieldType, params.serviceName), field.Tag)
 				hasStr += fmt.Sprintf("%s bool\n", fieldName)
+				ptStr := "*"
+				if len(fieldType) > 2 && fieldType[:2] == "[]" {
+					ptStr = ""
+				} else if len(fieldType) > 4 && fieldType[:4] == "map[" {
+					ptStr = ""
+				}
 				initVars += fmt.Sprintf(`
 					if req.` + fieldName + `!= nil {
-						l.Req` + fieldName + ` = *req.` + fieldName + `
+						l.Req` + fieldName + ` = ` + ptStr + `req.` + fieldName + `
 						l.HasReq.` + fieldName + ` = true
 					} else {
 						l.HasReq.` + fieldName + ` = false
 					}
 				`)
 
-				for _, tag := range field.Tags() {
-					//fmt.Printf("key:%s,name:%s,options:%s\n", tag.Key, tag.Name, strings.Join(tag.Options, ","))
-					if tag.Key == "check" {
-						//zero用的structtag包解析，会把第一个参数放到Name属性里，所以重新组装属性集合
-						if tag.Name == "" {
-							continue
-						}
-						opts := make([]string, 0)
-						opts = append(opts, tag.Name)
-						opts = append(opts, tag.Options...)
-						for _, check := range opts {
-							switch check {
-							case "required":
-								initVars += fmt.Sprintf(`
-									if l.HasReq.` + fieldName + `== false {
-										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + fieldName + `", resd.ReqFieldRequired1, "*` + fieldName + `")
-									}
-								`)
-								if fieldType == "string" {
-									initVars += fmt.Sprintf(`
-										if l.Req` + fieldName + `== "" {
-											return resd.NewErrWithTempCtx(l.ctx, "` + fieldName + `不得为空", resd.ReqFieldEmpty1, "*` + fieldName + `")
-										}
-									`)
-								}
-							}
-						}
-
-					}
-				}
+				initVars += gogen.DanValidateInitCode(fieldName, fieldType, field.Tags())
 			}
 		}
 		continue

@@ -4,22 +4,15 @@ import (
 	"context"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserGroupMemberApplyListLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserGroupMemberApplyListLogicGen
 }
 
-func NewGetUserGroupMemberApplyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserGroupMemberApplyListLogic {
+func NewGetUserGroupMemberApplyListLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserGroupMemberApplyListLogic {
 	return &GetUserGroupMemberApplyListLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserGroupMemberApplyListLogicGen: NewGetUserGroupMemberApplyListLogicGen(ctx, svc),
 	}
 }
 
@@ -31,8 +24,5 @@ func (l *GetUserGroupMemberApplyListLogic) GetUserGroupMemberApplyList(in *socia
 	return &socialRpc.GroupMemberApplyListResp{}, nil
 }
 func (l *GetUserGroupMemberApplyListLogic) checkReqParams(in *socialRpc.GetUserGroupMemberApplyListReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
 	return nil
 }

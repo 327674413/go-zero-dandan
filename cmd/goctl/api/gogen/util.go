@@ -181,3 +181,58 @@ func golangExpr(ty spec.Type, pkg ...string) string {
 
 	return ""
 }
+
+// ------danEditStart------
+func DanValidateInitCode(fieldName, fieldType string, tags []*spec.Tag) string {
+	code := ""
+	for _, tag := range tags {
+		if tag.Key == "check" {
+			//zero用的structtag包解析，会把第一个参数放到Name属性里，所以重新组装属性集合
+			if tag.Name == "" {
+				continue
+			}
+			opts := make([]string, 0)
+			opts = append(opts, tag.Name)
+			opts = append(opts, tag.Options...)
+			for _, check := range opts {
+				switch check {
+				case "required":
+					code += fmt.Sprintf(`
+									if l.HasReq.` + fieldName + `== false {
+										return l.resd.NewErrWithTemp(resd.ReqFieldRequired1, "*` + fieldName + `")
+									}
+								`)
+					if fieldType == "string" {
+						code += fmt.Sprintf(`
+										if l.Req` + fieldName + `== "" {
+											return l.resd.NewErrWithTemp(resd.ReqFieldEmpty1, "*` + fieldName + `")
+										}
+									`)
+					} else if fieldType == "int64" {
+						code += fmt.Sprintf(`
+										if l.Req` + fieldName + `== "" {
+											return l.resd.NewErrWithTemp(resd.ReqFieldEmpty1, "*` + fieldName + `")
+										}
+									`)
+					} else if len(fieldType) > 2 && fieldType[:2] == "[]" {
+						code += fmt.Sprintf(`
+										if len(l.Req` + fieldName + `) == 0 {
+											return l.resd.NewErrWithTemp(resd.ReqFieldEmpty1, "*` + fieldName + `")
+										}
+									`)
+					} else if len(fieldType) > 4 && fieldType[:4] == "map[" {
+						code += fmt.Sprintf(`
+										if len(l.Req` + fieldName + `) == 0 {
+											return l.resd.NewErrWithTemp(resd.ReqFieldEmpty1, "*` + fieldName + `")
+										}
+									`)
+					}
+				}
+			}
+
+		}
+	}
+	return code
+}
+
+// ------danEditEnd------

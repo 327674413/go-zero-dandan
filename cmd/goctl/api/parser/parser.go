@@ -172,12 +172,18 @@ func (p parser) fieldToMember(field *ast.TypeField) spec.Member {
 	tag := ""
 	if !field.IsAnonymous {
 		name = field.Name.Text()
-		if field.Tag == nil {
-			panic(fmt.Sprintf("error: line %d:%d field %s has no tag", field.Name.Line(), field.Name.Column(),
-				field.Name.Text()))
+		// ------danEditStart------
+		//if field.Tag == nil {
+		//	panic(fmt.Sprintf("error: line %d:%d field %s has no tag", field.Name.Line(), field.Name.Column(),
+		//		field.Name.Text()))
+		//}
+		//
+		//tag = field.Tag.Text()
+		if field.Tag != nil {
+			tag = field.Tag.Text()
 		}
+		// ------danEditEnd------
 
-		tag = field.Tag.Text()
 	}
 	return spec.Member{
 		Name:     name,

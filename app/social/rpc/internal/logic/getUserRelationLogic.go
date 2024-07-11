@@ -9,21 +9,15 @@ import (
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 	"strings"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserRelationLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserRelationLogicGen
 }
 
-func NewGetUserRelationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserRelationLogic {
+func NewGetUserRelationLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserRelationLogic {
 	return &GetUserRelationLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserRelationLogicGen: NewGetUserRelationLogicGen(ctx, svc),
 	}
 }
 
@@ -34,23 +28,20 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	if len(in.FriendUids) == 0 {
 		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少friendUids", resd.ReqFieldEmpty1, "friendUids")
 	}
-	if in.UserId == "" {
-		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少userId", resd.ReqFieldRequired1, "userId")
-	}
 	placeholders := make([]string, len(in.FriendUids))
 	friendUids := make([]any, len(in.FriendUids))
 	relats := make(map[string]int64)
 	for i := range in.FriendUids {
 		placeholders[i] = "?"
 		friendUids[i] = in.FriendUids[i]
-		if in.FriendUids[i] == in.UserId {
+		if l.ReqFriendUids[i] == l.ReqUserId {
 			relats[in.FriendUids[i]] = constd.SocialFriendStateEmSelf
 		} else {
 			relats[in.FriendUids[i]] = constd.SocialFriendStateEmNoRelat
 		}
 
 	}
-	friendModel := model.NewSocialFriendModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
 	whereData := make([]any, 0)
 	whereData = append(whereData, in.UserId)
 	whereData = append(whereData, friendUids...)
@@ -62,7 +53,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	for _, v := range friends {
 		relats[v.FriendUid] = v.StateEm
 	}
-	friendApplyModel := model.NewSocialFriendApplyModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
+	friendApplyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
 	applys, err := friendApplyModel.Except("content").Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), whereData...).Select()
 	if err != nil {
 		return nil, resd.NewErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
@@ -78,8 +69,5 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	}, nil
 }
 func (l *GetUserRelationLogic) checkReqParams(in *socialRpc.GetUserRelationReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
 	return nil
 }

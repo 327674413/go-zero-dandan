@@ -32,7 +32,7 @@ func New{{.logicName}}Gen(ctx context.Context,svc *svc.ServiceContext) *{{.logic
 }
 
 
-func (l *{{.logicName}}) initReq({{if .hasReq}}req {{.request}}{{end}}) error {
+func (l *{{.logicName}}Gen) initReq({{if .hasReq}}req {{.request}}{{end}}) error {
     var err error
 	if err = l.initPlat(); err != nil {
     	return l.resd.Error(err)
@@ -41,13 +41,13 @@ func (l *{{.logicName}}) initReq({{if .hasReq}}req {{.request}}{{end}}) error {
 	return nil
 }
 
-func (l *{{.logicName}}) initUser() (err error) {
+func (l *{{.logicName}}Gen) initUser() (err error) {
 	userId, _ := l.ctx.Value("userId").(string)
 	l.userId = userId
 	return nil
 }
 
-func (l *{{.logicName}}) initPlat() (err error) {
+func (l *{{.logicName}}Gen) initPlat() (err error) {
     platId,_ := l.ctx.Value("platId").(string)
     l.platId = platId
     return nil

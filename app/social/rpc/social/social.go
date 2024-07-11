@@ -19,6 +19,7 @@ type (
 	CreateGroupMemberApplyResp     = socialRpc.CreateGroupMemberApplyResp
 	CreateGroupReq                 = socialRpc.CreateGroupReq
 	CreateGroupResp                = socialRpc.CreateGroupResp
+	EmptyReq                       = socialRpc.EmptyReq
 	FriendApply                    = socialRpc.FriendApply
 	FriendApplyPageResp            = socialRpc.FriendApplyPageResp
 	FriendInfo                     = socialRpc.FriendInfo

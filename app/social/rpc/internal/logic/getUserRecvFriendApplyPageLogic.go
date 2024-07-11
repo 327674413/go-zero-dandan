@@ -7,21 +7,15 @@ import (
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserRecvFriendApplyPageLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserRecvFriendApplyPageLogicGen
 }
 
-func NewGetUserRecvFriendApplyPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserRecvFriendApplyPageLogic {
+func NewGetUserRecvFriendApplyPageLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserRecvFriendApplyPageLogic {
 	return &GetUserRecvFriendApplyPageLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserRecvFriendApplyPageLogicGen: NewGetUserRecvFriendApplyPageLogicGen(ctx, svc),
 	}
 }
 
@@ -29,8 +23,8 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
-	list, err := applyModel.Where("friend_uid = ?", in.UserId).Except("content").Order("apply_last_at DESC").Page(in.Page, in.Size).Select()
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	list, err := applyModel.Where("friend_uid = ?", in.UserId).Except("content").Order("apply_last_at DESC").Page(l.ReqPage, l.ReqSize).Select()
 	if err != nil {
 		return nil, resd.NewRpcErrWithTempCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
@@ -52,9 +46,9 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 			PlatId:       v.PlatId,
 		}
 	}
-	userInfos, err := l.svcCtx.UserRpc.GetUserNormalInfo(l.ctx, &userRpc.GetUserInfoReq{
+	userInfos, err := l.svc.UserRpc.GetUserNormalInfo(l.ctx, &userRpc.GetUserInfoReq{
 		Ids:    userIds,
-		PlatId: in.PlatId,
+		PlatId: l.ReqPlatId,
 	})
 	for k, v := range resp.List {
 		if _, ok := userInfos.Users[v.UserId]; ok {
@@ -63,18 +57,15 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 			resp.List[k].UserAvatarImg = userInfos.Users[v.UserId].MainInfo.AvatarImg
 		}
 	}
-	if in.IsNeedTotal == 1 {
+	if l.ReqIsNeedTotal == 1 {
 		total, err := applyModel.Where("friend_uid = ?", in.UserId).Total()
 		if err != nil {
 			return nil, resd.NewRpcErrWithTempCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 		}
-		resp.Total = &total
+		resp.Total = total
 	}
 	return resp, nil
 }
 func (l *GetUserRecvFriendApplyPageLogic) checkReqParams(in *socialRpc.GetUserRecvFriendApplyPageReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
 	return nil
 }

@@ -3,7 +3,6 @@ package logic
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/contextx"
-	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/social/model"
@@ -16,16 +15,12 @@ import (
 )
 
 type OperateFriendApplyLogic struct {
-	ctx context.Context
-	svc *svc.ServiceContext
-	logx.Logger
+	*OperateFriendApplyLogicGen
 }
 
 func NewOperateFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *OperateFriendApplyLogic {
 	return &OperateFriendApplyLogic{
-		ctx:    ctx,
-		svc:    svc,
-		Logger: logx.WithContext(ctx),
+		OperateFriendApplyLogicGen: NewOperateFriendApplyLogicGen(ctx, svc),
 	}
 }
 
@@ -35,13 +30,13 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 		return nil, err
 	}
 	//查询申请信息
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, in.PlatId)
-	apply, err := applyModel.WhereId(in.ApplyId).Find()
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	apply, err := applyModel.WhereId(l.ReqApplyId).Find()
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//权限判定
-	if in.SysRoleEm == constd.SysRoleEmUser && in.SysRoleUid != apply.UserId {
+	if l.ReqSysRoleEm == constd.SysRoleEmUser && l.ReqSysRoleUid != apply.UserId {
 		//用户操作，如用户处理申请的api调用
 		return nil, resd.NewRpcErrCtx(l.ctx, "", resd.AuthOperateUserErr)
 	}
@@ -54,13 +49,13 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	if in.OperateStateEm == constd.SocialFriendStateEmReject {
+	if l.ReqOperateStateEm == constd.SocialFriendStateEmReject {
 		//拒绝，更新申请状态
 		_, err = applyModel.WhereId(apply.Id).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_StateEm:    apply.StateEm,
 			model.SocialFriendApply_OperateMsg: in.OperateMsg,
 		})
-	} else if in.OperateStateEm == constd.SocialFriendStateEmPass {
+	} else if l.ReqOperateStateEm == constd.SocialFriendStateEmPass {
 		// 通过，更新申请状态
 		_, err = applyModel.WhereId(apply.Id).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_StateEm:    in.OperateStateEm,
@@ -96,7 +91,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	}
 	//获取对方用户信息
 	friendInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-		PlatId: in.PlatId,
+		PlatId: l.ReqPlatId,
 		Id:     apply.UserId,
 	})
 	if err != nil {
@@ -105,7 +100,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 
 	//获取我的用户信息
 	myInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-		PlatId: in.PlatId,
+		PlatId: l.ReqPlatId,
 		Id:     apply.FriendUid,
 	})
 	if err != nil {
@@ -138,7 +133,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	asyncCtx := contextx.ValueOnlyFrom(l.ctx)
 	threading.GoSafe(func() {
 		l.svc.ImRpc.SendSysMsg(asyncCtx, &imRpc.SendSysMsgReq{
-			PlatId:     in.PlatId,
+			PlatId:     l.ReqPlatId,
 			UserId:     apply.UserId,
 			MsgClasEm:  constd.MsgClasEmFriendApplyOperated,
 			MsgContent: apply.Id,
@@ -147,8 +142,5 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	return &socialRpc.ResultResp{Result: true}, nil
 }
 func (l *OperateFriendApplyLogic) checkReqParams(in *socialRpc.OperateFriendApplyReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
 	return nil
 }

@@ -97,7 +97,7 @@ type ResultResp struct {
 type CreateFriendApplyReq struct {
   PlatId    string
   UserId    string
-  FriendUid string
+  FriendUid string `check:"required"`
   ApplyMsg  string
   ApplyAt   int64
   SourceEm  int64

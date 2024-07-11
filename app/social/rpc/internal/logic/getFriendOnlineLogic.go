@@ -6,21 +6,15 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetFriendOnlineLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetFriendOnlineLogicGen
 }
 
-func NewGetFriendOnlineLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetFriendOnlineLogic {
+func NewGetFriendOnlineLogic(ctx context.Context, svc *svc.ServiceContext) *GetFriendOnlineLogic {
 	return &GetFriendOnlineLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetFriendOnlineLogicGen: NewGetFriendOnlineLogicGen(ctx, svc),
 	}
 }
 
@@ -28,7 +22,7 @@ func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq)
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	data, err := NewGetUserFriendListLogic(l.ctx, l.svcCtx).GetUserFriendList(&socialRpc.GetUserFriendListReq{
+	data, err := NewGetUserFriendListLogic(l.ctx, l.svc).GetUserFriendList(&socialRpc.GetUserFriendListReq{
 		UserId: in.UserId,
 		PlatId: in.PlatId,
 	})
@@ -39,7 +33,7 @@ func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq)
 	for _, v := range data.List {
 		uids = append(uids, v.FriendUid)
 	}
-	onlines, err := l.svcCtx.Redis.HgetallCtx(l.ctx, websocketd.RedisOnlineUser)
+	onlines, err := l.svc.Redis.HgetallCtx(l.ctx, websocketd.RedisOnlineUser)
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
 	}
@@ -57,8 +51,6 @@ func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq)
 
 }
 func (l *GetFriendOnlineLogic) checkReqParams(in *socialRpc.GetFriendOnlineReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
-	}
+
 	return nil
 }
