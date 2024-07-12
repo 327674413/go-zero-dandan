@@ -1,6 +1,6 @@
 package resd
 
-// 2成功类，5异常类不适合展示给用户，6校验类，7第三方对接类
+// 2成功类，4权限类，5异常类不适合展示给用户，6校验类，7第三方对接类
 const (
 	Ok                              = 200   //成功，直接完成
 	OkAsync                         = 201   //成功，但属于异步交易
@@ -10,20 +10,20 @@ const (
 	AuthOperateUserErr              = 40301 //用户无操作权限
 	AuthOperateStateErr             = 40302 //数据状态不允许操作
 	SysErr                          = 500   //系统异常
-	UserMainInfoErr                 = 50001 //系统异常
+	UserMainInfoErr                 = 50001 //系统异常：用户信息获取失败
 	MysqlErr                        = 501   //mysql异常
-	MysqlInsertErr                  = 50101
-	MysqlDeleteErr                  = 50102
-	MysqlUpdateErr                  = 50103
-	MysqlSelectErr                  = 50104
-	MysqlStartTransErr              = 50106
-	MysqlCommitErr                  = 50107
-	MysqlRollbackErr                = 50108
-	RedisErr                        = 502 //redis异常
-	RedisSetErr                     = 50201
-	RedisGetErr                     = 50202
-	RedisIncErr                     = 50203
-	RedisDecErr                     = 50204
+	MysqlInsertErr                  = 50101 //mysql新增异常
+	MysqlDeleteErr                  = 50102 //mysql删除异常
+	MysqlUpdateErr                  = 50103 //mysql修改异常
+	MysqlSelectErr                  = 50104 //mysq查询异常
+	MysqlStartTransErr              = 50106 //mysql开始事务异常
+	MysqlCommitErr                  = 50107 //mysql提交事务异常
+	MysqlRollbackErr                = 50108 //mysql回滚异常
+	RedisErr                        = 502   //redis异常
+	RedisSetErr                     = 50201 //redis set异常
+	RedisGetErr                     = 50202 //redis get异常
+	RedisIncErr                     = 50203 //redis 数字自增异常
+	RedisDecErr                     = 50204 //redis 数字自减异常
 	RedisSetVerifyCodeErr           = 502010001
 	RedisSetVerifyCodeIntervalErr   = 502010002
 	RedisSetUserLoginStateErr       = 502010003
