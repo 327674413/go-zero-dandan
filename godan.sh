@@ -4,14 +4,14 @@
 PROJECT_PATH="/Users/yelin/go_dev/project/src/go-zero-dandan"
 
 # 判断命令类型并设置服务名称
-if [ "$1" == "model" ]; then
-    SERVICE_NAME=""
-else
+if [ "$1" == "api" ] || [ "$1" == "rpc" ]; then
     if [ -z "$2" ]; then
-        echo "Usage: $0 {api service_name [-prod] | rpc service_name [-prod] | model [-prod]}"
+        echo "Usage: $0 {api service_name | rpc service_name}"
         exit 1
     fi
     SERVICE_NAME="$2"
+else
+    SERVICE_NAME=""
 fi
 
 # 根据第一个参数执行相应的命令
@@ -51,6 +51,10 @@ case $1 in
             fi
         fi
         ;;
+    lang)
+        cd $PROJECT_PATH/cmd/genLang/
+        go run .
+        ;;
     model)
         cd $PROJECT_PATH/cmd/genModel/
         if [ "$2" != "" ]; then
@@ -60,7 +64,7 @@ case $1 in
         fi
         ;;
     *)
-        echo "Usage: $0 {api service_name [-prod] | rpc service_name [-prod] | model [-prod]}"
+        echo "Usage: $0 {api service_name | rpc service_name | model | lang}"
         exit 1
         ;;
 esac

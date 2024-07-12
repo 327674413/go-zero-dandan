@@ -12,6 +12,7 @@ import (
 )
 
 var I18n *DanI18n
+var msg map[int]string
 
 type I18nConfig struct {
 	LangPathList []string
@@ -118,10 +119,10 @@ func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 		}
 
 	}
-	if code, ok := Msg[msgCode]; ok {
+	if code, ok := msg[msgCode]; ok {
 		return t.Trans(code, m)
 	} else {
-		return t.Trans(Msg[SysErr], m)
+		return t.Trans(msg[SysErr], m)
 	}
 
 }
