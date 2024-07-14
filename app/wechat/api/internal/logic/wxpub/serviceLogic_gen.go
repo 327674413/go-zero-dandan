@@ -45,7 +45,7 @@ func NewServiceLogicGen(ctx context.Context, svc *svc.ServiceContext) *ServiceLo
 func (l *ServiceLogicGen) initReq(req *types.WxpubReq) error {
 
 	if req.Appid != nil {
-		l.req.Appid = *req.Appid
+		l.req.Appid = strings.TrimSpace(*req.Appid)
 		l.hasReq.Appid = true
 	} else {
 		l.hasReq.Appid = false

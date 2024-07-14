@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	EmptyReq            = messageRpc.EmptyReq
 	ResultResp          = messageRpc.ResultResp
 	SendImChannelMsgReq = messageRpc.SendImChannelMsgReq
 	SendPhoneReq        = messageRpc.SendPhoneReq

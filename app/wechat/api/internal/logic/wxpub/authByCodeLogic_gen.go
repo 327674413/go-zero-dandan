@@ -45,7 +45,7 @@ func NewAuthByCodeLogicGen(ctx context.Context, svc *svc.ServiceContext) *AuthBy
 func (l *AuthByCodeLogicGen) initReq(req *types.AuthByCodeReq) error {
 
 	if req.Code != nil {
-		l.req.Code = *req.Code
+		l.req.Code = strings.TrimSpace(*req.Code)
 		l.hasReq.Code = true
 	} else {
 		l.hasReq.Code = false

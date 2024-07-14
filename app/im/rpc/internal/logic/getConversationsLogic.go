@@ -5,45 +5,37 @@ import (
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetConversationsLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetConversationsLogicGen
 }
 
-func NewGetConversationsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetConversationsLogic {
+func NewGetConversationsLogic(ctx context.Context, svc *svc.ServiceContext) *GetConversationsLogic {
 	return &GetConversationsLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetConversationsLogicGen: NewGetConversationsLogicGen(ctx, svc),
 	}
 }
 
 // GetConversations 获取会话
 func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) (*imRpc.GetConversationsResp, error) {
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	//在用户会话关系表中，查询用户所有会话
-	logx.Info("1111")
-	data, err := l.svcCtx.ConversationsModel.FindByUserId(l.ctx, in.UserId)
-	logx.Info("2222")
+	data, err := l.svc.ConversationsModel.FindByUserId(l.ctx, l.req.UserId)
 	if err != nil {
 		if err == modelMongo.ErrNotFound {
-			logx.Info("333333")
 			//没有会话记录
 			return &imRpc.GetConversationsResp{}, nil
 		}
-		logx.Info("444444")
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	res := &imRpc.GetConversationsResp{}
 	err = copier.Copy(&res, data)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	ids := make([]string, 0, len(data.ConversationList))
 	//获取所有会话id
@@ -51,9 +43,9 @@ func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) 
 		ids = append(ids, v.ConversationId)
 	}
 	// 通过会话ID列表，获取会话详细信息
-	conversations, err := l.svcCtx.ConversationModel.ListByConversationIds(l.ctx, ids)
+	conversations, err := l.svc.ConversationModel.ListByConversationIds(l.ctx, ids)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	//循环会话，根据会话详情判断消息状态
 	for _, item := range conversations {

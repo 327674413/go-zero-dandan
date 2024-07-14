@@ -21,8 +21,8 @@ type OperateMyRecvFriendApplyLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		ApplyId        string `json:"applyId,optional" check:"required"`
-		OperateStateEm int64  `json:"operateStateEm,optional" check:"required"`
+		ApplyId        string `json:"applyId,optional"`
+		OperateStateEm int64  `json:"operateStateEm,optional"`
 		OperateMsg     string `json:"operaeteMsg,optional"`
 	}
 	hasReq struct {
@@ -49,7 +49,7 @@ func NewOperateMyRecvFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceCo
 func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFriendApplyReq) error {
 
 	if req.ApplyId != nil {
-		l.req.ApplyId = *req.ApplyId
+		l.req.ApplyId = strings.TrimSpace(*req.ApplyId)
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
@@ -75,7 +75,7 @@ func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFrien
 	}
 
 	if req.OperateMsg != nil {
-		l.req.OperateMsg = *req.OperateMsg
+		l.req.OperateMsg = strings.TrimSpace(*req.OperateMsg)
 		l.hasReq.OperateMsg = true
 	} else {
 		l.hasReq.OperateMsg = false

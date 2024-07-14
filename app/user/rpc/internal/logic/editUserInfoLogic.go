@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/app/user/rpc/internal/svc"
 	"go-zero-dandan/app/user/rpc/types/userRpc"
@@ -11,46 +10,35 @@ import (
 )
 
 type EditUserInfoLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
-	platId string
+	*EditUserInfoLogicGen
 }
 
-func NewEditUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *EditUserInfoLogic {
+func NewEditUserInfoLogic(ctx context.Context, svc *svc.ServiceContext) *EditUserInfoLogic {
 	return &EditUserInfoLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		EditUserInfoLogicGen: NewEditUserInfoLogicGen(ctx, svc),
 	}
 }
 
-func (l *EditUserInfoLogic) EditUserInfo(in *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
-	userInfoModel := model.NewUserInfoModel(l.ctx, l.svcCtx.SqlConn, l.platId)
-	_, err := userInfoModel.WhereId(in.Id).Update(map[dao.TableField]any{
-		model.UserInfo_GraduateFrom: in.GraduateFrom,
-		model.UserInfo_BirthDate:    in.BirthDate,
+func (l *EditUserInfoLogic) EditUserInfo(req *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
+	userInfoModel := model.NewUserInfoModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
+	_, err := userInfoModel.WhereId(l.req.Id).Update(map[dao.TableField]any{
+		model.UserInfo_GraduateFrom: l.req.GraduateFrom,
+		model.UserInfo_BirthDate:    l.req.BirthDate,
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err, resd.MysqlUpdateErr)
+		return nil, l.resd.Error(err, resd.ErrMysqlUpdate)
 	}
 	/*userModel := model.NewUserMainModel(l.ctx,l.svcCtx.SqlConn, l.platId)
 	data := utild.StructToStrMapExcept(*in, "sizeCache", "unknownFields", "state")
 	err := userModel.Update(l.ctx, data)
 	*/
-	_, err = userInfoModel.FindById(in.Id)
+	_, err = userInfoModel.FindById(l.req.Id)
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr)
+		return nil, l.resd.Error(err, resd.ErrMysqlSelect)
 	}
 
 	return &userRpc.SuccResp{Code: 200}, nil
-}
-
-func (l *EditUserInfoLogic) Plat(platId string) *EditUserInfoLogic {
-	l.platId = platId
-	return l
-}
-
-func (l *EditUserInfoLogic) rpcFail(err error) (*userRpc.SuccResp, error) {
-	return nil, resd.RpcErrEncode(err)
 }

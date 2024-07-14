@@ -49,14 +49,14 @@ func NewMultipartUploadInitLogicGen(ctx context.Context, svc *svc.ServiceContext
 func (l *MultipartUploadInitLogicGen) initReq(req *types.MultipartUploadInitReq) error {
 
 	if req.FileName != nil {
-		l.req.FileName = *req.FileName
+		l.req.FileName = strings.TrimSpace(*req.FileName)
 		l.hasReq.FileName = true
 	} else {
 		l.hasReq.FileName = false
 	}
 
 	if req.FileSha1 != nil {
-		l.req.FileSha1 = *req.FileSha1
+		l.req.FileSha1 = strings.TrimSpace(*req.FileSha1)
 		l.hasReq.FileSha1 = true
 	} else {
 		l.hasReq.FileSha1 = false

@@ -1,0 +1,123 @@
+type MatchField {
+ Type *string
+ Str *string
+ Strs []string
+ Num *int64
+ Nums []int64
+ IsFuzzy *bool
+ Raws *string
+}
+
+type BindUnionUserReq{
+ UserId *string
+ BindClasEm *int64
+ Account *string
+ Phone *string
+ PlatId *string
+}
+type BindUnionUserResp{
+ UnionId string
+}
+type LoginByAccountReq {
+  PlatId *string
+  Account *string
+  Password *string
+}
+type RegByAccountReq {
+ PlatId *string
+ Account *string
+ Password *string
+ Nickname *string
+ Phone *string
+ PhoneArea *string
+ SexEm *int64
+ Email *string
+ AvatarImg *string
+ IsLogin *int64
+}
+type GetUserPageReq {
+  Page *int64
+  Size *int64
+  PlatId *string
+  NeedTotal *int64
+  Match map[string]MatchField
+}
+type GetUserPageResp{
+ Total int64
+ list []*UserMainInfo
+}
+type LoginResp{
+  Id string
+  Token  string
+  ExpireAt int64
+  UserInfo *UserMainInfo
+}
+
+type GetUserInfoReq{
+  Ids []string
+  PlatId *string
+}
+type UserNormalInfo{
+ MainInfo *UserMainInfo
+}
+type GetUserNormalInfoResp{
+  Users map[string]*UserNormalInfo
+}
+type UserMainInfo {
+ id string
+ unionId string
+ stateEm int64
+ account string
+ nickname string
+ phone string
+ phoneArea string
+ sexEm int64
+ email string
+ avatarImg string
+ platId string
+ signature string
+}
+
+type EditUserInfoReq {
+ Id *string
+ Nickname *string
+ SexEm *int64
+ Email *string
+ AvatarImg *string
+ GraduateFrom *string
+ BirthDate *string
+ PlatId *string
+}
+
+
+type IdReq {
+Id *string
+PlatId *string
+}
+type TokenReq {
+Token *string
+}
+type SuccResp {
+ Code int64
+}
+@server(
+  middleware: MetaMiddleware
+)
+service user {
+
+  @handler getUserByToken
+  post /getUserByToken(TokenReq) returns (UserMainInfo)
+  @handler editUserInfo
+  post /editUserInfo(EditUserInfoReq) returns (SuccResp)
+  @handler regByAccount
+  post /regByAccount(RegByAccountReq) returns (LoginResp)
+  @handler getUserById
+  post /getUserById(IdReq) returns (UserMainInfo)
+  @handler getUserPage
+  post /getUserPage(GetUserPageReq) returns (GetUserPageResp)
+  @handler bindUnionUser
+  post /bindUnionUser(BindUnionUserReq) returns (BindUnionUserResp)
+  @handler getUserNormalInfo
+  post /getUserNormalInfo(GetUserInfoReq) returns (GetUserNormalInfoResp)
+
+}

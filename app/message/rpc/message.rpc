@@ -1,0 +1,34 @@
+type SendPhoneReq {
+  phone *string
+  phoneArea *string
+  tempData []string
+  tempId *string
+}
+type SendImChannelMsgReq {
+  channelId  *string
+  sendType *int64
+  recvUid  *string
+  sendAt *int64
+  msgType *int64
+  msgContent *string
+  platId *string
+}
+type ResultResp{
+  code int64
+  content string
+}
+@server(
+  middleware: MetaMiddleware
+)
+service message {
+  @handler sendPhone
+  post /sendPhone(SendPhoneReq) returns (ResultResp)
+  @handler sendPhoneAsync
+  post /sendPhoneAsync(SendPhoneReq) returns (ResultResp)
+  // 发送系统消息
+  @handler sendImChannelMsg
+  post /sendImChannelMsg(SendImChannelMsgReq) returns (ResultResp)
+  @handler sendImChannelMsgAsync
+  post /sendImChannelMsgAsync(SendImChannelMsgReq) returns (ResultResp)
+
+}

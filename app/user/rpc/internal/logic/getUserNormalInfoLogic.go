@@ -7,32 +7,26 @@ import (
 	"go-zero-dandan/app/user/rpc/internal/svc"
 	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserNormalInfoLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserNormalInfoLogicGen
 }
 
-func NewGetUserNormalInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserNormalInfoLogic {
+func NewGetUserNormalInfoLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserNormalInfoLogic {
 	return &GetUserNormalInfoLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserNormalInfoLogicGen: NewGetUserNormalInfoLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetUserNormalInfoLogic) GetUserNormalInfo(in *userRpc.GetUserInfoReq) (*userRpc.GetUserNormalInfoResp, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+func (l *GetUserNormalInfoLogic) GetUserNormalInfo(req *userRpc.GetUserInfoReq) (*userRpc.GetUserNormalInfoResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	userMainModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
-	userInfoMap, err := l.getNormalInfoByIds(in.Ids, userMainModel)
+	userMainModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
+	userInfoMap, err := l.getNormalInfoByIds(l.req.Ids, userMainModel)
 	data := make(map[string]*userRpc.UserNormalInfo)
-	for _, id := range in.Ids {
+	for _, id := range l.req.Ids {
 		if v, ok := userInfoMap[id]; ok {
 			data[id] = &userRpc.UserNormalInfo{MainInfo: &userRpc.UserMainInfo{
 				Id:        v.Id,
@@ -67,7 +61,7 @@ func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string, userMainModel 
 		}
 	}, func(id string, writer mr.Writer[*model.UserMain], cancel func(error)) {
 		//处理数据
-		userMain, err := userMainModel.CacheFindById(l.svcCtx.Redis, id)
+		userMain, err := userMainModel.CacheFindById(l.svc.Redis, id)
 		if err != nil {
 			cancel(err)
 			return
@@ -82,17 +76,8 @@ func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string, userMainModel 
 		writer.Write(ds)
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 
 	return userMainInfos, nil
-}
-func (l *GetUserNormalInfoLogic) checkReqParams(in *userRpc.GetUserInfoReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "PlatId")
-	}
-	if len(in.Ids) == 0 {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "Ids")
-	}
-	return nil
 }

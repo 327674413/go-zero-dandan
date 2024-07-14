@@ -2,34 +2,31 @@ package logic
 
 import (
 	"context"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/app/im/rpc/internal/svc"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
 	"go-zero-dandan/app/im/ws/websocketd"
-	"go-zero-dandan/common/resd"
 )
 
 type PutConversationsLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*PutConversationsLogicGen
 }
 
-func NewPutConversationsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *PutConversationsLogic {
+func NewPutConversationsLogic(ctx context.Context, svc *svc.ServiceContext) *PutConversationsLogic {
 	return &PutConversationsLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		PutConversationsLogicGen: NewPutConversationsLogicGen(ctx, svc),
 	}
 }
 
 // PutConversations 更新会话
 func (l *PutConversationsLogic) PutConversations(in *imRpc.PutConversationsReq) (*imRpc.PutConversationsResp, error) {
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	//获取用户的会话列表
-	data, err := l.svcCtx.ConversationsModel.FindByUserId(l.ctx, in.UserId)
+	data, err := l.svc.ConversationsModel.FindByUserId(l.ctx, l.req.UserId)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	//如果用户无会话列表，初始化创建一个空列表
 	if data.ConversationList == nil {
@@ -51,9 +48,9 @@ func (l *PutConversationsLogic) PutConversations(in *imRpc.PutConversationsReq) 
 			Seq:            v.Seq,
 		}
 	}
-	_, err = l.svcCtx.ConversationsModel.Update(l.ctx, data)
+	_, err = l.svc.ConversationsModel.Update(l.ctx, data)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	return &imRpc.PutConversationsResp{}, nil
 }

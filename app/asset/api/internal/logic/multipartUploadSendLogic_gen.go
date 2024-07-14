@@ -21,8 +21,8 @@ type MultipartUploadSendLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		UploadID   string `form:"uploadId"`
-		ChunkIndex int64  `form:"chunkIndex"`
+		UploadID   string
+		ChunkIndex int64
 	}
 	hasReq struct {
 		UploadID   bool
@@ -47,7 +47,7 @@ func NewMultipartUploadSendLogicGen(ctx context.Context, svc *svc.ServiceContext
 func (l *MultipartUploadSendLogicGen) initReq(req *types.MultipartUploadSendReq) error {
 
 	if req.UploadID != nil {
-		l.req.UploadID = *req.UploadID
+		l.req.UploadID = strings.TrimSpace(*req.UploadID)
 		l.hasReq.UploadID = true
 	} else {
 		l.hasReq.UploadID = false

@@ -7,35 +7,25 @@ import (
 	"go-zero-dandan/app/wechat/api/internal/svc"
 	"go-zero-dandan/app/wechat/api/internal/types"
 
-	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type JssdkBuildLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       int64
-	platClasEm   int64
+	*JssdkBuildLogicGen
 }
 
-func NewJssdkBuildLogic(ctx context.Context, svcCtx *svc.ServiceContext) *JssdkBuildLogic {
+func NewJssdkBuildLogic(ctx context.Context, svc *svc.ServiceContext) *JssdkBuildLogic {
 	return &JssdkBuildLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		JssdkBuildLogicGen: NewJssdkBuildLogicGen(ctx, svc),
 	}
 }
 
 func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.JssdkBuildResp, err error) {
-	if err = l.initPlat(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+	if err = l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	if req.Url == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少url", resd.ErrReqFieldRequired1, "url")
+	if !l.hasReq.Url {
+		return nil, l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, resd.VarUrl)
 	}
 	wxpubApp := wechat.NewWxpub(l.ctx, &wechat.WxpubConf{
 		Appid:  "wx6ba0f04a081a54e5",
@@ -49,7 +39,7 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 		OpenTagList: req.OpenTagList,
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	resp = &types.JssdkBuildResp{
 		AppId:       jssdkRes.AppId,
@@ -63,27 +53,4 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 		Url:         jssdkRes.Url,
 	}
 	return resp, nil
-}
-
-func (l *JssdkBuildLogic) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *JssdkBuildLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platClasId
-	l.platClasEm = platClasEm
-	return nil
 }

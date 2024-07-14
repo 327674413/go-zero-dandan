@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/user/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type LoginByPhoneLogicGen struct {
@@ -18,17 +17,16 @@ type LoginByPhoneLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqPhone     string `json:"phone"`
-	ReqPhoneArea string `json:"phoneArea,optional"`
-	ReqOtpCode   string `json:"otpCode"`
-	ReqPortEm    int64  `json:"portEm"`
-	HasReq       struct {
+	req          struct {
+		Phone     string `json:"phone"`
+		PhoneArea string `json:"phoneArea,optional"`
+		OtpCode   string `json:"otpCode"`
+		PortEm    int64  `json:"portEm"`
+	}
+	hasReq struct {
 		Phone     bool
 		PhoneArea bool
 		OtpCode   bool
@@ -37,74 +35,50 @@ type LoginByPhoneLogicGen struct {
 }
 
 func NewLoginByPhoneLogicGen(ctx context.Context, svc *svc.ServiceContext) *LoginByPhoneLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &LoginByPhoneLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *LoginByPhoneLogicGen) initReq(req *types.LoginByPhoneReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Phone != nil {
-		l.ReqPhone = *req.Phone
-		l.HasReq.Phone = true
+		l.req.Phone = strings.TrimSpace(*req.Phone)
+		l.hasReq.Phone = true
 	} else {
-		l.HasReq.Phone = false
+		l.hasReq.Phone = false
 	}
 
 	if req.PhoneArea != nil {
-		l.ReqPhoneArea = *req.PhoneArea
-		l.HasReq.PhoneArea = true
+		l.req.PhoneArea = strings.TrimSpace(*req.PhoneArea)
+		l.hasReq.PhoneArea = true
 	} else {
-		l.HasReq.PhoneArea = false
+		l.hasReq.PhoneArea = false
 	}
 
 	if req.OtpCode != nil {
-		l.ReqOtpCode = *req.OtpCode
-		l.HasReq.OtpCode = true
+		l.req.OtpCode = strings.TrimSpace(*req.OtpCode)
+		l.hasReq.OtpCode = true
 	} else {
-		l.HasReq.OtpCode = false
+		l.hasReq.OtpCode = false
 	}
 
 	if req.PortEm != nil {
-		l.ReqPortEm = *req.PortEm
-		l.HasReq.PortEm = true
+		l.req.PortEm = *req.PortEm
+		l.hasReq.PortEm = true
 	} else {
-		l.HasReq.PortEm = false
+		l.hasReq.PortEm = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *LoginByPhoneLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *LoginByPhoneLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

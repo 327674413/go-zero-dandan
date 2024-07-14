@@ -21,7 +21,7 @@ type GetOneLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		Id string `json:"id,optional" check:"required"`
+		Id string `json:"id,optional"`
 	}
 	hasReq struct {
 		Id bool
@@ -45,7 +45,7 @@ func NewGetOneLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetOneLogi
 func (l *GetOneLogicGen) initReq(req *types.IdReq) error {
 
 	if req.Id != nil {
-		l.req.Id = *req.Id
+		l.req.Id = strings.TrimSpace(*req.Id)
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false

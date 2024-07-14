@@ -158,9 +158,23 @@ type getDanGenVarsReq struct {
 	mustUserInfo bool
 }
 
+type danFormField struct {
+	field     string //字段名
+	goType    string //生成的go字段类型
+	jsonTag   string //原本的json标签
+	Type      string //字段业务类型，默认text，有num数字,amt金额,date年月日,datetime年月日时分秒……
+	TrimSpace bool   //去除前后空格，string类型的数据默认为是
+	Max       int64  //数字类最大值
+	Min       int64  //数字类最小值
+	Required  bool   //必填
+
+}
+
 func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 	hasReqStr := ""
 	reqStr := ""
+	danForm := make([]*danFormField, 0)
+	// 先遍历，进行数据组装
 	for _, tp := range params.api.Types {
 		if tp.Name() == params.reqKey {
 			obj, ok := tp.(spec.DefineStruct)
@@ -170,51 +184,103 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-				reqStr += fmt.Sprintf("%s %s %s\n", fieldName, fieldType, field.Tag)
-				hasReqStr += fmt.Sprintf("%s bool\n", fieldName)
-				initVars += fmt.Sprintf(`
-					if req.` + fieldName + `!= nil {
-						l.req.` + fieldName + ` = *req.` + fieldName + `
-						l.hasReq.` + fieldName + ` = true
-					} else {
-						l.hasReq.` + fieldName + ` = false
-					}
-				`)
 
+				danField := &danFormField{
+					field:     fieldName,
+					goType:    fieldType,
+					TrimSpace: true, //默认去空格
+				}
 				for _, tag := range field.Tags() {
 					//fmt.Printf("key:%s,name:%s,options:%s\n", tag.Key, tag.Name, strings.Join(tag.Options, ","))
-					if tag.Key == "check" {
-						//zero用的structtag包解析，会把第一个参数放到Name属性里，所以重新组装属性集合
-						if tag.Name == "" {
-							continue
-						}
-						opts := make([]string, 0)
+					//先组装表单
+					opts := make([]string, 0)
+					if tag.Name != "" {
+						//zero用的structtag包解析，会把第一个逗号前的参数放到Name属性里
 						opts = append(opts, tag.Name)
 						opts = append(opts, tag.Options...)
+					}
+					switch tag.Key {
+					case "json":
+						danField.jsonTag = fmt.Sprintf("`json:\"%s\"`", strings.Join(opts, ","))
+					case "check":
+						//校验类型
 						for _, check := range opts {
 							switch check {
 							case "required":
-								initVars += fmt.Sprintf(`
-									if l.hasReq.` + fieldName + `== false {
-										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + fieldName + `", resd.ErrReqFieldRequired1, "*` + fieldName + `")
-									}
-								`)
-								if fieldType == "string" {
-									initVars += fmt.Sprintf(`
-										if l.req.` + fieldName + `== "" {
-											return resd.NewErrWithTempCtx(l.ctx, "` + fieldName + `不得为空", resd.ErrReqFieldEmpty1, "*` + fieldName + `")
-										}
-									`)
-								}
+								danField.Required = true
+							}
+						}
+					case "trim":
+						if tag.Name == "false" {
+							danField.TrimSpace = false
+						}
+					}
+
+					if tag.Key == "check" {
+
+						if tag.Name == "" {
+							continue
+						}
+
+						for _, check := range opts {
+							switch check {
+							case "required":
+								danField.Required = true
+
 							}
 						}
 
 					}
 				}
+				danForm = append(danForm, danField)
 			}
 		}
 		continue
 	}
+
+	//开始处理表单逻辑
+	for _, form := range danForm {
+		// 组装l.req.xxx
+		reqStr += fmt.Sprintf("%s %s %s\n", form.field, form.goType, form.jsonTag)
+		// 组装l.hasReq.xxx
+		hasReqStr += fmt.Sprintf("%s bool\n", form.field)
+		// 组装初始化值
+		// 判断字符串，要trim的写法值
+		fieldVal := ""
+		if form.goType == "string" || form.goType == "int64" || form.goType == "bool" {
+			fieldVal = "*req." + form.field
+		} else {
+			fieldVal = "req." + form.field
+		}
+
+		if form.goType == "string" && form.TrimSpace {
+			fieldVal = "strings.TrimSpace(*req." + form.field + ")"
+		}
+		initVars += fmt.Sprintf(`
+					if req.` + form.field + `!= nil {
+						l.req.` + form.field + ` = ` + fieldVal + `
+						l.hasReq.` + form.field + ` = true
+					} else {
+						l.hasReq.` + form.field + ` = false
+					}
+				`)
+		// 处理必填校验
+		if form.Required {
+			initVars += fmt.Sprintf(`
+									if l.hasReq.` + form.field + `== false {
+										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + form.field + `", resd.ErrReqFieldRequired1, "*` + form.field + `")
+									}
+								`)
+			if form.goType == "string" {
+				initVars += fmt.Sprintf(`
+										if l.req.` + form.field + `== "" {
+											return resd.NewErrWithTempCtx(l.ctx, "` + form.field + `不得为空", resd.ErrReqFieldEmpty1, "*` + form.field + `")
+										}
+									`)
+			}
+		}
+	}
+
 	defineVars += "req struct{\n"
 	defineVars += reqStr
 	defineVars += "}\n"
@@ -241,7 +307,7 @@ func transReqType(typeName string) string {
 	case "*bool":
 		return "bool"
 	}
-	return "string"
+	return typeName
 }
 func getLogicFolderPath(group spec.Group, route spec.Route) string {
 	folder := route.GetAnnotation(groupProperty)

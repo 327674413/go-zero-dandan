@@ -3,7 +3,6 @@ package friend
 
 import (
 	"context"
-	"go-zero-dandan/common/fmtd"
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
@@ -33,7 +32,6 @@ type GetMyFriendApplyRecvPageLogicGen struct {
 
 func NewGetMyFriendApplyRecvPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendApplyRecvPageLogicGen {
 	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
-	fmtd.Info(meta)
 	if meta == nil {
 		meta = &typed.ReqMeta{}
 	}

@@ -72,5 +72,6 @@ var Errs = []*langErr{
 	{63000001, "ErrSocialAlreadyFriend", "已经是好友了"},
 	{63000002, "ErrSocialAlreadyBlackMe", "对方已把你拉黑"},
 	{63000003, "ErrSocialNotAddSelf", "不能添加自己为好友"},
+	{63000004, "ErrCreateConversation", "创建会话失败"},
 	{700, "ErrTrdSmsSend", "TrdSmsSend"},
 }

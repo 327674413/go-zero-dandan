@@ -4,35 +4,22 @@ import (
 	"context"
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/messageRpc"
-	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type SendImChannelMsgAsyncLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*SendImChannelMsgAsyncLogicGen
 }
 
-func NewSendImChannelMsgAsyncLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SendImChannelMsgAsyncLogic {
+func NewSendImChannelMsgAsyncLogic(ctx context.Context, svc *svc.ServiceContext) *SendImChannelMsgAsyncLogic {
 	return &SendImChannelMsgAsyncLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		SendImChannelMsgAsyncLogicGen: NewSendImChannelMsgAsyncLogicGen(ctx, svc),
 	}
 }
 
-func (l *SendImChannelMsgAsyncLogic) SendImChannelMsgAsync(in *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+func (l *SendImChannelMsgAsyncLogic) SendImChannelMsgAsync(req *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
 
 	return &messageRpc.ResultResp{}, nil
-}
-func (l *SendImChannelMsgAsyncLogic) checkReqParams(in *messageRpc.SendImChannelMsgReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "platId")
-	}
-	return nil
 }

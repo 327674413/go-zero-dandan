@@ -24,7 +24,7 @@ type Conversation {
   Msg ChatLog
 }
 type GetConversationsReq {
-   SserId string
+   UserId string
 }
 type GetConversationsResp {
   ConversationList map[string]Conversation

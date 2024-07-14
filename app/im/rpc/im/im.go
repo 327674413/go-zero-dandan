@@ -17,6 +17,7 @@ type (
 	Conversation                = imRpc.Conversation
 	CreateGroupConversationReq  = imRpc.CreateGroupConversationReq
 	CreateGroupConversationResp = imRpc.CreateGroupConversationResp
+	EmptyReq                    = imRpc.EmptyReq
 	GetChatLogReq               = imRpc.GetChatLogReq
 	GetChatLogResp              = imRpc.GetChatLogResp
 	GetConversationsReq         = imRpc.GetConversationsReq
@@ -29,16 +30,11 @@ type (
 	SetUpUserConversationResp   = imRpc.SetUpUserConversationResp
 
 	Im interface {
-		// 获取会话记录
 		GetChatLog(ctx context.Context, in *GetChatLogReq, opts ...grpc.CallOption) (*GetChatLogResp, error)
-		// 建立会话: 群聊, 私聊
 		SetUpUserConversation(ctx context.Context, in *SetUpUserConversationReq, opts ...grpc.CallOption) (*SetUpUserConversationResp, error)
-		// 获取会话
 		GetConversations(ctx context.Context, in *GetConversationsReq, opts ...grpc.CallOption) (*GetConversationsResp, error)
-		// 更新会话
 		PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 		CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
-		// 发送系统消息
 		SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 	}
 
@@ -53,25 +49,21 @@ func NewIm(cli zrpc.Client) Im {
 	}
 }
 
-// 获取会话记录
 func (m *defaultIm) GetChatLog(ctx context.Context, in *GetChatLogReq, opts ...grpc.CallOption) (*GetChatLogResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.GetChatLog(ctx, in, opts...)
 }
 
-// 建立会话: 群聊, 私聊
 func (m *defaultIm) SetUpUserConversation(ctx context.Context, in *SetUpUserConversationReq, opts ...grpc.CallOption) (*SetUpUserConversationResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.SetUpUserConversation(ctx, in, opts...)
 }
 
-// 获取会话
 func (m *defaultIm) GetConversations(ctx context.Context, in *GetConversationsReq, opts ...grpc.CallOption) (*GetConversationsResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.GetConversations(ctx, in, opts...)
 }
 
-// 更新会话
 func (m *defaultIm) PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.PutConversations(ctx, in, opts...)
@@ -82,7 +74,6 @@ func (m *defaultIm) CreateGroupConversation(ctx context.Context, in *CreateGroup
 	return client.CreateGroupConversation(ctx, in, opts...)
 }
 
-// 发送系统消息
 func (m *defaultIm) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.SendSysMsg(ctx, in, opts...)

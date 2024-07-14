@@ -9,33 +9,27 @@ import (
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
 	"strings"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserPageLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserPageLogicGen
 }
 
-func NewGetUserPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserPageLogic {
+func NewGetUserPageLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserPageLogic {
 	return &GetUserPageLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserPageLogicGen: NewGetUserPageLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetUserPageLogic) GetUserPage(in *userRpc.GetUserPageReq) (*userRpc.GetUserPageResp, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+func (l *GetUserPageLogic) GetUserPage(req *userRpc.GetUserPageReq) (*userRpc.GetUserPageResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	userModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
-	if in.Match != nil {
+	userModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
+	if l.hasReq.Match {
 		strMatchs := []string{"phone", "nickname"}
 		for _, field := range strMatchs {
-			if item := in.Match[field]; item != nil {
+			if item := l.req.Match[field]; item != nil {
 				v := strings.TrimSpace(*item.Str)
 				if v == "" {
 					if item.IsFuzzy == nil || !*item.IsFuzzy {
@@ -52,22 +46,16 @@ func (l *GetUserPageLogic) GetUserPage(in *userRpc.GetUserPageReq) (*userRpc.Get
 		}
 
 	}
-	userList, err := userModel.Page(in.Page, in.Size).Select()
+	userList, err := userModel.Page(l.req.Page, l.req.Size).Select()
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
+		return nil, l.resd.Error(err, resd.ErrMysqlSelect)
 	}
 	resList := make([]*userRpc.UserMainInfo, 0)
 	err = copier.Copy(&resList, &userList)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.CopierErr)
+		return nil, l.resd.Error(err, resd.ErrCopier)
 	}
 	return &userRpc.GetUserPageResp{
 		List: resList,
 	}, nil
-}
-func (l *GetUserPageLogic) checkReqParams(in *userRpc.GetUserPageReq) error {
-	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "platId")
-	}
-	return nil
 }

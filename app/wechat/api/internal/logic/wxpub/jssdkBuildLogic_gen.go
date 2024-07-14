@@ -3,6 +3,7 @@ package wxpub
 
 import (
 	"context"
+	"strings"
 
 	"go-zero-dandan/app/wechat/api/internal/svc"
 	"go-zero-dandan/app/wechat/api/internal/types"
@@ -21,9 +22,9 @@ type JssdkBuildLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		Url         string `json:"url"`
-		JsApiList   string `json:"jsApiList"`
-		OpenTagList string `json:"openTagList"`
+		Url         string   `json:"url"`
+		JsApiList   []string `json:"jsApiList"`
+		OpenTagList []string `json:"openTagList"`
 	}
 	hasReq struct {
 		Url         bool
@@ -49,21 +50,21 @@ func NewJssdkBuildLogicGen(ctx context.Context, svc *svc.ServiceContext) *JssdkB
 func (l *JssdkBuildLogicGen) initReq(req *types.JssdkBuildReq) error {
 
 	if req.Url != nil {
-		l.req.Url = *req.Url
+		l.req.Url = strings.TrimSpace(*req.Url)
 		l.hasReq.Url = true
 	} else {
 		l.hasReq.Url = false
 	}
 
 	if req.JsApiList != nil {
-		l.req.JsApiList = *req.JsApiList
+		l.req.JsApiList = req.JsApiList
 		l.hasReq.JsApiList = true
 	} else {
 		l.hasReq.JsApiList = false
 	}
 
 	if req.OpenTagList != nil {
-		l.req.OpenTagList = *req.OpenTagList
+		l.req.OpenTagList = req.OpenTagList
 		l.hasReq.OpenTagList = true
 	} else {
 		l.hasReq.OpenTagList = false

@@ -7,43 +7,41 @@ import (
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/internal/svc"
 )
 
 type GetUserByIdLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetUserByIdLogicGen
 }
 
-func NewGetUserByIdLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserByIdLogic {
+func NewGetUserByIdLogic(ctx context.Context, svc *svc.ServiceContext) *GetUserByIdLogic {
 	return &GetUserByIdLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetUserByIdLogicGen: NewGetUserByIdLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetUserByIdLogic) GetUserById(in *userRpc.IdReq) (*userRpc.UserMainInfo, error) {
+func (l *GetUserByIdLogic) GetUserById(req *userRpc.IdReq) (*userRpc.UserMainInfo, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	userInfo := &userRpc.UserMainInfo{}
-	_, err := l.svcCtx.Redis.GetData(constd.RedisKeyUserInfo, in.Id, userInfo)
+	_, err := l.svc.Redis.GetData(constd.RedisKeyUserInfo, l.req.Id, userInfo)
 	if err != nil {
 		//有报错
-		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.RedisGetUserTokenErr))
+		return nil, l.resd.Error(err, resd.ErrRedisGetUserToken)
 	}
 	//没报错，且解析后有数据
 	if userInfo.Id != "" {
 		return userInfo, nil
 	}
 	//没数据，从数据库查询
-	userModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
-	userMain, err := userModel.WhereId(in.Id).Find()
+	userModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
+	userMain, err := userModel.WhereId(l.req.Id).Find()
 	if err != nil {
-		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err, resd.MysqlSelectErr))
+		return nil, l.resd.Error(err, resd.ErrMysqlSelect)
 	}
 	if userMain == nil {
-		return nil, resd.RpcErrEncode(resd.NewErrCtx(l.ctx, "不存在该用户", resd.NotFoundUser))
+		return nil, l.resd.Error(err, resd.ErrNotFoundUser)
 	}
 
 	return &userRpc.UserMainInfo{

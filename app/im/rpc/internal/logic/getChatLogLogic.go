@@ -3,34 +3,30 @@ package logic
 import (
 	"context"
 	"go-zero-dandan/app/im/rpc/im"
-	"go-zero-dandan/app/im/rpc/types/imRpc"
-	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/rpc/internal/svc"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
 )
 
 type GetChatLogLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetChatLogLogicGen
 }
 
-func NewGetChatLogLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetChatLogLogic {
+func NewGetChatLogLogic(ctx context.Context, svc *svc.ServiceContext) *GetChatLogLogic {
 	return &GetChatLogLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetChatLogLogicGen: NewGetChatLogLogicGen(ctx, svc),
 	}
 }
 
 // GetChatLog 获取会话记录
 func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLogResp, error) {
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	// 根据id
-	if in.MsgId != "" {
-		chatLog, err := l.svcCtx.ChatLogModel.FindOne(l.ctx, in.MsgId)
+	if l.req.MsgId != "" {
+		chatLog, err := l.svc.ChatLogModel.FindOne(l.ctx, l.req.MsgId)
 		if err != nil {
-			return nil, resd.ErrorCtx(l.ctx, err)
+			return nil, l.resd.Error(err)
 		}
 		return &imRpc.GetChatLogResp{
 			List: []*imRpc.ChatLog{
@@ -49,9 +45,9 @@ func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLog
 		}, nil
 	}
 	// 根据时间段
-	data, err := l.svcCtx.ChatLogModel.ListBySendTime(l.ctx, in.ConversationId, in.StartSendTime, in.EndSendTime, in.Count)
+	data, err := l.svc.ChatLogModel.ListBySendTime(l.ctx, l.req.ConversationId, l.req.StartSendTime, l.req.EndSendTime, l.req.Count)
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	list := make([]*im.ChatLog, 0, len(data))
 	for _, item := range data {

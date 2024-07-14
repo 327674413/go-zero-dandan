@@ -36,7 +36,7 @@ type (
 )
 service wechat-api {
 	@handler Service
-	get /service(WxpubReq) returns()
+	get /service(WxpubReq)
 }
 
 @server(

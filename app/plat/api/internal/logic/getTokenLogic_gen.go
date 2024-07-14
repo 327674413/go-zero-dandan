@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/plat/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type GetTokenLogicGen struct {
@@ -18,73 +17,48 @@ type GetTokenLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqAppid     string `json:"appid"`
-	ReqSecret    string `json:"secret"`
-	HasReq       struct {
+	req          struct {
+		Appid  string `json:"appid"`
+		Secret string `json:"secret"`
+	}
+	hasReq struct {
 		Appid  bool
 		Secret bool
 	}
 }
 
 func NewGetTokenLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetTokenLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &GetTokenLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *GetTokenLogicGen) initReq(req *types.GetTokenReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.Appid != nil {
-		l.ReqAppid = *req.Appid
-		l.HasReq.Appid = true
+		l.req.Appid = strings.TrimSpace(*req.Appid)
+		l.hasReq.Appid = true
 	} else {
-		l.HasReq.Appid = false
+		l.hasReq.Appid = false
 	}
 
 	if req.Secret != nil {
-		l.ReqSecret = *req.Secret
-		l.HasReq.Secret = true
+		l.req.Secret = strings.TrimSpace(*req.Secret)
+		l.hasReq.Secret = true
 	} else {
-		l.HasReq.Secret = false
+		l.hasReq.Secret = false
 	}
 
-	return nil
-}
-
-func (l *GetTokenLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return l.resd.NewErr(resd.ErrUserMainInfo)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *GetTokenLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return l.resd.NewErr(resd.ErrPlatClas)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return l.resd.NewErr(resd.ErrPlatId)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

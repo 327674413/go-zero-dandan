@@ -21,7 +21,7 @@ type UploadImgLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		WatermarkFlag int64 `form:"watermarkFlag"`
+		WatermarkFlag int64
 	}
 	hasReq struct {
 		WatermarkFlag bool

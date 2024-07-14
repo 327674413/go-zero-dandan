@@ -45,7 +45,7 @@ func NewSearchNewFriendPageLogicGen(ctx context.Context, svc *svc.ServiceContext
 func (l *SearchNewFriendPageLogicGen) initReq(req *types.SearchNewFriendReq) error {
 
 	if req.Keyword != nil {
-		l.req.Keyword = *req.Keyword
+		l.req.Keyword = strings.TrimSpace(*req.Keyword)
 		l.hasReq.Keyword = true
 	} else {
 		l.hasReq.Keyword = false

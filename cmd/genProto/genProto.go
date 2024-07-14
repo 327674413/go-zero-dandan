@@ -158,19 +158,23 @@ func transReqType(typeName string, isReq bool) (fieldType, fieldAttr string) {
 	if typeName == "" {
 		fmtd.Fatal("typeName is empty")
 	}
-	fmt.Println(typeName)
+	isPt := false
 	if typeName[:1] == "*" {
 		typeName = typeName[1:]
+		isPt = true
 	}
 	fieldType = typeName
 	fieldAttr = "optional"
-	// 如果不是req参数，不用指针类型
-	if !isReq {
+	// 如果不是req参数，并且没指定指针，就不用optioned
+	if !isReq && !isPt {
 		fieldAttr = ""
 	}
 	if len(typeName) > 3 && typeName[:3] == "[]*" {
 		fieldAttr = "repeated"
 		fieldType = typeName[3:]
+	} else if typeName == "[]byte" {
+		fieldAttr = ""
+		fieldType = "bytes"
 	} else if len(typeName) > 2 && typeName[:2] == "[]" {
 		fieldAttr = "repeated"
 		if typeName[2:3] == "*" {
@@ -212,7 +216,10 @@ func convertGoMapToProto(goMapStr string) string {
 		valueType = "bool"
 	// Add more type conversions as needed
 	default:
-		valueType = valueType // Use the same type if no conversion is needed
+		//把map里的星号去掉
+		if valueType[:1] == "*" {
+			valueType = valueType[1:]
+		}
 	}
 
 	return fmt.Sprintf("map<%s, %s>", keyType, valueType)

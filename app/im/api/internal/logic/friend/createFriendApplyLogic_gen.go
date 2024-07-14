@@ -22,8 +22,8 @@ type CreateFriendApplyLogicGen struct {
 	mustUserInfo bool
 	req          struct {
 		ApplyMsg  string `json:"applyMsg,optional"`
-		FriendUid string `json:"friendUid,optional" check:"required"`
-		SourceEm  int64  `json:"sourceEm,optional" check:"required"`
+		FriendUid string `json:"friendUid,optional"`
+		SourceEm  int64  `json:"sourceEm,optional"`
 	}
 	hasReq struct {
 		ApplyMsg  bool
@@ -49,14 +49,14 @@ func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) 
 func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) error {
 
 	if req.ApplyMsg != nil {
-		l.req.ApplyMsg = *req.ApplyMsg
+		l.req.ApplyMsg = strings.TrimSpace(*req.ApplyMsg)
 		l.hasReq.ApplyMsg = true
 	} else {
 		l.hasReq.ApplyMsg = false
 	}
 
 	if req.FriendUid != nil {
-		l.req.FriendUid = *req.FriendUid
+		l.req.FriendUid = strings.TrimSpace(*req.FriendUid)
 		l.hasReq.FriendUid = true
 	} else {
 		l.hasReq.FriendUid = false

@@ -8,28 +8,26 @@ import (
 	"go-zero-dandan/app/user/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type EditMyInfoLogicGen struct {
 	logx.Logger
-	ctx             context.Context
-	svc             *svc.ServiceContext
-	resd            *resd.Resp
-	lang            string
-	userMainInfo    *user.UserMainInfo
-	platId          string
-	platClasEm      int64
-	hasUserInfo     bool
-	mustUserInfo    bool
-	ReqNickname     string `json:"nickname,optional"`
-	ReqSexEm        int64  `json:"sexEm,optional"`
-	ReqAvatar       string `json:"avatar,optional"`
-	ReqGraduateFrom string `json:"graduateFrom,optional"`
-	ReqBirthDate    string `json:"birthDate,optional"`
-	HasReq          struct {
+	ctx          context.Context
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	meta         *typed.ReqMeta
+	hasUserInfo  bool
+	mustUserInfo bool
+	req          struct {
+		Nickname     string `json:"nickname,optional"`
+		SexEm        int64  `json:"sexEm,optional"`
+		Avatar       string `json:"avatar,optional"`
+		GraduateFrom string `json:"graduateFrom,optional"`
+		BirthDate    string `json:"birthDate,optional"`
+	}
+	hasReq struct {
 		Nickname     bool
 		SexEm        bool
 		Avatar       bool
@@ -39,81 +37,57 @@ type EditMyInfoLogicGen struct {
 }
 
 func NewEditMyInfoLogicGen(ctx context.Context, svc *svc.ServiceContext) *EditMyInfoLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &EditMyInfoLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *EditMyInfoLogicGen) initReq(req *types.EditMyInfoReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Nickname != nil {
-		l.ReqNickname = *req.Nickname
-		l.HasReq.Nickname = true
+		l.req.Nickname = strings.TrimSpace(*req.Nickname)
+		l.hasReq.Nickname = true
 	} else {
-		l.HasReq.Nickname = false
+		l.hasReq.Nickname = false
 	}
 
 	if req.SexEm != nil {
-		l.ReqSexEm = *req.SexEm
-		l.HasReq.SexEm = true
+		l.req.SexEm = *req.SexEm
+		l.hasReq.SexEm = true
 	} else {
-		l.HasReq.SexEm = false
+		l.hasReq.SexEm = false
 	}
 
 	if req.Avatar != nil {
-		l.ReqAvatar = *req.Avatar
-		l.HasReq.Avatar = true
+		l.req.Avatar = strings.TrimSpace(*req.Avatar)
+		l.hasReq.Avatar = true
 	} else {
-		l.HasReq.Avatar = false
+		l.hasReq.Avatar = false
 	}
 
 	if req.GraduateFrom != nil {
-		l.ReqGraduateFrom = *req.GraduateFrom
-		l.HasReq.GraduateFrom = true
+		l.req.GraduateFrom = strings.TrimSpace(*req.GraduateFrom)
+		l.hasReq.GraduateFrom = true
 	} else {
-		l.HasReq.GraduateFrom = false
+		l.hasReq.GraduateFrom = false
 	}
 
 	if req.BirthDate != nil {
-		l.ReqBirthDate = *req.BirthDate
-		l.HasReq.BirthDate = true
+		l.req.BirthDate = strings.TrimSpace(*req.BirthDate)
+		l.hasReq.BirthDate = true
 	} else {
-		l.HasReq.BirthDate = false
+		l.hasReq.BirthDate = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *EditMyInfoLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *EditMyInfoLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

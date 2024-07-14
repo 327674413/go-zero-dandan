@@ -16,6 +16,7 @@ type (
 	BindUnionUserReq      = userRpc.BindUnionUserReq
 	BindUnionUserResp     = userRpc.BindUnionUserResp
 	EditUserInfoReq       = userRpc.EditUserInfoReq
+	EmptyReq              = userRpc.EmptyReq
 	GetUserInfoReq        = userRpc.GetUserInfoReq
 	GetUserNormalInfoResp = userRpc.GetUserNormalInfoResp
 	GetUserPageReq        = userRpc.GetUserPageReq

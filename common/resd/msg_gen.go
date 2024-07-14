@@ -11,6 +11,7 @@ func init() {
 	msg[ErrAuthUserNotLogin] = "ErrAuthUserNotLogin"
 	msg[ErrConfigNotInit1] = "ErrConfigNotInit1"
 	msg[ErrCopier] = "ErrCopier"
+	msg[ErrCreateConversation] = "ErrCreateConversation"
 	msg[ErrDataBiz] = "ErrDataBiz"
 	msg[ErrDataExist1] = "ErrDataExist1"
 	msg[ErrMergeFileChunkNotFound] = "ErrMergeFileChunkNotFound"
@@ -80,6 +81,7 @@ const (
 	ErrAuthUserNotLogin                = 40201
 	ErrConfigNotInit1                  = 603
 	ErrCopier                          = 521
+	ErrCreateConversation              = 63000004
 	ErrDataBiz                         = 503
 	ErrDataExist1                      = 607
 	ErrMergeFileChunkNotFound          = 60901
@@ -149,4 +151,5 @@ const (
 	VarPhoneNumber      = "VarPhoneNumber"
 	VarSmsTemp          = "VarSmsTemp"
 	VarUpoladTask       = "VarUpoladTask"
+	VarUrl              = "VarUrl"
 )

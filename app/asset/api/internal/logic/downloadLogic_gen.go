@@ -21,7 +21,7 @@ type DownloadLogicGen struct {
 	hasUserInfo  bool
 	mustUserInfo bool
 	req          struct {
-		Id string `form:"id"`
+		Id string
 	}
 	hasReq struct {
 		Id bool
@@ -45,7 +45,7 @@ func NewDownloadLogicGen(ctx context.Context, svc *svc.ServiceContext) *Download
 func (l *DownloadLogicGen) initReq(req *types.DownloadReq) error {
 
 	if req.Id != nil {
-		l.req.Id = *req.Id
+		l.req.Id = strings.TrimSpace(*req.Id)
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false

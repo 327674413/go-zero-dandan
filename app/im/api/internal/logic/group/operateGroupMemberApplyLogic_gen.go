@@ -49,7 +49,7 @@ func NewOperateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceCon
 func (l *OperateGroupMemberApplyLogicGen) initReq(req *types.OperateGroupMemberApplyReq) error {
 
 	if req.ApplyId != nil {
-		l.req.ApplyId = *req.ApplyId
+		l.req.ApplyId = strings.TrimSpace(*req.ApplyId)
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
@@ -63,7 +63,7 @@ func (l *OperateGroupMemberApplyLogicGen) initReq(req *types.OperateGroupMemberA
 	}
 
 	if req.OpreateMsg != nil {
-		l.req.OpreateMsg = *req.OpreateMsg
+		l.req.OpreateMsg = strings.TrimSpace(*req.OpreateMsg)
 		l.hasReq.OpreateMsg = true
 	} else {
 		l.hasReq.OpreateMsg = false

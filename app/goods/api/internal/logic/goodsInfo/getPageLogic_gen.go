@@ -65,7 +65,7 @@ func (l *GetPageLogicGen) initReq(req *types.GetPageReq) error {
 	}
 
 	if req.Sort != nil {
-		l.req.Sort = *req.Sort
+		l.req.Sort = strings.TrimSpace(*req.Sort)
 		l.hasReq.Sort = true
 	} else {
 		l.hasReq.Sort = false
