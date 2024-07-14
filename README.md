@@ -1,5 +1,6 @@
 # 项目目标
 - 像写单体服务一样开发微服务
+- 自用低代码生成器
 - 集成各类业务的基础组件
 
 # 已完成部分
@@ -20,16 +21,19 @@
 ```
 sudo ln -s /Users/yelin/go_dev/project/src/go-zero-dandan/godan.sh /usr/local/bin/godan
 ```
-建立完毕后，可以直接通过godan命令生成代码,如果有重名连接，可以sudo rm /usr/local/bin/godan 来删除
+建立完毕后，可以直接通过godan命令生成代码(如果有重名连接，可以sudo rm /usr/local/bin/godan 来删除)
 ```
-#生成user-api
+#生成user-api ，如果是改了模版全量刷新，就更新godan.sh下的apiList,然后执行godan api all
 godan api user
 
-#生成user-rpc
+#生成user-rpc ，如果是改了模版全量刷新，就更新godan.sh下的rpcList,然后执行godan rpc all
 godan rpc user
 
 #生成model
 godan model
+
+#修改common/lang中的语言文件后，更新语言包
+godan lang
 ```
 
 ### 标准表模版
