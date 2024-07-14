@@ -6,26 +6,27 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type OperateFriendApplyLogicGen struct {
-	ctx    context.Context
-	svc    *svc.ServiceContext
-	resd   *resd.Resp
-	lang   string
-	userId string
-	platId string
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	resd *resd.Resp
+	meta *typed.ReqMeta
 	logx.Logger
-	ReqApplyId        string
-	ReqOperateUid     string
-	ReqOperateStateEm int64
-	ReqPlatId         string
-	ReqOperateMsg     string
-	ReqSysRoleEm      string
-	ReqSysRoleUid     string
-	HasReq            struct {
+	req struct {
+		ApplyId        string
+		OperateUid     string
+		OperateStateEm int64
+		PlatId         string
+		OperateMsg     string
+		SysRoleEm      string
+		SysRoleUid     string
+	}
+	hasReq struct {
 		ApplyId        bool
 		OperateUid     bool
 		OperateStateEm bool
@@ -37,82 +38,69 @@ type OperateFriendApplyLogicGen struct {
 }
 
 func NewOperateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *OperateFriendApplyLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &OperateFriendApplyLogicGen{
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *OperateFriendApplyLogicGen) initReq(req *socialRpc.OperateFriendApplyReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.ApplyId != nil {
-		l.ReqApplyId = *req.ApplyId
-		l.HasReq.ApplyId = true
+		l.req.ApplyId = *req.ApplyId
+		l.hasReq.ApplyId = true
 	} else {
-		l.HasReq.ApplyId = false
+		l.hasReq.ApplyId = false
 	}
 
 	if req.OperateUid != nil {
-		l.ReqOperateUid = *req.OperateUid
-		l.HasReq.OperateUid = true
+		l.req.OperateUid = *req.OperateUid
+		l.hasReq.OperateUid = true
 	} else {
-		l.HasReq.OperateUid = false
+		l.hasReq.OperateUid = false
 	}
 
 	if req.OperateStateEm != nil {
-		l.ReqOperateStateEm = *req.OperateStateEm
-		l.HasReq.OperateStateEm = true
+		l.req.OperateStateEm = *req.OperateStateEm
+		l.hasReq.OperateStateEm = true
 	} else {
-		l.HasReq.OperateStateEm = false
+		l.hasReq.OperateStateEm = false
 	}
 
 	if req.PlatId != nil {
-		l.ReqPlatId = *req.PlatId
-		l.HasReq.PlatId = true
+		l.req.PlatId = *req.PlatId
+		l.hasReq.PlatId = true
 	} else {
-		l.HasReq.PlatId = false
+		l.hasReq.PlatId = false
 	}
 
 	if req.OperateMsg != nil {
-		l.ReqOperateMsg = *req.OperateMsg
-		l.HasReq.OperateMsg = true
+		l.req.OperateMsg = *req.OperateMsg
+		l.hasReq.OperateMsg = true
 	} else {
-		l.HasReq.OperateMsg = false
+		l.hasReq.OperateMsg = false
 	}
 
 	if req.SysRoleEm != nil {
-		l.ReqSysRoleEm = *req.SysRoleEm
-		l.HasReq.SysRoleEm = true
+		l.req.SysRoleEm = *req.SysRoleEm
+		l.hasReq.SysRoleEm = true
 	} else {
-		l.HasReq.SysRoleEm = false
+		l.hasReq.SysRoleEm = false
 	}
 
 	if req.SysRoleUid != nil {
-		l.ReqSysRoleUid = *req.SysRoleUid
-		l.HasReq.SysRoleUid = true
+		l.req.SysRoleUid = *req.SysRoleUid
+		l.hasReq.SysRoleUid = true
 	} else {
-		l.HasReq.SysRoleUid = false
+		l.hasReq.SysRoleUid = false
 	}
 
-	return nil
-}
-
-func (l *OperateFriendApplyLogicGen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *OperateFriendApplyLogicGen) initPlat() (err error) {
-	platId, _ := l.ctx.Value("platId").(string)
-	l.platId = platId
 	return nil
 }

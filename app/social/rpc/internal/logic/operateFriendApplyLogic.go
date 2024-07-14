@@ -30,13 +30,13 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 		return nil, err
 	}
 	//查询申请信息
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
-	apply, err := applyModel.WhereId(l.ReqApplyId).Find()
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
+	apply, err := applyModel.WhereId(l.req.ApplyId).Find()
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//权限判定
-	if l.ReqSysRoleEm == constd.SysRoleEmUser && l.ReqSysRoleUid != apply.UserId {
+	if l.req.SysRoleEm == constd.SysRoleEmUser && l.req.SysRoleUid != apply.UserId {
 		//用户操作，如用户处理申请的api调用
 		return nil, resd.NewRpcErrCtx(l.ctx, "", resd.AuthOperateUserErr)
 	}
@@ -49,13 +49,13 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	if l.ReqOperateStateEm == constd.SocialFriendStateEmReject {
+	if l.req.OperateStateEm == constd.SocialFriendStateEmReject {
 		//拒绝，更新申请状态
 		_, err = applyModel.WhereId(apply.Id).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_StateEm:    apply.StateEm,
 			model.SocialFriendApply_OperateMsg: in.OperateMsg,
 		})
-	} else if l.ReqOperateStateEm == constd.SocialFriendStateEmPass {
+	} else if l.req.OperateStateEm == constd.SocialFriendStateEmPass {
 		// 通过，更新申请状态
 		_, err = applyModel.WhereId(apply.Id).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_StateEm:    in.OperateStateEm,
@@ -91,7 +91,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	}
 	//获取对方用户信息
 	friendInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-		PlatId: l.ReqPlatId,
+		PlatId: l.req.PlatId,
 		Id:     apply.UserId,
 	})
 	if err != nil {
@@ -100,7 +100,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 
 	//获取我的用户信息
 	myInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-		PlatId: l.ReqPlatId,
+		PlatId: l.req.PlatId,
 		Id:     apply.FriendUid,
 	})
 	if err != nil {
@@ -133,7 +133,7 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 	asyncCtx := contextx.ValueOnlyFrom(l.ctx)
 	threading.GoSafe(func() {
 		l.svc.ImRpc.SendSysMsg(asyncCtx, &imRpc.SendSysMsgReq{
-			PlatId:     l.ReqPlatId,
+			PlatId:     l.req.PlatId,
 			UserId:     apply.UserId,
 			MsgClasEm:  constd.MsgClasEmFriendApplyOperated,
 			MsgContent: apply.Id,

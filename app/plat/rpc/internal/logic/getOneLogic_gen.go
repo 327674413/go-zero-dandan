@@ -31,7 +31,7 @@ func NewGetOneLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetOneLogi
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
 		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 
@@ -49,11 +49,11 @@ func (l *GetOneLogic) initReq(req *platRpc.IdReq) error {
 	}
 
 	if l.HasReq.Id == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Id", resd.ReqFieldRequired1, "*Id")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Id", resd.ErrReqFieldRequired1, "*Id")
 	}
 
 	if l.ReqId == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "Id不得为空", resd.ReqFieldEmpty1, "*Id")
+		return resd.NewErrWithTempCtx(l.ctx, "Id不得为空", resd.ErrReqFieldEmpty1, "*Id")
 	}
 
 	return nil

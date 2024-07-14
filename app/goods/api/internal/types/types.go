@@ -17,14 +17,14 @@ type GoodsInfo struct {
 }
 
 type IdReq struct {
-	Id *string `json:"id,optional"`
+	Id *string `json:"id,optional" check:"required"`
 }
 
 type GetPageReq struct {
-	Page      int64  `json:"page,optional"`
-	Size      int64  `json:"size,optional"`
-	Sort      string `json:"sort,optional"`
-	TotalFlag *int64 `json:"totalFlag,optional"`
+	Page      *int64  `json:"page,optional"`
+	Size      *int64  `json:"size,optional"`
+	Sort      *string `json:"sort,optional"`
+	TotalFlag *int64  `json:"totalFlag,optional"`
 }
 
 type GetPageResp struct {
@@ -35,9 +35,9 @@ type GetPageResp struct {
 }
 
 type GetHotPageByCursorReq struct {
-	Cursor int64 `json:"cursor,optional"`
-	Size   int64 `json:"size,optional"`
-	Page   int64 `json:"page,optional"`
+	Cursor *int64 `json:"cursor,optional"`
+	Size   *int64 `json:"size,optional"`
+	Page   *int64 `json:"page,optional"`
 }
 
 type GetHotPageByCursorResp struct {

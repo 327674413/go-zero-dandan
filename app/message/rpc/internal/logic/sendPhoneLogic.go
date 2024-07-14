@@ -76,7 +76,7 @@ func (l *SendPhoneLogic) SendPhone(in *messageRpc.SendPhoneReq) (*messageRpc.Res
 func (l *SendPhoneLogic) checkReq(in *messageRpc.SendPhoneReq) error {
 	//校验模版id
 	if in.TempId == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired1, "TempId")
+		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ErrReqFieldRequired1, "TempId")
 	}
 	//校验手机号
 	if utild.CheckIsPhone(in.Phone) == false {
@@ -143,7 +143,7 @@ func (l *SendPhoneLogic) rpcFail(err error) (*messageRpc.ResultResp, error) {
 func (l *SendPhoneLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErr("未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErr("未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -151,11 +151,11 @@ func (l *SendPhoneLogic) initUser() (err error) {
 func (l *SendPhoneLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

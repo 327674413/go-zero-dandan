@@ -7,6 +7,10 @@ DB:
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000
+ReqRateLimitByIpAgent:
+  Seconds: 10
+  Quota: 5
+  KeyPrefix: "reqRateLimit:ipAgent:"
 I18n:
   Default: zh-cn
   Langs:
@@ -17,6 +21,12 @@ GoodsRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: goods.rpc
+  NonBlock: true
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
   NonBlock: true
 RedisConf:
   Host: 127.0.0.1:6379

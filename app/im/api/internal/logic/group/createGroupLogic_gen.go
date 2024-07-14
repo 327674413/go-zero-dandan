@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/im/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type CreateGroupLogicGen struct {
@@ -18,66 +17,41 @@ type CreateGroupLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqName      string `json:"name,optional"`
-	HasReq       struct {
+	req          struct {
+		Name string `json:"name,optional"`
+	}
+	hasReq struct {
 		Name bool
 	}
 }
 
 func NewCreateGroupLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateGroupLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &CreateGroupLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *CreateGroupLogicGen) initReq(req *types.CreateGroupReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Name != nil {
-		l.ReqName = *req.Name
-		l.HasReq.Name = true
+		l.req.Name = *req.Name
+		l.hasReq.Name = true
 	} else {
-		l.HasReq.Name = false
+		l.hasReq.Name = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *CreateGroupLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *CreateGroupLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

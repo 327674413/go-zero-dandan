@@ -6,23 +6,24 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CreateGroupLogicGen struct {
-	ctx    context.Context
-	svc    *svc.ServiceContext
-	resd   *resd.Resp
-	lang   string
-	userId string
-	platId string
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	resd *resd.Resp
+	meta *typed.ReqMeta
 	logx.Logger
-	ReqName      string
-	ReqStatus    int64
-	ReqCreateUid string
-	ReqPlatId    string
-	HasReq       struct {
+	req struct {
+		Name      string
+		Status    int64
+		CreateUid string
+		PlatId    string
+	}
+	hasReq struct {
 		Name      bool
 		Status    bool
 		CreateUid bool
@@ -31,61 +32,48 @@ type CreateGroupLogicGen struct {
 }
 
 func NewCreateGroupLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateGroupLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &CreateGroupLogicGen{
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *CreateGroupLogicGen) initReq(req *socialRpc.CreateGroupReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.Name != nil {
-		l.ReqName = *req.Name
-		l.HasReq.Name = true
+		l.req.Name = *req.Name
+		l.hasReq.Name = true
 	} else {
-		l.HasReq.Name = false
+		l.hasReq.Name = false
 	}
 
 	if req.Status != nil {
-		l.ReqStatus = *req.Status
-		l.HasReq.Status = true
+		l.req.Status = *req.Status
+		l.hasReq.Status = true
 	} else {
-		l.HasReq.Status = false
+		l.hasReq.Status = false
 	}
 
 	if req.CreateUid != nil {
-		l.ReqCreateUid = *req.CreateUid
-		l.HasReq.CreateUid = true
+		l.req.CreateUid = *req.CreateUid
+		l.hasReq.CreateUid = true
 	} else {
-		l.HasReq.CreateUid = false
+		l.hasReq.CreateUid = false
 	}
 
 	if req.PlatId != nil {
-		l.ReqPlatId = *req.PlatId
-		l.HasReq.PlatId = true
+		l.req.PlatId = *req.PlatId
+		l.hasReq.PlatId = true
 	} else {
-		l.HasReq.PlatId = false
+		l.hasReq.PlatId = false
 	}
 
-	return nil
-}
-
-func (l *CreateGroupLogicGen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *CreateGroupLogicGen) initPlat() (err error) {
-	platId, _ := l.ctx.Value("platId").(string)
-	l.platId = platId
 	return nil
 }

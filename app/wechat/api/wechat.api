@@ -1,5 +1,5 @@
 type WxpubReq {
-	Appid string `json:"appid"`
+	Appid *string `json:"appid"`
 }
 type (
 	JssdkBuildReq {
@@ -21,7 +21,7 @@ type (
 )
 type (
 	AuthByCodeReq {
-		Code string `json:"code"`
+		Code *string `json:"code"`
 	}
 	AuthByCodeResp {
 		AccessToken string `json:"accessToken"`
@@ -31,17 +31,17 @@ type (
 )
 @server(
 	timeout: 30s
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 	group: wxpub
 )
 service wechat-api {
 	@handler Service
-	get /service(WxpubReq) returns (string)
+	get /service(WxpubReq) returns()
 }
 
 @server(
 	timeout: 30s
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 	jwt: Auth
 	group: wxpub
 )

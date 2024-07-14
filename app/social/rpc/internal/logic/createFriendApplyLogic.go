@@ -32,7 +32,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
 	//我申请别人为好友，UserId是我，FriendUid是好友
 	//查询我-对方好友数据
 	existSelf, err := friendModel.Where("user_id = ? and friend_uid = ?", in.UserId, in.FriendUid).Find()
@@ -72,8 +72,8 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 		// 不存在，创建
 		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
 			Id:        utild.MakeId(),
-			UserId:    l.ReqUserId,
-			FriendUid: l.ReqFriendUid,
+			UserId:    l.req.UserId,
+			FriendUid: l.req.FriendUid,
 			StateEm:   constd.SocialFriendStateEmApply,
 		}); err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "创建我的好友申请失败", resd.MysqlInsertErr)
@@ -91,8 +91,8 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 		//不存在，创建
 		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
 			Id:        utild.MakeId(),
-			UserId:    l.ReqFriendUid,
-			FriendUid: l.ReqUserId,
+			UserId:    l.req.FriendUid,
+			FriendUid: l.req.UserId,
 			StateEm:   constd.SocialFriendStateEmApply,
 		}); err != nil {
 			return nil, resd.NewRpcErrCtx(l.ctx, "创建对方申请失败", resd.MysqlInsertErr)
@@ -107,7 +107,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	}
 
 	//查看是否存在过申请
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
 	existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
@@ -116,7 +116,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	if existApply != nil {
 		//存在申请，更新与添加申请消息
 		applyId = existApply.Id
-		newContent := biz.AddApplyRecord(existApply.Content.String, l.ReqUserId, l.ReqApplyMsg, l.ReqSourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+		newContent := biz.AddApplyRecord(existApply.Content.String, l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
 		if _, err = applyModel.WhereId(applyId).TxUpdate(tx, map[dao.TableField]any{
 			model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
 			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
@@ -131,16 +131,16 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	} else {
 		//不存在申请，创建新申请
 		applyId = utild.MakeId()
-		newContent := biz.AddApplyRecord("", l.ReqUserId, l.ReqApplyMsg, l.ReqSourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+		newContent := biz.AddApplyRecord("", l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
 		if _, err = applyModel.TxInsert(tx, &model.SocialFriendApply{
 			Id:           applyId,
-			UserId:       l.ReqUserId,
-			FriendUid:    l.ReqFriendUid,
-			ApplyLastMsg: l.ReqApplyMsg,
+			UserId:       l.req.UserId,
+			FriendUid:    l.req.FriendUid,
+			ApplyLastMsg: l.req.ApplyMsg,
 			ApplyLastAt:  time.Now().Unix(),
 			ApplyStartAt: time.Now().Unix(),
 			StateEm:      constd.SocialFriendStateEmApply,
-			SourceEm:     l.ReqSourceEm,
+			SourceEm:     l.req.SourceEm,
 			Content: sql.NullString{
 				String: newContent,
 				Valid:  true,
@@ -156,8 +156,8 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	asyncCtx := contextx.ValueOnlyFrom(l.ctx)
 	threading.GoSafe(func() {
 		_, err := l.svc.ImRpc.SendSysMsg(asyncCtx, &imRpc.SendSysMsgReq{
-			PlatId:    l.ReqPlatId,
-			UserId:    l.ReqFriendUid,
+			PlatId:    l.req.PlatId,
+			UserId:    l.req.FriendUid,
 			SendTime:  utild.NowTime(),
 			MsgClasEm: constd.MsgClasEmFriendApplyNew,
 		})
@@ -172,7 +172,7 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 	}, nil
 }
 func (l *CreateFriendApplyLogic) checkReqParams(in *socialRpc.CreateFriendApplyReq) error {
-	if l.ReqFriendUid == l.ReqUserId {
+	if l.req.FriendUid == l.req.UserId {
 		return resd.NewRpcErrCtx(l.ctx, "不能添加自己", resd.SocialNotAddSelf)
 	}
 	return nil

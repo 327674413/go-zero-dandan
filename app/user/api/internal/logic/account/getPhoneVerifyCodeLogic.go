@@ -73,11 +73,11 @@ func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCo
 func (l *GetPhoneVerifyCodeLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

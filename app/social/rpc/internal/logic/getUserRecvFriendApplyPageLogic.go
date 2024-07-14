@@ -6,6 +6,7 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/app/user/rpc/types/userRpc"
+	"go-zero-dandan/common/fmtd"
 	"go-zero-dandan/common/resd"
 )
 
@@ -23,8 +24,8 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
-	list, err := applyModel.Where("friend_uid = ?", in.UserId).Except("content").Order("apply_last_at DESC").Page(l.ReqPage, l.ReqSize).Select()
+	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
+	list, err := applyModel.Where("friend_uid = ?", in.UserId).Except("content").Order("apply_last_at DESC").Page(l.req.Page, l.req.Size).Select()
 	if err != nil {
 		return nil, resd.NewRpcErrWithTempCtx(l.ctx, err.Error(), resd.MysqlSelectErr)
 	}
@@ -46,9 +47,10 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 			PlatId:       v.PlatId,
 		}
 	}
+	fmtd.Info(l.meta)
 	userInfos, err := l.svc.UserRpc.GetUserNormalInfo(l.ctx, &userRpc.GetUserInfoReq{
 		Ids:    userIds,
-		PlatId: l.ReqPlatId,
+		PlatId: l.meta.PlatId,
 	})
 	for k, v := range resp.List {
 		if _, ok := userInfos.Users[v.UserId]; ok {
@@ -57,7 +59,7 @@ func (l *GetUserRecvFriendApplyPageLogic) GetUserRecvFriendApplyPage(in *socialR
 			resp.List[k].UserAvatarImg = userInfos.Users[v.UserId].MainInfo.AvatarImg
 		}
 	}
-	if l.ReqIsNeedTotal == 1 {
+	if l.req.IsNeedTotal == 1 {
 		total, err := applyModel.Where("friend_uid = ?", in.UserId).Total()
 		if err != nil {
 			return nil, resd.NewRpcErrWithTempCtx(l.ctx, err.Error(), resd.MysqlSelectErr)

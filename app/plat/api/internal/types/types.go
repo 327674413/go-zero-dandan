@@ -8,5 +8,5 @@ type GetTokenReq struct {
 
 type GetTokenResp struct {
 	Token     string `json:"token"`
-	ExpireSec int64  `json:"expire_sec""`
+	ExpireSec int64  `json:"expireSec""`
 }

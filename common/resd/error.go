@@ -2,12 +2,9 @@ package resd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-	"strings"
+	"go-zero-dandan/common/constd"
 )
 
 // danError自定义错误类型，兼容rpc错误
@@ -16,7 +13,7 @@ type danError struct {
 	Code       int      `json:"code"`
 	Msg        string   `json:"msg"`
 	temps      []string `json:"-"`
-	level      string   `json:"-"`
+	level      string   `json:"-"` //用来区分异常还是业务合法的，但想全走日志，当作完整的链路返回，就暂时不需要了
 	callers    []string `json:"-"`
 	callerSkip int      `json:"-"`
 }
@@ -56,158 +53,120 @@ func newDanErr(msg string, errCode int, tempStr ...string) *danError {
 	}
 	return res
 }
-func newDanInfo(msg string, errCode int, tempStr ...string) *danError {
-	res := &danError{
-		Result: false,
-		Code:   errCode,
-		Msg:    msg,
-		level:  levelInfo,
+
+func errdWithTemp(ctxOrNil context.Context, langOrNil *Lang, err error, initErrCode int, temps ...string) *danError {
+	skip := 3
+	danErr, ok := err.(*danError)
+	if ok {
+		//如果有传，则覆盖原先的错误码
+		danErr.Code = initErrCode
+		danErr.SetTemps(temps)
+	} else {
+		//不是自定义错误，创建
+		danErr = newDanErr(err.Error(), initErrCode, temps...)
 	}
-	if len(tempStr) > 0 {
-		res.SetTemps(tempStr)
+	if Mode != constd.ModePro {
+		printErr(skip, danErr, langOrNil)
 	}
-	return res
+	if Mode != constd.ModeDev {
+		if ctxOrNil != nil {
+			logx.WithCallerSkip(skip).Error(err)
+		} else {
+			logx.WithCallerSkip(skip).WithContext(ctxOrNil).Error(err)
+		}
+	}
+	return danErr
+}
+func newErr(ctxOrNil context.Context, langOrNil *Lang, errMsg string, initErrCode ...int) error {
+	errorCode := ErrSys
+	if len(initErrCode) > 0 {
+		errorCode = initErrCode[0]
+	}
+	skip := 3
+	var danErr *danError
+	danErr = newDanErr(errMsg, errorCode)
+
+	if Mode != constd.ModePro {
+		printErr(skip, danErr, langOrNil)
+	}
+	if Mode != constd.ModeDev {
+		if ctxOrNil != nil {
+			logx.WithCallerSkip(skip).Error(danErr)
+		} else {
+			logx.WithCallerSkip(skip).WithContext(ctxOrNil).Error(danErr)
+		}
+	}
+	return danErr
+}
+func newErrWithTemp(ctxOrNil context.Context, langOrNil *Lang, errMsg string, initErrCode int, temps ...string) error {
+	errorCode := initErrCode
+	skip := 3
+	var danErr *danError
+	danErr = newDanErr(errMsg, errorCode, temps...)
+	if Mode != constd.ModePro {
+		printErr(skip, danErr, langOrNil)
+	}
+	if Mode != constd.ModeDev {
+		if ctxOrNil != nil {
+			logx.WithCallerSkip(skip).Error(danErr)
+		} else {
+			logx.WithCallerSkip(skip).WithContext(ctxOrNil).Error(danErr)
+		}
+	}
+	return danErr
 }
 
 // Error 对error进行封装返回
-func Error(err error, errorCode ...int) error {
-	skip := 1
-	code := SysErr
-	if e, ok := err.(*danError); ok {
-		e.callerSkip = e.callerSkip + 1
-		//skip = e.callerSkip + skip //目前打算每层都调用，所以不哦那个增加了
-		code = e.Code
+func Error(err error, newErrCode ...int) error {
+	if len(newErrCode) > 0 {
+		return errdWithTemp(nil, nil, err, newErrCode[0])
+	} else {
+		return errdWithTemp(nil, nil, err, ErrSys)
 	}
-	logx.WithCallerSkip(skip).Error(err)
-	if len(errorCode) > 0 {
-		code = errorCode[0]
-	}
-	return newDanErr(err.Error(), code)
 
 }
 
 // ErrorCtx 对error进行封装返回,带上下文
-func ErrorCtx(ctx context.Context, err error, errorCode ...int) error {
-	skip := 1
-	code := SysErr
-	if e, ok := err.(*danError); ok {
-		e.callerSkip = e.callerSkip + 1
-		//skip = e.callerSkip + skip
-		code = e.Code
+func ErrorCtx(ctx context.Context, err error, newErrCode ...int) error {
+	if len(newErrCode) > 0 {
+		return errdWithTemp(ctx, nil, err, newErrCode[0])
+	} else {
+		return errdWithTemp(ctx, nil, err, ErrSys)
 	}
-	logx.WithCallerSkip(skip).WithContext(ctx).Error(err)
-	if len(errorCode) > 0 {
-		code = errorCode[0]
-	}
-	return newDanErr(err.Error(), code)
 }
 
-// ErrorWithTemp 对error进行封装返回，附带模版变量
-func ErrorWithTemp(err error, errorCode int, temps ...string) error {
-	skip := 1
-	if e, ok := err.(*danError); ok {
-		//e.callerSkip = e.callerSkip + 1
-		skip = e.callerSkip + skip
-	}
-	logx.WithCallerSkip(skip).Error(err)
-	return newDanErr(err.Error(), errorCode, temps...)
+// ErrorWithTemp 对error进行封装返回，带模版
+func ErrorWithTemp(err error, initErrCode int, temps ...string) error {
+	return errdWithTemp(nil, nil, err, initErrCode, temps...)
 }
 
-// ErrorWithTempCtx 对error进行封装返回，附带模版变量，带上下文
-func ErrorWithTempCtx(ctx context.Context, err error, errorCode int, temps ...string) error {
-	skip := 1
-	if e, ok := err.(*danError); ok {
-		//e.callerSkip = e.callerSkip + 1
-		skip = e.callerSkip + skip
-	}
-	logx.WithCallerSkip(skip).WithContext(ctx).Error(err)
-	return newDanErr(err.Error(), errorCode, temps...)
+// ErrorWithTempCtx 对error进行封装返回,带上下文，带模版
+func ErrorWithTempCtx(ctx context.Context, err error, initErrCode int, temps ...string) error {
+	return errdWithTemp(ctx, nil, err, initErrCode, temps...)
 }
 
 // NewErr 创建新的error
-func NewErr(msg string, errorCode ...int) error {
-	logx.WithCallerSkip(1).Error(errors.New(msg))
-	if len(errorCode) > 0 {
-		return newDanErr(msg, errorCode[0])
-	}
-	return newDanErr(msg, SysErr)
+func NewErr(errMsg string, initErrCode ...int) error {
+	return newErr(nil, nil, errMsg, initErrCode...)
 }
 
 // NewErrCtx 创建新的error，带上下文
-func NewErrCtx(ctx context.Context, msg string, errorCode ...int) error {
-	code := SysErr
-	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
-	if len(errorCode) > 0 {
-		code = errorCode[0]
-	}
-	return newDanErr(msg, code)
-}
-
-// NewRpcErrCtx 创建新的error，带上下文,Rpc错误返回用
-func NewRpcErrCtx(ctx context.Context, msg string, errorCode ...int) error {
-	code := SysErr
-	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
-	if len(errorCode) > 0 {
-		code = errorCode[0]
-	}
-	return RpcErrEncode(newDanErr(msg, code))
+func NewErrCtx(ctx context.Context, errMsg string, initErrCode ...int) error {
+	return newErr(ctx, nil, errMsg, initErrCode...)
 }
 
 // NewErrWithTemp 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量
-func NewErrWithTemp(msg string, errorCode int, temps ...string) error {
-	logx.WithCallerSkip(1).Error(errors.New(msg))
-	return newDanErr(msg, errorCode, temps...)
+func NewErrWithTemp(errMsg string, errorCode int, temps ...string) error {
+	return newErrWithTemp(nil, nil, errMsg, errorCode, temps...)
 }
 
 // NewErrWithTempCtx 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量，带上下文
-func NewErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...string) error {
-	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
-	return newDanErr(msg, errorCode, temps...)
-}
-
-// NewRpcErrWithTempCtx 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量，带上下文,RPC错误用
-func NewRpcErrWithTempCtx(ctx context.Context, msg string, errorCode int, temps ...string) error {
-	logx.WithCallerSkip(1).WithContext(ctx).Error(errors.New(msg))
-	return RpcErrEncode(newDanErr(msg, errorCode, temps...))
-}
-
-// RpcErrDecode 解码
-func RpcErrDecode(rpcError error) error {
-	if r, ok := status.FromError(rpcError); ok { // grpc err错误
-		res := strings.Split(r.Message(), " ,,,,,, ")
-		if len(res) == 0 {
-			return NewErr("rpc错误内容为空", RpcResDecodeErr)
-		}
-		msg := res[0]
-		res = res[1:]
-		return NewErrWithTemp(msg, int(r.Code()), res...)
-	} else {
-		return NewErr("rpc错误解码失败", RpcResDecodeErr)
-	}
-}
-
-// RpcErrEncode rpc结果报错时用此方法返回，配合RpcError解析，新错误 以及 多模版都通过新建NewErr后再传入
-func RpcErrEncode(err error) error {
-	if err == nil {
-		return nil
-	}
-	code := SysErr
-	res := make([]string, 0)
-	if e, ok := err.(*danError); ok {
-		e.callerSkip = e.callerSkip + 1
-		//skip = e.callerSkip + skip //目前打算每层都调用，所以不哦那个增加了
-		code = e.Code
-		res = append(res, e.Msg)
-		res = append(res, e.temps...)
-	} else {
-		res = append(res, err.Error())
-	}
-	return status.Error(codes.Code(code), strings.Join(res, " ,,,,,, "))
+func NewErrWithTempCtx(ctx context.Context, errMsg string, errorCode int, temps ...string) error {
+	return newErrWithTemp(ctx, nil, errMsg, errorCode, temps...)
 }
 
 func AssertErr(failErr error) (*danError, bool) {
 	if err, ok := failErr.(*danError); ok {
-		fmt.Println(err.callers)
 		return err, ok
 	} else {
 		return nil, false
@@ -215,7 +174,7 @@ func AssertErr(failErr error) (*danError, bool) {
 }
 func IsUserNotLoginErr(failErr error) bool {
 	if err, ok := failErr.(*danError); ok {
-		if err.Code == AuthUserNotLoginErr {
+		if err.Code == ErrAuthUserNotLogin {
 			return true
 		}
 	}

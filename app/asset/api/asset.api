@@ -3,10 +3,10 @@ type UploadResp {
 	FileName string `json:"fileName"`
 }
 type UploadImgReq {
-	WatermarkFlag int64 `form:"watermarkFlag"`
+	WatermarkFlag *int64 `form:"watermarkFlag"`
 }
 type DownloadReq {
-	Id string `form:"id"`
+	Id *string `form:"id"`
 }
 type DownloadResp {
 	Content  []byte `json:"content"`
@@ -19,9 +19,9 @@ type SuccessResp {
 type (
 	// 初始化分块上传
 	MultipartUploadInitReq {
-		FileName string `json:"fileName"`
-		FileSha1 string `json:"fileSha1"`
-		FileSize int64  `json:"fileSize"`
+		FileName *string `json:"fileName"`
+		FileSha1 *string `json:"fileSha1"`
+		FileSize *int64  `json:"fileSize"`
 	}
 	MultipartUploadInitRes {
 		UserId        string  `json:"userId,optional"`
@@ -35,14 +35,14 @@ type (
 	}
 	// 上传分块的文件
 	MultipartUploadSendReq {
-		UploadID   string `form:"uploadId"`
-		ChunkIndex int64  `form:"chunkIndex"`
+		UploadID   *string `form:"uploadId"`
+		ChunkIndex *int64  `form:"chunkIndex"`
 	}
 
 	// 合并分块的文件并且上传
 	MultipartUploadCompleteReq {
-		FileSha1 string `json:"fileSha1"`
-		UploadId string `json:"uploadId"`
+		FileSha1 *string `json:"fileSha1"`
+		UploadId *string `json:"uploadId"`
 	}
 	// 上传分块的文件
 	MultipartUploadCompleteRes {
@@ -52,7 +52,7 @@ type (
 
 @server(
 	timeout: 30s
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 	jwt: Auth
 )
 service asset-api {
@@ -64,7 +64,7 @@ service asset-api {
 
 @server(
 	timeout: 999s
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	middleware: MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
 	jwt: Auth
 )
 service asset-api {

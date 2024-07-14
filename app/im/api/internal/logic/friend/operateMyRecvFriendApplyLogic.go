@@ -21,32 +21,23 @@ func NewOperateMyRecvFriendApplyLogic(ctx context.Context, svc *svc.ServiceConte
 	}
 }
 func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.OperateMyRecvFriendApplyReq) (resp *types.ResultResp, err error) {
-	if err = l.init(req); err != nil {
+	if err = l.initReq(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//合法性校验
-	if !arrd.Contain([]int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}, l.ReqOperateStateEm) {
+	if !arrd.Contain([]int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}, l.req.OperateStateEm) {
 		return nil, resd.NewErrWithTempCtx(l.ctx, "", resd.ReqParamFormatErr1, "stateEm")
 	}
 	_, err = l.svc.SocialRpc.OperateFriendApply(l.ctx, &socialRpc.OperateFriendApplyReq{
-		ApplyId:        l.ReqApplyId,
-		OperateStateEm: l.ReqOperateStateEm,
-		PlatId:         l.platId,
-		OperateUid:     l.userMainInfo.Id,
-		OperateMsg:     l.ReqOperateMsg,
+		ApplyId:        &l.req.ApplyId,
+		OperateStateEm: &l.req.OperateStateEm,
+		PlatId:         &l.meta.PlatId,
+		OperateUid:     &l.meta.UserId,
+		OperateMsg:     &l.req.OperateMsg,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.ResultResp{Result: true}, nil
 
-}
-func (l *OperateMyRecvFriendApplyLogic) init(req *types.OperateMyRecvFriendApplyReq) (err error) {
-	if err = l.initReq(req); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
-	if err = l.initUser(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
-	return nil
 }

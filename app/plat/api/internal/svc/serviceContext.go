@@ -9,7 +9,7 @@ import (
 
 type ServiceContext struct {
 	Config         config.Config
-	LangMiddleware rest.Middleware
+	MetaMiddleware rest.Middleware
 	SqlConn        sqlx.SqlConn
 }
 
@@ -17,6 +17,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:         c,
 		SqlConn:        sqlx.NewMysql(c.DB.DataSource),
-		LangMiddleware: middleware.NewLangMiddleware().Handle,
+		MetaMiddleware: middleware.NewMetaMiddleware().Handle,
 	}
 }

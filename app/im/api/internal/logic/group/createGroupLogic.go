@@ -21,8 +21,5 @@ func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupReq) (resp *types.C
 	if err = l.initReq(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	if err = l.initUser(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
-	}
 	return
 }

@@ -11,7 +11,7 @@ import (
 type ServiceContext struct {
 	Config         config.Config
 	Redis          *redisd.Redisd
-	LangMiddleware rest.Middleware
+	MetaMiddleware rest.Middleware
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -20,6 +20,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:         c,
 		Redis:          redisdConn,
-		LangMiddleware: middleware.NewLangMiddleware().Handle,
+		MetaMiddleware: middleware.NewLangMiddleware().Handle,
 	}
 }

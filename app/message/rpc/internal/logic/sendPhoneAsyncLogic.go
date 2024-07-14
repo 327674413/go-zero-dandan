@@ -53,7 +53,7 @@ func (l *SendSMSAsyncLogic) SendPhoneAsync(in *messageRpc.SendPhoneReq) (*messag
 func (l *SendSMSAsyncLogic) checkReq(in *messageRpc.SendPhoneReq) error {
 	//校验模版id
 	if in.TempId == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ReqFieldRequired1, "TempId")
+		return resd.NewErrWithTempCtx(l.ctx, "未配置Temp Id", resd.ErrReqFieldRequired1, "TempId")
 	}
 	//校验手机号
 	if utild.CheckIsPhone(in.Phone) == false {

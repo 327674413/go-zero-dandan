@@ -17,7 +17,7 @@ func MultipartUploadSendHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		l := logic.NewMultipartUploadSendLogic(r.Context(), svcCtx)
-		resp, err := l.MultipartUploadSend(&req)
+		resp, err := l.MultipartUploadSend(r, &req)
 		if err != nil {
 			resd.ApiFail(w, r, err)
 		} else {

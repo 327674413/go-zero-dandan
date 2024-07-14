@@ -34,10 +34,10 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCurs
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &goodsRpc.GetHotPageByCursorReq{
-		Size:   req.Size,
+		Size:   *req.Size,
 		PlatId: l.platId,
-		Page:   req.Page,
-		Cursor: req.Cursor,
+		Page:   *req.Page,
+		Cursor: *req.Cursor,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
@@ -72,7 +72,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCurs
 func (l *GetHotPageByCursorLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -81,11 +81,11 @@ func (l *GetHotPageByCursorLogic) initUser() (err error) {
 func (l *GetHotPageByCursorLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platId, _ := l.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platId
 	l.platClasEm = platClasEm

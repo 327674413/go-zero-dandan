@@ -4,7 +4,7 @@ import (
 
 @server(
 	timeout: 30s
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	middleware: MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
 	jwt: Auth
 	group: friend
 	prefix: social/v1
@@ -33,7 +33,7 @@ service im-api {
 
 @server(
 	timeout: 30s
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	middleware: MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
 	jwt: Auth
 	group: group
 	prefix: social/v1

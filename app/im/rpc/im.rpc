@@ -1,0 +1,100 @@
+type ChatLog {
+   Id string
+   ConversationId string
+  SendId  string
+  RecvId string
+  MsgType  int64
+  MsgContent string
+  ChatType int64
+  SendTime string
+  ReadRecords []byte
+}
+type Conversation {
+  ConversationId string
+  ChatType int64
+  TargetId  string
+  IsShow bool
+  Seq int64
+  // 总消息数
+  Total int64
+  // 未读消息数
+  ToRead int64
+  // 已读消息
+  Read int64
+  Msg ChatLog
+}
+type GetConversationsReq {
+   SserId string
+}
+type GetConversationsResp {
+  ConversationList map[string]Conversation
+}
+
+type SendSysMsgReq{
+  UserId string
+  MsgTypeEm  int64
+  MsgContent string
+  SendTime int64
+  MsgClasEm int64
+}
+
+
+type PutConversationsReq {
+  Id  string
+  UserId string
+  ConversationList map[string]Conversation
+}
+type PutConversationsResp {}
+type GetChatLogReq {
+  ConversationId string
+  StartSendTime int64
+  EndSendTime int64
+  Count int64
+  MsgId string
+}
+type GetChatLogResp {
+  list []*ChatLog
+}
+
+type SetUpUserConversationReq{
+  SendId string
+  RecvId string
+  ChatType int64
+}
+type SetUpUserConversationResp{}
+
+type CreateGroupConversationReq {
+  GroupId string
+  CreateId string
+}
+type CreateGroupConversationResp {}
+
+type ResultResp{
+  Code int64
+  Content string
+}
+@server(
+  middleware: MetaMiddleware
+)
+service Im {
+  // 获取会话记录
+  @handler GetChatLog
+  post /GetChatLog(GetChatLogReq) returns (GetChatLogResp)
+  // 建立会话: 群聊, 私聊
+  @handler SetUpUserConversation
+  post /SetUpUserConversation(SetUpUserConversationReq) returns (SetUpUserConversationResp)
+  // 获取会话
+  @handler GetConversations
+  post /GetConversations(GetConversationsReq) returns (GetConversationsResp)
+  // 更新会话
+  @handler PutConversations
+  post /PutConversations(PutConversationsReq) returns (PutConversationsResp)
+
+  @handler CreateGroupConversation
+  post /CreateGroupConversation(CreateGroupConversationReq) returns (CreateGroupConversationResp)
+
+  // 发送系统消息
+  @handler SendSysMsg
+  post /SendSysMsg(SendSysMsgReq) returns (ResultResp)
+
+}

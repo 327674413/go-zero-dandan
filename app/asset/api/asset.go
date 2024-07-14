@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -15,7 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/asset-api.yaml", "the config file")
+var configFile = flag.String("f", "etc/asset-api-dev.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -23,6 +22,7 @@ func main() {
 	var c config.Config
 	var err error
 	conf.MustLoad(*configFile, &c)
+	resd.Mode = c.Mode
 	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
 		LangPathList: c.I18n.Langs,
 		DefaultLang:  c.I18n.Default,
@@ -31,14 +31,8 @@ func main() {
 		panic(err)
 	}
 	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
-		// 将错误对象转换为 JSON 格式，并写入响应
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"code":   resd.AuthPlatErr,
-			"result": false,
-			"msg":    resd.I18n.NewLang(r.FormValue("lang")).Msg(resd.AuthPlatErr),
-		})
+		resp := resd.NewResp(r.Context(), resd.I18n.NewLang(r.FormValue("lang")))
+		resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
 	}), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
 		//跨域处理
 		w.Header().Set("Access-Control-Allow-Origin", "*")

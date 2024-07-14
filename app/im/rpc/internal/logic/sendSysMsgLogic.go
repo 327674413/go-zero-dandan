@@ -39,13 +39,13 @@ func (l *SendSysMsgLogic) SendSysMsg(in *imRpc.SendSysMsgReq) (*imRpc.ResultResp
 		MsgContent: in.MsgContent,
 	})
 	if err != nil {
-		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "发送消息失败", resd.MqPushErr)
+		return nil, l.resd.NewRpcErrWithTempCtx(l.ctx, "发送消息失败", resd.MqPushErr)
 	}
 	return &imRpc.ResultResp{Code: constd.ResultTasking}, nil
 }
 func (l *SendSysMsgLogic) checkReqParams(in *imRpc.SendSysMsgReq) error {
 	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "platId")
 	}
 	return nil
 }

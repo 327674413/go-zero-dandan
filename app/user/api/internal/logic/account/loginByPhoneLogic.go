@@ -107,11 +107,11 @@ func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *
 func (l *LoginByPhoneLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platId, _ := l.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platId
 	l.platClasEm = platClasEm

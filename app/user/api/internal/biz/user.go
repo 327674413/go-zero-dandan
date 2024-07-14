@@ -38,7 +38,7 @@ func NewUserBiz(ctx context.Context, svcCtx *svc.ServiceContext) *UserBiz {
 	return biz
 }
 func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err error) {
-	unionModel := model.NewUserUnionModel(t.svcCtx.SqlConn)
+	unionModel := model.NewUserUnionModel(t.ctx, t.svcCtx.SqlConn)
 	db, _ := t.svcCtx.SqlConn.RawDB()
 	tx, err := db.BeginTx(t.ctx, nil)
 	if err != nil {
@@ -57,7 +57,7 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 		Phone:     regInfo.Phone,
 		PhoneArea: regInfo.PhoneArea,
 	}
-	userMainModel := model.NewUserMainModel(t.svcCtx.SqlConn, t.platId)
+	userMainModel := model.NewUserMainModel(t.ctx, t.svcCtx.SqlConn, t.platId)
 	if err != nil {
 		return nil, resd.Error(err)
 	}
@@ -161,11 +161,11 @@ func (t *UserBiz) EditUserInfo(editUserInfoReq *userRpc.EditUserInfoReq) error {
 func (t *UserBiz) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(t.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platId, _ := t.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	t.platId = platId
 	t.platClasEm = platClasEm

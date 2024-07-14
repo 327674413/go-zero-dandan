@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/asset/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type DownloadLogicGen struct {
@@ -18,66 +17,41 @@ type DownloadLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqId        string `form:"id"`
-	HasReq       struct {
+	req          struct {
+		Id string `form:"id"`
+	}
+	hasReq struct {
 		Id bool
 	}
 }
 
 func NewDownloadLogicGen(ctx context.Context, svc *svc.ServiceContext) *DownloadLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &DownloadLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *DownloadLogicGen) initReq(req *types.DownloadReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Id != nil {
-		l.ReqId = *req.Id
-		l.HasReq.Id = true
+		l.req.Id = *req.Id
+		l.hasReq.Id = true
 	} else {
-		l.HasReq.Id = false
+		l.hasReq.Id = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *DownloadLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *DownloadLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

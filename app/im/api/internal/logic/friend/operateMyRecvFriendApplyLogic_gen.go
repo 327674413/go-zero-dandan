@@ -8,26 +8,24 @@ import (
 	"go-zero-dandan/app/im/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type OperateMyRecvFriendApplyLogicGen struct {
 	logx.Logger
-	ctx               context.Context
-	svc               *svc.ServiceContext
-	resd              *resd.Resp
-	lang              string
-	userMainInfo      *user.UserMainInfo
-	platId            string
-	platClasEm        int64
-	hasUserInfo       bool
-	mustUserInfo      bool
-	ReqApplyId        string `json:"applyId,optional" check:"required"`
-	ReqOperateStateEm int64  `json:"operateStateEm,optional" check:"required"`
-	ReqOperateMsg     string `json:"operaeteMsg,optional"`
-	HasReq            struct {
+	ctx          context.Context
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	meta         *typed.ReqMeta
+	hasUserInfo  bool
+	mustUserInfo bool
+	req          struct {
+		ApplyId        string `json:"applyId,optional" check:"required"`
+		OperateStateEm int64  `json:"operateStateEm,optional" check:"required"`
+		OperateMsg     string `json:"operaeteMsg,optional"`
+	}
+	hasReq struct {
 		ApplyId        bool
 		OperateStateEm bool
 		OperateMsg     bool
@@ -35,79 +33,55 @@ type OperateMyRecvFriendApplyLogicGen struct {
 }
 
 func NewOperateMyRecvFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *OperateMyRecvFriendApplyLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &OperateMyRecvFriendApplyLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFriendApplyReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.ApplyId != nil {
-		l.ReqApplyId = *req.ApplyId
-		l.HasReq.ApplyId = true
+		l.req.ApplyId = *req.ApplyId
+		l.hasReq.ApplyId = true
 	} else {
-		l.HasReq.ApplyId = false
+		l.hasReq.ApplyId = false
 	}
 
-	if l.HasReq.ApplyId == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数ApplyId", resd.ReqFieldRequired1, "*ApplyId")
+	if l.hasReq.ApplyId == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数ApplyId", resd.ErrReqFieldRequired1, "*ApplyId")
 	}
 
-	if l.ReqApplyId == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "ApplyId不得为空", resd.ReqFieldEmpty1, "*ApplyId")
+	if l.req.ApplyId == "" {
+		return resd.NewErrWithTempCtx(l.ctx, "ApplyId不得为空", resd.ErrReqFieldEmpty1, "*ApplyId")
 	}
 
 	if req.OperateStateEm != nil {
-		l.ReqOperateStateEm = *req.OperateStateEm
-		l.HasReq.OperateStateEm = true
+		l.req.OperateStateEm = *req.OperateStateEm
+		l.hasReq.OperateStateEm = true
 	} else {
-		l.HasReq.OperateStateEm = false
+		l.hasReq.OperateStateEm = false
 	}
 
-	if l.HasReq.OperateStateEm == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数OperateStateEm", resd.ReqFieldRequired1, "*OperateStateEm")
+	if l.hasReq.OperateStateEm == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数OperateStateEm", resd.ErrReqFieldRequired1, "*OperateStateEm")
 	}
 
 	if req.OperateMsg != nil {
-		l.ReqOperateMsg = *req.OperateMsg
-		l.HasReq.OperateMsg = true
+		l.req.OperateMsg = *req.OperateMsg
+		l.hasReq.OperateMsg = true
 	} else {
-		l.HasReq.OperateMsg = false
+		l.hasReq.OperateMsg = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *OperateMyRecvFriendApplyLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *OperateMyRecvFriendApplyLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

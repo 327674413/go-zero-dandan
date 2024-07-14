@@ -39,7 +39,7 @@ func NewGetPhoneVerifyCodeLogicGen(ctx context.Context, svc *svc.ServiceContext)
 		ctx:    ctx,
 		svc:    svc,
 		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 
@@ -71,7 +71,7 @@ func (l *GetPhoneVerifyCodeLogicGen) initReq(req *types.GetPhoneVerifyCodeReq) e
 func (l *GetPhoneVerifyCodeLogicGen) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -80,11 +80,11 @@ func (l *GetPhoneVerifyCodeLogicGen) initUser() (err error) {
 func (l *GetPhoneVerifyCodeLogicGen) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platId, _ := l.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platId
 	l.platClasEm = platClasEm

@@ -34,7 +34,7 @@ func (l *RegByAccountLogic) RegByAccount(in *userRpc.RegByAccountReq) (*userRpc.
 	// 校验表单
 	account := strings.TrimSpace(in.Account)
 	if account == "" {
-		return nil, resd.RpcErrEncode(resd.NewErrWithTempCtx(l.ctx, "缺少账号", resd.ReqFieldRequired1, resd.VarAccount))
+		return nil, resd.RpcErrEncode(resd.NewErrWithTempCtx(l.ctx, "缺少账号", resd.ErrReqFieldRequired1, resd.VarAccount))
 	}
 	password := strings.TrimSpace(in.Password)
 	if utild.Strlen(password) < 6 {

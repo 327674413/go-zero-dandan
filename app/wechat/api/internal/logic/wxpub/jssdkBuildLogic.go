@@ -35,7 +35,7 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if req.Url == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少url", resd.ReqFieldRequired1, "url")
+		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少url", resd.ErrReqFieldRequired1, "url")
 	}
 	wxpubApp := wechat.NewWxpub(l.ctx, &wechat.WxpubConf{
 		Appid:  "wx6ba0f04a081a54e5",
@@ -68,7 +68,7 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 func (l *JssdkBuildLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -77,11 +77,11 @@ func (l *JssdkBuildLogic) initUser() (err error) {
 func (l *JssdkBuildLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

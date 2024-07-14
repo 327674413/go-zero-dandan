@@ -11,51 +11,43 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 )
 
 type MultipartUploadCompleteLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
+	*MultipartUploadCompleteLogicGen
 }
 
-func NewMultipartUploadCompleteLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MultipartUploadCompleteLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewMultipartUploadCompleteLogic(ctx context.Context, svc *svc.ServiceContext) *MultipartUploadCompleteLogic {
 	return &MultipartUploadCompleteLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		lang:   localizer,
+		MultipartUploadCompleteLogicGen: NewMultipartUploadCompleteLogicGen(ctx, svc),
 	}
 }
 
 func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.MultipartUploadCompleteReq) (*types.MultipartUploadCompleteRes, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	//先判断是否存在该上传任务
-	netdiskFileModel := model.NewAssetNetdiskFileModel(l.ctx, l.svcCtx.SqlConn)
-	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(req.UploadId)
+	netdiskFileModel := model.NewAssetNetdiskFileModel(l.ctx, l.svc.SqlConn)
+	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(*req.UploadId)
 	if err != nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "该分片上传id不存在", resd.NotFound1, "UpoladTask")
+		return nil, l.resd.NewErrWithTemp(resd.ErrNotFound1, resd.VarUpoladTask)
 	}
 	uploadKey := fmt.Sprintf("multipart:%d", uploadTask.Id)
-	chunkCountStr, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "chunkCount")
+	chunkCountStr, err := l.svc.Redis.HgetCtx(l.ctx, uploadKey, "chunkCount")
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
-	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, uploadKey, "fileSha1")
+	fileSha1, err := l.svc.Redis.HgetCtx(l.ctx, uploadKey, "fileSha1")
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	// 通过 uploadId 查询 Redis 并判断是否所有分块上传完成
-	uploadInfoMap, err := l.svcCtx.Redis.HgetallCtx(l.ctx, uploadKey)
+	uploadInfoMap, err := l.svc.Redis.HgetallCtx(l.ctx, uploadKey)
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	count := 0
 	// 遍历map
@@ -71,10 +63,10 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	}
 	// 所需分片数量不等于redis中查出来已经完成分片的数量，返回无法满足合并条件
 	if chunkCount != count {
-		return nil, resd.NewErrCtx(l.ctx, "文件未完全上传", resd.MultipartUploadNotComplete)
+		return nil, l.resd.NewErr(resd.ErrMultipartUploadNotComplete)
 	}
 	// 开始合并分块
-	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{
+	uploader, err := l.svc.Storage.CreateUploader(&storaged.UploaderConfig{
 		FileType: storaged.FileTypeMultipart,
 		Bucket:   "netdisk",
 	})
@@ -85,8 +77,8 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	assetMainModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
-	tx, err := dao.StartTrans(l.svcCtx.SqlConn)
+	assetMainModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)
+	tx, err := dao.StartTrans(l.svc.SqlConn)
 	if err != nil {
 		return nil, resd.Error(err)
 	}
@@ -125,7 +117,7 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	_, err = l.svcCtx.Redis.DelCtx(l.ctx, "multipart", fmt.Sprintf("%d", uploadTask.Id))
+	_, err = l.svc.Redis.DelCtx(l.ctx, "multipart", fmt.Sprintf("%d", uploadTask.Id))
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
@@ -134,20 +126,6 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.MultipartUploadCompleteRes{
-		UploadId: req.UploadId,
+		UploadId: *req.UploadId,
 	}, nil
-}
-
-func (l *MultipartUploadCompleteLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

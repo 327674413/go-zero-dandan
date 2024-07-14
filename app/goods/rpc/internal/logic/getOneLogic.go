@@ -2,11 +2,10 @@ package logic
 
 import (
 	"context"
-
-	"go-zero-dandan/app/goods/rpc/internal/svc"
-	"go-zero-dandan/app/goods/rpc/types/pb"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/app/goods/rpc/internal/svc"
 )
 
 type GetOneLogic struct {
@@ -23,8 +22,8 @@ func NewGetOneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOneLogi
 	}
 }
 
-func (l *GetOneLogic) GetOne(in *pb.IdReq) (*pb.GoodsInfo, error) {
+func (l *GetOneLogic) GetOne(in *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
 	// todo: add your logic here and delete this line
 
-	return &pb.GoodsInfo{}, nil
+	return &goodsRpc.GoodsInfo{}, nil
 }

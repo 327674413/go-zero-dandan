@@ -30,7 +30,10 @@ func main() {
 		}
 	})
 	defer s.Stop()
-    logx.DisableStat() //去掉定时出现的控制台打印
+	s.AddUnaryInterceptors(interceptor.RpcServerInterceptor())
+    if (c.Mode != "prod") {
+        logx.DisableStat() //去掉定时出现的控制台打印
+    }
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

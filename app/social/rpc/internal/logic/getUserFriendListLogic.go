@@ -23,7 +23,7 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendLi
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	m := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	m := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
 
 	list, err := m.Where("user_id = ?", in.UserId).Select()
 

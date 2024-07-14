@@ -8,26 +8,24 @@ import (
 	"go-zero-dandan/app/im/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type OperateGroupMemberApplyLogicGen struct {
 	logx.Logger
-	ctx               context.Context
-	svc               *svc.ServiceContext
-	resd              *resd.Resp
-	lang              string
-	userMainInfo      *user.UserMainInfo
-	platId            string
-	platClasEm        int64
-	hasUserInfo       bool
-	mustUserInfo      bool
-	ReqApplyId        string `json:"applyId,optional"`
-	ReqOpreateStateEm int64  `json:"operateStateEm,optional"`
-	ReqOpreateMsg     string `json:"operateMsg,optional"`
-	HasReq            struct {
+	ctx          context.Context
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	meta         *typed.ReqMeta
+	hasUserInfo  bool
+	mustUserInfo bool
+	req          struct {
+		ApplyId        string `json:"applyId,optional"`
+		OpreateStateEm int64  `json:"operateStateEm,optional"`
+		OpreateMsg     string `json:"operateMsg,optional"`
+	}
+	hasReq struct {
 		ApplyId        bool
 		OpreateStateEm bool
 		OpreateMsg     bool
@@ -35,67 +33,43 @@ type OperateGroupMemberApplyLogicGen struct {
 }
 
 func NewOperateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *OperateGroupMemberApplyLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &OperateGroupMemberApplyLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *OperateGroupMemberApplyLogicGen) initReq(req *types.OperateGroupMemberApplyReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.ApplyId != nil {
-		l.ReqApplyId = *req.ApplyId
-		l.HasReq.ApplyId = true
+		l.req.ApplyId = *req.ApplyId
+		l.hasReq.ApplyId = true
 	} else {
-		l.HasReq.ApplyId = false
+		l.hasReq.ApplyId = false
 	}
 
 	if req.OpreateStateEm != nil {
-		l.ReqOpreateStateEm = *req.OpreateStateEm
-		l.HasReq.OpreateStateEm = true
+		l.req.OpreateStateEm = *req.OpreateStateEm
+		l.hasReq.OpreateStateEm = true
 	} else {
-		l.HasReq.OpreateStateEm = false
+		l.hasReq.OpreateStateEm = false
 	}
 
 	if req.OpreateMsg != nil {
-		l.ReqOpreateMsg = *req.OpreateMsg
-		l.HasReq.OpreateMsg = true
+		l.req.OpreateMsg = *req.OpreateMsg
+		l.hasReq.OpreateMsg = true
 	} else {
-		l.HasReq.OpreateMsg = false
+		l.hasReq.OpreateMsg = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *OperateGroupMemberApplyLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *OperateGroupMemberApplyLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

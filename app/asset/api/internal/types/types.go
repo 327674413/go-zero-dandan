@@ -7,11 +7,11 @@ type UploadResp struct {
 }
 
 type UploadImgReq struct {
-	WatermarkFlag int64 `form:"watermarkFlag"`
+	WatermarkFlag *int64 `form:"watermarkFlag"`
 }
 
 type DownloadReq struct {
-	Id string `form:"id"`
+	Id *string `form:"id"`
 }
 
 type DownloadResp struct {
@@ -24,9 +24,9 @@ type SuccessResp struct {
 }
 
 type MultipartUploadInitReq struct {
-	FileName string `json:"fileName"`
-	FileSha1 string `json:"fileSha1"`
-	FileSize int64  `json:"fileSize"`
+	FileName *string `json:"fileName"`
+	FileSha1 *string `json:"fileSha1"`
+	FileSize *int64  `json:"fileSize"`
 }
 
 type MultipartUploadInitRes struct {
@@ -41,13 +41,13 @@ type MultipartUploadInitRes struct {
 }
 
 type MultipartUploadSendReq struct {
-	UploadID   string `form:"uploadId"`
-	ChunkIndex int64  `form:"chunkIndex"`
+	UploadID   *string `form:"uploadId"`
+	ChunkIndex *int64  `form:"chunkIndex"`
 }
 
 type MultipartUploadCompleteReq struct {
-	FileSha1 string `json:"fileSha1"`
-	UploadId string `json:"uploadId"`
+	FileSha1 *string `json:"fileSha1"`
+	UploadId *string `json:"uploadId"`
 }
 
 type MultipartUploadCompleteRes struct {

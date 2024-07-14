@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"github.com/zeromicro/go-zero/rest/httpx"
 	"go-zero-dandan/app/asset/api/internal/logic"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/common/resd"

@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/im/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type CreateFriendApplyLogicGen struct {
@@ -18,16 +17,15 @@ type CreateFriendApplyLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqApplyMsg  string `json:"applyMsg,optional"`
-	ReqFriendUid string `json:"friendUid,optional" check:"required"`
-	ReqSourceEm  int64  `json:"sourceEm,optional" check:"required"`
-	HasReq       struct {
+	req          struct {
+		ApplyMsg  string `json:"applyMsg,optional"`
+		FriendUid string `json:"friendUid,optional" check:"required"`
+		SourceEm  int64  `json:"sourceEm,optional" check:"required"`
+	}
+	hasReq struct {
 		ApplyMsg  bool
 		FriendUid bool
 		SourceEm  bool
@@ -35,79 +33,55 @@ type CreateFriendApplyLogicGen struct {
 }
 
 func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateFriendApplyLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &CreateFriendApplyLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.ApplyMsg != nil {
-		l.ReqApplyMsg = *req.ApplyMsg
-		l.HasReq.ApplyMsg = true
+		l.req.ApplyMsg = *req.ApplyMsg
+		l.hasReq.ApplyMsg = true
 	} else {
-		l.HasReq.ApplyMsg = false
+		l.hasReq.ApplyMsg = false
 	}
 
 	if req.FriendUid != nil {
-		l.ReqFriendUid = *req.FriendUid
-		l.HasReq.FriendUid = true
+		l.req.FriendUid = *req.FriendUid
+		l.hasReq.FriendUid = true
 	} else {
-		l.HasReq.FriendUid = false
+		l.hasReq.FriendUid = false
 	}
 
-	if l.HasReq.FriendUid == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数FriendUid", resd.ReqFieldRequired1, "*FriendUid")
+	if l.hasReq.FriendUid == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数FriendUid", resd.ErrReqFieldRequired1, "*FriendUid")
 	}
 
-	if l.ReqFriendUid == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "FriendUid不得为空", resd.ReqFieldEmpty1, "*FriendUid")
+	if l.req.FriendUid == "" {
+		return resd.NewErrWithTempCtx(l.ctx, "FriendUid不得为空", resd.ErrReqFieldEmpty1, "*FriendUid")
 	}
 
 	if req.SourceEm != nil {
-		l.ReqSourceEm = *req.SourceEm
-		l.HasReq.SourceEm = true
+		l.req.SourceEm = *req.SourceEm
+		l.hasReq.SourceEm = true
 	} else {
-		l.HasReq.SourceEm = false
+		l.hasReq.SourceEm = false
 	}
 
-	if l.HasReq.SourceEm == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数SourceEm", resd.ReqFieldRequired1, "*SourceEm")
+	if l.hasReq.SourceEm == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数SourceEm", resd.ErrReqFieldRequired1, "*SourceEm")
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *CreateFriendApplyLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *CreateFriendApplyLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

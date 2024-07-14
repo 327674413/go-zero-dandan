@@ -17,7 +17,7 @@ const (
 var res *resd.Resp
 
 func main() {
-	res = resd.NewResd(nil, "dev")
+	res = resd.NewResp(nil, "dev")
 	err := f1()
 	a, _ := resd.AssertErr(err)
 	if a != nil {

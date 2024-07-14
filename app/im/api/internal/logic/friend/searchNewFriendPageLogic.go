@@ -9,9 +9,7 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type SearchNewFriendPageLogic struct {
@@ -25,21 +23,18 @@ func NewSearchNewFriendPageLogic(ctx context.Context, svc *svc.ServiceContext) *
 }
 
 func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFriendReq) (resp *types.SearchNewFriendResp, err error) {
-	if err = l.initPlat(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
-	}
-	if err = l.initUser(); err != nil {
+	if err = l.initReq(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if req.Keyword == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ReqFieldRequired1, "keyword")
+		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ErrReqFieldRequired1, "keyword")
 	}
 	keyword := strings.TrimSpace(*req.Keyword)
 	if keyword == "" {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ReqFieldRequired1, "keyword")
+		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ErrReqFieldRequired1, "keyword")
 	}
 	searchRes, err := l.svc.UserRpc.GetUserPage(l.ctx, &userRpc.GetUserPageReq{
-		PlatId: l.platId,
+		PlatId: l.meta.PlatId,
 		Match: map[string]*userRpc.MatchField{
 			"phone": {Str: &keyword},
 		},
@@ -60,9 +55,9 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 	}
 	if len(list) > 0 {
 		relatsRes, err := l.svc.SocialRpc.GetUserRelation(l.ctx, &socialRpc.GetUserRelationReq{
-			UserId:     l.userMainInfo.Id,
+			UserId:     &l.meta.UserId,
 			FriendUids: ids,
-			PlatId:     l.platId,
+			PlatId:     &l.meta.PlatId,
 		})
 		if err != nil {
 			return nil, resd.ErrorCtx(l.ctx, err)
@@ -77,27 +72,4 @@ func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFrien
 	return &types.SearchNewFriendResp{
 		List: list,
 	}, nil
-}
-
-func (l *SearchNewFriendPageLogic) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *SearchNewFriendPageLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

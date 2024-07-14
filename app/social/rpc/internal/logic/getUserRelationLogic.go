@@ -26,7 +26,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 		return nil, err
 	}
 	if len(in.FriendUids) == 0 {
-		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少friendUids", resd.ReqFieldEmpty1, "friendUids")
+		return nil, resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少friendUids", resd.ErrReqFieldEmpty1, "friendUids")
 	}
 	placeholders := make([]string, len(in.FriendUids))
 	friendUids := make([]any, len(in.FriendUids))
@@ -34,14 +34,14 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	for i := range in.FriendUids {
 		placeholders[i] = "?"
 		friendUids[i] = in.FriendUids[i]
-		if l.ReqFriendUids[i] == l.ReqUserId {
+		if l.req.FriendUids[i] == l.req.UserId {
 			relats[in.FriendUids[i]] = constd.SocialFriendStateEmSelf
 		} else {
 			relats[in.FriendUids[i]] = constd.SocialFriendStateEmNoRelat
 		}
 
 	}
-	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	friendModel := model.NewSocialFriendModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	whereData := make([]any, 0)
 	whereData = append(whereData, in.UserId)
 	whereData = append(whereData, friendUids...)
@@ -53,7 +53,7 @@ func (l *GetUserRelationLogic) GetUserRelation(in *socialRpc.GetUserRelationReq)
 	for _, v := range friends {
 		relats[v.FriendUid] = v.StateEm
 	}
-	friendApplyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	friendApplyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	applys, err := friendApplyModel.Except("content").Where(fmt.Sprintf("user_id = ? and friend_uid in (%s)", strings.Join(placeholders, ",")), whereData...).Select()
 	if err != nil {
 		return nil, resd.NewErrCtx(l.ctx, err.Error(), resd.MysqlSelectErr)

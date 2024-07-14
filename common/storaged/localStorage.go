@@ -133,7 +133,7 @@ func (t *LocalStorage) Upload(r *http.Request, config *UploadConfig) (res *Uploa
 // MultipartUpload 分片上传文件
 func (t *LocalStorage) MultipartUpload(r *http.Request, config *UploadConfig) (res *UploadResult, err error) {
 	if config.FileSha1 == "" {
-		return nil, resd.NewErr("分片上传必须提供文件sha1", resd.MultipartUploadFileHashRequired)
+		return nil, resd.NewErr("分片上传必须提供文件sha1", resd.ErrMultipartUploadFileHashRequired)
 	}
 	t.Type = FileTypeMultipart //文件上传方法，强制存储类型文件
 	t.Request = r              //传递请求参数，以免下载方法中需要使用
@@ -175,7 +175,7 @@ func (t *LocalStorage) MultipartMerge(fileSha1 string, saveName string, chunkCou
 		chunkFilePath := filepath.Join(t.config.LocalPath, t.Bucket, t.DirName, fileSha1[:2], fileSha1+"_"+strconv.Itoa(i)) // 分块文件路径
 		chunkData, err := os.ReadFile(chunkFilePath)
 		if err != nil {
-			return nil, resd.Error(err, resd.MergeFileChunkNotFound)
+			return nil, resd.Error(err, resd.ErrMergeFileChunkNotFound)
 
 		}
 

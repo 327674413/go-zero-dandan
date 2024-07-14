@@ -3,9 +3,11 @@ package ctxd
 import "context"
 
 const (
-	KeyPlatId     = "platId"
-	KeyPlatClasEm = "platClasEm"
-	KeyUserId     = "userId"
+	KeyPlatId       = "platId"
+	KeyPlatClasEm   = "platClasEm"
+	KeyUserMainInfo = "userMainInfo"
+	KeyUserId       = "userId"
+	KeyReqMeta      = "reqMeta"
 )
 
 func PlatId(ctx context.Context) string {

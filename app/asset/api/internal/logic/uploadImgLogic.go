@@ -2,8 +2,6 @@ package logic
 
 import (
 	"context"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/asset/api/internal/svc"
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
@@ -15,28 +13,20 @@ import (
 )
 
 type UploadImgLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
-	fileData   *model.AssetMain
+	*UploadImgLogicGen
 }
 
-func NewUploadImgLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UploadImgLogic {
+func NewUploadImgLogic(ctx context.Context, svc *svc.ServiceContext) *UploadImgLogic {
 	return &UploadImgLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		UploadImgLogicGen: NewUploadImgLogicGen(ctx, svc),
 	}
 }
 
 func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
-	if err = l.initPlat(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+	if err = l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
+	uploader, err := l.svc.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
@@ -55,7 +45,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		StateEm:  constd.AssetStateEmFinish,
 		Sha1:     res.Hash,
 		Name:     res.Name,
-		ModeEm:   l.svcCtx.Config.AssetMode,
+		ModeEm:   l.svc.Config.AssetMode,
 		Mime:     res.Mime,
 		SizeNum:  res.SizeByte,
 		SizeText: res.SizeText,
@@ -63,7 +53,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		Path:     res.Path,
 	}
-	assetMainModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
+	assetMainModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)
 	_, err = assetMainModel.Insert(assetMainData)
 	if err != nil {
 		return nil, resd.Error(err)
@@ -72,18 +62,4 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		Url:      res.Url,
 		FileName: res.Name,
 	}, nil
-}
-
-func (l *UploadImgLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

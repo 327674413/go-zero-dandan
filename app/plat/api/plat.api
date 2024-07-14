@@ -8,7 +8,7 @@ type GetTokenResp {
 	ExpireSec int64  `json:"expireSec""`
 }
 @server(
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 )
 service plat-api {
 	@handler GetToken

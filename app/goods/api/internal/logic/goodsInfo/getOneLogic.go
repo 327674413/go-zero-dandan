@@ -33,9 +33,6 @@ func (l *GetOneLogic) GetOne(req *types.IdReq) (resp *types.GoodsInfo, err error
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	if req.Id == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "缺少参数id", resd.ReqFieldRequired1, "Id")
-	}
 	resp = &types.GoodsInfo{
 		Id:        "",
 		Name:      "",
@@ -55,7 +52,7 @@ func (l *GetOneLogic) GetOne(req *types.IdReq) (resp *types.GoodsInfo, err error
 func (l *GetOneLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -64,11 +61,11 @@ func (l *GetOneLogic) initUser() (err error) {
 func (l *GetOneLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platId, _ := l.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platId
 	l.platClasEm = platClasEm

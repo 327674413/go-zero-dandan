@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"context"
 	"go-zero-dandan/app/user/rpc/user"
+	"go-zero-dandan/common/middled"
 	"net/http"
 )
 
@@ -18,20 +18,7 @@ func NewUserInfoMiddleware(userRpc user.User) *UserInfoMiddleware {
 
 func (m *UserInfoMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userInfo := &user.UserMainInfo{}
-		userToken := r.Header.Get("Token")
-		var ctx context.Context
-		if userToken == "" {
-			ctx = context.WithValue(r.Context(), "userMainInfo", userInfo)
-		} else {
-			userInfoRpc, err := m.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: userToken})
-			if err == nil {
-				ctx = context.WithValue(r.Context(), "userMainInfo", userInfoRpc)
-			} else {
-				ctx = context.WithValue(r.Context(), "userMainInfo", userInfo)
-			}
-
-		}
+		ctx := middled.SetCtxUser(r, m.UserRpc)
 		next(w, r.WithContext(ctx))
 	}
 }

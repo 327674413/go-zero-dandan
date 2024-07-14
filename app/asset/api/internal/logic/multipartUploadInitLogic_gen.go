@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/asset/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type MultipartUploadInitLogicGen struct {
@@ -18,16 +17,15 @@ type MultipartUploadInitLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqFileName  string `json:"fileName"`
-	ReqFileSha1  string `json:"fileSha1"`
-	ReqFileSize  string `json:"fileSize"`
-	HasReq       struct {
+	req          struct {
+		FileName string `json:"fileName"`
+		FileSha1 string `json:"fileSha1"`
+		FileSize int64  `json:"fileSize"`
+	}
+	hasReq struct {
 		FileName bool
 		FileSha1 bool
 		FileSize bool
@@ -35,67 +33,43 @@ type MultipartUploadInitLogicGen struct {
 }
 
 func NewMultipartUploadInitLogicGen(ctx context.Context, svc *svc.ServiceContext) *MultipartUploadInitLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &MultipartUploadInitLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *MultipartUploadInitLogicGen) initReq(req *types.MultipartUploadInitReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.FileName != nil {
-		l.ReqFileName = *req.FileName
-		l.HasReq.FileName = true
+		l.req.FileName = *req.FileName
+		l.hasReq.FileName = true
 	} else {
-		l.HasReq.FileName = false
+		l.hasReq.FileName = false
 	}
 
 	if req.FileSha1 != nil {
-		l.ReqFileSha1 = *req.FileSha1
-		l.HasReq.FileSha1 = true
+		l.req.FileSha1 = *req.FileSha1
+		l.hasReq.FileSha1 = true
 	} else {
-		l.HasReq.FileSha1 = false
+		l.hasReq.FileSha1 = false
 	}
 
 	if req.FileSize != nil {
-		l.ReqFileSize = *req.FileSize
-		l.HasReq.FileSize = true
+		l.req.FileSize = *req.FileSize
+		l.hasReq.FileSize = true
 	} else {
-		l.HasReq.FileSize = false
+		l.hasReq.FileSize = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *MultipartUploadInitLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *MultipartUploadInitLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

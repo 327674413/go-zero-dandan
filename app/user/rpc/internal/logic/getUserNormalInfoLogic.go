@@ -89,10 +89,10 @@ func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string, userMainModel 
 }
 func (l *GetUserNormalInfoLogic) checkReqParams(in *userRpc.GetUserInfoReq) error {
 	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "PlatId")
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "PlatId")
 	}
 	if len(in.Ids) == 0 {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "Ids")
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "Ids")
 	}
 	return nil
 }

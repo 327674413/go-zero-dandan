@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"go-zero-dandan/common/fmtd"
-	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/lang"
 	"os"
 	"os/exec"
 	"sort"
@@ -15,16 +15,16 @@ var langCnMap map[string]string
 
 func init() {
 	langCnMap = make(map[string]string)
-	sort.Slice(resd.LangErrs, func(i, j int) bool {
-		return resd.LangErrs[i].Value < resd.LangErrs[j].Value
+	sort.Slice(lang.Errs, func(i, j int) bool {
+		return lang.Errs[i].Value < lang.Errs[j].Value
 	})
-	sort.Slice(resd.LangFields, func(i, j int) bool {
-		return resd.LangFields[i].Value < resd.LangFields[j].Value
+	sort.Slice(lang.Fields, func(i, j int) bool {
+		return lang.Fields[i].Value < lang.Fields[j].Value
 	})
-	for _, v := range resd.LangErrs {
+	for _, v := range lang.Errs {
 		langCnMap[v.Value] = v.Label
 	}
-	for _, v := range resd.LangFields {
+	for _, v := range lang.Fields {
 		langCnMap[v.Value] = v.Label
 	}
 }
@@ -47,10 +47,20 @@ package resd
 
 func init() {
 	msg = make(map[int]string)
-	{{- range .list}}
+	{{- range .errList}}
 	msg[{{.Value}}] = "{{.Value}}"
 	{{- end}}
 }
+const (
+	{{- range .errList}}
+	{{.Value}} = {{.Code}}
+	{{- end}}
+)
+const (
+	{{- range .fieldList}}
+	{{.Value}} = "{{.Value}}"
+	{{- end}}
+)
 `
 	// 解析模板
 	msgTmpl, err := template.New("msg").Parse(msgTemp)
@@ -61,7 +71,8 @@ func init() {
 
 	// 将模板应用于数据并写入文件
 	err = msgTmpl.Execute(msgFile, map[string]any{
-		"list": resd.LangErrs,
+		"errList":   lang.Errs,
+		"fieldList": lang.Fields,
 	})
 
 	if err != nil {
@@ -101,7 +112,7 @@ func genLang(langName string, isCn bool) {
 	}
 	langContent := ""
 	emptyContent := ""
-	for _, lang := range resd.LangErrs {
+	for _, lang := range lang.Errs {
 		message := tomlMap[lang.Value]
 		if message != "" {
 			langContent += fmt.Sprintf("%s = \"%s\"\n", lang.Value, message)
@@ -112,7 +123,7 @@ func genLang(langName string, isCn bool) {
 		}
 
 	}
-	for _, lang := range resd.LangFields {
+	for _, lang := range lang.Fields {
 		message := tomlMap[lang.Value]
 		if message != "" {
 			langContent += fmt.Sprintf("%s = \"%s\"\n", lang.Value, message)

@@ -8,9 +8,8 @@ import (
 	"go-zero-dandan/app/goods/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type GetPageLogicGen struct {
@@ -18,17 +17,16 @@ type GetPageLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqPage      string `json:"page,optional"`
-	ReqSize      string `json:"size,optional"`
-	ReqSort      string `json:"sort,optional"`
-	ReqTotalFlag int64  `json:"totalFlag,optional"`
-	HasReq       struct {
+	req          struct {
+		Page      int64  `json:"page,optional"`
+		Size      int64  `json:"size,optional"`
+		Sort      string `json:"sort,optional"`
+		TotalFlag int64  `json:"totalFlag,optional"`
+	}
+	hasReq struct {
 		Page      bool
 		Size      bool
 		Sort      bool
@@ -37,73 +35,49 @@ type GetPageLogicGen struct {
 }
 
 func NewGetPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetPageLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &GetPageLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *GetPageLogicGen) initReq(req *types.GetPageReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Page != nil {
-		l.ReqPage = *req.Page
-		l.HasReq.Page = true
+		l.req.Page = *req.Page
+		l.hasReq.Page = true
 	} else {
-		l.HasReq.Page = false
+		l.hasReq.Page = false
 	}
 
 	if req.Size != nil {
-		l.ReqSize = *req.Size
-		l.HasReq.Size = true
+		l.req.Size = *req.Size
+		l.hasReq.Size = true
 	} else {
-		l.HasReq.Size = false
+		l.hasReq.Size = false
 	}
 
 	if req.Sort != nil {
-		l.ReqSort = *req.Sort
-		l.HasReq.Sort = true
+		l.req.Sort = *req.Sort
+		l.hasReq.Sort = true
 	} else {
-		l.HasReq.Sort = false
+		l.hasReq.Sort = false
 	}
 
 	if req.TotalFlag != nil {
-		l.ReqTotalFlag = *req.TotalFlag
-		l.HasReq.TotalFlag = true
+		l.req.TotalFlag = *req.TotalFlag
+		l.hasReq.TotalFlag = true
 	} else {
-		l.HasReq.TotalFlag = false
+		l.hasReq.TotalFlag = false
 	}
 	l.hasUserInfo = true
 
-	return nil
-}
-
-func (l *GetPageLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *GetPageLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

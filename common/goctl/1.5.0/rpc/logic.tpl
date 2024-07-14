@@ -4,6 +4,7 @@ package {{.packageName}}
 import (
 	"context"
     "go-zero-dandan/common/resd"
+    "go-zero-dandan/common/typed"
 	{{.imports}}
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -13,42 +14,28 @@ type {{.logicName}}Gen struct {
 	ctx    context.Context
 	svc *svc.ServiceContext
 	resd         *resd.Resp
-    lang         string
-    userId  string
-    platId string
+    meta *typed.ReqMeta
 	logx.Logger
 	{{.dandDefineVars}}
 }
 
 func New{{.logicName}}Gen(ctx context.Context,svc *svc.ServiceContext) *{{.logicName}}Gen {
-    lang, _ := ctx.Value("lang").(string)
+    meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+    if meta == nil{
+        meta = &typed.ReqMeta{}
+    }
 	return &{{.logicName}}Gen{
 		ctx:    ctx,
 		svc: svc,
 		Logger: logx.WithContext(ctx),
-		lang:lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:meta,
 	}
 }
 
 
 func (l *{{.logicName}}Gen) initReq({{if .hasReq}}req {{.request}}{{end}}) error {
-    var err error
-	if err = l.initPlat(); err != nil {
-    	return l.resd.Error(err)
-    }
     {{.danInitVars}}
 	return nil
 }
 
-func (l *{{.logicName}}Gen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *{{.logicName}}Gen) initPlat() (err error) {
-    platId,_ := l.ctx.Value("platId").(string)
-    l.platId = platId
-    return nil
-}

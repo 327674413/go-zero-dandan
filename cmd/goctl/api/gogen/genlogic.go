@@ -159,7 +159,8 @@ type getDanGenVarsReq struct {
 }
 
 func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
-	hasStr := ""
+	hasReqStr := ""
+	reqStr := ""
 	for _, tp := range params.api.Types {
 		if tp.Name() == params.reqKey {
 			obj, ok := tp.(spec.DefineStruct)
@@ -169,14 +170,14 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-				defineVars += fmt.Sprintf("Req%s %s %s\n", fieldName, fieldType, field.Tag)
-				hasStr += fmt.Sprintf("%s bool\n", fieldName)
+				reqStr += fmt.Sprintf("%s %s %s\n", fieldName, fieldType, field.Tag)
+				hasReqStr += fmt.Sprintf("%s bool\n", fieldName)
 				initVars += fmt.Sprintf(`
 					if req.` + fieldName + `!= nil {
-						l.Req` + fieldName + ` = *req.` + fieldName + `
-						l.HasReq.` + fieldName + ` = true
+						l.req.` + fieldName + ` = *req.` + fieldName + `
+						l.hasReq.` + fieldName + ` = true
 					} else {
-						l.HasReq.` + fieldName + ` = false
+						l.hasReq.` + fieldName + ` = false
 					}
 				`)
 
@@ -194,14 +195,14 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 							switch check {
 							case "required":
 								initVars += fmt.Sprintf(`
-									if l.HasReq.` + fieldName + `== false {
-										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + fieldName + `", resd.ReqFieldRequired1, "*` + fieldName + `")
+									if l.hasReq.` + fieldName + `== false {
+										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + fieldName + `", resd.ErrReqFieldRequired1, "*` + fieldName + `")
 									}
 								`)
 								if fieldType == "string" {
 									initVars += fmt.Sprintf(`
-										if l.Req` + fieldName + `== "" {
-											return resd.NewErrWithTempCtx(l.ctx, "` + fieldName + `不得为空", resd.ReqFieldEmpty1, "*` + fieldName + `")
+										if l.req.` + fieldName + `== "" {
+											return resd.NewErrWithTempCtx(l.ctx, "` + fieldName + `不得为空", resd.ErrReqFieldEmpty1, "*` + fieldName + `")
 										}
 									`)
 								}
@@ -214,8 +215,11 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 		}
 		continue
 	}
-	defineVars += "HasReq struct{\n"
-	defineVars += hasStr
+	defineVars += "req struct{\n"
+	defineVars += reqStr
+	defineVars += "}\n"
+	defineVars += "hasReq struct{\n"
+	defineVars += hasReqStr
 	defineVars += "}\n"
 
 	if params.hasUserInfo {

@@ -13,13 +13,12 @@ import (
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/interceptor"
 	"go-zero-dandan/common/redisd"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/storaged"
 )
 
 type ServiceContext struct {
 	Config              config.Config
-	LangMiddleware      rest.Middleware
+	MetaMiddleware      rest.Middleware
 	UserTokenMiddleware rest.Middleware
 	UserInfoMiddleware  rest.Middleware
 	SqlConn             sqlx.SqlConn
@@ -29,31 +28,23 @@ type ServiceContext struct {
 	Minio               *minio.Client
 	Storage             storaged.InterfaceFactory
 	TxCos               *cos.Client
-	I18n                *resd.I18n
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	redisConn := redis.MustNewRedis(c.RedisConf)
 	redisdConn := redisd.NewRedisd(redisConn, "asset")
 	UserRpc := user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
-	i18n, err := resd.NewI18n(&resd.I18nConfig{
-		LangPathList: c.I18n.Langs,
-		DefaultLang:  c.I18n.Default,
-	})
-	if err != nil {
-		panic(err)
-	}
 	svc := &ServiceContext{
 		Config:              c,
 		SqlConn:             sqlx.NewMysql(c.DB.DataSource),
 		Redis:               redisdConn,
 		Mode:                c.Mode,
 		UserRpc:             UserRpc,
-		LangMiddleware:      middleware.NewLangMiddleware().Handle,
+		MetaMiddleware:      middleware.NewMetaMiddleware().Handle,
 		UserTokenMiddleware: middleware.NewUserTokenMiddleware().Handle,
 		UserInfoMiddleware:  middleware.NewUserInfoMiddleware(UserRpc).Handle,
-		I18n:                i18n,
 	}
+	var err error
 	if c.AssetMode == constd.AssetModeLocal {
 		svc.Storage, err = storaged.NewProvider(&storaged.ProviderConfig{
 			Provider:  storaged.ProviderLocal,

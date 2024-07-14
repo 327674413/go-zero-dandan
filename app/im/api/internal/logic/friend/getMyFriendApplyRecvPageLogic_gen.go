@@ -3,14 +3,14 @@ package friend
 
 import (
 	"context"
+	"go-zero-dandan/common/fmtd"
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type GetMyFriendApplyRecvPageLogicGen struct {
@@ -18,75 +18,51 @@ type GetMyFriendApplyRecvPageLogicGen struct {
 	ctx          context.Context
 	svc          *svc.ServiceContext
 	resd         *resd.Resp
-	lang         string
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	meta         *typed.ReqMeta
 	hasUserInfo  bool
 	mustUserInfo bool
-	ReqPage      int64 `json:"page,optional"`
-	ReqSize      int64 `json:"size,optional"`
-	HasReq       struct {
+	req          struct {
+		Page int64 `json:"page,optional"`
+		Size int64 `json:"size,optional"`
+	}
+	hasReq struct {
 		Page bool
 		Size bool
 	}
 }
 
 func NewGetMyFriendApplyRecvPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetMyFriendApplyRecvPageLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	fmtd.Info(meta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &GetMyFriendApplyRecvPageLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *GetMyFriendApplyRecvPageLogicGen) initReq(req *types.GetMyFriendApplyRecvPageReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Page != nil {
-		l.ReqPage = *req.Page
-		l.HasReq.Page = true
+		l.req.Page = *req.Page
+		l.hasReq.Page = true
 	} else {
-		l.HasReq.Page = false
+		l.hasReq.Page = false
 	}
 
 	if req.Size != nil {
-		l.ReqSize = *req.Size
-		l.HasReq.Size = true
+		l.req.Size = *req.Size
+		l.hasReq.Size = true
 	} else {
-		l.HasReq.Size = false
+		l.hasReq.Size = false
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true
 
-	return nil
-}
-
-func (l *GetMyFriendApplyRecvPageLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *GetMyFriendApplyRecvPageLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

@@ -157,7 +157,8 @@ func transRpcVarsType(typeName string, rpcName string) string {
 	return typeName
 }
 func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
-	hasStr := ""
+	hasReqStr := ""
+	reqStr := ""
 	for _, tp := range params.api.Types {
 		if tp.Name() == params.reqKey {
 			obj, ok := tp.(spec.DefineStruct)
@@ -167,8 +168,8 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-				defineVars += fmt.Sprintf("Req%s %s %s\n", fieldName, transRpcVarsType(fieldType, params.serviceName), field.Tag)
-				hasStr += fmt.Sprintf("%s bool\n", fieldName)
+				reqStr += fmt.Sprintf("%s %s %s\n", fieldName, transRpcVarsType(fieldType, params.serviceName), field.Tag)
+				hasReqStr += fmt.Sprintf("%s bool\n", fieldName)
 				ptStr := "*"
 				if len(fieldType) > 2 && fieldType[:2] == "[]" {
 					ptStr = ""
@@ -177,10 +178,10 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 				}
 				initVars += fmt.Sprintf(`
 					if req.` + fieldName + `!= nil {
-						l.Req` + fieldName + ` = ` + ptStr + `req.` + fieldName + `
-						l.HasReq.` + fieldName + ` = true
+						l.req.` + fieldName + ` = ` + ptStr + `req.` + fieldName + `
+						l.hasReq.` + fieldName + ` = true
 					} else {
-						l.HasReq.` + fieldName + ` = false
+						l.hasReq.` + fieldName + ` = false
 					}
 				`)
 
@@ -189,8 +190,11 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 		}
 		continue
 	}
-	defineVars += "HasReq struct{\n"
-	defineVars += hasStr
+	defineVars += "req struct{\n"
+	defineVars += reqStr
+	defineVars += "}\n"
+	defineVars += "hasReq struct{\n"
+	defineVars += hasReqStr
 	defineVars += "}\n"
 	return defineVars, initVars
 }

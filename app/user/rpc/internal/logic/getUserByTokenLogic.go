@@ -21,7 +21,7 @@ func NewGetUserByTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Ge
 	return &GetUserByTokenLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
 		Logger: logx.WithContext(ctx),
 	}
 }
@@ -38,6 +38,6 @@ func (l *GetUserByTokenLogic) GetUserByToken(in *userRpc.TokenReq) (*userRpc.Use
 		return userInfo, nil
 	}
 	//没报错，没数据，当做没登陆（redis默认有rdb持久化，快照方式页够用了，所以登陆态数据库不存了）
-	return nil, resd.NewRpcErrCtx(l.ctx, "未登陆", resd.AuthUserNotLoginErr)
+	return nil, resd.NewRpcErrCtx(l.ctx, "未登陆", resd.ErrAuthUserNotLogin)
 
 }

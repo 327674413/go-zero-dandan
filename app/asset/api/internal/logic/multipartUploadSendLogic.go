@@ -8,66 +8,43 @@ import (
 	"go-zero-dandan/common/storaged"
 	"net/http"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type MultipartUploadSendLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
+	*MultipartUploadSendLogicGen
 }
 
-func NewMultipartUploadSendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *MultipartUploadSendLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewMultipartUploadSendLogic(ctx context.Context, svc *svc.ServiceContext) *MultipartUploadSendLogic {
 	return &MultipartUploadSendLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		lang:   localizer,
+		MultipartUploadSendLogicGen: NewMultipartUploadSendLogicGen(ctx, svc),
 	}
 }
 
 func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *types.MultipartUploadSendReq) (*types.SuccessResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	redisFieldKey := fmt.Sprintf("multipart:%d", req.UploadID)
-	hasUpload, err := l.svcCtx.Redis.ExistsCtx(l.ctx, redisFieldKey)
+	hasUpload, err := l.svc.Redis.ExistsCtx(l.ctx, redisFieldKey)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	if hasUpload == false {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "该分片上传id不存在", resd.NotFound1, "UpoladTask")
+		return nil, l.resd.NewErrWithTemp(resd.ErrNotFound1, resd.VarUpoladTask)
 	}
-	fileSha1, err := l.svcCtx.Redis.HgetCtx(l.ctx, redisFieldKey, "fileSha1")
+	fileSha1, err := l.svc.Redis.HgetCtx(l.ctx, redisFieldKey, "fileSha1")
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
-	uploader, err := l.svcCtx.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile, Bucket: "netdisk"})
+	uploader, err := l.svc.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeFile, Bucket: "netdisk"})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
-	_, err = uploader.MultipartUpload(r, &storaged.UploadConfig{IsMultipart: true, FileSha1: fileSha1, ChunkIndex: req.ChunkIndex})
+	_, err = uploader.MultipartUpload(r, &storaged.UploadConfig{IsMultipart: true, FileSha1: fileSha1, ChunkIndex: l.req.ChunkIndex})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
-	l.svcCtx.Redis.HsetCtx(l.ctx, redisFieldKey, fmt.Sprintf("chunkIndex_%d", req.ChunkIndex), "ok")
+	l.svc.Redis.HsetCtx(l.ctx, redisFieldKey, fmt.Sprintf("chunkIndex_%d", req.ChunkIndex), "ok")
 	return &types.SuccessResp{Msg: ""}, nil
-}
-
-func (l *MultipartUploadSendLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

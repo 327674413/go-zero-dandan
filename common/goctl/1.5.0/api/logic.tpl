@@ -20,12 +20,3 @@ func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
 
 	{{.returnString}}
 }
-func (l *{{.logic}}) init({{.request}}) (err error) {
-    if err = l.initReq(req); err != nil {
-        return l.resd.Error(err)
-    }
-    if err = l.initUser(); err != nil {
-        return l.resd.Error(err)
-    }
-    return nil
-}

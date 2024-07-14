@@ -46,7 +46,7 @@ func (l *AuthByCodeLogic) AuthByCode(req *types.AuthByCodeReq) (resp *types.Auth
 		AESKey: "jczy1uuOSkheNb2oh7V3XvPUaVcof3AYU7fK6hyZOhU",
 	}, l.svcCtx.Redis)
 	resp = &types.AuthByCodeResp{}
-	err = wxpub.AuthByCode(req.Code, &resp)
+	err = wxpub.AuthByCode(*req.Code, &resp)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
@@ -60,7 +60,7 @@ func (l *AuthByCodeLogic) AuthByCode(req *types.AuthByCodeReq) (resp *types.Auth
 func (l *AuthByCodeLogic) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -69,11 +69,11 @@ func (l *AuthByCodeLogic) initUser() (err error) {
 func (l *AuthByCodeLogic) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
 	}
 	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
 	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
 	}
 	l.platId = platClasId
 	l.platClasEm = platClasEm

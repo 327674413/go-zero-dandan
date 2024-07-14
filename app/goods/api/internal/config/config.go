@@ -19,8 +19,14 @@ type Config struct {
 		Default string
 		Langs   []string
 	}
+	ReqRateLimitByIpAgent struct {
+		Seconds   int
+		Quota     int
+		KeyPrefix string
+	}
 	RedisConf redis.RedisConf
 	GoodsRpc  zrpc.RpcClientConf
+	UserRpc   zrpc.RpcClientConf
 }
 
 var Conf Config

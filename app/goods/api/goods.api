@@ -3,7 +3,7 @@ import (
 )
 @server(
 	timeout: 30s
-	middleware: LangMiddleware,UserInfoMiddleware
+	middleware: ReqRateLimitMiddleware,MetaMiddleware,UserInfoMiddleware
 	jwt: Auth
 	group: goodsInfo
 	prefix: goods/v1

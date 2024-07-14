@@ -122,7 +122,7 @@ func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 	if code, ok := msg[msgCode]; ok {
 		return t.Trans(code, m)
 	} else {
-		return t.Trans(msg[SysErr], m)
+		return t.Trans(msg[ErrSys], m)
 	}
 
 }

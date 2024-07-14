@@ -7,34 +7,25 @@ import (
 	"go-zero-dandan/app/asset/model"
 	"net/http"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type DownloadLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
+	*DownloadLogicGen
 }
 
-func NewDownloadLogic(ctx context.Context, svcCtx *svc.ServiceContext) *DownloadLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewDownloadLogic(ctx context.Context, svc *svc.ServiceContext) *DownloadLogic {
 	return &DownloadLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		lang:   localizer,
+		DownloadLogicGen: NewDownloadLogicGen(ctx, svc),
 	}
 }
 
-func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, r *http.Request) (err error) {
-	assetModel := model.NewAssetMainModel(l.ctx, l.svcCtx.SqlConn)
-	asset, err := assetModel.FindById(req.Id)
+func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, r *http.Request) error {
+	if err := l.initReq(req); err != nil {
+		return l.resd.Error(err)
+	}
+	assetModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)
+	asset, err := assetModel.FindById(l.req.Id)
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)
 	}
@@ -52,20 +43,6 @@ func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, 
 	if err != nil {
 		return resd.ErrorCtx(l.ctx, err)
 	}
-	downloader, _ := l.svcCtx.Storage.CreateDownloader(nil)
+	downloader, _ := l.svc.Storage.CreateDownloader(nil)
 	return downloader.Download(w, asset.Path, asset.Name)
-}
-
-func (l *DownloadLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

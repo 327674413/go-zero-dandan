@@ -22,7 +22,7 @@ func (l *GetGroupMemberListLogic) GetGroupMemberList(in *socialRpc.GetGroupMembe
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
-	m := model.NewSocialGroupMemberModel(l.ctx, l.svc.SqlConn, l.ReqPlatId)
+	m := model.NewSocialGroupMemberModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
 	list, err := m.Where("group_id = ?", in.GroupId).Select()
 	if err != nil {
 		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())

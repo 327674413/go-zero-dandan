@@ -14,7 +14,7 @@ import (
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 	server.AddRoutes(
 		rest.WithMiddlewares(
-			[]rest.Middleware{serverCtx.LangMiddleware, serverCtx.UserInfoMiddleware},
+			[]rest.Middleware{serverCtx.ReqRateLimitMiddleware, serverCtx.MetaMiddleware, serverCtx.UserInfoMiddleware},
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,

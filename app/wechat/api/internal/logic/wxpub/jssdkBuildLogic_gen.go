@@ -8,26 +8,24 @@ import (
 	"go-zero-dandan/app/wechat/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
+	"go-zero-dandan/common/typed"
 )
 
 type JssdkBuildLogicGen struct {
 	logx.Logger
-	ctx            context.Context
-	svc            *svc.ServiceContext
-	resd           *resd.Resp
-	lang           string
-	userMainInfo   *user.UserMainInfo
-	platId         string
-	platClasEm     int64
-	hasUserInfo    bool
-	mustUserInfo   bool
-	ReqUrl         string `json:"url"`
-	ReqJsApiList   string `json:"jsApiList"`
-	ReqOpenTagList string `json:"openTagList"`
-	HasReq         struct {
+	ctx          context.Context
+	svc          *svc.ServiceContext
+	resd         *resd.Resp
+	meta         *typed.ReqMeta
+	hasUserInfo  bool
+	mustUserInfo bool
+	req          struct {
+		Url         string `json:"url"`
+		JsApiList   string `json:"jsApiList"`
+		OpenTagList string `json:"openTagList"`
+	}
+	hasReq struct {
 		Url         bool
 		JsApiList   bool
 		OpenTagList bool
@@ -35,65 +33,41 @@ type JssdkBuildLogicGen struct {
 }
 
 func NewJssdkBuildLogicGen(ctx context.Context, svc *svc.ServiceContext) *JssdkBuildLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &JssdkBuildLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *JssdkBuildLogicGen) initReq(req *types.JssdkBuildReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
 
 	if req.Url != nil {
-		l.ReqUrl = *req.Url
-		l.HasReq.Url = true
+		l.req.Url = *req.Url
+		l.hasReq.Url = true
 	} else {
-		l.HasReq.Url = false
+		l.hasReq.Url = false
 	}
 
 	if req.JsApiList != nil {
-		l.ReqJsApiList = *req.JsApiList
-		l.HasReq.JsApiList = true
+		l.req.JsApiList = *req.JsApiList
+		l.hasReq.JsApiList = true
 	} else {
-		l.HasReq.JsApiList = false
+		l.hasReq.JsApiList = false
 	}
 
 	if req.OpenTagList != nil {
-		l.ReqOpenTagList = *req.OpenTagList
-		l.HasReq.OpenTagList = true
+		l.req.OpenTagList = *req.OpenTagList
+		l.hasReq.OpenTagList = true
 	} else {
-		l.HasReq.OpenTagList = false
+		l.hasReq.OpenTagList = false
 	}
 
-	return nil
-}
-
-func (l *JssdkBuildLogicGen) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *JssdkBuildLogicGen) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
 	return nil
 }

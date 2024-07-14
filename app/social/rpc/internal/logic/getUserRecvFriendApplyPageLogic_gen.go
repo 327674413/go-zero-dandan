@@ -6,25 +6,26 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetUserRecvFriendApplyPageLogicGen struct {
-	ctx    context.Context
-	svc    *svc.ServiceContext
-	resd   *resd.Resp
-	lang   string
-	userId string
-	platId string
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	resd *resd.Resp
+	meta *typed.ReqMeta
 	logx.Logger
-	ReqUserId      string
-	ReqPlatId      string
-	ReqPage        int64
-	ReqSize        int64
-	ReqIsNeedTotal int64
-	ReqMatch       map[string]*socialRpc.MatchField
-	HasReq         struct {
+	req struct {
+		UserId      string
+		PlatId      string
+		Page        int64
+		Size        int64
+		IsNeedTotal int64
+		Match       map[string]*socialRpc.MatchField
+	}
+	hasReq struct {
 		UserId      bool
 		PlatId      bool
 		Page        bool
@@ -35,75 +36,62 @@ type GetUserRecvFriendApplyPageLogicGen struct {
 }
 
 func NewGetUserRecvFriendApplyPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetUserRecvFriendApplyPageLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &GetUserRecvFriendApplyPageLogicGen{
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *GetUserRecvFriendApplyPageLogicGen) initReq(req *socialRpc.GetUserRecvFriendApplyPageReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.UserId != nil {
-		l.ReqUserId = *req.UserId
-		l.HasReq.UserId = true
+		l.req.UserId = *req.UserId
+		l.hasReq.UserId = true
 	} else {
-		l.HasReq.UserId = false
+		l.hasReq.UserId = false
 	}
 
 	if req.PlatId != nil {
-		l.ReqPlatId = *req.PlatId
-		l.HasReq.PlatId = true
+		l.req.PlatId = *req.PlatId
+		l.hasReq.PlatId = true
 	} else {
-		l.HasReq.PlatId = false
+		l.hasReq.PlatId = false
 	}
 
 	if req.Page != nil {
-		l.ReqPage = *req.Page
-		l.HasReq.Page = true
+		l.req.Page = *req.Page
+		l.hasReq.Page = true
 	} else {
-		l.HasReq.Page = false
+		l.hasReq.Page = false
 	}
 
 	if req.Size != nil {
-		l.ReqSize = *req.Size
-		l.HasReq.Size = true
+		l.req.Size = *req.Size
+		l.hasReq.Size = true
 	} else {
-		l.HasReq.Size = false
+		l.hasReq.Size = false
 	}
 
 	if req.IsNeedTotal != nil {
-		l.ReqIsNeedTotal = *req.IsNeedTotal
-		l.HasReq.IsNeedTotal = true
+		l.req.IsNeedTotal = *req.IsNeedTotal
+		l.hasReq.IsNeedTotal = true
 	} else {
-		l.HasReq.IsNeedTotal = false
+		l.hasReq.IsNeedTotal = false
 	}
 
 	if req.Match != nil {
-		l.ReqMatch = req.Match
-		l.HasReq.Match = true
+		l.req.Match = req.Match
+		l.hasReq.Match = true
 	} else {
-		l.HasReq.Match = false
+		l.hasReq.Match = false
 	}
 
-	return nil
-}
-
-func (l *GetUserRecvFriendApplyPageLogicGen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *GetUserRecvFriendApplyPageLogicGen) initPlat() (err error) {
-	platId, _ := l.ctx.Value("platId").(string)
-	l.platId = platId
 	return nil
 }

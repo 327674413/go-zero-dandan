@@ -13,13 +13,13 @@ type GoodsInfo {
 	PlatId string `json:"platId"`
 }
 type IdReq{
-	Id *string `json:"id,optional"`
+	Id *string `json:"id,optional" check:"required"`
 }
 type (
 	GetPageReq {
-		Page int64 `json:"page,optional"`
-		Size int64 `json:"size,optional"`
-		Sort string `json:"sort,optional"`
+		Page *int64 `json:"page,optional"`
+		Size *int64 `json:"size,optional"`
+		Sort *string `json:"sort,optional"`
 		TotalFlag *int64 `json:"totalFlag,optional"`
 	}
 	GetPageResp {
@@ -29,9 +29,9 @@ type (
 		List []*GoodsInfo `json:"list"`
 	}
 	GetHotPageByCursorReq {
-		Cursor int64 `json:"cursor,optional"`
-		Size int64 `json:"size,optional"`
-		Page int64 `json:"page,optional"`
+		Cursor *int64 `json:"cursor,optional"`
+		Size *int64 `json:"size,optional"`
+		Page *int64 `json:"page,optional"`
 	}
 	GetHotPageByCursorResp {
 		IsCache bool `json:"isCache"`

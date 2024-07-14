@@ -32,7 +32,7 @@ func (l *BindUnionUserLogic) BindUnionUser(in *userRpc.BindUnionUserReq) (*userR
 }
 func (l *BindUnionUserLogic) checkReqParams(in *userRpc.BindUnionUserReq) error {
 	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "platId")
 	}
 	return nil
 }

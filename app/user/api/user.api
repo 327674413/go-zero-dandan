@@ -1,7 +1,7 @@
 import "desc/main.api"
 @server(
 	jwt: Auth
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 	prefix: user/v1
 	group: account
 )
@@ -18,7 +18,7 @@ service user-api {
 
 @server(
 	jwt: Auth
-	middleware: LangMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	middleware: MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
 	prefix: user/v1
 	group: userInfo
 )

@@ -12,7 +12,7 @@ import (
 
 type ServiceContext struct {
 	Config              config.Config
-	LangMiddleware      rest.Middleware
+	MetaMiddleware      rest.Middleware
 	UserInfoMiddleware  rest.Middleware
 	UserTokenMiddleware rest.Middleware
 	SocialRpc           social.Social
@@ -25,7 +25,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	return &ServiceContext{
 		Config:              c,
-		LangMiddleware:      middleware.NewLangMiddleware().Handle,
+		MetaMiddleware:      middleware.NewMetaMiddleware().Handle,
 		UserInfoMiddleware:  middleware.NewUserInfoMiddleware(UserRpc).Handle,
 		UserTokenMiddleware: middleware.NewUserTokenMiddleware().Handle,
 		UserRpc:             UserRpc,

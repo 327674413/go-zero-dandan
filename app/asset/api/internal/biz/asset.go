@@ -5,42 +5,42 @@ import (
 	"fmt"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"go-zero-dandan/app/asset/api/internal/svc"
-	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 	"go-zero-dandan/common/utild"
 	"strings"
 )
 
 type AssetBiz struct {
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	meta *typed.ReqMeta
 }
 
-func NewAssetBiz(ctx context.Context, svcCtx *svc.ServiceContext, userMainInfo *user.UserMainInfo) *AssetBiz {
+func NewAssetBiz(ctx context.Context, svc *svc.ServiceContext, meta *typed.ReqMeta) *AssetBiz {
 	return &AssetBiz{
-		ctx:          ctx,
-		svcCtx:       svcCtx,
-		userMainInfo: userMainInfo,
+		ctx:  ctx,
+		svc:  svc,
+		meta: meta,
 	}
 }
 func (t *AssetBiz) GetUploading(uploadId string) (int64, []int64, error) {
 	//先判断是否存在该上传任务
 	uploadKey := getUploadRedisKey(uploadId)
 
-	chunkCountStr, err := t.svcCtx.Redis.HgetCtx(t.ctx, uploadKey, "chunkCount")
+	chunkCountStr, err := t.svc.Redis.HgetCtx(t.ctx, uploadKey, "chunkCount")
 	if err != nil && err != redis.Nil {
 		return 0, nil, resd.Error(err)
 	}
 	if chunkCountStr == "" {
 		return 0, nil, nil
 	}
-	_, err = t.svcCtx.Redis.HgetCtx(t.ctx, uploadKey, "fileSha1")
+	_, err = t.svc.Redis.HgetCtx(t.ctx, uploadKey, "fileSha1")
 	if err != nil {
 		return 0, nil, resd.Error(err)
 	}
 	// 通过 uploadId 查询 Redis 并判断是否所有分块上传完成
-	uploadInfoMap, err := t.svcCtx.Redis.HgetallCtx(t.ctx, uploadKey)
+	uploadInfoMap, err := t.svc.Redis.HgetallCtx(t.ctx, uploadKey)
 	if err != nil {
 		return 0, nil, resd.Error(err)
 	}

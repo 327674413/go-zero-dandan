@@ -7,7 +7,7 @@ type PlatInfo {
 	ClasEm int64 `json:"clasEm"`
 }
 @server(
-	middleware: LangMiddleware
+	middleware: MetaMiddleware
 )
 service plat {
 	@handler GetOne

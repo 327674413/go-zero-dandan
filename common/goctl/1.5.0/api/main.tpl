@@ -27,13 +27,8 @@ func main() {
         panic(err)
     }
     server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
-        w.Header().Set("Content-Type", "application/json; charset=utf-8")
-        w.WriteHeader(200)
-        json.NewEncoder(w).Encode(map[string]interface{}{
-            "code":   resd.AuthPlatErr,
-            "result": false,
-            "msg":    resd.I18n.NewLang(r.FormValue("lang")).Msg(resd.AuthPlatErr),
-        })
+        resp := resd.NewResp(r.Context(), resd.I18n.NewLang(r.FormValue("lang")))
+        resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
     }), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
         //跨域处理
         w.Header().Set("Access-Control-Allow-Origin", "*")

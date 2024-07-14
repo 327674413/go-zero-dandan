@@ -2,7 +2,7 @@
 package types
 
 type WxpubReq struct {
-	Appid string `json:"appid"`
+	Appid *string `json:"appid"`
 }
 
 type JssdkBuildReq struct {
@@ -24,7 +24,7 @@ type JssdkBuildResp struct {
 }
 
 type AuthByCodeReq struct {
-	Code string `json:"code"`
+	Code *string `json:"code"`
 }
 
 type AuthByCodeResp struct {

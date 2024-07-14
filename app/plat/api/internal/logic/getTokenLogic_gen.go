@@ -39,14 +39,14 @@ func NewGetTokenLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetToken
 		ctx:    ctx,
 		svc:    svc,
 		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(lang)),
 	}
 }
 
 func (l *GetTokenLogicGen) initReq(req *types.GetTokenReq) error {
 	var err error
 	if err = l.initPlat(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
+		return l.resd.Error(err)
 	}
 
 	if req.Appid != nil {
@@ -69,7 +69,7 @@ func (l *GetTokenLogicGen) initReq(req *types.GetTokenReq) error {
 func (l *GetTokenLogicGen) initUser() (err error) {
 	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
 	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.UserMainInfoErr)
+		return l.resd.NewErr(resd.ErrUserMainInfo)
 	}
 	l.userMainInfo = userMainInfo
 	return nil
@@ -78,11 +78,11 @@ func (l *GetTokenLogicGen) initUser() (err error) {
 func (l *GetTokenLogicGen) initPlat() (err error) {
 	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
 	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.PlatClasErr)
+		return l.resd.NewErr(resd.ErrPlatClas)
 	}
 	platId, _ := l.ctx.Value("platId").(string)
 	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.PlatIdErr)
+		return l.resd.NewErr(resd.ErrPlatId)
 	}
 	l.platId = platId
 	l.platClasEm = platClasEm

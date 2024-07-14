@@ -6,6 +6,7 @@ import (
 	"go-zero-dandan/app/plat/api/internal/svc"
 	"go-zero-dandan/app/plat/api/internal/types"
 	"go-zero-dandan/app/plat/model"
+	"go-zero-dandan/common/ctxd"
 	"go-zero-dandan/common/resd"
 	"time"
 )
@@ -39,8 +40,8 @@ func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, pla
 	claims := make(jwt.MapClaims)
 	claims["exp"] = iat + seconds
 	claims["iat"] = iat
-	claims["platId"] = platMian.Id
-	claims["platClasEm"] = platMian.ClasEm
+	claims[ctxd.KeyPlatId] = platMian.Id
+	claims[ctxd.KeyPlatClasEm] = platMian.ClasEm
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))

@@ -6,25 +6,26 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type CreateFriendApplyLogicGen struct {
-	ctx    context.Context
-	svc    *svc.ServiceContext
-	resd   *resd.Resp
-	lang   string
-	userId string
-	platId string
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	resd *resd.Resp
+	meta *typed.ReqMeta
 	logx.Logger
-	ReqPlatId    string
-	ReqUserId    string
-	ReqFriendUid string `check:"required"`
-	ReqApplyMsg  string
-	ReqApplyAt   int64
-	ReqSourceEm  int64
-	HasReq       struct {
+	req struct {
+		PlatId    string
+		UserId    string
+		FriendUid string `check:"required"`
+		ApplyMsg  string
+		ApplyAt   int64
+		SourceEm  int64
+	}
+	hasReq struct {
 		PlatId    bool
 		UserId    bool
 		FriendUid bool
@@ -35,83 +36,70 @@ type CreateFriendApplyLogicGen struct {
 }
 
 func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) *CreateFriendApplyLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &CreateFriendApplyLogicGen{
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *CreateFriendApplyLogicGen) initReq(req *socialRpc.CreateFriendApplyReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.PlatId != nil {
-		l.ReqPlatId = *req.PlatId
-		l.HasReq.PlatId = true
+		l.req.PlatId = *req.PlatId
+		l.hasReq.PlatId = true
 	} else {
-		l.HasReq.PlatId = false
+		l.hasReq.PlatId = false
 	}
 
 	if req.UserId != nil {
-		l.ReqUserId = *req.UserId
-		l.HasReq.UserId = true
+		l.req.UserId = *req.UserId
+		l.hasReq.UserId = true
 	} else {
-		l.HasReq.UserId = false
+		l.hasReq.UserId = false
 	}
 
 	if req.FriendUid != nil {
-		l.ReqFriendUid = *req.FriendUid
-		l.HasReq.FriendUid = true
+		l.req.FriendUid = *req.FriendUid
+		l.hasReq.FriendUid = true
 	} else {
-		l.HasReq.FriendUid = false
+		l.hasReq.FriendUid = false
 	}
 
-	if l.HasReq.FriendUid == false {
-		return l.resd.NewErrWithTemp(resd.ReqFieldRequired1, "*FriendUid")
+	if l.hasReq.FriendUid == false {
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "*FriendUid")
 	}
 
-	if l.ReqFriendUid == "" {
-		return l.resd.NewErrWithTemp(resd.ReqFieldEmpty1, "*FriendUid")
+	if l.req.FriendUid == "" {
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*FriendUid")
 	}
 
 	if req.ApplyMsg != nil {
-		l.ReqApplyMsg = *req.ApplyMsg
-		l.HasReq.ApplyMsg = true
+		l.req.ApplyMsg = *req.ApplyMsg
+		l.hasReq.ApplyMsg = true
 	} else {
-		l.HasReq.ApplyMsg = false
+		l.hasReq.ApplyMsg = false
 	}
 
 	if req.ApplyAt != nil {
-		l.ReqApplyAt = *req.ApplyAt
-		l.HasReq.ApplyAt = true
+		l.req.ApplyAt = *req.ApplyAt
+		l.hasReq.ApplyAt = true
 	} else {
-		l.HasReq.ApplyAt = false
+		l.hasReq.ApplyAt = false
 	}
 
 	if req.SourceEm != nil {
-		l.ReqSourceEm = *req.SourceEm
-		l.HasReq.SourceEm = true
+		l.req.SourceEm = *req.SourceEm
+		l.hasReq.SourceEm = true
 	} else {
-		l.HasReq.SourceEm = false
+		l.hasReq.SourceEm = false
 	}
 
-	return nil
-}
-
-func (l *CreateFriendApplyLogicGen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *CreateFriendApplyLogicGen) initPlat() (err error) {
-	platId, _ := l.ctx.Value("platId").(string)
-	l.platId = platId
 	return nil
 }

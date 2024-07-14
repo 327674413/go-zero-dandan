@@ -6,68 +6,56 @@ import (
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetGroupMemberListLogicGen struct {
-	ctx    context.Context
-	svc    *svc.ServiceContext
-	resd   *resd.Resp
-	lang   string
-	userId string
-	platId string
+	ctx  context.Context
+	svc  *svc.ServiceContext
+	resd *resd.Resp
+	meta *typed.ReqMeta
 	logx.Logger
-	ReqGroupId string
-	ReqPlatId  string
-	HasReq     struct {
+	req struct {
+		GroupId string
+		PlatId  string
+	}
+	hasReq struct {
 		GroupId bool
 		PlatId  bool
 	}
 }
 
 func NewGetGroupMemberListLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetGroupMemberListLogicGen {
-	lang, _ := ctx.Value("lang").(string)
+	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
+	if meta == nil {
+		meta = &typed.ReqMeta{}
+	}
 	return &GetGroupMemberListLogicGen{
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		lang:   lang,
-		resd:   resd.NewResd(ctx, resd.I18n.NewLang(lang)),
+		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		meta:   meta,
 	}
 }
 
 func (l *GetGroupMemberListLogicGen) initReq(req *socialRpc.GetGroupMemberListReq) error {
-	var err error
-	if err = l.initPlat(); err != nil {
-		return l.resd.Error(err)
-	}
 
 	if req.GroupId != nil {
-		l.ReqGroupId = *req.GroupId
-		l.HasReq.GroupId = true
+		l.req.GroupId = *req.GroupId
+		l.hasReq.GroupId = true
 	} else {
-		l.HasReq.GroupId = false
+		l.hasReq.GroupId = false
 	}
 
 	if req.PlatId != nil {
-		l.ReqPlatId = *req.PlatId
-		l.HasReq.PlatId = true
+		l.req.PlatId = *req.PlatId
+		l.hasReq.PlatId = true
 	} else {
-		l.HasReq.PlatId = false
+		l.hasReq.PlatId = false
 	}
 
-	return nil
-}
-
-func (l *GetGroupMemberListLogicGen) initUser() (err error) {
-	userId, _ := l.ctx.Value("userId").(string)
-	l.userId = userId
-	return nil
-}
-
-func (l *GetGroupMemberListLogicGen) initPlat() (err error) {
-	platId, _ := l.ctx.Value("platId").(string)
-	l.platId = platId
 	return nil
 }

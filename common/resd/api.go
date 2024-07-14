@@ -8,6 +8,9 @@ import (
 func ApiOk(w http.ResponseWriter, r *http.Request, resp any) {
 	httpx.OkJsonCtx(r.Context(), w, Succ(resp))
 }
+func ApiOkAsync(w http.ResponseWriter, r *http.Request, resp any) {
+	httpx.OkJsonCtx(r.Context(), w, SuccAsync(resp))
+}
 func ApiFail(w http.ResponseWriter, r *http.Request, err error) {
 	if danErr, ok := AssertErr(err); ok {
 		if ok {

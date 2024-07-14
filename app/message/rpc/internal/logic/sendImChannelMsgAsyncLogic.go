@@ -32,7 +32,7 @@ func (l *SendImChannelMsgAsyncLogic) SendImChannelMsgAsync(in *messageRpc.SendIm
 }
 func (l *SendImChannelMsgAsyncLogic) checkReqParams(in *messageRpc.SendImChannelMsgReq) error {
 	if in.PlatId == "" {
-		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ReqFieldRequired1, "platId")
+		return resd.NewRpcErrWithTempCtx(l.ctx, "参数缺少platId", resd.ErrReqFieldRequired1, "platId")
 	}
 	return nil
 }

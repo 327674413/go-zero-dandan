@@ -20,28 +20,20 @@ func NewCreateFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *Cr
 	}
 }
 func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyReq) (resp *types.ResultResp, err error) {
-	if err = l.init(req); err != nil {
+	if err = l.initReq(req); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
+	stamp := time.Now().Unix()
 	_, err = l.svc.SocialRpc.CreateFriendApply(l.ctx, &socialRpc.CreateFriendApplyReq{
-		PlatId:    l.platId,
-		UserId:    l.userMainInfo.Id,
-		FriendUid: l.ReqFriendUid,
-		ApplyMsg:  l.ReqApplyMsg,
-		SourceEm:  l.ReqSourceEm,
-		ApplyAt:   time.Now().Unix(),
+		PlatId:    &l.meta.PlatId,
+		UserId:    &l.meta.UserId,
+		FriendUid: &l.req.FriendUid,
+		ApplyMsg:  &l.req.ApplyMsg,
+		SourceEm:  &l.req.SourceEm,
+		ApplyAt:   &stamp,
 	})
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.ResultResp{Result: true}, nil
-}
-func (l *CreateFriendApplyLogic) init(req *types.CreateFriendApplyReq) (err error) {
-	if err = l.initReq(req); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
-	if err = l.initUser(); err != nil {
-		return resd.ErrorCtx(l.ctx, err)
-	}
-	return nil
 }
