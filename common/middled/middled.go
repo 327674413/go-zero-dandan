@@ -39,7 +39,7 @@ func SetCtxUser(r *http.Request, userRpc user.User) context.Context {
 	if userToken != "" && userRpc != nil {
 		//传了token
 		userInfo := &user.UserMainInfo{}
-		userInfo, err = userRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: userToken})
+		userInfo, err = userRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: &userToken})
 		// 存在报错
 		if err != nil && !resd.IsUserNotLoginErr(err) {
 			userInfo = &user.UserMainInfo{}
