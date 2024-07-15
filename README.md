@@ -1,16 +1,17 @@
+这是一个使用go-zero微服务框架的尝试项目，需要有go-zero的基础。
 # 项目目标
 - 像写单体服务一样开发微服务
-- 自用低代码生成器
+- 代码生成业务
 - 集成各类业务的基础组件
 
-# 已完成部分
+# 已研究部分
 - 集成i18n，支持国际化，通过维护主语言包，自动生成和更新
 - 改造goctl工具与模版，生成自己专用的业务代码
 - 自制orm，用thinkphp model的方式操作数据库
 - 参照api语法，自制rpc文件，生成rpc的自动化业务代码
 
 
-# 近期待办
+# 待研究部分
 - 改造common/middled.go中的限流处理方法，换成根据ip来限流
 - 完善resd，i18n返回中文好像又有问题，rpc返回，并且支持Info和Err， 正常业务校验可以Info类型，确实报错用err,现在rpc报错的时候调用侧会空指针报错
 - gozero的kq发送消息是异步的，无法知道是否推送成功，有些消息队列场景需要确保投递成功的
@@ -38,19 +39,7 @@ godan model
 godan lang
 ```
 
-### 标准表模版
-```
-CREATE TABLE `表名`  (
-    `id` char(20) NOT NULL,
-    `remark` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
-    `plat_id` char(20) NOT NULL DEFAULT '' COMMENT '应用id',
-    `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
-    `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',
-    `delete_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳',
-    PRIMARY KEY (`id`)
-);
 
-```
 ### goctl二次开发
 
 ```
@@ -69,17 +58,6 @@ if each.Name == "id" {
 
 ```
 
-### 启动user api
-```
-#进user目录执行
-go run user.go -f etc/user-api.yaml 
-```
-### docker-compose启动其他名字配置
-```
-#小写-d好像不行
-docker-compose -f docker-compose-test.yml up --detach
-```
-
 ### kafka
 ```
 #删除topic
@@ -91,22 +69,20 @@ docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --t
 #查看当前所有topic
 docker exec -it kafka kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092
 ```
-### 获取模版
-```
-goctl template init
-#会在指定目录生成模版文件
-#然后根据运行命令时的目录的相对路径，用自定义模版生成uer.api(用*就会该目录下所有.api文件)
-goctl api go -api *.api -dir . -style goZero -home ../../../common/goctl/1.5.0
-```
-### 网关apisix说明
-```
-地址：http://localhost:9002    admin  admin
 
-```
-### 配置中心sail
-```
+# 各中间件工具查看
+## Prometheus监控
+地址：http://localhost:9090/targets?search=
+## minio
+web管理地址 http://localhost:9001/
+密码要求8位，docker-compose中有设置，root 12345678
+## 查看etcd服务情况
+先进容器：docker exec -it 容器id /bin/bash
+然后执行：etcdctl get --prefix "" --keys-only=true
+## 配置中心sail
 地址：http://localhost:8108/ui/login  admin  dandan
-```
+## 网关apisix
+地址：http://localhost:9002    admin  admin
 
 ## 开发说明
 ### 接口相关
@@ -156,15 +132,26 @@ docker-compose -f docker-compose-test.yml up --detach
 
 ```
 
-## minio
-web管理地址 http://localhost:9001/
-密码要求8位，docker-compose中有设置，root 12345678
+
 
 ## 约定
-## 接口约定
+### 接口约定
 - getOne 查询单个信息
 - getPage 查询列表，分页
 - getList 查询列表，所有
+### 数据库表结构
+```
+CREATE TABLE `表名`  (
+    `id` char(20) NOT NULL,
+    `remark` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '备注',
+    `plat_id` char(20) NOT NULL DEFAULT '' COMMENT '应用id',
+    `create_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建时间戳',
+    `update_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '更新时间戳',
+    `delete_at` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '删除时间戳',
+    PRIMARY KEY (`id`)
+);
+
+```
 ### 表字段约定
 
 | 后缀    | 字段类型 | 数据类型     | 备注            |
@@ -176,12 +163,7 @@ web管理地址 http://localhost:9001/
 | _fee  | 价格   | int      | 根据系统小数点读写自动换算 |
 | _qty  | 数量   | int      | 根据系统小数点读写自动换算 |
 
-# 各中间件工具查看
-- Prometheus监控：http://localhost:9090/targets?search=
 
-# 查看etcd服务
-先进容器：docker exec -it 容器id /bin/bash
-然后执行：etcdctl get --prefix "" --keys-only=true
 
 # Todo
 ## 问题优化研究todo
