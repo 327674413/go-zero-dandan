@@ -13,6 +13,7 @@ data/*
 *-dev.yml
 app/asset/api/public
 private.md
+cmd/goctl/goctl
 # gitlab ci
 .cache
 
