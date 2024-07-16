@@ -4,26 +4,23 @@ import (
 	"context"
 	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
 )
 
 type GetOneLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetOneLogicGen
 }
 
-func NewGetOneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetOneLogic {
+func NewGetOneLogic(ctx context.Context, svc *svc.ServiceContext) *GetOneLogic {
 	return &GetOneLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetOneLogicGen: NewGetOneLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetOneLogic) GetOne(in *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
-	// todo: add your logic here and delete this line
+func (l *GetOneLogic) GetOne(req *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 
 	return &goodsRpc.GoodsInfo{}, nil
 }

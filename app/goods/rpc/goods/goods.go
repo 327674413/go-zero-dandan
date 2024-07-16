@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	EmptyReq              = goodsRpc.EmptyReq
 	GetHotPageByCursorReq = goodsRpc.GetHotPageByCursorReq
 	GetPageByCursorResp   = goodsRpc.GetPageByCursorResp
 	GetPageReq            = goodsRpc.GetPageReq

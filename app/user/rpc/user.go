@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"go-zero-dandan/common/interceptor"
+	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -24,6 +25,15 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	var err error
+	resd.Mode = c.Mode
+	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
+		LangPathList: c.I18n.Langs,
+		DefaultLang:  c.I18n.Default,
+	})
+	if err != nil {
+		panic(err)
+	}
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {

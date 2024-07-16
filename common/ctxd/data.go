@@ -1,6 +1,8 @@
 package ctxd
 
-import "context"
+import (
+	"context"
+)
 
 const (
 	KeyPlatId       = "platId"
@@ -10,6 +12,9 @@ const (
 	KeyReqMeta      = "reqMeta"
 )
 
+func TraceId(ctx context.Context) string {
+	return ""
+}
 func PlatId(ctx context.Context) string {
 	id, _ := ctx.Value(KeyPlatId).(string)
 	return id

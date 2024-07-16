@@ -3,12 +3,11 @@ package redisd
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
-	"github.com/zeromicro/go-zero/core/logx"
 	redisx "github.com/zeromicro/go-zero/core/stores/redis"
 	"go-zero-dandan/common/fmtd"
+	"go-zero-dandan/common/resd"
 	"strconv"
 )
 
@@ -46,11 +45,11 @@ func (t *Redisd) SetNx(field string, key string, str string, expireSec ...int) e
 		res, err = t.redisConn.Setnx(t.FieldKey(field, key), str)
 	}
 	if err != nil {
-		return err
+		return resd.Error(err, resd.ErrRedisSet)
 	} else if !res {
-		return errors.New("setnx fail")
+		return resd.NewErr("setnx fail", resd.ErrRedisSet)
 	}
-	return err
+	return resd.Error(err, resd.ErrRedisSet)
 }
 
 // SetNxCtx 不存在则设置值,带上下文
@@ -63,11 +62,11 @@ func (t *Redisd) SetNxCtx(ctx context.Context, field string, key string, str str
 		res, err = t.redisConn.SetnxCtx(ctx, t.FieldKey(field, key), str)
 	}
 	if err != nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisSet)
 	} else if !res {
-		return errors.New("setnx fail")
+		return resd.NewErrCtx(ctx, "setnx fail", resd.ErrRedisSet)
 	}
-	return err
+	return resd.ErrorCtx(ctx, err, resd.ErrRedisSet)
 }
 
 // Del 删除
@@ -90,7 +89,7 @@ func (t *Redisd) DelCtx(ctx context.Context, field string, keys ...string) (int,
 func (t *Redisd) Inc(field string, key string, num int, expireSec ...int) error {
 	oldNumStr, err := t.Get(field, key)
 	if err == nil {
-		return err
+		return resd.Error(err, resd.ErrRedisGet)
 	}
 	oldNum, err := strconv.Atoi(oldNumStr)
 	if err != nil {
@@ -110,7 +109,7 @@ func (t *Redisd) Inc(field string, key string, num int, expireSec ...int) error 
 func (t *Redisd) IncCtx(ctx context.Context, field string, key string, num int, expireSec ...int) error {
 	oldNumStr, err := t.GetCtx(ctx, field, key)
 	if err == nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisGet)
 	}
 	oldNum, err := strconv.Atoi(oldNumStr)
 	if err != nil {
@@ -130,7 +129,7 @@ func (t *Redisd) IncCtx(ctx context.Context, field string, key string, num int, 
 func (t *Redisd) Dec(field string, key string, num int, expireSec ...int) error {
 	oldNumStr, err := t.Get(field, key)
 	if err == nil {
-		return err
+		return resd.Error(err, resd.ErrRedisGet)
 	}
 	oldNum, err := strconv.Atoi(oldNumStr)
 	if err != nil {
@@ -150,7 +149,7 @@ func (t *Redisd) Dec(field string, key string, num int, expireSec ...int) error 
 func (t *Redisd) DecCtx(ctx context.Context, field string, key string, num int, expireSec ...int) error {
 	oldNumStr, err := t.GetCtx(ctx, field, key)
 	if err == nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisGet)
 	}
 	oldNum, err := strconv.Atoi(oldNumStr)
 	if err != nil {
@@ -170,7 +169,7 @@ func (t *Redisd) DecCtx(ctx context.Context, field string, key string, num int, 
 func (t *Redisd) Hset(field string, key string, data string) error {
 	err := t.redisConn.Hset(t.prefix+":"+field, key, data)
 	if err != nil {
-		return err
+		return resd.Error(err, resd.ErrRedisSet)
 	}
 	return nil
 
@@ -180,7 +179,7 @@ func (t *Redisd) Hset(field string, key string, data string) error {
 func (t *Redisd) HsetCtx(ctx context.Context, field string, key string, data string) error {
 	err := t.redisConn.HsetCtx(ctx, t.prefix+":"+field, key, data)
 	if err != nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisSet)
 	}
 	return nil
 
@@ -191,7 +190,7 @@ func (t *Redisd) Get(field string, key string) (string, error) {
 	str, err := t.redisConn.Get(t.prefix + ":" + field + ":" + key)
 	if err != nil && err != redis.Nil {
 		//报错返回错误信息
-		return "", err
+		return "", resd.Error(err, resd.ErrRedisKeyNil)
 	} else if str == "" {
 		//没找到数据，按空返回
 		return "", nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
@@ -206,14 +205,12 @@ func (t *Redisd) GetCtx(ctx context.Context, field string, key string) (string, 
 	str, err := t.redisConn.GetCtx(ctx, k)
 	if err != nil && err != redis.Nil {
 		//报错返回错误信息
-		fmtd.Error(fmt.Sprintf("redis获取%s值为失败：%v", k, err))
-		return "", err
+		return "", resd.ErrorCtx(ctx, err, resd.ErrRedisKeyNil)
 	} else if str == "" {
 		fmtd.Info(fmt.Sprintf("redis获取%s值为空", k))
 		//没找到数据，按空返回
 		return "", nil //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
 	} else {
-		logx.WithContext(ctx).Infof("redis获取%s值为：%s", k, str)
 		return str, err
 	}
 }
@@ -285,7 +282,7 @@ func (t *Redisd) CursorPageAscCtx(ctx context.Context, field string, key string,
 func (t *Redisd) SetData(field string, key string, data any) error {
 	str, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return resd.Error(err, resd.ErrRedisSet)
 	}
 	return t.Set(field, key, string(str))
 }
@@ -294,7 +291,7 @@ func (t *Redisd) SetData(field string, key string, data any) error {
 func (t *Redisd) SetDataCtx(ctx context.Context, field string, key string, data any) error {
 	str, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisSet)
 	}
 	return t.SetCtx(ctx, field, key, string(str))
 }
@@ -303,7 +300,7 @@ func (t *Redisd) SetDataCtx(ctx context.Context, field string, key string, data 
 func (t *Redisd) SetDataEx(field string, key string, data any, expireSec int) error {
 	str, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return resd.Error(err, resd.ErrRedisSet)
 	}
 	return t.SetEx(field, key, string(str), expireSec)
 }
@@ -312,7 +309,7 @@ func (t *Redisd) SetDataEx(field string, key string, data any, expireSec int) er
 func (t *Redisd) SetDataExCtx(ctx context.Context, field string, key string, data any, expireSec int) error {
 	str, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return resd.ErrorCtx(ctx, err, resd.ErrRedisSet)
 	}
 	return t.SetExCtx(ctx, field, key, string(str), expireSec)
 }
@@ -321,14 +318,14 @@ func (t *Redisd) SetDataExCtx(ctx context.Context, field string, key string, dat
 func (t *Redisd) GetData(field string, key string, targetStructPointer any) (isSucc bool, err error) {
 	str, err := t.Get(field, key)
 	if err != nil {
-		return false, err
+		return false, resd.Error(err, resd.ErrRedisGet)
 	}
 	if str == "" {
 		return false, nil
 	}
 	err = json.Unmarshal([]byte(str), targetStructPointer)
 	if err != nil {
-		return false, err
+		return false, resd.Error(err, resd.ErrRedisGet)
 	} else {
 		return true, nil
 	}
@@ -338,16 +335,14 @@ func (t *Redisd) GetData(field string, key string, targetStructPointer any) (isS
 func (t *Redisd) GetDataCtx(ctx context.Context, field string, key string, targetStructPointer any) (isSucc bool, err error) {
 	str, err := t.GetCtx(ctx, field, key)
 	if err != nil {
-		fmtd.Error(err)
-		return false, err
+		return false, resd.ErrorCtx(ctx, err, resd.ErrRedisGet)
 	}
 	if str == "" {
 		return false, nil
 	}
 	err = json.Unmarshal([]byte(str), targetStructPointer)
 	if err != nil {
-		fmtd.Error("json解析失败：", err.Error())
-		return false, err
+		return false, resd.ErrorCtx(ctx, err, resd.ErrRedisGet)
 	} else {
 		return true, nil
 	}
@@ -372,31 +367,6 @@ func (t *Redisd) Hexists(field string, key string) (bool, error) {
 func (t *Redisd) HexistsCtx(ctx context.Context, field string, key string) (bool, error) {
 	return t.redisConn.HexistsCtx(ctx, t.prefix+":"+field, key)
 }
-
-/*
-
-//目前感觉这个方法很奇怪，暂时先不考虑
-// HsetData 转成json设置哈希值
-func (t *Redisd) HsetData(field string, key string, data any) error {
-	str, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-	return t.redisConn.Hset(t.prefix+":"+field, key, string(str))
-}
-
-
-// HgetData 获取哈希值后转json
-func (t *Redisd) HgetData(field string, key string, targetStructPointer any) error {
-	str, err := t.Hget(field, key)
-	if err != nil {
-		return err
-	}
-	json.Unmarshal([]byte(str), targetStructPointer)
-	return nil
-}
-
-*/
 
 // SetEx 设置带过期时间的值
 func (t *Redisd) SetEx(field string, key string, value string, expireSec int) error {

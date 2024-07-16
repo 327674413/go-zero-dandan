@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Request Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<button id="sendRequestButton">Send POST Request</button>
+
+<div id="result"></div>
+
+<script>
+    document.getElementById('sendRequestButton').addEventListener('click', function() {
+        const url = 'http://localhost:8080/test';
+        const data = { key: 'value' }; // Replace this with the actual data you need to send
+        const headers = new Headers({
+            'Content-Type': 'application/json',
+            'UserHeader': 'YourCustomHeaderValue'
+        });
+
+        fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+            });
+    });
+</script>
+
+</body>
+</html>

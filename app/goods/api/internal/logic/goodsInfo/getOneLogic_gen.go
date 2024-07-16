@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type GetOneLogicGen struct {
@@ -52,11 +53,11 @@ func (l *GetOneLogicGen) initReq(req *types.IdReq) error {
 	}
 
 	if l.hasReq.Id == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Id", resd.ErrReqFieldRequired1, "*Id")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Id", resd.ErrReqFieldRequired1, "Id")
 	}
 
 	if l.req.Id == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "Id不得为空", resd.ErrReqFieldEmpty1, "*Id")
+		return resd.NewErrWithTempCtx(l.ctx, "Id不得为空", resd.ErrReqFieldEmpty1, "Id")
 	}
 	l.hasUserInfo = true
 

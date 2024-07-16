@@ -2,11 +2,11 @@
 package types
 
 type GetTokenReq struct {
-	Appid  *string `json:"appid"`
-	Secret *string `json:"secret"`
+	Appid  *string `json:"appid" check:"required"`
+	Secret *string `json:"secret" check:"required"`
 }
 
 type GetTokenResp struct {
 	Token     string `json:"token"`
-	ExpireSec int64  `json:"expireSec""`
+	ExpireSec int64  `json:"expireSec"`
 }

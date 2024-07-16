@@ -3,8 +3,8 @@ package logic
 
 import (
 	"context"
-	"go-zero-dandan/app/plat/rpc/internal/svc"
-	"go-zero-dandan/app/plat/rpc/types/platRpc"
+	"go-zero-dandan/app/goods/rpc/internal/svc"
+	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
 
@@ -18,7 +18,7 @@ type GetOneLogicGen struct {
 	meta *typed.ReqMeta
 	logx.Logger
 	req struct {
-		Id string `json:"id" check:"required"`
+		Id string
 	}
 	hasReq struct {
 		Id bool
@@ -39,21 +39,13 @@ func NewGetOneLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetOneLogi
 	}
 }
 
-func (l *GetOneLogicGen) initReq(req *platRpc.IdReq) error {
+func (l *GetOneLogicGen) initReq(req *goodsRpc.IdReq) error {
 
 	if req.Id != nil {
 		l.req.Id = *req.Id
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false
-	}
-
-	if l.hasReq.Id == false {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "*Id")
-	}
-
-	if l.req.Id == "" {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*Id")
 	}
 
 	return nil

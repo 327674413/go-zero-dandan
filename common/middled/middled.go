@@ -2,15 +2,13 @@ package middled
 
 import (
 	"context"
-	"errors"
 	"github.com/zeromicro/go-zero/core/limit"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/ctxd"
-	"go-zero-dandan/common/fmtd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
 	"go-zero-dandan/common/utild"
+	"go-zero-dandan/pkg/httpd"
 	"net/http"
 )
 
@@ -53,23 +51,15 @@ func SetCtxUser(r *http.Request, userRpc user.User) context.Context {
 }
 
 func ReqRateLimit(r *http.Request, limiter *limit.PeriodLimit) error {
-	userToken := r.Header.Get("Token")
-	// 如果没有用户 ID，不进行限流
-	if userToken == "" {
-		return nil
-	}
-
+	reqKey := httpd.GetClientKey(r)
 	// 限流
-	v, err := limiter.Take(userToken)
-	fmtd.Info(v)
+	v, err := limiter.Take(reqKey)
 	if err != nil {
-		logx.Errorf("take limit failed: %v", err)
-		return err
+		return resd.ErrorCtx(r.Context(), err, resd.ErrReqRateLimit)
 	}
 	// 如果超过限流次数，返回 429
 	if v != limit.Allowed {
-		logx.Errorf("rate limit exceeded")
-		return errors.New("rate limit exceeded")
+		return resd.ErrorCtx(r.Context(), err, resd.ErrReqRateLimit)
 	}
 	return nil
 }

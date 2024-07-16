@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type SearchNewFriendPageLogicGen struct {

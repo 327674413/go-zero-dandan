@@ -237,7 +237,7 @@ func (t *SqlxDao) validate() (err error) {
 		return err
 	}
 	if len(t.joinTables) > 0 && t.fieldSql == "" {
-		return resd.NewErr("联表查询时必须设置Field")
+		return resd.NewErrCtx(t.ctx, "联表查询时必须设置Field", resd.ErrMysqlSelect)
 	}
 	return nil
 }
@@ -255,7 +255,7 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	}
 	checkParamsNum := strings.Count(whereParam, "?")
 	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
-		return resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
+		return resd.NewErrCtx(t.ctx, fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)), resd.ErrMysqlSelect)
 	}
 	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" limit 1", fieldParam, tableParam)
 	if t.ctx != nil {
@@ -286,7 +286,7 @@ func (t *SqlxDao) Total() (int64, error) {
 	whereParam := t.getWhereParam()
 	checkParamsNum := strings.Count(whereParam, "?")
 	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
-		return 0, resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
+		return 0, resd.NewErrCtx(t.ctx, fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)), resd.ErrMysqlSelect)
 	}
 
 	sql := fmt.Sprintf("select COUNT(*) from %s where "+whereParam, tableParam)
@@ -320,7 +320,7 @@ func (t *SqlxDao) Select(targetStructPtr any, totalPtr ...any) error {
 	}
 	checkParamsNum := strings.Count(whereParam, "?")
 	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
-		return resd.NewErr(fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)))
+		return resd.NewErrCtx(t.ctx, fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)), resd.ErrMysqlSelect)
 	}
 	sql := fmt.Sprintf("select %s from %s where "+whereParam+orderSql+" "+pageParam, fieldParam, tableParam)
 	if t.ctx != nil {
@@ -364,7 +364,7 @@ func (t *SqlxDao) getSelectCacheKey() (cacheField string, cacheKey string) {
 func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 	defer t.Reinit()
 	if targetStructPtr == nil {
-		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
+		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil", resd.ErrMysqlSelect)
 	}
 	cacheField, cacheKey := t.getSelectCacheKey()
 	state, err := redis.GetData(cacheField, cacheKey, targetStructPtr)
@@ -392,7 +392,7 @@ func (t *SqlxDao) CacheSelect(redis *redisd.Redisd, targetStructPtr any) error {
 func (t *SqlxDao) CacheFind(redis *redisd.Redisd, targetStructPtr any) error {
 	defer t.Reinit()
 	if targetStructPtr == nil {
-		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil")
+		return resd.NewErrCtx(t.ctx, "赋值对象未初始化，为nil", resd.ErrMysqlSelect)
 	}
 	cacheField, cacheKey := t.getSelectCacheKey()
 	state, err := redis.GetData(cacheField, cacheKey, targetStructPtr)
@@ -520,7 +520,7 @@ func (t *SqlxDao) prepareInsert(data map[string]any) (string, []any, error) {
 		insertFields = insertFields[:len(insertFields)-1]
 		insertValues = insertValues[:len(insertValues)-1]
 	} else {
-		return "", nil, resd.NewErr("insert data is empty", 4) //这里用了第4层能定位到业务调用代码处，暂不确定是否靠谱
+		return "", nil, resd.NewErrCtx(t.ctx, "insert data is empty", resd.ErrMysqlInsert) //这里用了第4层能定位到业务调用代码处，暂不确定是否靠谱
 	}
 	if !hasPlatId && t.platId != "" {
 		insertFields = insertFields + ",plat_id"
@@ -653,7 +653,7 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 		params = append(params, v)
 	}
 	if hasId == false {
-		return 0, resd.NewErr("save data must need id")
+		return 0, resd.NewErrCtx(t.ctx, "save data must need id", resd.ErrMysqlUpdate)
 	}
 	var currData map[string]string
 	err := t.FindById(&currData, id)
@@ -670,13 +670,13 @@ func (t *SqlxDao) TxSave(tx *sql.Tx, data map[string]any) (int64, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return 0, resd.NewErr("update data is empty")
+		return 0, resd.NewErrCtx(t.ctx, "update data is empty", resd.ErrMysqlUpdate)
 	}
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
 		if id == "" {
-			return 0, resd.NewErr("update data must need where")
+			return 0, resd.NewErrCtx(t.ctx, "update data must need where", resd.ErrMysqlUpdate)
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
@@ -717,7 +717,7 @@ func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 		params = append(params, v)
 	}
 	if hasId == false {
-		return 0, resd.NewErr("save data must need id")
+		return 0, resd.NewErrCtx(t.ctx, "save data must need id", resd.ErrMysqlSave)
 	}
 	var currData map[string]string
 	err := t.FindById(&currData, id)
@@ -734,13 +734,13 @@ func (t *SqlxDao) Save(data map[string]any) (int64, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return 0, resd.NewErr("update data is empty")
+		return 0, resd.NewErrCtx(t.ctx, "update data is empty", resd.ErrMysqlSave)
 	}
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
 	whereStr := t.whereSql
 	if whereStr == "" {
 		if id == "" {
-			return 0, resd.NewErr("update data must need where")
+			return 0, resd.NewErrCtx(t.ctx, "update data must need where", resd.ErrMysqlSave)
 		} else {
 			whereStr = fmt.Sprintf("id=%d", id)
 		}
@@ -785,7 +785,7 @@ func (t *SqlxDao) prepareUpdate(data map[string]any) (string, []any, error) {
 	if len(updateStr) > 0 {
 		updateStr = updateStr[:len(updateStr)-1]
 	} else {
-		return "", nil, resd.NewErr("update data is empty")
+		return "", nil, resd.NewErrCtx(t.ctx, "update data is empty", resd.ErrMysqlPrepareUpdate)
 	}
 	//自动添加修改时间字段
 	updateStr = updateStr + fmt.Sprintf(",update_at=%d", utild.GetStamp())
@@ -796,7 +796,7 @@ func (t *SqlxDao) prepareUpdate(data map[string]any) (string, []any, error) {
 		whereStr = fmt.Sprintf("id=%d", id)
 	} else if whereStr == "" {
 		//若data未带id，则必须给条件，即便全修改也要给条件1=1
-		return "", nil, resd.NewErr("update param where is empty")
+		return "", nil, resd.NewErrCtx(t.ctx, "update param where is empty", resd.ErrMysqlPrepareUpdate)
 	}
 	// 多应用时自动增加多应用条件
 	if t.platId != "" {

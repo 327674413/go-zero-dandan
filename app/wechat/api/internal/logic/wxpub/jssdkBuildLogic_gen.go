@@ -3,7 +3,6 @@ package wxpub
 
 import (
 	"context"
-	"strings"
 
 	"go-zero-dandan/app/wechat/api/internal/svc"
 	"go-zero-dandan/app/wechat/api/internal/types"
@@ -11,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type JssdkBuildLogicGen struct {

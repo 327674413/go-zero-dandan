@@ -5,5 +5,5 @@ type ReqMeta struct {
 	UserErr    string `json:"userErr"`
 	Lang       string `json:"lang"`
 	PlatId     string `json:"platId"`
-	PlatClasIm int64  `json:"platClasIm"`
+	PlatClasEm int64  `json:"platClasEm"`
 }

@@ -4,18 +4,20 @@
 - 代码生成业务
 - 集成各类业务的基础组件
 
+# 业务设想
+- 用户服务：所有业务的底层服务，作为所有服务的依赖，共用一套用户体系（虽然微服务要解耦，但一个人写还根据业务模块建立不同的用户体系太伤了）
+- IM服务：提供最基本的消息通讯能力，用于实现基本的客服系统功能、业务消息推送通知等即时通讯
+- B2C商城服务：常规的b端商城，基本的商品、订单、支付、活动、积分、优惠券等
+- 工作流引擎：接入或自制常用工作流，用于后台管理系统的审批
+- 
 # 已研究部分
 - 集成i18n，支持国际化，通过维护主语言包，自动生成和更新
 - 改造goctl工具与模版，生成自己专用的业务代码
 - 自制orm，用thinkphp model的方式操作数据库
 - 参照api语法，自制rpc文件，生成rpc的自动化业务代码
 
-
-# 待研究部分
-- 改造common/middled.go中的限流处理方法，换成根据ip来限流
-- 完善resd，i18n返回中文好像又有问题，rpc返回，并且支持Info和Err， 正常业务校验可以Info类型，确实报错用err,现在rpc报错的时候调用侧会空指针报错
-- gozero的kq发送消息是异步的，无法知道是否推送成功，有些消息队列场景需要确保投递成功的
-- 走通采集logx日志到es，根据traceid，实现搜索某个用户的所有操作 和 某张表数据的变化
+# 近期代办
+- 检查现在所有的api和rpc，是否都配置了i18n：etc、conf、mian，rpc多一个rpc的server拦截器
 # 笔记
 
 ## 代码生成
@@ -40,7 +42,7 @@ godan lang
 ```
 
 
-### goctl二次开发
+## goctl二次开发
 
 ```
 # 以修改model生成规则中，将bigint类型的id 变成string类型为例子
@@ -58,18 +60,6 @@ if each.Name == "id" {
 
 ```
 
-### kafka
-```
-#删除topic
-docker exec -it kafka kafka-topics.sh --delete --topic 主题名 --bootstrap-server 127.0.0.1:9092
-#创建topic
-docker exec -it kafka kafka-topics.sh --create --topic 主题名 --bootstrap-server 127.0.0.1:9092 --partitions 3 --replication-factor 1
-#往docker里的kafka测试发消息
-docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic 主题名
-#查看当前所有topic
-docker exec -it kafka kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092
-```
-
 # 各中间件工具查看
 ## Prometheus监控
 地址：http://localhost:9090/targets?search=
@@ -83,6 +73,17 @@ web管理地址 http://localhost:9001/
 地址：http://localhost:8108/ui/login  admin  dandan
 ## 网关apisix
 地址：http://localhost:9002    admin  admin
+### MQ中间件Kafka
+```
+#删除topic
+docker exec -it kafka kafka-topics.sh --delete --topic 主题名 --bootstrap-server 127.0.0.1:9092
+#创建topic
+docker exec -it kafka kafka-topics.sh --create --topic 主题名 --bootstrap-server 127.0.0.1:9092 --partitions 3 --replication-factor 1
+#往docker里的kafka测试发消息
+docker exec -it kafka kafka-console-producer.sh --broker-list 127.0.0.1:9092 --topic 主题名
+#查看当前所有topic
+docker exec -it kafka kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092
+```
 
 ## 开发说明
 ### 接口相关
@@ -163,16 +164,15 @@ CREATE TABLE `表名`  (
 | _fee  | 价格   | int      | 根据系统小数点读写自动换算 |
 | _qty  | 数量   | int      | 根据系统小数点读写自动换算 |
 
+### 国际化约定
+- 模版支持参数二次解析的，但需要传入的是Var开头的变量，如果特殊变量本身是Var开头的单词却不想二次转意，则用*Var来写，会自动去掉*
 
 
-# Todo
-## 问题优化研究todo
+
+# 待研究部分
+- gozero的kq发送消息是异步的，无法知道是否推送成功，有些消息队列场景需要确保投递成功的
+- 走通采集logx日志到es，根据traceid，实现搜索某个用户的所有操作 和 某张表数据的变化
 - 如果h5请求添加了自定义头，还是会跨域，只能用官方默认支持的AccessToken, Token 作为自定义头
 - goland配置远程自动上传，删除文件时好像不会触发
-- common/resd汇总的msg.go拆分成代码生成和手工两部分，对于错误提示可以用代码生成批处理
-- 接管httpx.Parse，解决不能同时支持数字和字符串数字的问题以及转化失败报错英文的问题
-- 如何获取框架自带的tracer自行使用
 - kafka在docker里必须要添加hosts把容器id放进去，不然找不到地址的问题解决
-- resd优化，多语言如何返回提示，如果内部有封装，内部就调不到lang，直接返回一个err外部无法识别具体报错
-- log在哪写？如果在外面写，提示的行就是外面的，如果里面有很多地方有err，根本不知道哪个地方返回的。但如果写里面，那么ctx传递又是大问题，然后嵌套调用可能又会重复记录
 - 用goland终端启动rpc服务，放一段时间不管，比如笔记本盖上后，回来打开，服务没退出，但连不上rpc，需要人工重启。（etcd里的服务、普罗米修斯里的服务都是正常的）

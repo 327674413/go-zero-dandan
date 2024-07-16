@@ -1,6 +1,9 @@
 package utild
 
 import (
+	"bytes"
+	"encoding/base64"
+	"encoding/gob"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -112,4 +115,34 @@ func IpTo12Digits(ip string) (string, error) {
 		digits[i] = fmt.Sprintf("%03d", val)
 	}
 	return strings.Join(digits, ""), nil
+}
+
+// StdToBase64 将结构体转换为Base64编码字符串
+func StdToBase64(data interface{}) (string, error) {
+	// 创建一个字节缓冲区
+	var buf bytes.Buffer
+	// 创建一个新的编码器
+	enc := gob.NewEncoder(&buf)
+	// 对结构体进行编码
+	err := enc.Encode(data)
+	if err != nil {
+		return "", err
+	}
+	// 将字节数组进行Base64编码
+	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
+}
+
+// Base64ToStd 从Base64编码字符串解析回结构体
+func Base64ToStd(encoded string, result interface{}) error {
+	// 将Base64编码的字符串解码为字节数组
+	data, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return err
+	}
+	// 创建一个字节缓冲区
+	buf := bytes.NewBuffer(data)
+	// 创建一个新的解码器
+	dec := gob.NewDecoder(buf)
+	// 对字节数组进行解码
+	return dec.Decode(result)
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type CreateFriendApplyLogicGen struct {
@@ -63,11 +64,11 @@ func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) err
 	}
 
 	if l.hasReq.FriendUid == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数FriendUid", resd.ErrReqFieldRequired1, "*FriendUid")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数FriendUid", resd.ErrReqFieldRequired1, "FriendUid")
 	}
 
 	if l.req.FriendUid == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "FriendUid不得为空", resd.ErrReqFieldEmpty1, "*FriendUid")
+		return resd.NewErrWithTempCtx(l.ctx, "FriendUid不得为空", resd.ErrReqFieldEmpty1, "FriendUid")
 	}
 
 	if req.SourceEm != nil {
@@ -78,7 +79,7 @@ func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) err
 	}
 
 	if l.hasReq.SourceEm == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数SourceEm", resd.ErrReqFieldRequired1, "*SourceEm")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数SourceEm", resd.ErrReqFieldRequired1, "SourceEm")
 	}
 	l.hasUserInfo = true
 	l.mustUserInfo = true

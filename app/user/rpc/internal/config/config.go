@@ -10,6 +10,10 @@ type Config struct {
 	Db struct {
 		DataSource string
 	}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 	RedisConf redis.RedisConf
 	Conf      struct {
 		LoginTokenExSec int

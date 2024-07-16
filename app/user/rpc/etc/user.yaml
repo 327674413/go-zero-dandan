@@ -7,6 +7,11 @@ Etcd:
   Hosts:
     - 127.0.0.1:2379
   Key: user.rpc
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
 DB:
   DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 Mode: dev

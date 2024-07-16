@@ -5,36 +5,32 @@ import (
 	"go-zero-dandan/app/goods/model"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
 	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
-	"go-zero-dandan/common/resd"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetPageLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetPageLogicGen
 }
 
-func NewGetPageLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPageLogic {
+func NewGetPageLogic(ctx context.Context, svc *svc.ServiceContext) *GetPageLogic {
 	return &GetPageLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetPageLogicGen: NewGetPageLogicGen(ctx, svc),
 	}
 }
 
-func (l *GetPageLogic) GetPage(in *goodsRpc.GetPageReq) (*goodsRpc.GetPageResp, error) {
-	page := in.Page
-	size := in.Size
-	sort := in.Sort
+func (l *GetPageLogic) GetPage(req *goodsRpc.GetPageReq) (*goodsRpc.GetPageResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
+	page := l.req.Page
+	size := l.req.Size
+	sort := l.req.Sort
 	if size == 0 {
 		size = defaultPageSize
 	}
-	goodsModel := model.NewGoodsMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
-	list, err := goodsModel.Ctx(l.ctx).Page(page, size).Order(sort).CacheSelect(l.svcCtx.Redis)
+	goodsModel := model.NewGoodsMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
+	list, err := goodsModel.Ctx(l.ctx).Page(page, size).Order(sort).CacheSelect(l.svc.Redis)
 	if err != nil {
-		return nil, resd.RpcErrEncode(resd.ErrorCtx(l.ctx, err))
+		return nil, l.resd.Error(err)
 	}
 	page, size = goodsModel.Dao().GetLastQueryPageAndSize()
 	isCache := goodsModel.Dao().GetLastQueryIsCache()

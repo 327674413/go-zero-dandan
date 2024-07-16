@@ -5,42 +5,29 @@ import (
 	"go-zero-dandan/app/goods/api/internal/svc"
 	"go-zero-dandan/app/goods/api/internal/types"
 	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/user/rpc/user"
-	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type GetHotPageByCursorLogic struct {
-	logx.Logger
-	ctx          context.Context
-	svcCtx       *svc.ServiceContext
-	userMainInfo *user.UserMainInfo
-	platId       string
-	platClasEm   int64
+	*GetHotPageByCursorLogicGen
 }
 
-func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageByCursorLogic {
+func NewGetHotPageByCursorLogic(ctx context.Context, svc *svc.ServiceContext) *GetHotPageByCursorLogic {
 	return &GetHotPageByCursorLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
+		GetHotPageByCursorLogicGen: NewGetHotPageByCursorLogicGen(ctx, svc),
 	}
 }
 
 func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCursorReq) (resp *types.GetHotPageByCursorResp, err error) {
-	if err = l.initPlat(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+	if err = l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
-	pageData, err := l.svcCtx.GoodsRpc.GetHotPageByCursor(l.ctx, &goodsRpc.GetHotPageByCursorReq{
-		Size:   *req.Size,
-		PlatId: l.platId,
-		Page:   *req.Page,
-		Cursor: *req.Cursor,
+	pageData, err := l.svc.GoodsRpc.GetHotPageByCursor(l.ctx, &goodsRpc.GetHotPageByCursorReq{
+		Size:   &l.req.Size,
+		Page:   &l.req.Page,
+		Cursor: &l.req.Cursor,
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	goodses := make([]*types.GoodsInfo, 0)
 	for _, item := range pageData.List {
@@ -67,27 +54,4 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCurs
 		Size:    pageData.Size,
 		List:    goodses,
 	}, nil
-}
-
-func (l *GetHotPageByCursorLogic) initUser() (err error) {
-	userMainInfo, ok := l.ctx.Value("userMainInfo").(*user.UserMainInfo)
-	if !ok {
-		return resd.NewErrCtx(l.ctx, "未配置userInfo中间件", resd.ErrUserMainInfo)
-	}
-	l.userMainInfo = userMainInfo
-	return nil
-}
-
-func (l *GetHotPageByCursorLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

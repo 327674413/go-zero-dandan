@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type GetTokenLogicGen struct {
@@ -53,11 +54,27 @@ func (l *GetTokenLogicGen) initReq(req *types.GetTokenReq) error {
 		l.hasReq.Appid = false
 	}
 
+	if l.hasReq.Appid == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Appid", resd.ErrReqFieldRequired1, "Appid")
+	}
+
+	if l.req.Appid == "" {
+		return resd.NewErrWithTempCtx(l.ctx, "Appid不得为空", resd.ErrReqFieldEmpty1, "Appid")
+	}
+
 	if req.Secret != nil {
 		l.req.Secret = strings.TrimSpace(*req.Secret)
 		l.hasReq.Secret = true
 	} else {
 		l.hasReq.Secret = false
+	}
+
+	if l.hasReq.Secret == false {
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数Secret", resd.ErrReqFieldRequired1, "Secret")
+	}
+
+	if l.req.Secret == "" {
+		return resd.NewErrWithTempCtx(l.ctx, "Secret不得为空", resd.ErrReqFieldEmpty1, "Secret")
 	}
 
 	return nil

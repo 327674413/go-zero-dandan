@@ -1,0 +1,69 @@
+type GoodsInfo {
+  id string
+  name string
+  spec string
+  cover string
+  sellPrice int64
+  storeQty int64
+  state int64
+  isSpecial int64
+  unitId string
+  unitName string
+  platId string
+  viewNum int64
+}
+
+type IdReq {
+  id *string
+}
+
+type GetPageReq {
+  page *int64
+  size *int64
+  sort *string
+  totalFlag *int64
+}
+
+type GetHotPageByCursorReq {
+  page *int64
+  size *int64
+  cursor *int64
+  lastId *string
+}
+
+type GetPageResp {
+  page int64
+  size int64
+  list []*GoodsInfo
+  isCache bool
+  total *int64
+  lastId *string
+  cursor *int64
+  isEnd *bool
+}
+type GetPageByCursorResp {
+  size int64
+  isCache bool
+  isEnd bool
+  lastId string
+  cursor int64
+  list []*GoodsInfo
+
+}
+
+type SuccResp {
+   code int64
+}
+
+@server(
+	middleware: MetaMiddleware
+)
+service plat {
+	@handler GetOne
+	post /GetOne(IdReq) returns (GoodsInfo)
+	@handler GetPage
+    post /GetPage(GetPageReq) returns (GetPageResp)
+    @handler GetHotPageByCursor
+    post /GetHotPageByCursor(GetHotPageByCursorReq) returns (GetPageByCursorResp)
+
+}

@@ -12,14 +12,10 @@ import (
 	"go-zero-dandan/common/resd"
 	"math"
 	"sort"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GetHotPageByCursorLogic struct {
-	ctx    context.Context
-	svcCtx *svc.ServiceContext
-	logx.Logger
+	*GetHotPageByCursorLogicGen
 }
 
 const (
@@ -32,34 +28,35 @@ const (
 	endFlagId              = "-1"          //倒序找，最后一条用-1来判断
 )
 
-func NewGetHotPageByCursorLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetHotPageByCursorLogic {
+func NewGetHotPageByCursorLogic(ctx context.Context, svc *svc.ServiceContext) *GetHotPageByCursorLogic {
 	return &GetHotPageByCursorLogic{
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
+		GetHotPageByCursorLogicGen: NewGetHotPageByCursorLogicGen(ctx, svc),
 	}
 }
 
 // 这个方式缺陷还挺多：在边界时只能返回缓存剩余数据，导致数量不满足分页要求 和 关联引发的系列问题；当然在高并发和加载更多时可能可以忽略
 
-func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
+func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	var size int64
-	if in.Size > 0 {
-		size = in.Size
+	if l.req.Size > 0 {
+		size = l.req.Size
 	} else {
 		size = defaultPageSize
 	}
 	if size > maxPageSize {
 		size = maxPageSize
 	}
-	if in.Page <= 0 {
-		in.Page = 1
+	if l.req.Page <= 0 {
+		l.req.Page = 1
 	}
-	if in.Cursor == 0 {
-		in.Cursor = defaultCursor
+	if l.req.Cursor == 0 {
+		l.req.Cursor = defaultCursor
 	}
 	//先尝试从缓存中获取数据
-	ids, _ := l.getCacheIds(in.Page, size)
+	ids, _ := l.getCacheIds(l.req.Page, size)
 	var (
 		currCacheData  []*model.GoodsMain
 		lastId         string
@@ -67,7 +64,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCu
 		isCache, isEnd bool
 	)
 	currPageGoodses := make([]*goodsRpc.GoodsInfo, 0)
-	goodsModel := model.NewGoodsMainModel(l.ctx, l.svcCtx.SqlConn, in.PlatId)
+	goodsModel := model.NewGoodsMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	if len(ids) > 0 {
 		//存在缓存
 		isCache = true
@@ -102,13 +99,13 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCu
 		}
 	} else {
 		//不存在缓存，通过单通道查数据，其他请求等待查完后一并返回方式查询
-		v, err, _ := l.svcCtx.SingleFlightGroup.Do(redisKeyHotViewGoodses, func() (interface{}, error) {
+		v, err, _ := l.svc.SingleFlightGroup.Do(redisKeyHotViewGoodses, func() (interface{}, error) {
 			//这里要先判断，是一条缓存都没有的初始化，还是按需加载，如果是初始化应该用默认defaultCursor，如果是按需加载就用用户传的cursor
-			isExistCache, err := l.svcCtx.Redis.ExistsCtx(l.ctx, redisKeyHotViewGoodses)
+			isExistCache, err := l.svc.Redis.ExistsCtx(l.ctx, redisKeyHotViewGoodses)
 			if err != nil {
 				return nil, resd.ErrorCtx(l.ctx, err)
 			}
-			curr := in.Cursor
+			curr := l.req.Cursor
 			if !isExistCache || curr == 0 {
 				//不存在key，代表从无到有初始化，应该走默认的第一页数据的cursor
 				//存在key，只能是按需加载，用请求的cursor
@@ -175,16 +172,16 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCu
 	}, nil
 }
 func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]string, error) {
-	isExist, err := l.svcCtx.Redis.Exists(redisKeyHotViewGoodses)
+	isExist, err := l.svc.Redis.Exists(redisKeyHotViewGoodses)
 	if err != nil {
 		//保证能查到，缓存异常不处理
 	}
 	if isExist {
 		// 如果缓存是定期失效的，防止缓存穿透，这里应该执行一次续期
-		//err = l.svcCtx.Redis.ExpireCtx(l.ctx, "hotView", "", 7200)
+		//err = l.svc.Redis.ExpireCtx(l.ctx, "hotView", "", 7200)
 	}
 	// zrevrange 是高到低，所以分页时，cursor要放到max里，也就是这里的stop， page是计算偏移量的，游标分页不需要，从cursor开始获取目标行数即可， 如果低到高应该是放到start里，确认，待定
-	pair, err := l.svcCtx.Redis.ZpageCtx(l.ctx, redisKeyHotViewGoodses, "", int(page), int(size), true)
+	pair, err := l.svc.Redis.ZpageCtx(l.ctx, redisKeyHotViewGoodses, "", int(page), int(size), true)
 	ids := make([]string, 0)
 	for _, item := range pair {
 		ids = append(ids, item.Key)
@@ -203,7 +200,7 @@ func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []string, goodsModel *model.
 		}
 	}, func(id string, writer mr.Writer[*model.GoodsMain], cancel func(error)) {
 		//处理数据
-		goods, err := (*goodsModel).CacheFindById(l.svcCtx.Redis, id)
+		goods, err := (*goodsModel).CacheFindById(l.svc.Redis, id)
 		if err != nil {
 			cancel(err)
 			return
@@ -230,10 +227,10 @@ func (l *GetHotPageByCursorLogic) addListCache(list []*model.GoodsMain) error {
 	}
 	for _, goods := range list {
 		score := goods.ViewNum
-		_, err := l.svcCtx.Redis.Zadd(redisKeyHotViewGoodses, "", score, fmt.Sprintf("%d", goods.Id))
+		_, err := l.svc.Redis.Zadd(redisKeyHotViewGoodses, "", score, fmt.Sprintf("%d", goods.Id))
 		if err != nil {
 			return resd.ErrorCtx(l.ctx, err)
 		}
 	}
-	return l.svcCtx.Redis.ExpireCtx(l.ctx, redisKeyHotViewGoodses, "", defaultCacheExpireSec)
+	return l.svc.Redis.ExpireCtx(l.ctx, redisKeyHotViewGoodses, "", defaultCacheExpireSec)
 }

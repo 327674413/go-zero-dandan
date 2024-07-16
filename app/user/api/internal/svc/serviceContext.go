@@ -18,7 +18,7 @@ type ServiceContext struct {
 	SqlConn             sqlx.SqlConn
 	MessageRpc          message.Message
 	UserRpc             user.User
-	LangMiddleware      rest.Middleware
+	MetaMiddleware      rest.Middleware
 	UserTokenMiddleware rest.Middleware
 	UserInfoMiddleware  rest.Middleware
 	Redis               *redisd.Redisd
@@ -34,7 +34,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		SqlConn:             sqlx.NewMysql(c.DB.DataSource),
 		MessageRpc:          message.NewMessage(zrpc.MustNewClient(c.MessageRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor()))),
 		UserRpc:             UserRpc,
-		LangMiddleware:      middleware.NewLangMiddleware().Handle,
+		MetaMiddleware:      middleware.NewMetaMiddleware().Handle,
 		UserTokenMiddleware: middleware.NewUserTokenMiddleware().Handle,
 		UserInfoMiddleware:  middleware.NewUserInfoMiddleware(UserRpc).Handle,
 		Redis:               redisdConn,

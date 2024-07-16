@@ -33,6 +33,7 @@ func (l *GetOneLogic) GetOne(req *types.IdReq) (resp *types.GoodsInfo, err error
 	if err = l.initPlat(); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
+
 	resp = &types.GoodsInfo{
 		Id:        "",
 		Name:      "",

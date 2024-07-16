@@ -14,6 +14,7 @@ func init() {
 	msg[ErrCreateConversation] = "ErrCreateConversation"
 	msg[ErrDataBiz] = "ErrDataBiz"
 	msg[ErrDataExist1] = "ErrDataExist1"
+	msg[ErrLimiterErr] = "ErrLimiterErr"
 	msg[ErrMergeFileChunkNotFound] = "ErrMergeFileChunkNotFound"
 	msg[ErrMqPush] = "ErrMqPush"
 	msg[ErrMultipartUploadFileHashRequired] = "ErrMultipartUploadFileHashRequired"
@@ -22,7 +23,9 @@ func init() {
 	msg[ErrMysqlCommit] = "ErrMysqlCommit"
 	msg[ErrMysqlDelete] = "ErrMysqlDelete"
 	msg[ErrMysqlInsert] = "ErrMysqlInsert"
+	msg[ErrMysqlPrepareUpdate] = "ErrMysqlPrepareUpdate"
 	msg[ErrMysqlRollback] = "ErrMysqlRollback"
+	msg[ErrMysqlSave] = "ErrMysqlSave"
 	msg[ErrMysqlSelect] = "ErrMysqlSelect"
 	msg[ErrMysqlStartTrans] = "ErrMysqlStartTrans"
 	msg[ErrMysqlUpdate] = "ErrMysqlUpdate"
@@ -39,6 +42,7 @@ func init() {
 	msg[ErrRedisGet] = "ErrRedisGet"
 	msg[ErrRedisGetUserToken] = "ErrRedisGetUserToken"
 	msg[ErrRedisInc] = "ErrRedisInc"
+	msg[ErrRedisKeyNil] = "ErrRedisKeyNil"
 	msg[ErrRedisSet] = "ErrRedisSet"
 	msg[ErrRedisSetUserLoginState] = "ErrRedisSetUserLoginState"
 	msg[ErrRedisSetVerifyCode] = "ErrRedisSetVerifyCode"
@@ -54,6 +58,7 @@ func init() {
 	msg[ErrReqPhone] = "ErrReqPhone"
 	msg[ErrReqRateLimit] = "ErrReqRateLimit"
 	msg[ErrReqWait] = "ErrReqWait"
+	msg[ErrRpcMissMeta] = "ErrRpcMissMeta"
 	msg[ErrRpcResDecode] = "ErrRpcResDecode"
 	msg[ErrSocialAlreadyBlackMe] = "ErrSocialAlreadyBlackMe"
 	msg[ErrSocialAlreadyFriend] = "ErrSocialAlreadyFriend"
@@ -84,6 +89,7 @@ const (
 	ErrCreateConversation              = 63000004
 	ErrDataBiz                         = 503
 	ErrDataExist1                      = 607
+	ErrLimiterErr                      = 40502
 	ErrMergeFileChunkNotFound          = 60901
 	ErrMqPush                          = 504
 	ErrMultipartUploadFileHashRequired = 62000030
@@ -92,8 +98,10 @@ const (
 	ErrMysqlCommit                     = 50107
 	ErrMysqlDelete                     = 50102
 	ErrMysqlInsert                     = 50101
+	ErrMysqlPrepareUpdate              = 50109
 	ErrMysqlRollback                   = 50108
-	ErrMysqlSelect                     = 50104
+	ErrMysqlSave                       = 50104
+	ErrMysqlSelect                     = 50105
 	ErrMysqlStartTrans                 = 50106
 	ErrMysqlUpdate                     = 50103
 	ErrNotFound1                       = 606
@@ -109,6 +117,7 @@ const (
 	ErrRedisGet                        = 50202
 	ErrRedisGetUserToken               = 502020001
 	ErrRedisInc                        = 50203
+	ErrRedisKeyNil                     = 50205
 	ErrRedisSet                        = 50201
 	ErrRedisSetUserLoginState          = 502010003
 	ErrRedisSetVerifyCode              = 502010001
@@ -122,8 +131,9 @@ const (
 	ErrReqParam                        = 602
 	ErrReqParamFormat1                 = 60201
 	ErrReqPhone                        = 60200001
-	ErrReqRateLimit                    = 405
+	ErrReqRateLimit                    = 40501
 	ErrReqWait                         = 605
+	ErrRpcMissMeta                     = 51001
 	ErrRpcResDecode                    = 510
 	ErrSocialAlreadyBlackMe            = 63000002
 	ErrSocialAlreadyFriend             = 63000001

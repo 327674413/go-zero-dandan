@@ -56,7 +56,7 @@ func NewI18n(conf *I18nConfig) (*DanI18n, error) {
 
 func (t *DanI18n) NewLang(lang string) *Lang {
 	if t == nil {
-		//fmtd.Info("进入到nil了")
+		fmtd.Error("未配置i18n：请检查入口文件、etc配置、config配置解析")
 		return nil
 	}
 	//测试模版路径错误时的场景
@@ -100,6 +100,8 @@ func (t *Lang) Trans(temp string, tempData ...map[string]string) string {
 		TemplateData: data,
 	})*/
 }
+
+// Msg 只对Var开头的内容进行二次转义，*Var来开头不转并去掉*
 func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 	tempData := make([]string, 0)
 	if len(tempDataArr) > 0 {
@@ -111,13 +113,15 @@ func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 	}
 	for i, v := range tempData {
 		key := "Field" + fmt.Sprint(i+1)
-		//*开头的用原值，不进行映射
-		if v != "" && v[:1] == "*" {
+		if v == "" {
+			m[key] = ""
+		} else if len(v) > 4 && v[:4] == "*Var" {
 			m[key] = v[1:]
-		} else {
+		} else if len(v) > 3 && v[:3] == "Var" {
 			m[key] = t.Trans(v)
+		} else {
+			m[key] = v
 		}
-
 	}
 	if code, ok := msg[msgCode]; ok {
 		return t.Trans(code, m)

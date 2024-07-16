@@ -28,7 +28,7 @@ func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenRe
 	}
 	resp = &types.GetTokenResp{}
 	if platMain == nil {
-		return nil, l.resd.NewErr(resd.PlatInvalid)
+		return nil, l.resd.NewErr(resd.ErrPlatInvalid)
 	} else {
 		resp.Token, err = l.getToken(l.svc.Config.Auth.AccessSecret, time.Now().Unix(), l.svc.Config.Auth.AccessExpire, platMain)
 		resp.ExpireSec = l.svc.Config.Auth.AccessExpire
@@ -49,9 +49,6 @@ func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, pla
 
 func (l *GetTokenLogic) init(req *types.GetTokenReq) (err error) {
 	if err = l.initReq(req); err != nil {
-		return l.resd.Error(err)
-	}
-	if err = l.initUser(); err != nil {
 		return l.resd.Error(err)
 	}
 	return nil

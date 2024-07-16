@@ -22,10 +22,9 @@ func (l *GetPageLogic) GetPage(req *types.GetPageReq) (resp *types.GetPageResp, 
 		return nil, l.resd.Error(err)
 	}
 	list, err := l.svc.GoodsRpc.GetPage(l.ctx, &goodsRpc.GetPageReq{
-		Page:   l.req.Page,
-		Size:   l.req.Size,
-		Sort:   l.req.Sort,
-		PlatId: l.meta.PlatId,
+		Page: &l.req.Page,
+		Size: &l.req.Size,
+		Sort: &l.req.Sort,
 	})
 	if err != nil {
 		return nil, l.resd.Error(err)

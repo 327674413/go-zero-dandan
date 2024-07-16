@@ -33,6 +33,7 @@ func (l *GetUserByTokenLogic) GetUserByToken(req *userRpc.TokenReq) (*userRpc.Us
 		return userInfo, nil
 	}
 	//没报错，没数据，当做没登陆（redis默认有rdb持久化，快照方式页够用了，所以登陆态数据库不存了）
-	return nil, l.resd.Error(err, resd.ErrAuthUserNotLogin)
+	err = l.resd.NewErr(resd.ErrAuthUserNotLogin)
+	return nil, err
 
 }

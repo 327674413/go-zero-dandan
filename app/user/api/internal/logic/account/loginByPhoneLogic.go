@@ -5,44 +5,32 @@ import (
 	"go-zero-dandan/app/user/api/internal/biz"
 	"go-zero-dandan/app/user/model"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild/copier"
 
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/utild"
 )
 
 type LoginByPhoneLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
+	*LoginByPhoneLogicGen
 }
 
-func NewLoginByPhoneLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginByPhoneLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewLoginByPhoneLogic(ctx context.Context, svc *svc.ServiceContext) *LoginByPhoneLogic {
 	return &LoginByPhoneLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		lang:   localizer,
+		LoginByPhoneLogicGen: NewLoginByPhoneLogicGen(ctx, svc),
 	}
 }
 
 func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	if err = l.initPlat(); err != nil {
-		return nil, err
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
 	}
 	loginByPhoneStrage := map[int64]func(*types.LoginByPhoneReq) (*types.UserInfoResp, error){
 		constd.PlatClasEmMall: l.mallLoginByPhone,
 	}
-	if strateFunc, ok := loginByPhoneStrage[l.platClasEm]; ok {
+	if strateFunc, ok := loginByPhoneStrage[l.meta.PlatClasEm]; ok {
 		return strateFunc(req)
 	} else {
 		return l.defaultLoginByPhone(req)
@@ -51,7 +39,7 @@ func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *type
 
 // defaultLoginByPhone 默认手机号登录
 func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	userBiz := biz.NewUserBiz(l.ctx, l.svcCtx)
+	userBiz := biz.NewUserBiz(l.ctx, l.svc)
 	phone := *req.Phone
 	otpCode := *req.OtpCode
 	var phoneArea string
@@ -60,16 +48,16 @@ func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (res
 	} else {
 		phoneArea = constd.PhoneAreaEmChina
 	}
-	if l.svcCtx.Config.Mode != "dev" || otpCode != "5210" {
+	if l.svc.Config.Mode != "dev" || otpCode != "5210" {
 		if err = userBiz.CheckPhoneVerifyCode(phone, phoneArea, otpCode); err != nil {
-			return nil, err
+			return nil, l.resd.Error(err)
 		}
 	}
 
-	userMainModel := model.NewUserMainModel(l.ctx, l.svcCtx.SqlConn, l.platId)
+	userMainModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	userMain, err := userMainModel.Where("phone=?", phone).Find()
 	if err != nil {
-		return nil, resd.Error(err, resd.MysqlErr)
+		return nil, l.resd.Error(err)
 	}
 	resp = &types.UserInfoResp{}
 	if userMain == nil {
@@ -100,20 +88,6 @@ func (l *LoginByPhoneLogic) mallLoginByPhone(req *types.LoginByPhoneReq) (resp *
 	if err != nil {
 		return resp, err
 	}
-	resp.PlatId = l.platId
+	resp.PlatId = l.meta.PlatId
 	return resp, nil
-}
-
-func (l *LoginByPhoneLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platId, _ := l.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platId
-	l.platClasEm = platClasEm
-	return nil
 }

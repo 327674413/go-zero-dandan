@@ -69,7 +69,7 @@ func genLogicByRoute(api *spec.ApiSpec, dir, rootPkg string, cfg *config.Config,
 	// ------danEditStart------
 	os.Remove(path.Join(dir, subDir, goFile+"_gen.go"))
 	hasUserInfo, mustUserInfo, userLoginInitVar := getDanUserLogin(api)
-	defineVars, initVars := getDanGenVars(&getDanGenVarsReq{
+	danForm, defineVars, initVars := getDanGenVars(&getDanGenVarsReq{
 		api:          api,
 		reqKey:       strings.Replace(requestString, "req *types.", "", -1),
 		hasUserInfo:  hasUserInfo,
@@ -79,7 +79,12 @@ func genLogicByRoute(api *spec.ApiSpec, dir, rootPkg string, cfg *config.Config,
 	if !shallImportTypesPackageForGen(route) {
 		importsForGen = strings.Replace(imports, fmt.Sprintf("\"%s\"\n", pathx.JoinPackages(rootPkg, typesDir)), "", -1)
 	}
-
+	for _, v := range danForm {
+		if v.goType == "string" && v.TrimSpace {
+			importsForGen += "\n\"strings\""
+			break
+		}
+	}
 	genFile(fileGenConfig{
 		dir:             dir,
 		subdir:          subDir,
@@ -170,16 +175,16 @@ type danFormField struct {
 
 }
 
-func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
+func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVars, initVars string) {
 	hasReqStr := ""
 	reqStr := ""
-	danForm := make([]*danFormField, 0)
+	danForm = make([]*danFormField, 0)
 	// 先遍历，进行数据组装
 	for _, tp := range params.api.Types {
 		if tp.Name() == params.reqKey {
 			obj, ok := tp.(spec.DefineStruct)
 			if !ok {
-				return "unspport struct type: " + tp.Name(), "unspport struct type: " + tp.Name()
+				return danForm, "unspport struct type: " + tp.Name(), "unspport struct type: " + tp.Name()
 			}
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
@@ -268,13 +273,13 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 		if form.Required {
 			initVars += fmt.Sprintf(`
 									if l.hasReq.` + form.field + `== false {
-										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + form.field + `", resd.ErrReqFieldRequired1, "*` + form.field + `")
+										return resd.NewErrWithTempCtx(l.ctx, "缺少参数` + form.field + `", resd.ErrReqFieldRequired1, "` + form.field + `")
 									}
 								`)
 			if form.goType == "string" {
 				initVars += fmt.Sprintf(`
 										if l.req.` + form.field + `== "" {
-											return resd.NewErrWithTempCtx(l.ctx, "` + form.field + `不得为空", resd.ErrReqFieldEmpty1, "*` + form.field + `")
+											return resd.NewErrWithTempCtx(l.ctx, "` + form.field + `不得为空", resd.ErrReqFieldEmpty1, "` + form.field + `")
 										}
 									`)
 			}
@@ -294,7 +299,7 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 	if params.mustUserInfo {
 		initVars += "l.mustUserInfo = true\n"
 	}
-	return defineVars, initVars
+	return danForm, defineVars, initVars
 }
 
 // ------danEditEnd------

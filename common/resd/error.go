@@ -56,6 +56,9 @@ func newDanErr(msg string, errCode int, tempStr ...string) *danError {
 
 func errdWithTemp(ctxOrNil context.Context, langOrNil *Lang, err error, initErrCode int, temps ...string) *danError {
 	skip := 3
+	if err == nil {
+		return newDanErr("err is nil", initErrCode)
+	}
 	danErr, ok := err.(*danError)
 	if ok {
 		//如果有传，则覆盖原先的错误码

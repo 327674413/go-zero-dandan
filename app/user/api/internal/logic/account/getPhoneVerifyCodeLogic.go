@@ -3,92 +3,57 @@ package account
 import (
 	"context"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/trace"
 	"go-zero-dandan/app/message/rpc/message"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
-	"go.opentelemetry.io/otel"
-	oteltrace "go.opentelemetry.io/otel/trace"
 	"strconv"
 
 	"go-zero-dandan/app/user/api/internal/svc"
 	"go-zero-dandan/app/user/api/internal/types"
 
-	"github.com/nicksnyder/go-i18n/v2/i18n"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/utild"
 )
 
 type GetPhoneVerifyCodeLogic struct {
-	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     int64
-	platClasEm int64
+	*GetPhoneVerifyCodeLogicGen
 }
 
-func NewGetPhoneVerifyCodeLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetPhoneVerifyCodeLogic {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewGetPhoneVerifyCodeLogic(ctx context.Context, svc *svc.ServiceContext) *GetPhoneVerifyCodeLogic {
 	return &GetPhoneVerifyCodeLogic{
-		Logger: logx.WithContext(ctx),
-		ctx:    ctx,
-		svcCtx: svcCtx,
-		lang:   localizer,
+		GetPhoneVerifyCodeLogicGen: NewGetPhoneVerifyCodeLogicGen(ctx, svc),
 	}
 }
 
 func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
-	phone := *req.Phone
-
+	if err := l.initReq(req); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	//生成验证码
 	code := strconv.Itoa(utild.Rand(1000, 9999))
-	err = l.svcCtx.Redis.SetExCtx(l.ctx, "verifyCode", phone, code, 300)
+	err = l.svc.Redis.SetExCtx(l.ctx, "verifyCode", l.req.Phone, code, 300)
 	if err != nil {
-		return nil, resd.Error(err, resd.RedisSetErr)
+		return nil, l.resd.Error(err, resd.ErrRedisSet)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
-	err = l.svcCtx.Redis.SetExCtx(l.ctx, "verifyCodeGetAt", phone, currAt, 60)
+	err = l.svc.Redis.SetExCtx(l.ctx, "verifyCodeGetAt", l.req.Phone, currAt, 60)
 	if err != nil {
-		return nil, resd.Error(err, resd.RedisSetErr)
+		return nil, l.resd.Error(err, resd.ErrRedisSet)
 	}
 	resp = &types.SuccessResp{Msg: ""}
-	if l.svcCtx.Config.Mode == constd.ModeDev {
+	if l.svc.Config.Mode == constd.ModeDev {
 		resp.Msg = code
 		return resp, nil
 	} else {
-		_, rpcErr := l.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
-			Phone:    phone,
-			TempId:   "1",
+		tempId := "1"
+		_, err = l.svc.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
+			Phone:    &l.req.Phone,
+			TempId:   &tempId,
 			TempData: []string{code, "5"},
 		})
-		if rpcErr != nil {
-			return nil, resd.ErrorCtx(l.ctx, rpcErr)
+		if err != nil {
+			return nil, l.resd.Error(err)
 		}
 		return resp, nil
 	}
 
-}
-
-func (l *GetPhoneVerifyCodeLogic) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(l.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platClasId := utild.AnyToInt64(l.ctx.Value("platId"))
-	if platClasId == 0 {
-		return resd.NewErrCtx(l.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	l.platId = platClasId
-	l.platClasEm = platClasEm
-	return nil
-}
-func (l *GetPhoneVerifyCodeLogic) tracer(spanName string) {
-	//创建一个链路
-	tracer := otel.GetTracerProvider().Tracer(trace.TraceName)
-	//开始，如果要下级，第一参数就是ctx，可以给下级start
-	_, span := tracer.Start(l.ctx, spanName, oteltrace.WithSpanKind(oteltrace.SpanKindInternal))
-	//结束方法
-	defer span.End()
-	//业务处理
 }

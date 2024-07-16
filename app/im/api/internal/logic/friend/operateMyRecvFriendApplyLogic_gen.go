@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/typed"
+	"strings"
 )
 
 type OperateMyRecvFriendApplyLogicGen struct {
@@ -56,11 +57,11 @@ func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFrien
 	}
 
 	if l.hasReq.ApplyId == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数ApplyId", resd.ErrReqFieldRequired1, "*ApplyId")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数ApplyId", resd.ErrReqFieldRequired1, "ApplyId")
 	}
 
 	if l.req.ApplyId == "" {
-		return resd.NewErrWithTempCtx(l.ctx, "ApplyId不得为空", resd.ErrReqFieldEmpty1, "*ApplyId")
+		return resd.NewErrWithTempCtx(l.ctx, "ApplyId不得为空", resd.ErrReqFieldEmpty1, "ApplyId")
 	}
 
 	if req.OperateStateEm != nil {
@@ -71,7 +72,7 @@ func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFrien
 	}
 
 	if l.hasReq.OperateStateEm == false {
-		return resd.NewErrWithTempCtx(l.ctx, "缺少参数OperateStateEm", resd.ErrReqFieldRequired1, "*OperateStateEm")
+		return resd.NewErrWithTempCtx(l.ctx, "缺少参数OperateStateEm", resd.ErrReqFieldRequired1, "OperateStateEm")
 	}
 
 	if req.OperateMsg != nil {
