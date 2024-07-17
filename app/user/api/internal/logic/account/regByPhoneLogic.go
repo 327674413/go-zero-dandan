@@ -16,8 +16,8 @@ func NewRegByPhoneLogic(ctx context.Context, svc *svc.ServiceContext) *RegByPhon
 	}
 }
 
-func (l *RegByPhoneLogic) RegByPhone(req *types.RegByPhoneReq) (resp *types.UserInfoResp, err error) {
-	if err := l.initReq(req); err != nil {
+func (l *RegByPhoneLogic) RegByPhone(in *types.RegByPhoneReq) (resp *types.UserInfoResp, err error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 

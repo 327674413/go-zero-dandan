@@ -17,13 +17,13 @@ func NewGetOneLogic(ctx context.Context, svc *svc.ServiceContext) *GetOneLogic {
 	}
 }
 
-func (l *GetOneLogic) GetOne(req *platRpc.IdReq) (*platRpc.PlatInfo, error) {
-	if err := l.init(req); err != nil {
+func (l *GetOneLogic) GetOne(in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
+	if err := l.init(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 
 	platModel := model.NewPlatMainModel(l.ctx, l.svc.SqlConn)
-	platMain, err := platModel.WhereId(l.ReqId).Find()
+	platMain, err := platModel.WhereId(l.req.Id).Find()
 	if platMain == nil {
 		return nil, l.resd.Error(err)
 	}
@@ -36,9 +36,6 @@ func (l *GetOneLogic) GetOne(req *platRpc.IdReq) (*platRpc.PlatInfo, error) {
 
 func (l *GetOneLogic) init(req *platRpc.IdReq) (err error) {
 	if err = l.initReq(req); err != nil {
-		return l.resd.Error(err)
-	}
-	if err = l.initUser(); err != nil {
 		return l.resd.Error(err)
 	}
 	return nil

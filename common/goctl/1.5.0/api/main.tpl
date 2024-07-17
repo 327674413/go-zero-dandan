@@ -41,9 +41,6 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-    if (c.Mode != "prod") {
-        logx.DisableStat() //去掉定时出现的控制台打印
-    }
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }

@@ -2,12 +2,10 @@ package friend
 
 import (
 	"context"
-	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/app/user/rpc/types/userRpc"
-	"strings"
-
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
+	"go-zero-dandan/app/social/rpc/types/socialRpc"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 
 	"go-zero-dandan/common/resd"
 )
@@ -22,25 +20,18 @@ func NewSearchNewFriendPageLogic(ctx context.Context, svc *svc.ServiceContext) *
 	}
 }
 
-func (l *SearchNewFriendPageLogic) SearchNewFriendPage(req *types.SearchNewFriendReq) (resp *types.SearchNewFriendResp, err error) {
-	if err = l.initReq(req); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
-	}
-	if req.Keyword == nil {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ErrReqFieldRequired1, "keyword")
-	}
-	keyword := strings.TrimSpace(*req.Keyword)
-	if keyword == "" {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "keyword不得为空", resd.ErrReqFieldRequired1, "keyword")
+func (l *SearchNewFriendPageLogic) SearchNewFriendPage(in *types.SearchNewFriendReq) (resp *types.SearchNewFriendResp, err error) {
+	if err = l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
 	}
 	searchRes, err := l.svc.UserRpc.GetUserPage(l.ctx, &userRpc.GetUserPageReq{
-		PlatId: l.meta.PlatId,
+		PlatId: &l.meta.PlatId,
 		Match: map[string]*userRpc.MatchField{
-			"phone": {Str: &keyword},
+			"phone": {Str: &l.req.Keyword},
 		},
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	list := make([]*types.NewFriendInfo, len(searchRes.List))
 	ids := make([]string, 0)

@@ -1,4 +1,7 @@
 Name: message-mq
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
 Mode: dev
 KqConsumerConf:
   Name: message-kq-consumer

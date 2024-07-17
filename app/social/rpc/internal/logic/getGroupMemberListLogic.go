@@ -5,7 +5,6 @@ import (
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/common/resd"
 )
 
 type GetGroupMemberListLogic struct {
@@ -19,13 +18,16 @@ func NewGetGroupMemberListLogic(ctx context.Context, svc *svc.ServiceContext) *G
 }
 
 func (l *GetGroupMemberListLogic) GetGroupMemberList(in *socialRpc.GetGroupMemberListReq) (*socialRpc.GroupMemberListResp, error) {
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
 	}
 	m := model.NewSocialGroupMemberModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
-	list, err := m.Where("group_id = ?", in.GroupId).Select()
+	list, err := m.Where("group_id = ?", l.req.GroupId).Select()
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	resp := &socialRpc.GroupMemberListResp{List: make([]*socialRpc.GroupMember, 0, len(list))}
 	for _, item := range list {

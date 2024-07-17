@@ -24,8 +24,8 @@ func NewGetPhoneVerifyCodeLogic(ctx context.Context, svc *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(req *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
-	if err := l.initReq(req); err != nil {
+func (l *GetPhoneVerifyCodeLogic) GetPhoneVerifyCode(in *types.GetPhoneVerifyCodeReq) (resp *types.SuccessResp, err error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	//生成验证码

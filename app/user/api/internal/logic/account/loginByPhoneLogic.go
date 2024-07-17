@@ -23,17 +23,17 @@ func NewLoginByPhoneLogic(ctx context.Context, svc *svc.ServiceContext) *LoginBy
 	}
 }
 
-func (l *LoginByPhoneLogic) LoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	if err := l.initReq(req); err != nil {
+func (l *LoginByPhoneLogic) LoginByPhone(in *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	loginByPhoneStrage := map[int64]func(*types.LoginByPhoneReq) (*types.UserInfoResp, error){
 		constd.PlatClasEmMall: l.mallLoginByPhone,
 	}
 	if strateFunc, ok := loginByPhoneStrage[l.meta.PlatClasEm]; ok {
-		return strateFunc(req)
+		return strateFunc(in)
 	} else {
-		return l.defaultLoginByPhone(req)
+		return l.defaultLoginByPhone(in)
 	}
 }
 

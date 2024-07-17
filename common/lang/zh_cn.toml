@@ -78,6 +78,7 @@ VarMessageSysConfig = "消息中心系统参数"
 VarPassword = "密码"
 VarPhoneNumber = "手机号码"
 VarSmsTemp = "短信模版"
+VarStateEm = "状态"
 VarUpoladTask = "上传任务"
 VarUrl = "链接地址"
 

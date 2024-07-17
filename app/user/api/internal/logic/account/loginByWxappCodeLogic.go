@@ -17,8 +17,8 @@ func NewLoginByWxappCodeLogic(ctx context.Context, svc *svc.ServiceContext) *Log
 	}
 }
 
-func (l *LoginByWxappCodeLogic) LoginByWxappCode(req *types.LoginByWxappCodeReq) (resp *types.LoginByWxappCodeResp, err error) {
-	if err := l.initReq(req); err != nil {
+func (l *LoginByWxappCodeLogic) LoginByWxappCode(in *types.LoginByWxappCodeReq) (resp *types.LoginByWxappCodeResp, err error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	resp = &types.LoginByWxappCodeResp{

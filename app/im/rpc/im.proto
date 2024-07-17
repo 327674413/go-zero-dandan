@@ -38,7 +38,7 @@ message SendSysMsgReq {
 	optional string userId = 1;
 	optional int64 msgTypeEm = 2;
 	optional string msgContent = 3;
-	optional int64 sendTime = 4;
+	optional string sendTime = 4;
 	optional int64 msgClasEm = 5;
 }
 message PutConversationsReq {

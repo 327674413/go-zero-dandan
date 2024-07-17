@@ -8,8 +8,6 @@ import (
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type SetUpUserConversationLogic struct {
@@ -83,7 +81,6 @@ func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string
 			return err
 		}
 	}
-	logx.Info(conversationId)
 	//更新会话记录
 	if _, ok := conversations.ConversationList[conversationId]; ok {
 		return nil
@@ -96,5 +93,5 @@ func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string
 	}
 	//更新
 	err = l.svc.ConversationsModel.Save(l.ctx, conversations)
-	return err
+	return l.resd.Error(err)
 }

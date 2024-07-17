@@ -32,29 +32,29 @@ const (
 	uploadInitStateFinish   = 2 //秒传
 )
 
-func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *MultipartUploadInitLogic) MultipartUploadInit(in *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	netdiskModel := model.NewAssetNetdiskFileModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	whereStr := fmt.Sprintf("sha1 = ? AND mode_em=%d", l.svc.Config.AssetMode)
-	findFile, err := netdiskModel.Where(whereStr, req.FileSha1).Find()
+	findFile, err := netdiskModel.Where(whereStr, l.req.FileSha1).Find()
 	//查询报错
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}
 	//有找到历史任务，并且状态为未完成
 	if findFile != nil && findFile.StateEm < constd.AssetStateEmFinish {
-		return l.getTask(findFile, req)
+		return l.getTask(findFile)
 	}
 	//没找到 或 历史任务已完成，找是否存在该文件
 	assetMainModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)
-	findAsset, err := assetMainModel.Where(fmt.Sprintf("sha1= ? AND state_em=%d", constd.AssetStateEmFinish), req.FileSha1).Find()
+	findAsset, err := assetMainModel.Where(fmt.Sprintf("sha1= ? AND state_em=%d", constd.AssetStateEmFinish), l.req.FileSha1).Find()
 	if err != nil {
 		return nil, resd.Error(err)
 	}
 	if findAsset == nil {
-		return l.addTask(req)
+		return l.addTask()
 	} else {
 		assetData := &model.AssetNetdiskFile{}
 		assetData.Sha1 = findAsset.Sha1
@@ -81,14 +81,14 @@ func (l *MultipartUploadInitLogic) MultipartUploadInit(req *types.MultipartUploa
 
 }
 
-func (l *MultipartUploadInitLogic) getTask(findFile *model.AssetNetdiskFile, req *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
+func (l *MultipartUploadInitLogic) getTask(findFile *model.AssetNetdiskFile) (resp *types.MultipartUploadInitRes, err error) {
 	assetBiz := biz.NewAssetBiz(l.ctx, l.svc, l.meta)
 	total, completeChunks, err := assetBiz.GetUploading(findFile.Id)
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}
 	if total == 0 {
-		return l.addTask(req)
+		return l.addTask()
 	}
 	return &types.MultipartUploadInitRes{
 		UserId:        l.meta.UserId,
@@ -102,7 +102,7 @@ func (l *MultipartUploadInitLogic) getTask(findFile *model.AssetNetdiskFile, req
 	}, nil
 
 }
-func (l *MultipartUploadInitLogic) addTask(req *types.MultipartUploadInitReq) (resp *types.MultipartUploadInitRes, err error) {
+func (l *MultipartUploadInitLogic) addTask() (resp *types.MultipartUploadInitRes, err error) {
 	netdiskModel := model.NewAssetNetdiskFileModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 	fileInfo := &model.AssetNetdiskFile{
 		Id:           utild.MakeId(),

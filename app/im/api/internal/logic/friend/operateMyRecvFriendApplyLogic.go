@@ -20,13 +20,13 @@ func NewOperateMyRecvFriendApplyLogic(ctx context.Context, svc *svc.ServiceConte
 		OperateMyRecvFriendApplyLogicGen: NewOperateMyRecvFriendApplyLogicGen(ctx, svc),
 	}
 }
-func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(req *types.OperateMyRecvFriendApplyReq) (resp *types.ResultResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(in *types.OperateMyRecvFriendApplyReq) (resp *types.ResultResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	//合法性校验
 	if !arrd.Contain([]int64{constd.SocialFriendStateEmPass, constd.SocialFriendStateEmReject}, l.req.OperateStateEm) {
-		return nil, resd.NewErrWithTempCtx(l.ctx, "", resd.ReqParamFormatErr1, "stateEm")
+		return nil, l.resd.NewErrWithTemp(resd.ErrReqParamFormat1, "stateEm")
 	}
 	_, err = l.svc.SocialRpc.OperateFriendApply(l.ctx, &socialRpc.OperateFriendApplyReq{
 		ApplyId:        &l.req.ApplyId,

@@ -36,8 +36,8 @@ func NewGetHotPageByCursorLogic(ctx context.Context, svc *svc.ServiceContext) *G
 
 // 这个方式缺陷还挺多：在边界时只能返回缓存剩余数据，导致数量不满足分页要求 和 关联引发的系列问题；当然在高并发和加载更多时可能可以忽略
 
-func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
-	if err := l.initReq(req); err != nil {
+func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	var size int64

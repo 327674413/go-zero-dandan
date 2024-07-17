@@ -2,16 +2,16 @@ Name: plat-api
 Host: 0.0.0.0
 Port: 8800
 Log:
-  ServiceName: plat-api
-  Level: debug
-DB:
-  DataSource: "root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
 Mode: dev
 I18n:
   Default: zh-cn
   Langs:
     - "../../../common/lang/en_us.toml"
     - "../../../common/lang/zh_cn.toml"
+DB:
+  DataSource: "root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai"
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000

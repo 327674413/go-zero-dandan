@@ -17,8 +17,8 @@ func NewGetPageLogic(ctx context.Context, svc *svc.ServiceContext) *GetPageLogic
 	}
 }
 
-func (l *GetPageLogic) GetPage(req *types.GetPageReq) (resp *types.GetPageResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *GetPageLogic) GetPage(in *types.GetPageReq) (resp *types.GetPageResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	list, err := l.svc.GoodsRpc.GetPage(l.ctx, &goodsRpc.GetPageReq{

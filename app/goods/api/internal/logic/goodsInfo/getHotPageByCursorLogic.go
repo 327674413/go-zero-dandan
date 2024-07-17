@@ -17,8 +17,8 @@ func NewGetHotPageByCursorLogic(ctx context.Context, svc *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetHotPageByCursorLogic) GetHotPageByCursor(req *types.GetHotPageByCursorReq) (resp *types.GetHotPageByCursorResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *types.GetHotPageByCursorReq) (resp *types.GetHotPageByCursorResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	pageData, err := l.svc.GoodsRpc.GetHotPageByCursor(l.ctx, &goodsRpc.GetHotPageByCursorReq{

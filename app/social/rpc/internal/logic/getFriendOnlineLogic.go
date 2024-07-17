@@ -5,7 +5,6 @@ import (
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/common/resd"
 )
 
 type GetFriendOnlineLogic struct {
@@ -19,8 +18,11 @@ func NewGetFriendOnlineLogic(ctx context.Context, svc *svc.ServiceContext) *GetF
 }
 
 func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq) (*socialRpc.FriendOnlineResp, error) {
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+		return nil, l.resd.Error(err)
 	}
 	data, err := NewGetUserFriendListLogic(l.ctx, l.svc).GetUserFriendList(&socialRpc.GetUserFriendListReq{
 		UserId: in.UserId,
@@ -35,7 +37,7 @@ func (l *GetFriendOnlineLogic) GetFriendOnline(in *socialRpc.GetFriendOnlineReq)
 	}
 	onlines, err := l.svc.Redis.HgetallCtx(l.ctx, websocketd.RedisOnlineUser)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	onlineMap := make(map[string]bool, len(uids))
 	for _, uid := range uids {

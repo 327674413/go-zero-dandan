@@ -18,12 +18,10 @@ type GetUserNormalInfoLogicGen struct {
 	meta *typed.ReqMeta
 	logx.Logger
 	req struct {
-		Ids    []string
-		PlatId string
+		Ids []string
 	}
 	hasReq struct {
-		Ids    bool
-		PlatId bool
+		Ids bool
 	}
 }
 
@@ -48,13 +46,6 @@ func (l *GetUserNormalInfoLogicGen) initReq(req *userRpc.GetUserInfoReq) error {
 		l.hasReq.Ids = true
 	} else {
 		l.hasReq.Ids = false
-	}
-
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
-		l.hasReq.PlatId = true
-	} else {
-		l.hasReq.PlatId = false
 	}
 
 	return nil

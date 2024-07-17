@@ -21,8 +21,8 @@ func NewServiceLogic(ctx context.Context, svc *svc.ServiceContext) *ServiceLogic
 	}
 }
 
-func (l *ServiceLogic) Service(req *types.WxpubReq, r *http.Request) (resp []byte, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *ServiceLogic) Service(in *types.WxpubReq, r *http.Request) (resp []byte, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	officialAccountApp, err := officialAccount.NewOfficialAccount(&officialAccount.UserConfig{

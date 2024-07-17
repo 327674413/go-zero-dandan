@@ -2,8 +2,6 @@ package group
 
 import (
 	"context"
-	"go-zero-dandan/common/resd"
-
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 )
@@ -17,9 +15,9 @@ func NewCreateGroupLogic(ctx context.Context, svc *svc.ServiceContext) *CreateGr
 		CreateGroupLogicGen: NewCreateGroupLogicGen(ctx, svc),
 	}
 }
-func (l *CreateGroupLogic) CreateGroup(req *types.CreateGroupReq) (resp *types.CreateGroupResp, err error) {
-	if err = l.initReq(req); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+func (l *CreateGroupLogic) CreateGroup(in *types.CreateGroupReq) (resp *types.CreateGroupResp, err error) {
+	if err = l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
 	}
 	return
 }

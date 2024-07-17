@@ -23,15 +23,15 @@ func NewSendPhoneAsyncLogic(ctx context.Context, svc *svc.ServiceContext) *SendP
 	}
 }
 
-func (l *SendPhoneAsyncLogic) SendPhoneAsync(req *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
-	if err := l.initReq(req); err != nil {
+func (l *SendPhoneAsyncLogic) SendPhoneAsync(in *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
-	if err := l.checkReq(req); err != nil {
+	if err := l.checkReq(); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	threading.GoSafe(func() {
-		data, err := json.Marshal(req)
+		data, err := json.Marshal(l.req)
 		if err != nil {
 			logc.Error(l.ctx, "[SendMmsAsync]json.Marshal req error：%v", err)
 			return
@@ -47,7 +47,7 @@ func (l *SendPhoneAsyncLogic) SendPhoneAsync(req *messageRpc.SendPhoneReq) (*mes
 	return &messageRpc.ResultResp{Code: constd.ResultFinish}, nil
 
 }
-func (l *SendPhoneAsyncLogic) checkReq(in *messageRpc.SendPhoneReq) error {
+func (l *SendPhoneAsyncLogic) checkReq() error {
 	//校验模版id
 	if l.req.TempId == "" {
 		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, resd.VarSmsTemp)

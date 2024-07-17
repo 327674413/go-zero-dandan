@@ -17,6 +17,7 @@ const (
 	logicFuncTemplateFileFile         = "logic-func.tpl"
 	// ------danEditStart------
 	logicGenTemplateFileFile = "login_gen.tpl"
+	mainGenTemplateFileFile  = "main_gen.tpl"
 	// ------danEditEnd------
 	mainTemplateFile       = "main.tpl"
 	serverTemplateFile     = "server.tpl"
@@ -31,11 +32,15 @@ var templates = map[string]string{
 	etcTemplateFileFile:       etcTemplate,
 	logicTemplateFileFile:     logicTemplate,
 	logicFuncTemplateFileFile: logicFunctionTemplate,
-	mainTemplateFile:          mainTemplate,
-	serverTemplateFile:        serverTemplate,
-	serverFuncTemplateFile:    functionTemplate,
-	svcTemplateFile:           svcTemplate,
-	rpcTemplateFile:           rpcTemplateText,
+	// ------danEditStart------
+	//logicGenTemplateFileFile: logicGenTemplateFileFile,
+	mainGenTemplateFileFile: mainGenTemplate,
+	// ------danEditEnd------
+	mainTemplateFile:       mainTemplate,
+	serverTemplateFile:     serverTemplate,
+	serverFuncTemplateFile: functionTemplate,
+	svcTemplateFile:        svcTemplate,
+	rpcTemplateFile:        rpcTemplateText,
 }
 
 // GenTemplates is the entry for command goctl template,

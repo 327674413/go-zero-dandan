@@ -7,8 +7,8 @@ type Config struct {
 	DB struct {
 		DataSource string
 	}
-	//Auth struct {
-	//	AccessSecret string
-	//	AccessExpire int64
-	//}
+	I18n struct {
+		Default string
+		Langs   []string
+	}
 }

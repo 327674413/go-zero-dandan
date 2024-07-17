@@ -20,11 +20,14 @@ func NewGetTokenLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetToken
 		GetTokenLogicGen: NewGetTokenLogicGen(ctx, svcCtx),
 	}
 }
-func (l *GetTokenLogic) GetToken(req *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
+func (l *GetTokenLogic) GetToken(in *types.GetTokenReq) (resp *types.GetTokenResp, err error) {
+	if err = l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	platModel := model.NewPlatMainModel(l.ctx, l.svc.SqlConn)
-	platMain, err := platModel.Where("appid = ? and secret = ?", req.Appid, req.Secret).Find()
+	platMain, err := platModel.Where("appid = ? and secret = ?", l.req.Appid, l.req.Secret).Find()
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	resp = &types.GetTokenResp{}
 	if platMain == nil {
@@ -45,11 +48,4 @@ func (l *GetTokenLogic) getToken(secretKey string, iat int64, seconds int64, pla
 	token := jwt.New(jwt.SigningMethodHS256)
 	token.Claims = claims
 	return token.SignedString([]byte(secretKey))
-}
-
-func (l *GetTokenLogic) init(req *types.GetTokenReq) (err error) {
-	if err = l.initReq(req); err != nil {
-		return l.resd.Error(err)
-	}
-	return nil
 }

@@ -1,8 +1,9 @@
 Name: user.rpc
 ListenOn: 0.0.0.0:8085
 Log:
-  ServiceName: user-rpc
-  Level: debug
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
 Etcd:
   Hosts:
     - 127.0.0.1:2379
@@ -14,7 +15,6 @@ I18n:
     - "../../../common/lang/zh_cn.toml"
 DB:
   DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
-Mode: dev
 Conf:
   LoginTokenExSec: 60480
 MessageRpc:

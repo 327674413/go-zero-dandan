@@ -20,8 +20,8 @@ func NewJssdkBuildLogic(ctx context.Context, svc *svc.ServiceContext) *JssdkBuil
 	}
 }
 
-func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.JssdkBuildResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *JssdkBuildLogic) JssdkBuild(in *types.JssdkBuildReq) (resp *types.JssdkBuildResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	if !l.hasReq.Url {
@@ -34,9 +34,9 @@ func (l *JssdkBuildLogic) JssdkBuild(req *types.JssdkBuildReq) (resp *types.Jssd
 		AESKey: "jczy1uuOSkheNb2oh7V3XvPUaVcof3AYU7fK6hyZOhU",
 	}, nil)
 	jssdkRes, err := wxpubApp.JssdkBuild(&wechat.JssdkBuildParams{
-		Url:         *req.Url,
-		JsApiList:   req.JsApiList,
-		OpenTagList: req.OpenTagList,
+		Url:         l.req.Url,
+		JsApiList:   l.req.JsApiList,
+		OpenTagList: l.req.OpenTagList,
 	})
 	if err != nil {
 		return nil, l.resd.Error(err)

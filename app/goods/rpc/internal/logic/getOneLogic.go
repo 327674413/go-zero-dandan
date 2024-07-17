@@ -17,8 +17,8 @@ func NewGetOneLogic(ctx context.Context, svc *svc.ServiceContext) *GetOneLogic {
 	}
 }
 
-func (l *GetOneLogic) GetOne(req *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
-	if err := l.initReq(req); err != nil {
+func (l *GetOneLogic) GetOne(in *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 

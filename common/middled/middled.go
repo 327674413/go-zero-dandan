@@ -19,7 +19,7 @@ func SetCtxMeta(r *http.Request) context.Context {
 	platClasEm := utild.AnyToInt64(ctx.Value("platClasEm"))
 	platId, _ := ctx.Value("platId").(string)
 	meta.Lang = r.FormValue("lang")
-	meta.PlatClasIm = platClasEm
+	meta.PlatClasEm = platClasEm
 	meta.PlatId = platId
 	ctx = context.WithValue(ctx, ctxd.KeyReqMeta, meta)
 	return ctx

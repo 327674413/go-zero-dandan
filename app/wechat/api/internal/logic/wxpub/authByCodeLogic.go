@@ -20,8 +20,8 @@ func NewAuthByCodeLogic(ctx context.Context, svc *svc.ServiceContext) *AuthByCod
 	}
 }
 
-func (l *AuthByCodeLogic) AuthByCode(req *types.AuthByCodeReq) (resp *types.AuthByCodeResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *AuthByCodeLogic) AuthByCode(in *types.AuthByCodeReq) (resp *types.AuthByCodeResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 
@@ -36,7 +36,7 @@ func (l *AuthByCodeLogic) AuthByCode(req *types.AuthByCodeReq) (resp *types.Auth
 		AESKey: "jczy1uuOSkheNb2oh7V3XvPUaVcof3AYU7fK6hyZOhU",
 	}, l.svc.Redis)
 	resp = &types.AuthByCodeResp{}
-	err = wxpub.AuthByCode(*req.Code, &resp)
+	err = wxpub.AuthByCode(l.req.Code, &resp)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}

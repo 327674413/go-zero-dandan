@@ -1,6 +1,10 @@
 Name: wechat-api
 Host: 0.0.0.0
 Port: 8804
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 604800

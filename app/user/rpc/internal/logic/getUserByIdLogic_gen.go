@@ -18,12 +18,10 @@ type GetUserByIdLogicGen struct {
 	meta *typed.ReqMeta
 	logx.Logger
 	req struct {
-		Id     string
-		PlatId string
+		Id string
 	}
 	hasReq struct {
-		Id     bool
-		PlatId bool
+		Id bool
 	}
 }
 
@@ -48,13 +46,6 @@ func (l *GetUserByIdLogicGen) initReq(req *userRpc.IdReq) error {
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false
-	}
-
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
-		l.hasReq.PlatId = true
-	} else {
-		l.hasReq.PlatId = false
 	}
 
 	return nil

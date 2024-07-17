@@ -21,11 +21,11 @@ func NewMultipartUploadSendLogic(ctx context.Context, svc *svc.ServiceContext) *
 	}
 }
 
-func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *types.MultipartUploadSendReq) (*types.SuccessResp, error) {
-	if err := l.initReq(req); err != nil {
+func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, in *types.MultipartUploadSendReq) (*types.SuccessResp, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
-	redisFieldKey := fmt.Sprintf("multipart:%d", req.UploadID)
+	redisFieldKey := fmt.Sprintf("multipart:%d", l.req.UploadID)
 	hasUpload, err := l.svc.Redis.ExistsCtx(l.ctx, redisFieldKey)
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
@@ -45,6 +45,6 @@ func (l *MultipartUploadSendLogic) MultipartUploadSend(r *http.Request, req *typ
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}
-	l.svc.Redis.HsetCtx(l.ctx, redisFieldKey, fmt.Sprintf("chunkIndex_%d", req.ChunkIndex), "ok")
+	l.svc.Redis.HsetCtx(l.ctx, redisFieldKey, fmt.Sprintf("chunkIndex_%d", l.req.ChunkIndex), "ok")
 	return &types.SuccessResp{Msg: ""}, nil
 }

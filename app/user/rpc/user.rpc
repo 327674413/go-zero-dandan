@@ -55,7 +55,6 @@ type LoginResp{
 
 type GetUserInfoReq{
   Ids []string
-  PlatId *string
 }
 type UserNormalInfo{
  MainInfo *UserMainInfo
@@ -92,7 +91,6 @@ type EditUserInfoReq {
 
 type IdReq {
 Id *string
-PlatId *string
 }
 type TokenReq {
 Token *string

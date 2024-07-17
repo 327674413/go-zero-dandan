@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/asset/api/internal/config"
 	"go-zero-dandan/app/asset/api/internal/handler"
 	"go-zero-dandan/app/asset/api/internal/svc"
@@ -44,7 +43,6 @@ func main() {
 	defer server.Stop()
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
-	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
 }

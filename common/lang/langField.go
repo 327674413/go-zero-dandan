@@ -16,4 +16,5 @@ var Fields = []*langField{
 	{"VarPassword", "密码"},
 	{"VarUpoladTask", "上传任务"},
 	{"VarUrl", "链接地址"},
+	{"VarStateEm", "状态"},
 }

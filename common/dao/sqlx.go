@@ -67,20 +67,20 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 }
 
 // StartTrans 开启事务
-func StartTrans(conn sqlx.SqlConn, ctx ...context.Context) (*sql.Tx, error) {
+func StartTrans(conn sqlx.SqlConn, ctxOrNil context.Context) (tx *sql.Tx, danErr error) {
 	var sqlCtx context.Context
-	if len(ctx) > 0 {
-		sqlCtx = ctx[0]
+	if ctxOrNil == nil {
+		sqlCtx = ctxOrNil
 	} else {
 		sqlCtx = context.Background()
 	}
 	db, err := conn.RawDB()
 	if err != nil {
-		return nil, resd.Error(err)
+		return nil, resd.ErrorCtx(sqlCtx, err, resd.ErrMysqlStartTrans)
 	}
-	tx, err := db.BeginTx(sqlCtx, nil)
+	tx, err = db.BeginTx(sqlCtx, nil)
 	if err != nil {
-		return nil, resd.Error(err)
+		return nil, resd.ErrorCtx(sqlCtx, err, resd.ErrMysqlStartTrans)
 	}
 	return tx, nil
 }

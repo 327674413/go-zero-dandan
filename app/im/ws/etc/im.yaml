@@ -1,5 +1,9 @@
 Name: im.rpc
 ListenOn: 0.0.0.0:8809
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
 Etcd:
   Hosts:
   - 127.0.0.1:2379

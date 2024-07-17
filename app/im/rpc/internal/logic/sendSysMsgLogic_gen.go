@@ -21,7 +21,7 @@ type SendSysMsgLogicGen struct {
 		UserId     string
 		MsgTypeEm  int64
 		MsgContent string
-		SendTime   int64
+		SendTime   string
 		MsgClasEm  int64
 	}
 	hasReq struct {

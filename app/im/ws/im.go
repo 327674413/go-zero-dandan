@@ -62,6 +62,6 @@ func rpc() {
 }
 
 func main() {
-	logx.DisableStat() //去掉定时出现的控制台打印
+	logx.DisableStat() //如果用prometheus，指标会上报，可以关掉
 	ws()
 }

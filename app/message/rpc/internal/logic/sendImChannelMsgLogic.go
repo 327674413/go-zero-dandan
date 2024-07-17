@@ -16,8 +16,8 @@ func NewSendImChannelMsgLogic(ctx context.Context, svc *svc.ServiceContext) *Sen
 	}
 }
 
-func (l *SendImChannelMsgLogic) SendImChannelMsg(req *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
-	if err := l.initReq(req); err != nil {
+func (l *SendImChannelMsgLogic) SendImChannelMsg(in *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 

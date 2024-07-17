@@ -19,8 +19,8 @@ func NewCreateFriendApplyLogic(ctx context.Context, svc *svc.ServiceContext) *Cr
 		CreateFriendApplyLogicGen: NewCreateFriendApplyLogicGen(ctx, svc),
 	}
 }
-func (l *CreateFriendApplyLogic) CreateFriendApply(req *types.CreateFriendApplyReq) (resp *types.ResultResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *CreateFriendApplyLogic) CreateFriendApply(in *types.CreateFriendApplyReq) (resp *types.ResultResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	stamp := time.Now().Unix()

@@ -6,7 +6,6 @@ import (
 	"go-zero-dandan/app/asset/api/internal/types"
 	"go-zero-dandan/app/asset/model"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/storaged"
 	"go-zero-dandan/common/utild"
 	"net/http"
@@ -22,13 +21,13 @@ func NewUploadImgLogic(ctx context.Context, svc *svc.ServiceContext) *UploadImgL
 	}
 }
 
-func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (resp *types.UploadResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *UploadImgLogic) UploadImg(r *http.Request, in *types.UploadImgReq) (resp *types.UploadResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	uploader, err := l.svc.Storage.CreateUploader(&storaged.UploaderConfig{FileType: storaged.FileTypeImage})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	res, err := uploader.UploadImg(r, &storaged.UploadImgConfig{
 		/*WatermarkConfig: &imgd.WatermarkConfig{
@@ -38,7 +37,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 		},*/
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	assetMainData := &model.AssetMain{
 		Id:       utild.MakeId(),
@@ -56,7 +55,7 @@ func (l *UploadImgLogic) UploadImg(r *http.Request, req *types.UploadImgReq) (re
 	assetMainModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)
 	_, err = assetMainModel.Insert(assetMainData)
 	if err != nil {
-		return nil, resd.Error(err)
+		return nil, l.resd.Error(err)
 	}
 	return &types.UploadResp{
 		Url:      res.Url,

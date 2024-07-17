@@ -1,3 +1,51 @@
 Name: asset-api
 Host: 0.0.0.0
-Port: 8888
+Port: 8803
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
+MaxBytes: 1048576000 #默认1m，上传文件需要改
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
+DB:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Auth:
+  AccessSecret: "dandandandandandandandan"
+  AccessExpire: 604800
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+Prometheus:
+  Host: 127.0.0.1
+  Port: 9803
+  Path: /metrics
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+AssetMode: 1 #1本地存储 2minio存储 3阿里云oss 4腾讯云cos
+Local:
+  Path: ./
+  Bucket: public
+  PublicBucketAddr: 127.0.0.1:8803
+Minio:
+  PublicBucketAddr: 127.0.0.1:9000
+  AccessKey: DrQDHu7bPol3SwKLnjHP
+  SecretKey: 8SDmIa2pZGCksOOmSiyIeNDFZ8d2UPPM3jk0bG0d
+  Bucket: public
+TxCos:
+  SecretKey:
+  SecretId:
+  PublicBucketAddr:
+  Bucket: public
+AliOss:
+  AccessKeyId:
+  AccessKeySecret:
+  PublicBucketAddr: oss-cn-hangzhou.aliyuncs.com #阿里云的不要带http，程序里会拼接
+  Bucket:

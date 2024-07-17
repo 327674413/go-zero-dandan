@@ -2,8 +2,9 @@ Name: im-api
 Host: 0.0.0.0
 Port: 8812
 Log:
-  ServiceName: im-api
   Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
 I18n:
   Default: zh-cn
   Langs:

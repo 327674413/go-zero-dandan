@@ -1,5 +1,14 @@
 Name: social.rpc
 ListenOn: 0.0.0.0:8810
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
 Etcd:
   Hosts:
   - 127.0.0.1:2379
@@ -31,6 +40,3 @@ Telemetry:
   Endpoint: http://localhost:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
-Log:
-  ServiceName: social-rpc
-  Level: debug

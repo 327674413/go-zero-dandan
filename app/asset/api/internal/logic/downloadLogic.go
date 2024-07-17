@@ -20,8 +20,8 @@ func NewDownloadLogic(ctx context.Context, svc *svc.ServiceContext) *DownloadLog
 	}
 }
 
-func (l *DownloadLogic) Download(w http.ResponseWriter, req *types.DownloadReq, r *http.Request) error {
-	if err := l.initReq(req); err != nil {
+func (l *DownloadLogic) Download(w http.ResponseWriter, in *types.DownloadReq, r *http.Request) error {
+	if err := l.initReq(in); err != nil {
 		return l.resd.Error(err)
 	}
 	assetModel := model.NewAssetMainModel(l.ctx, l.svc.SqlConn)

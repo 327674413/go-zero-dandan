@@ -8,7 +8,6 @@ import (
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 )
 
 type SendSysMsgLogic struct {
@@ -29,7 +28,7 @@ func (l *SendSysMsgLogic) SendSysMsg(in *imRpc.SendSysMsgReq) (*imRpc.ResultResp
 	err := l.svc.SysToUserTransferClient.Push(&kafkad.SysToUserMsg{
 		MsgClas:    websocketd.MsgClas(l.req.MsgClasEm),
 		UserId:     l.req.UserId,
-		SendTime:   utild.Date("Y-m-d H:i:s", l.req.SendTime),
+		SendTime:   l.req.SendTime,
 		MsgType:    websocketd.MsgType(l.req.MsgTypeEm),
 		MsgContent: l.req.MsgContent,
 	})

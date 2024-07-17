@@ -61,7 +61,6 @@ message LoginResp {
 }
 message GetUserInfoReq {
 	repeated string ids = 1;
-	optional string platId = 2;
 }
 message UserNormalInfo {
 	optional UserMainInfo mainInfo = 1;
@@ -95,7 +94,6 @@ message EditUserInfoReq {
 }
 message IdReq {
 	optional string id = 1;
-	optional string platId = 2;
 }
 message TokenReq {
 	optional string token = 1;

@@ -17,8 +17,8 @@ func NewGetUserGroupListLogic(ctx context.Context, svc *svc.ServiceContext) *Get
 }
 
 func (l *GetUserGroupListLogic) GetUserGroupList(in *socialRpc.GetUserGroupListReq) (*socialRpc.GroupListResp, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
 	}
 
 	return &socialRpc.GroupListResp{}, nil

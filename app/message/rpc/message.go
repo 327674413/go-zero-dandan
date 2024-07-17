@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/message/rpc/types/messageRpc"
+	"go-zero-dandan/common/interceptor"
+	"go-zero-dandan/common/resd"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -23,8 +24,16 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
+	var err error
+	resd.Mode = c.Mode
+	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
+		LangPathList: c.I18n.Langs,
+		DefaultLang:  c.I18n.Default,
+	})
+	if err != nil {
+		panic(err)
+	}
 	ctx := svc.NewServiceContext(c)
-	fmt.Printf("------------Mode：%s-----------\n", c.Mode)
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		messageRpc.RegisterMessageServer(grpcServer, server.NewMessageServer(ctx))
 
@@ -33,7 +42,7 @@ func main() {
 		}
 	})
 	defer s.Stop()
-	logx.DisableStat() //去掉定时出现的控制台打印
+	s.AddUnaryInterceptors(interceptor.RpcServerInterceptor())
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

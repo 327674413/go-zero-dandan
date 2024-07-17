@@ -5,8 +5,6 @@ import (
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
-
-	"go-zero-dandan/common/resd"
 )
 
 type CreateGroupMemberApplyLogic struct {
@@ -19,9 +17,9 @@ func NewCreateGroupMemberApplyLogic(ctx context.Context, svc *svc.ServiceContext
 	}
 }
 
-func (l *CreateGroupMemberApplyLogic) CreateGroupMemberApply(req *types.CreateGroupMemberApplyReq) (resp *types.CreateGroupMemberApplyResp, err error) {
-	if err = l.initReq(req); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+func (l *CreateGroupMemberApplyLogic) CreateGroupMemberApply(in *types.CreateGroupMemberApplyReq) (resp *types.CreateGroupMemberApplyResp, err error) {
+	if err = l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
 	}
 
 	return

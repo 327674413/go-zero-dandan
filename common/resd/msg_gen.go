@@ -160,6 +160,7 @@ const (
 	VarPassword         = "VarPassword"
 	VarPhoneNumber      = "VarPhoneNumber"
 	VarSmsTemp          = "VarSmsTemp"
+	VarStateEm          = "VarStateEm"
 	VarUpoladTask       = "VarUpoladTask"
 	VarUrl              = "VarUrl"
 )

@@ -20,8 +20,8 @@ func NewGetMyFriendApplyRecvPageLogic(ctx context.Context, svc *svc.ServiceConte
 	}
 }
 
-func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(req *types.GetMyFriendApplyRecvPageReq) (resp *types.FriendApplyListResp, err error) {
-	if err = l.initReq(req); err != nil {
+func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(in *types.GetMyFriendApplyRecvPageReq) (resp *types.FriendApplyListResp, err error) {
+	if err = l.initReq(in); err != nil {
 		return nil, err
 	}
 	fmtd.Info(l.meta)
@@ -29,11 +29,11 @@ func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(req *types.GetM
 		UserId: &l.meta.UserId,
 		PlatId: &l.meta.PlatId,
 	}
-	if req.Page != nil {
-		rpcReq.Page = req.Page
+	if !l.hasReq.Page {
+		rpcReq.Page = &l.req.Page
 	}
-	if req.Size != nil {
-		rpcReq.Size = req.Size
+	if !l.hasReq.Size {
+		rpcReq.Size = &l.req.Size
 	}
 	res, err := l.svc.SocialRpc.GetUserRecvFriendApplyPage(l.ctx, rpcReq)
 	if err != nil {

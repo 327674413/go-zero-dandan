@@ -16,6 +16,11 @@ import (
 //go:embed main.tpl
 var mainTemplate string
 
+// ------danEditStart------
+var mainGenTemplate string
+
+// ------danEditEnd------
+
 type MainServiceTemplateData struct {
 	Service   string
 	ServerPkg string
@@ -73,6 +78,19 @@ func (g *Generator) GenMain(ctx DirContext, proto parser.Proto, cfg *conf.Config
 		return err
 	}
 
+	// ------danEditStart------
+	//mainGenFileName := filepath.Join(ctx.GetMain().Filename, fmt.Sprintf("%v_gen.go", mainFilename))
+	//mainGenText, err := pathx.LoadTemplate(category, mainGenTemplateFileFile, mainGenTemplate)
+	//if err != nil {
+	//	return err
+	//}
+	//util.With("main_gen").GoFmt(true).Parse(mainGenText).SaveTo(map[string]any{
+	//	"serviceName":  etcFileName,
+	//	"imports":      strings.Join(imports, pathx.NL),
+	//	"pkg":          proto.PbPackage,
+	//	"serviceNames": serviceNames,
+	//}, mainGenFileName, true)
+	// ------danEditEnd------
 	return util.With("main").GoFmt(true).Parse(text).SaveTo(map[string]any{
 		"serviceName":  etcFileName,
 		"imports":      strings.Join(imports, pathx.NL),

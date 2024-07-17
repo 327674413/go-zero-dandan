@@ -5,7 +5,6 @@ import (
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/common/resd"
 )
 
 type GetGroupUserOnlineLogic struct {
@@ -19,8 +18,8 @@ func NewGetGroupUserOnlineLogic(ctx context.Context, svc *svc.ServiceContext) *G
 }
 
 func (l *GetGroupUserOnlineLogic) GetGroupUserOnline(in *socialRpc.GetGroupUserOnlineReq) (*socialRpc.GroupUserOnlineResp, error) {
-	if err := l.checkReqParams(in); err != nil {
-		return nil, err
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
 	}
 	if err := l.checkReqParams(in); err != nil {
 		return nil, err
@@ -38,7 +37,7 @@ func (l *GetGroupUserOnlineLogic) GetGroupUserOnline(in *socialRpc.GetGroupUserO
 	}
 	onlines, err := l.svc.Redis.HgetallCtx(l.ctx, websocketd.RedisOnlineUser)
 	if err != nil {
-		return nil, resd.NewRpcErrCtx(l.ctx, err.Error())
+		return nil, l.resd.Error(err)
 	}
 	onlineMap := make(map[string]bool, len(uids))
 	for _, uid := range uids {

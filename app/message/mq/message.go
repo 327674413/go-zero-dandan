@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/message/mq/internal/server"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -31,7 +30,6 @@ func main() {
 	for _, mq := range consumers {
 		serviceGroup.Add(mq)
 	}
-	logx.DisableStat() //去掉定时出现的控制台打印
 	fmt.Printf("Started %d mq service \n", len(consumers))
 	serviceGroup.Start()
 }

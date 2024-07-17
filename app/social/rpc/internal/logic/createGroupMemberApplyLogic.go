@@ -17,6 +17,8 @@ func NewCreateGroupMemberApplyLogic(ctx context.Context, svc *svc.ServiceContext
 }
 
 func (l *CreateGroupMemberApplyLogic) CreateGroupMemberApply(in *socialRpc.CreateGroupMemberApplyReq) (*socialRpc.CreateGroupMemberApplyResp, error) {
-
+	if err := l.initReq(in); err != nil {
+		return nil, l.resd.Error(err)
+	}
 	return &socialRpc.CreateGroupMemberApplyResp{}, nil
 }

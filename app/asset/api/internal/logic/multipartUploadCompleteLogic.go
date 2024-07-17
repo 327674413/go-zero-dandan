@@ -25,13 +25,13 @@ func NewMultipartUploadCompleteLogic(ctx context.Context, svc *svc.ServiceContex
 	}
 }
 
-func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.MultipartUploadCompleteReq) (*types.MultipartUploadCompleteRes, error) {
-	if err := l.initReq(req); err != nil {
+func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(in *types.MultipartUploadCompleteReq) (*types.MultipartUploadCompleteRes, error) {
+	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
 	//先判断是否存在该上传任务
 	netdiskFileModel := model.NewAssetNetdiskFileModel(l.ctx, l.svc.SqlConn)
-	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(*req.UploadId)
+	uploadTask, err := netdiskFileModel.Ctx(l.ctx).FindById(l.req.UploadId)
 	if err != nil {
 		return nil, l.resd.NewErrWithTemp(resd.ErrNotFound1, resd.VarUpoladTask)
 	}
@@ -126,6 +126,6 @@ func (l *MultipartUploadCompleteLogic) MultipartUploadComplete(req *types.Multip
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
 	return &types.MultipartUploadCompleteRes{
-		UploadId: *req.UploadId,
+		UploadId: l.req.UploadId,
 	}, nil
 }

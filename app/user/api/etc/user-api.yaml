@@ -3,6 +3,9 @@ Host: 0.0.0.0
 Port: 8801
 DB:
   DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
 Mode: dev
 Auth:
   AccessSecret: "dandandandandandandandan"
@@ -39,7 +42,3 @@ Telemetry:
   Endpoint: http://localhost:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
-Log:
-  ServiceName: user-api
-  Level: debug
-

@@ -4,12 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/conf"
-	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/service"
 	"go-zero-dandan/app/im/mq/internal/config"
 	"go-zero-dandan/app/im/mq/internal/handler"
 	"go-zero-dandan/app/im/mq/internal/svc"
-	"go-zero-dandan/common/constd"
 )
 
 var configFile = flag.String("f", "etc/dev/mq.yaml", "config file")
@@ -31,9 +29,6 @@ func main() {
 	for _, s := range listen.Services() {
 		//循环handler的listenh中配置的消费者，进行加载
 		serviceGroup.Add(s)
-	}
-	if c.Mode == constd.ModeDev {
-		logx.DisableStat() //去掉定时出现的控制台打印
 	}
 	fmt.Printf("Starting chat mq server at %s...\n", c.ListenOn)
 	//应该是gozero的kq包封装好的，这样就会自动开启加载的消费者了
