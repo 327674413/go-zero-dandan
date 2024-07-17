@@ -73,11 +73,11 @@ func (l *CreateFriendApplyLogicGen) initReq(req *socialRpc.CreateFriendApplyReq)
 	}
 
 	if l.hasReq.FriendUid == false {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "*FriendUid")
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "FriendUid")
 	}
 
 	if l.req.FriendUid == "" {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*FriendUid")
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "FriendUid")
 	}
 
 	if req.ApplyMsg != nil {

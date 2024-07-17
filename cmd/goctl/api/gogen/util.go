@@ -199,31 +199,31 @@ func DanValidateInitCode(fieldName, fieldType string, tags []*spec.Tag) string {
 				case "required":
 					code += fmt.Sprintf(`
 									if l.hasReq.` + fieldName + `== false {
-										return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "*` + fieldName + `")
+										return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "` + fieldName + `")
 									}
 								`)
 					if fieldType == "string" {
 						code += fmt.Sprintf(`
 										if l.req.` + fieldName + `== "" {
-											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*` + fieldName + `")
+											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "` + fieldName + `")
 										}
 									`)
 					} else if fieldType == "int64" {
 						code += fmt.Sprintf(`
 										if l.req.` + fieldName + `== "" {
-											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*` + fieldName + `")
+											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "` + fieldName + `")
 										}
 									`)
 					} else if len(fieldType) > 2 && fieldType[:2] == "[]" {
 						code += fmt.Sprintf(`
 										if len(l.req.` + fieldName + `) == 0 {
-											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*` + fieldName + `")
+											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "` + fieldName + `")
 										}
 									`)
 					} else if len(fieldType) > 4 && fieldType[:4] == "map[" {
 						code += fmt.Sprintf(`
 										if len(l.req.` + fieldName + `) == 0 {
-											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*` + fieldName + `")
+											return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "` + fieldName + `")
 										}
 									`)
 					}

@@ -4,7 +4,7 @@
 PROJECT_PATH="/Users/yelin/go_dev/project/src/go-zero-dandan"
 # API和RPC列表，用于全量模块生成代码
 apiList=("asset" "goods" "im" "plat" "user" "wechat")
-rpcList=("goods" "im" "message" "plat" "social" "user" "wechat")
+rpcList=("goods" "im" "message" "plat" "social" "user")
 
 # 判断命令类型并设置服务名称
 if [ "$1" == "api" ] || [ "$1" == "rpc" ]; then
