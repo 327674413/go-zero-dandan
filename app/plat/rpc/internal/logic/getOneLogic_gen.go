@@ -49,11 +49,11 @@ func (l *GetOneLogicGen) initReq(req *platRpc.IdReq) error {
 	}
 
 	if l.hasReq.Id == false {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "*Id")
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldRequired1, "Id")
 	}
 
 	if l.req.Id == "" {
-		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "*Id")
+		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "Id")
 	}
 
 	return nil
