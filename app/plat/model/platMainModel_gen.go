@@ -16,7 +16,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stringx"
 )
 
-var ErrNotFound = sqlx.ErrNotFound
 var (
 	platMainFieldNames          = builder.RawFieldNames(&PlatMain{})
 	platMainRows                = strings.Join(platMainFieldNames, ",")

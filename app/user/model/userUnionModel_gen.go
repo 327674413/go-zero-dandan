@@ -33,13 +33,14 @@ const (
 
 type (
 	userUnionModel interface {
-		Insert(data *UserUnion) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *UserUnion) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *UserUnion) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *UserUnion) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *UserUnion) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *UserUnion) (effectRow int64, danErr error)
 		Field(field string) *defaultUserUnionModel
 		Except(fields ...string) *defaultUserUnionModel
 		Alias(alias string) *defaultUserUnionModel
@@ -49,17 +50,17 @@ type (
 		Limit(num int64) *defaultUserUnionModel
 		Plat(id string) *defaultUserUnionModel
 		Find() (*UserUnion, error)
-		FindById(id string) (*UserUnion, error)
-		CacheFind(redis *redisd.Redisd) (*UserUnion, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*UserUnion, error)
+		FindById(id string) (data *UserUnion, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *UserUnion, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *UserUnion, danErr error)
 		Page(page int64, rows int64) *defaultUserUnionModel
-		Total() (total int64, err error)
-		Select() ([]*UserUnion, error)
-		SelectWithTotal() ([]*UserUnion, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*UserUnion, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*UserUnion, danErr error)
+		SelectWithTotal() (dataList []*UserUnion, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*UserUnion, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultUserUnionModel
 		Reinit() *defaultUserUnionModel
 		Dao() *dao.SqlxDao
@@ -179,7 +180,6 @@ func (m *defaultUserUnionModel) Reinit() *defaultUserUnionModel {
 func (m *defaultUserUnionModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultUserUnionModel) Find() (*UserUnion, error) {
 	resp := &UserUnion{}
 	err := m.dao.Find(resp)
@@ -218,7 +218,7 @@ func (m *defaultUserUnionModel) CacheFindById(redis *redisd.Redisd, id string) (
 	}
 	return resp, nil
 }
-func (m *defaultUserUnionModel) Total() (total int64, err error) {
+func (m *defaultUserUnionModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultUserUnionModel) Select() ([]*UserUnion, error) {
@@ -251,22 +251,26 @@ func (m *defaultUserUnionModel) Page(page int64, size int64) *defaultUserUnionMo
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultUserUnionModel) Insert(data *UserUnion) (effectRow int64, err error) {
+func (m *defaultUserUnionModel) Insert(data *UserUnion) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, err error) {
+func (m *defaultUserUnionModel) TxInsert(tx *sql.Tx, data *UserUnion) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultUserUnionModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultUserUnionModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultUserUnionModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -287,7 +291,6 @@ func (m *defaultUserUnionModel) TxSave(tx *sql.Tx, data *UserUnion) (effectRow i
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultUserUnionModel) tableName() string {
 	return m.table
 }

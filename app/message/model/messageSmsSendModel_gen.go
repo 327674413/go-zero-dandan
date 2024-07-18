@@ -39,13 +39,14 @@ const (
 
 type (
 	messageSmsSendModel interface {
-		Insert(data *MessageSmsSend) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *MessageSmsSend) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *MessageSmsSend) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *MessageSmsSend) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, danErr error)
 		Field(field string) *defaultMessageSmsSendModel
 		Except(fields ...string) *defaultMessageSmsSendModel
 		Alias(alias string) *defaultMessageSmsSendModel
@@ -55,17 +56,17 @@ type (
 		Limit(num int64) *defaultMessageSmsSendModel
 		Plat(id string) *defaultMessageSmsSendModel
 		Find() (*MessageSmsSend, error)
-		FindById(id string) (*MessageSmsSend, error)
-		CacheFind(redis *redisd.Redisd) (*MessageSmsSend, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*MessageSmsSend, error)
+		FindById(id string) (data *MessageSmsSend, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *MessageSmsSend, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *MessageSmsSend, danErr error)
 		Page(page int64, rows int64) *defaultMessageSmsSendModel
-		Total() (total int64, err error)
-		Select() ([]*MessageSmsSend, error)
-		SelectWithTotal() ([]*MessageSmsSend, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*MessageSmsSend, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*MessageSmsSend, danErr error)
+		SelectWithTotal() (dataList []*MessageSmsSend, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*MessageSmsSend, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultMessageSmsSendModel
 		Reinit() *defaultMessageSmsSendModel
 		Dao() *dao.SqlxDao
@@ -191,7 +192,6 @@ func (m *defaultMessageSmsSendModel) Reinit() *defaultMessageSmsSendModel {
 func (m *defaultMessageSmsSendModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultMessageSmsSendModel) Find() (*MessageSmsSend, error) {
 	resp := &MessageSmsSend{}
 	err := m.dao.Find(resp)
@@ -230,7 +230,7 @@ func (m *defaultMessageSmsSendModel) CacheFindById(redis *redisd.Redisd, id stri
 	}
 	return resp, nil
 }
-func (m *defaultMessageSmsSendModel) Total() (total int64, err error) {
+func (m *defaultMessageSmsSendModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultMessageSmsSendModel) Select() ([]*MessageSmsSend, error) {
@@ -263,22 +263,26 @@ func (m *defaultMessageSmsSendModel) Page(page int64, size int64) *defaultMessag
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultMessageSmsSendModel) Insert(data *MessageSmsSend) (effectRow int64, err error) {
+func (m *defaultMessageSmsSendModel) Insert(data *MessageSmsSend) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSmsSendModel) TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, err error) {
+func (m *defaultMessageSmsSendModel) TxInsert(tx *sql.Tx, data *MessageSmsSend) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultMessageSmsSendModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultMessageSmsSendModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultMessageSmsSendModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -299,7 +303,6 @@ func (m *defaultMessageSmsSendModel) TxSave(tx *sql.Tx, data *MessageSmsSend) (e
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultMessageSmsSendModel) tableName() string {
 	return m.table
 }

@@ -1,0 +1,1 @@
+var ErrNotFound = sqlx.ErrNotFound

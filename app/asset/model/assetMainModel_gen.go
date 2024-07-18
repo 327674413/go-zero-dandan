@@ -44,13 +44,14 @@ const (
 
 type (
 	assetMainModel interface {
-		Insert(data *AssetMain) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *AssetMain) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *AssetMain) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *AssetMain) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *AssetMain) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *AssetMain) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *AssetMain) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *AssetMain) (effectRow int64, danErr error)
 		Field(field string) *defaultAssetMainModel
 		Except(fields ...string) *defaultAssetMainModel
 		Alias(alias string) *defaultAssetMainModel
@@ -60,17 +61,17 @@ type (
 		Limit(num int64) *defaultAssetMainModel
 		Plat(id string) *defaultAssetMainModel
 		Find() (*AssetMain, error)
-		FindById(id string) (*AssetMain, error)
-		CacheFind(redis *redisd.Redisd) (*AssetMain, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*AssetMain, error)
+		FindById(id string) (data *AssetMain, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *AssetMain, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *AssetMain, danErr error)
 		Page(page int64, rows int64) *defaultAssetMainModel
-		Total() (total int64, err error)
-		Select() ([]*AssetMain, error)
-		SelectWithTotal() ([]*AssetMain, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*AssetMain, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*AssetMain, danErr error)
+		SelectWithTotal() (dataList []*AssetMain, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*AssetMain, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultAssetMainModel
 		Reinit() *defaultAssetMainModel
 		Dao() *dao.SqlxDao
@@ -201,7 +202,6 @@ func (m *defaultAssetMainModel) Reinit() *defaultAssetMainModel {
 func (m *defaultAssetMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultAssetMainModel) Find() (*AssetMain, error) {
 	resp := &AssetMain{}
 	err := m.dao.Find(resp)
@@ -240,7 +240,7 @@ func (m *defaultAssetMainModel) CacheFindById(redis *redisd.Redisd, id string) (
 	}
 	return resp, nil
 }
-func (m *defaultAssetMainModel) Total() (total int64, err error) {
+func (m *defaultAssetMainModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultAssetMainModel) Select() ([]*AssetMain, error) {
@@ -273,22 +273,26 @@ func (m *defaultAssetMainModel) Page(page int64, size int64) *defaultAssetMainMo
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultAssetMainModel) Insert(data *AssetMain) (effectRow int64, err error) {
+func (m *defaultAssetMainModel) Insert(data *AssetMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultAssetMainModel) TxInsert(tx *sql.Tx, data *AssetMain) (effectRow int64, err error) {
+func (m *defaultAssetMainModel) TxInsert(tx *sql.Tx, data *AssetMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultAssetMainModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultAssetMainModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultAssetMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -309,7 +313,6 @@ func (m *defaultAssetMainModel) TxSave(tx *sql.Tx, data *AssetMain) (effectRow i
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultAssetMainModel) tableName() string {
 	return m.table
 }

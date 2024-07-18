@@ -35,13 +35,14 @@ const (
 
 type (
 	messageSysConfigModel interface {
-		Insert(data *MessageSysConfig) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *MessageSysConfig) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *MessageSysConfig) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *MessageSysConfig) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, danErr error)
 		Field(field string) *defaultMessageSysConfigModel
 		Except(fields ...string) *defaultMessageSysConfigModel
 		Alias(alias string) *defaultMessageSysConfigModel
@@ -51,17 +52,17 @@ type (
 		Limit(num int64) *defaultMessageSysConfigModel
 		Plat(id string) *defaultMessageSysConfigModel
 		Find() (*MessageSysConfig, error)
-		FindById(id string) (*MessageSysConfig, error)
-		CacheFind(redis *redisd.Redisd) (*MessageSysConfig, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*MessageSysConfig, error)
+		FindById(id string) (data *MessageSysConfig, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *MessageSysConfig, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *MessageSysConfig, danErr error)
 		Page(page int64, rows int64) *defaultMessageSysConfigModel
-		Total() (total int64, err error)
-		Select() ([]*MessageSysConfig, error)
-		SelectWithTotal() ([]*MessageSysConfig, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*MessageSysConfig, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*MessageSysConfig, danErr error)
+		SelectWithTotal() (dataList []*MessageSysConfig, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*MessageSysConfig, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultMessageSysConfigModel
 		Reinit() *defaultMessageSysConfigModel
 		Dao() *dao.SqlxDao
@@ -183,7 +184,6 @@ func (m *defaultMessageSysConfigModel) Reinit() *defaultMessageSysConfigModel {
 func (m *defaultMessageSysConfigModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultMessageSysConfigModel) Find() (*MessageSysConfig, error) {
 	resp := &MessageSysConfig{}
 	err := m.dao.Find(resp)
@@ -222,7 +222,7 @@ func (m *defaultMessageSysConfigModel) CacheFindById(redis *redisd.Redisd, id st
 	}
 	return resp, nil
 }
-func (m *defaultMessageSysConfigModel) Total() (total int64, err error) {
+func (m *defaultMessageSysConfigModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultMessageSysConfigModel) Select() ([]*MessageSysConfig, error) {
@@ -255,22 +255,26 @@ func (m *defaultMessageSysConfigModel) Page(page int64, size int64) *defaultMess
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultMessageSysConfigModel) Insert(data *MessageSysConfig) (effectRow int64, err error) {
+func (m *defaultMessageSysConfigModel) Insert(data *MessageSysConfig) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, err error) {
+func (m *defaultMessageSysConfigModel) TxInsert(tx *sql.Tx, data *MessageSysConfig) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultMessageSysConfigModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultMessageSysConfigModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultMessageSysConfigModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -291,7 +295,6 @@ func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultMessageSysConfigModel) tableName() string {
 	return m.table
 }

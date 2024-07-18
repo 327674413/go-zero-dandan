@@ -42,13 +42,14 @@ const (
 
 type (
 	socialGroupMemberModel interface {
-		Insert(data *SocialGroupMember) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *SocialGroupMember) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *SocialGroupMember) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *SocialGroupMember) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, danErr error)
 		Field(field string) *defaultSocialGroupMemberModel
 		Except(fields ...string) *defaultSocialGroupMemberModel
 		Alias(alias string) *defaultSocialGroupMemberModel
@@ -58,17 +59,17 @@ type (
 		Limit(num int64) *defaultSocialGroupMemberModel
 		Plat(id string) *defaultSocialGroupMemberModel
 		Find() (*SocialGroupMember, error)
-		FindById(id string) (*SocialGroupMember, error)
-		CacheFind(redis *redisd.Redisd) (*SocialGroupMember, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*SocialGroupMember, error)
+		FindById(id string) (data *SocialGroupMember, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *SocialGroupMember, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *SocialGroupMember, danErr error)
 		Page(page int64, rows int64) *defaultSocialGroupMemberModel
-		Total() (total int64, err error)
-		Select() ([]*SocialGroupMember, error)
-		SelectWithTotal() ([]*SocialGroupMember, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*SocialGroupMember, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*SocialGroupMember, danErr error)
+		SelectWithTotal() (dataList []*SocialGroupMember, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*SocialGroupMember, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultSocialGroupMemberModel
 		Reinit() *defaultSocialGroupMemberModel
 		Dao() *dao.SqlxDao
@@ -197,7 +198,6 @@ func (m *defaultSocialGroupMemberModel) Reinit() *defaultSocialGroupMemberModel 
 func (m *defaultSocialGroupMemberModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultSocialGroupMemberModel) Find() (*SocialGroupMember, error) {
 	resp := &SocialGroupMember{}
 	err := m.dao.Find(resp)
@@ -236,7 +236,7 @@ func (m *defaultSocialGroupMemberModel) CacheFindById(redis *redisd.Redisd, id s
 	}
 	return resp, nil
 }
-func (m *defaultSocialGroupMemberModel) Total() (total int64, err error) {
+func (m *defaultSocialGroupMemberModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultSocialGroupMemberModel) Select() ([]*SocialGroupMember, error) {
@@ -269,22 +269,26 @@ func (m *defaultSocialGroupMemberModel) Page(page int64, size int64) *defaultSoc
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultSocialGroupMemberModel) Insert(data *SocialGroupMember) (effectRow int64, err error) {
+func (m *defaultSocialGroupMemberModel) Insert(data *SocialGroupMember) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultSocialGroupMemberModel) TxInsert(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, err error) {
+func (m *defaultSocialGroupMemberModel) TxInsert(tx *sql.Tx, data *SocialGroupMember) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultSocialGroupMemberModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultSocialGroupMemberModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultSocialGroupMemberModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -305,7 +309,6 @@ func (m *defaultSocialGroupMemberModel) TxSave(tx *sql.Tx, data *SocialGroupMemb
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultSocialGroupMemberModel) tableName() string {
 	return m.table
 }

@@ -14,7 +14,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/core/stringx"
 )
-var ErrNotFound = sqlx.ErrNotFound
 {{.vars}}
 {{.types}}
 {{.new}}

@@ -14,6 +14,9 @@ import (
 func genUpdate(table Table, withCache, postgreSql bool) (
 	string, string, error,
 ) {
+	// ------danEditStart------
+	return "", "", nil //合并在一个模版里，不要这个模版了
+	// ------danEditEnd------
 	expressionValues := make([]string, 0)
 	pkg := "data."
 	if table.ContainsUniqueCacheKey {

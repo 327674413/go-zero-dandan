@@ -46,13 +46,14 @@ const (
 
 type (
 	socialFriendApplyModel interface {
-		Insert(data *SocialFriendApply) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *SocialFriendApply) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *SocialFriendApply) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *SocialFriendApply) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, danErr error)
 		Field(field string) *defaultSocialFriendApplyModel
 		Except(fields ...string) *defaultSocialFriendApplyModel
 		Alias(alias string) *defaultSocialFriendApplyModel
@@ -62,17 +63,17 @@ type (
 		Limit(num int64) *defaultSocialFriendApplyModel
 		Plat(id string) *defaultSocialFriendApplyModel
 		Find() (*SocialFriendApply, error)
-		FindById(id string) (*SocialFriendApply, error)
-		CacheFind(redis *redisd.Redisd) (*SocialFriendApply, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*SocialFriendApply, error)
+		FindById(id string) (data *SocialFriendApply, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *SocialFriendApply, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *SocialFriendApply, danErr error)
 		Page(page int64, rows int64) *defaultSocialFriendApplyModel
-		Total() (total int64, err error)
-		Select() ([]*SocialFriendApply, error)
-		SelectWithTotal() ([]*SocialFriendApply, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*SocialFriendApply, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*SocialFriendApply, danErr error)
+		SelectWithTotal() (dataList []*SocialFriendApply, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*SocialFriendApply, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultSocialFriendApplyModel
 		Reinit() *defaultSocialFriendApplyModel
 		Dao() *dao.SqlxDao
@@ -205,7 +206,6 @@ func (m *defaultSocialFriendApplyModel) Reinit() *defaultSocialFriendApplyModel 
 func (m *defaultSocialFriendApplyModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultSocialFriendApplyModel) Find() (*SocialFriendApply, error) {
 	resp := &SocialFriendApply{}
 	err := m.dao.Find(resp)
@@ -244,7 +244,7 @@ func (m *defaultSocialFriendApplyModel) CacheFindById(redis *redisd.Redisd, id s
 	}
 	return resp, nil
 }
-func (m *defaultSocialFriendApplyModel) Total() (total int64, err error) {
+func (m *defaultSocialFriendApplyModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultSocialFriendApplyModel) Select() ([]*SocialFriendApply, error) {
@@ -277,22 +277,26 @@ func (m *defaultSocialFriendApplyModel) Page(page int64, size int64) *defaultSoc
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultSocialFriendApplyModel) Insert(data *SocialFriendApply) (effectRow int64, err error) {
+func (m *defaultSocialFriendApplyModel) Insert(data *SocialFriendApply) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultSocialFriendApplyModel) TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, err error) {
+func (m *defaultSocialFriendApplyModel) TxInsert(tx *sql.Tx, data *SocialFriendApply) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultSocialFriendApplyModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultSocialFriendApplyModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultSocialFriendApplyModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -313,7 +317,6 @@ func (m *defaultSocialFriendApplyModel) TxSave(tx *sql.Tx, data *SocialFriendApp
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultSocialFriendApplyModel) tableName() string {
 	return m.table
 }

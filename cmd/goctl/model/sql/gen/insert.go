@@ -13,6 +13,9 @@ import (
 )
 
 func genInsert(table Table, withCache, postgreSql bool) (string, string, error) {
+	// ------danEditStart------
+	return "", "", nil //合并在一个模版里，不要这个模版了
+	// ------danEditEnd------
 	keySet := collection.NewSet()
 	keyVariableSet := collection.NewSet()
 	keySet.AddStr(table.PrimaryCacheKey.DataKeyExpression)

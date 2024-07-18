@@ -37,13 +37,14 @@ const (
 
 type (
 	userInfoModel interface {
-		Insert(data *UserInfo) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *UserInfo) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *UserInfo) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *UserInfo) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *UserInfo) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *UserInfo) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *UserInfo) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *UserInfo) (effectRow int64, danErr error)
 		Field(field string) *defaultUserInfoModel
 		Except(fields ...string) *defaultUserInfoModel
 		Alias(alias string) *defaultUserInfoModel
@@ -53,17 +54,17 @@ type (
 		Limit(num int64) *defaultUserInfoModel
 		Plat(id string) *defaultUserInfoModel
 		Find() (*UserInfo, error)
-		FindById(id string) (*UserInfo, error)
-		CacheFind(redis *redisd.Redisd) (*UserInfo, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*UserInfo, error)
+		FindById(id string) (data *UserInfo, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *UserInfo, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *UserInfo, danErr error)
 		Page(page int64, rows int64) *defaultUserInfoModel
-		Total() (total int64, err error)
-		Select() ([]*UserInfo, error)
-		SelectWithTotal() ([]*UserInfo, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*UserInfo, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*UserInfo, danErr error)
+		SelectWithTotal() (dataList []*UserInfo, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*UserInfo, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultUserInfoModel
 		Reinit() *defaultUserInfoModel
 		Dao() *dao.SqlxDao
@@ -187,7 +188,6 @@ func (m *defaultUserInfoModel) Reinit() *defaultUserInfoModel {
 func (m *defaultUserInfoModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultUserInfoModel) Find() (*UserInfo, error) {
 	resp := &UserInfo{}
 	err := m.dao.Find(resp)
@@ -226,7 +226,7 @@ func (m *defaultUserInfoModel) CacheFindById(redis *redisd.Redisd, id string) (*
 	}
 	return resp, nil
 }
-func (m *defaultUserInfoModel) Total() (total int64, err error) {
+func (m *defaultUserInfoModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultUserInfoModel) Select() ([]*UserInfo, error) {
@@ -259,22 +259,26 @@ func (m *defaultUserInfoModel) Page(page int64, size int64) *defaultUserInfoMode
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultUserInfoModel) Insert(data *UserInfo) (effectRow int64, err error) {
+func (m *defaultUserInfoModel) Insert(data *UserInfo) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, data *UserInfo) (effectRow int64, err error) {
+func (m *defaultUserInfoModel) TxInsert(tx *sql.Tx, data *UserInfo) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultUserInfoModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultUserInfoModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultUserInfoModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -295,7 +299,6 @@ func (m *defaultUserInfoModel) TxSave(tx *sql.Tx, data *UserInfo) (effectRow int
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultUserInfoModel) tableName() string {
 	return m.table
 }

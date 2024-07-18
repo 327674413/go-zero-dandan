@@ -7,6 +7,9 @@ import (
 )
 
 func genTableName(table Table) (string, error) {
+	// ------danEditStart------
+	return "", nil //合并在一个模版里，不要这个模版了
+	// ------danEditEnd------
 	text, err := pathx.LoadTemplate(category, tableNameTemplateFile, template.TableName)
 	if err != nil {
 		return "", err

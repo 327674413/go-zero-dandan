@@ -8,6 +8,9 @@ import (
 )
 
 func genFindOne(table Table, withCache, postgreSql bool) (string, string, error) {
+	// ------danEditStart------
+	return "", "", nil //合并在一个模版里，不要这个模版了
+	// ------danEditEnd------
 	camel := table.Name.ToCamel()
 	text, err := pathx.LoadTemplate(category, findOneTemplateFile, template.FindOne)
 	if err != nil {

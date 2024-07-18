@@ -52,13 +52,14 @@ const (
 
 type (
 	assetNetdiskFileModel interface {
-		Insert(data *AssetNetdiskFile) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *AssetNetdiskFile) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *AssetNetdiskFile) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *AssetNetdiskFile) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, danErr error)
 		Field(field string) *defaultAssetNetdiskFileModel
 		Except(fields ...string) *defaultAssetNetdiskFileModel
 		Alias(alias string) *defaultAssetNetdiskFileModel
@@ -68,17 +69,17 @@ type (
 		Limit(num int64) *defaultAssetNetdiskFileModel
 		Plat(id string) *defaultAssetNetdiskFileModel
 		Find() (*AssetNetdiskFile, error)
-		FindById(id string) (*AssetNetdiskFile, error)
-		CacheFind(redis *redisd.Redisd) (*AssetNetdiskFile, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*AssetNetdiskFile, error)
+		FindById(id string) (data *AssetNetdiskFile, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *AssetNetdiskFile, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *AssetNetdiskFile, danErr error)
 		Page(page int64, rows int64) *defaultAssetNetdiskFileModel
-		Total() (total int64, err error)
-		Select() ([]*AssetNetdiskFile, error)
-		SelectWithTotal() ([]*AssetNetdiskFile, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*AssetNetdiskFile, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*AssetNetdiskFile, danErr error)
+		SelectWithTotal() (dataList []*AssetNetdiskFile, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*AssetNetdiskFile, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultAssetNetdiskFileModel
 		Reinit() *defaultAssetNetdiskFileModel
 		Dao() *dao.SqlxDao
@@ -217,7 +218,6 @@ func (m *defaultAssetNetdiskFileModel) Reinit() *defaultAssetNetdiskFileModel {
 func (m *defaultAssetNetdiskFileModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultAssetNetdiskFileModel) Find() (*AssetNetdiskFile, error) {
 	resp := &AssetNetdiskFile{}
 	err := m.dao.Find(resp)
@@ -256,7 +256,7 @@ func (m *defaultAssetNetdiskFileModel) CacheFindById(redis *redisd.Redisd, id st
 	}
 	return resp, nil
 }
-func (m *defaultAssetNetdiskFileModel) Total() (total int64, err error) {
+func (m *defaultAssetNetdiskFileModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultAssetNetdiskFileModel) Select() ([]*AssetNetdiskFile, error) {
@@ -289,22 +289,26 @@ func (m *defaultAssetNetdiskFileModel) Page(page int64, size int64) *defaultAsse
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultAssetNetdiskFileModel) Insert(data *AssetNetdiskFile) (effectRow int64, err error) {
+func (m *defaultAssetNetdiskFileModel) Insert(data *AssetNetdiskFile) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, err error) {
+func (m *defaultAssetNetdiskFileModel) TxInsert(tx *sql.Tx, data *AssetNetdiskFile) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultAssetNetdiskFileModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultAssetNetdiskFileModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultAssetNetdiskFileModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -325,7 +329,6 @@ func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultAssetNetdiskFileModel) tableName() string {
 	return m.table
 }

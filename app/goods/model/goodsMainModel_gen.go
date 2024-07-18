@@ -45,13 +45,14 @@ const (
 
 type (
 	goodsMainModel interface {
-		Insert(data *GoodsMain) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *GoodsMain) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *GoodsMain) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *GoodsMain) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *GoodsMain) (effectRow int64, danErr error)
 		Field(field string) *defaultGoodsMainModel
 		Except(fields ...string) *defaultGoodsMainModel
 		Alias(alias string) *defaultGoodsMainModel
@@ -61,17 +62,17 @@ type (
 		Limit(num int64) *defaultGoodsMainModel
 		Plat(id string) *defaultGoodsMainModel
 		Find() (*GoodsMain, error)
-		FindById(id string) (*GoodsMain, error)
-		CacheFind(redis *redisd.Redisd) (*GoodsMain, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*GoodsMain, error)
+		FindById(id string) (data *GoodsMain, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *GoodsMain, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *GoodsMain, danErr error)
 		Page(page int64, rows int64) *defaultGoodsMainModel
-		Total() (total int64, err error)
-		Select() ([]*GoodsMain, error)
-		SelectWithTotal() ([]*GoodsMain, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*GoodsMain, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*GoodsMain, danErr error)
+		SelectWithTotal() (dataList []*GoodsMain, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*GoodsMain, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultGoodsMainModel
 		Reinit() *defaultGoodsMainModel
 		Dao() *dao.SqlxDao
@@ -203,7 +204,6 @@ func (m *defaultGoodsMainModel) Reinit() *defaultGoodsMainModel {
 func (m *defaultGoodsMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-
 func (m *defaultGoodsMainModel) Find() (*GoodsMain, error) {
 	resp := &GoodsMain{}
 	err := m.dao.Find(resp)
@@ -242,7 +242,7 @@ func (m *defaultGoodsMainModel) CacheFindById(redis *redisd.Redisd, id string) (
 	}
 	return resp, nil
 }
-func (m *defaultGoodsMainModel) Total() (total int64, err error) {
+func (m *defaultGoodsMainModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultGoodsMainModel) Select() ([]*GoodsMain, error) {
@@ -275,22 +275,26 @@ func (m *defaultGoodsMainModel) Page(page int64, size int64) *defaultGoodsMainMo
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultGoodsMainModel) Insert(data *GoodsMain) (effectRow int64, err error) {
+func (m *defaultGoodsMainModel) Insert(data *GoodsMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultGoodsMainModel) TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, err error) {
+func (m *defaultGoodsMainModel) TxInsert(tx *sql.Tx, data *GoodsMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultGoodsMainModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultGoodsMainModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultGoodsMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -311,7 +315,6 @@ func (m *defaultGoodsMainModel) TxSave(tx *sql.Tx, data *GoodsMain) (effectRow i
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultGoodsMainModel) tableName() string {
 	return m.table
 }
