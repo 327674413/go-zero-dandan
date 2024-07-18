@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
+	"go-zero-dandan/common/fmtd"
 	"reflect"
 	"strconv"
 	"strings"
@@ -119,6 +120,14 @@ func IpTo12Digits(ip string) (string, error) {
 
 // StdToBase64 将结构体转换为Base64编码字符串
 func StdToBase64(data interface{}) (string, error) {
+	if data == nil {
+		return "", nil
+	}
+	val := reflect.ValueOf(data)
+	if val.Kind() == reflect.Ptr && val.IsNil() {
+		return "", nil
+	}
+	fmtd.Info(data)
 	// 创建一个字节缓冲区
 	var buf bytes.Buffer
 	// 创建一个新的编码器
@@ -134,6 +143,9 @@ func StdToBase64(data interface{}) (string, error) {
 
 // Base64ToStd 从Base64编码字符串解析回结构体
 func Base64ToStd(encoded string, result interface{}) error {
+	if encoded == "" {
+		return nil
+	}
 	// 将Base64编码的字符串解码为字节数组
 	data, err := base64.StdEncoding.DecodeString(encoded)
 	if err != nil {

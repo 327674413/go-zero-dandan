@@ -8,6 +8,7 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/threading"
 	"net/http"
+	"runtime/debug"
 	"sync"
 	"time"
 )
@@ -53,7 +54,7 @@ func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
 	// 捕获ws服务中的panic，避免程序中断
 	defer func() {
 		if r := recover(); r != nil {
-			t.Errorf("server handler ws recover err：%v", r)
+			t.Errorf("server handler ws recover err：%v \n,%s", r, debug.Stack())
 		}
 	}()
 	//将用户的http请求连接升级为websocket的conn连接

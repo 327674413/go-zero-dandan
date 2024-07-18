@@ -59,9 +59,10 @@ func (t *baseMsgTransfer) single(ctx context.Context, data *websocketd.Push) err
 // group 群聊消息发送，借助ws客户端，走ws的push类型消息的方式发送
 func (t *baseMsgTransfer) group(ctx context.Context, data *websocketd.Push) error {
 	//群聊时，根据消息数据中的接受者id，即群id，查询出该群的用户列表
+	platId := "1"
 	users, err := t.svc.SocialRpc.GetGroupMemberList(ctx, &social.GetGroupMemberListReq{
-		GroupId: data.RecvId,
-		PlatId:  "1",
+		GroupId: &data.RecvId,
+		PlatId:  &platId,
 	})
 	if err != nil {
 		return err

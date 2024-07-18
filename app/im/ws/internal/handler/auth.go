@@ -37,12 +37,12 @@ func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
 	if userToken == t.svc.Config.Ws.SysToken {
 		*r = *r.WithContext(context.WithValue(r.Context(), "userId", "1101"))
 	} else {
-		userMainInfo, err := t.svc.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: userToken})
+		userMainInfo, err := t.svc.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: &userToken})
 		if err != nil {
 			logx.Info("未查询到用户信息", err)
 			return false
 		}
-		platInfo, err := t.svc.PlatRpc.GetOne(r.Context(), &plat.IdReq{Id: userMainInfo.PlatId})
+		platInfo, err := t.svc.PlatRpc.GetOne(r.Context(), &plat.IdReq{Id: &userMainInfo.PlatId})
 		if err != nil {
 			logx.Info("未查询到应用信息", err)
 			return false
