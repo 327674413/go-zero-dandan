@@ -94,22 +94,22 @@ type (
 	}
 
 	SocialGroupMemberApply struct {
-		Id             string `db:"id"`
-		GroupId        string `db:"group_id"`         // 群组id
-		UserId         string `db:"user_id"`          // 用户id
-		ApplyMsg       string `db:"apply_msg"`        // 申请内容
-		ApplyAt        int64  `db:"apply_at"`         // 申请时间
-		JoinSourceEm   int64  `db:"join_source_em"`   // 加入方式
-		InviteUid      string `db:"invite_uid"`       // 邀请人用户id
-		OperateUid     string `db:"operate_uid"`      // 操作人用户id
-		OperateAt      int64  `db:"operate_at"`       // 操作时间
-		OperateStateEm int64  `db:"operate_state_em"` // 处理结果
-		OperateMsg     string `db:"operate_msg"`
-		Remark         string `db:"remark"`    // 备注
-		PlatId         string `db:"plat_id"`   // 应用id
-		CreateAt       int64  `db:"create_at"` // 创建时间戳
-		UpdateAt       int64  `db:"update_at"` // 更新时间戳
-		DeleteAt       int64  `db:"delete_at"` // 删除时间戳
+		Id             string `db:"id" json:"id"`
+		GroupId        string `db:"group_id" json:"groupId"`                // 群组id
+		UserId         string `db:"user_id" json:"userId"`                  // 用户id
+		ApplyMsg       string `db:"apply_msg" json:"applyMsg"`              // 申请内容
+		ApplyAt        int64  `db:"apply_at" json:"applyAt"`                // 申请时间
+		JoinSourceEm   int64  `db:"join_source_em" json:"joinSourceEm"`     // 加入方式
+		InviteUid      string `db:"invite_uid" json:"inviteUid"`            // 邀请人用户id
+		OperateUid     string `db:"operate_uid" json:"operateUid"`          // 操作人用户id
+		OperateAt      int64  `db:"operate_at" json:"operateAt"`            // 操作时间
+		OperateStateEm int64  `db:"operate_state_em" json:"operateStateEm"` // 处理结果
+		OperateMsg     string `db:"operate_msg" json:"operateMsg"`
+		Remark         string `db:"remark" json:"remark"`      // 备注
+		PlatId         string `db:"plat_id" json:"platId"`     // 应用id
+		CreateAt       int64  `db:"create_at" json:"createAt"` // 创建时间戳
+		UpdateAt       int64  `db:"update_at" json:"updateAt"` // 更新时间戳
+		DeleteAt       int64  `db:"delete_at" json:"deleteAt"` // 删除时间戳
 	}
 )
 
@@ -202,11 +202,6 @@ func (m *defaultSocialGroupMemberApplyModel) Reinit() *defaultSocialGroupMemberA
 }
 func (m *defaultSocialGroupMemberApplyModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultSocialGroupMemberApplyModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultSocialGroupMemberApplyModel) Find() (*SocialGroupMemberApply, error) {

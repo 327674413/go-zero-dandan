@@ -88,16 +88,16 @@ type (
 	}
 
 	MessageSmsSend struct {
-		Id       string `db:"id"`
-		Phone    string `db:"phone"`     // 发送手机号
-		Content  string `db:"content"`   // 发送手机号
-		StateEm  int64  `db:"state_em"`  // 发送状态枚举
-		Err      string `db:"err"`       // 发送错误时的错误信息
-		TempId   string `db:"temp_id"`   // 模版id
-		PlatId   string `db:"plat_id"`   // 应用id
-		CreateAt int64  `db:"create_at"` // 创建时间戳
-		UpdateAt int64  `db:"update_at"` // 更新时间戳
-		DeleteAt int64  `db:"delete_at"` // 删除时间戳
+		Id       string `db:"id" json:"id"`
+		Phone    string `db:"phone" json:"phone"`        // 发送手机号
+		Content  string `db:"content" json:"content"`    // 发送手机号
+		StateEm  int64  `db:"state_em" json:"stateEm"`   // 发送状态枚举
+		Err      string `db:"err" json:"err"`            // 发送错误时的错误信息
+		TempId   string `db:"temp_id" json:"tempId"`     // 模版id
+		PlatId   string `db:"plat_id" json:"platId"`     // 应用id
+		CreateAt int64  `db:"create_at" json:"createAt"` // 创建时间戳
+		UpdateAt int64  `db:"update_at" json:"updateAt"` // 更新时间戳
+		DeleteAt int64  `db:"delete_at" json:"deleteAt"` // 删除时间戳
 	}
 )
 
@@ -190,11 +190,6 @@ func (m *defaultMessageSmsSendModel) Reinit() *defaultMessageSmsSendModel {
 }
 func (m *defaultMessageSmsSendModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultMessageSmsSendModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultMessageSmsSendModel) Find() (*MessageSmsSend, error) {

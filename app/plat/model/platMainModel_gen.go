@@ -16,6 +16,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stringx"
 )
 
+var ErrNotFound = sqlx.ErrNotFound
 var (
 	platMainFieldNames          = builder.RawFieldNames(&PlatMain{})
 	platMainRows                = strings.Join(platMainFieldNames, ",")
@@ -41,13 +42,14 @@ const (
 
 type (
 	platMainModel interface {
-		Insert(data *PlatMain) (effectRow int64, err error)
-		TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, err error)
-		Update(data map[dao.TableField]any) (effectRow int64, err error)
-		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, err error)
-		Save(data *PlatMain) (effectRow int64, err error)
-		TxSave(tx *sql.Tx, data *PlatMain) (effectRow int64, err error)
-		Delete(ctx context.Context, id string) error
+		Delete(id ...string) (effectRow int64, danErr error)
+		TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error)
+		Insert(data *PlatMain) (effectRow int64, danErr error)
+		TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, danErr error)
+		Update(data map[dao.TableField]any) (effectRow int64, danErr error)
+		TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64, danErr error)
+		Save(data *PlatMain) (effectRow int64, danErr error)
+		TxSave(tx *sql.Tx, data *PlatMain) (effectRow int64, danErr error)
 		Field(field string) *defaultPlatMainModel
 		Except(fields ...string) *defaultPlatMainModel
 		Alias(alias string) *defaultPlatMainModel
@@ -57,17 +59,17 @@ type (
 		Limit(num int64) *defaultPlatMainModel
 		Plat(id string) *defaultPlatMainModel
 		Find() (*PlatMain, error)
-		FindById(id string) (*PlatMain, error)
-		CacheFind(redis *redisd.Redisd) (*PlatMain, error)
-		CacheFindById(redis *redisd.Redisd, id string) (*PlatMain, error)
+		FindById(id string) (data *PlatMain, danErr error)
+		CacheFind(redis *redisd.Redisd) (data *PlatMain, danErr error)
+		CacheFindById(redis *redisd.Redisd, id string) (data *PlatMain, danErr error)
 		Page(page int64, rows int64) *defaultPlatMainModel
-		Total() (total int64, err error)
-		Select() ([]*PlatMain, error)
-		SelectWithTotal() ([]*PlatMain, int64, error)
-		CacheSelect(redis *redisd.Redisd) ([]*PlatMain, error)
-		Count() (int64, error)
-		Inc(field string, num int) (int64, error)
-		Dec(field string, num int) (int64, error)
+		Total() (total int64, danErr error)
+		Select() (dataList []*PlatMain, danErr error)
+		SelectWithTotal() (dataList []*PlatMain, total int64, danErr error)
+		CacheSelect(redis *redisd.Redisd) (dataList []*PlatMain, danErr error)
+		Count() (total int64, danErr error)
+		Inc(field string, num int) (effectRow int64, danErr error)
+		Dec(field string, num int) (effectRow int64, danErr error)
 		Ctx(ctx context.Context) *defaultPlatMainModel
 		Reinit() *defaultPlatMainModel
 		Dao() *dao.SqlxDao
@@ -195,12 +197,6 @@ func (m *defaultPlatMainModel) Reinit() *defaultPlatMainModel {
 func (m *defaultPlatMainModel) Dao() *dao.SqlxDao {
 	return m.dao
 }
-func (m *defaultPlatMainModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
-}
-
 func (m *defaultPlatMainModel) Find() (*PlatMain, error) {
 	resp := &PlatMain{}
 	err := m.dao.Find(resp)
@@ -239,7 +235,7 @@ func (m *defaultPlatMainModel) CacheFindById(redis *redisd.Redisd, id string) (*
 	}
 	return resp, nil
 }
-func (m *defaultPlatMainModel) Total() (total int64, err error) {
+func (m *defaultPlatMainModel) Total() (total int64, danErr error) {
 	return m.dao.Total()
 }
 func (m *defaultPlatMainModel) Select() ([]*PlatMain, error) {
@@ -272,22 +268,26 @@ func (m *defaultPlatMainModel) Page(page int64, size int64) *defaultPlatMainMode
 	m.dao.Page(page, size)
 	return m
 }
-
-func (m *defaultPlatMainModel) Insert(data *PlatMain) (effectRow int64, err error) {
+func (m *defaultPlatMainModel) Insert(data *PlatMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.Insert(insertData)
 }
-func (m *defaultPlatMainModel) TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, err error) {
+func (m *defaultPlatMainModel) TxInsert(tx *sql.Tx, data *PlatMain) (effectRow int64, danErr error) {
 	insertData, err := dao.PrepareData(data)
 	if err != nil {
 		return 0, err
 	}
 	return m.dao.TxInsert(tx, insertData)
 }
-
+func (m *defaultPlatMainModel) Delete(id ...string) (effectRow int64, danErr error) {
+	return m.dao.Delete(id...)
+}
+func (m *defaultPlatMainModel) TxDelete(tx *sql.Tx, id ...string) (effectRow int64, danErr error) {
+	return m.dao.TxDelete(tx, id...)
+}
 func (m *defaultPlatMainModel) Update(data map[dao.TableField]any) (effectRow int64, err error) {
 	return m.dao.Update(data)
 }
@@ -308,7 +308,6 @@ func (m *defaultPlatMainModel) TxSave(tx *sql.Tx, data *PlatMain) (effectRow int
 	}
 	return m.dao.Save(saveData)
 }
-
 func (m *defaultPlatMainModel) tableName() string {
 	return m.table
 }

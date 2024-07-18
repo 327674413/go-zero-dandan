@@ -535,7 +535,7 @@ func (t *SqlxDao) prepareInsert(data map[string]any) (string, []any, error) {
 }
 
 // Delete 优先根据传入的id删除，若未传则where条件必有
-func (t *SqlxDao) Delete(id ...int64) (int64, error) {
+func (t *SqlxDao) Delete(id ...string) (int64, error) {
 	defer t.Reinit()
 	query := fmt.Sprintf("delete from %s where `id` = ?", t.table)
 	var sqlRes sql.Result
@@ -554,7 +554,7 @@ func (t *SqlxDao) Delete(id ...int64) (int64, error) {
 }
 
 // TxDelete 事务Delete
-func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...int64) (int64, error) {
+func (t *SqlxDao) TxDelete(tx *sql.Tx, id ...string) (int64, error) {
 	defer t.Reinit()
 	query := fmt.Sprintf("delete from %s where `id` = ?", t.table)
 	var sqlRes sql.Result

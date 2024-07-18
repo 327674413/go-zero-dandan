@@ -184,26 +184,27 @@ func (g *defaultGenerator) createFile(modelList map[string]*codeTuple) error {
 			return err
 		}
 	}
-
+	// ------danEditStart------
+	//目前var这个文件和err.tpl没啥用，文件太多麻烦，跟着model走的合并到gen里，通用的自己手工建
 	// generate error file
-	varFilename, err := format.FileNamingFormat(g.cfg.NamingFormat, "vars")
-	if err != nil {
-		return err
-	}
+	//varFilename, err := format.FileNamingFormat(g.cfg.NamingFormat, "vars")
+	//if err != nil {
+	//	return err
+	//}
 
-	filename := filepath.Join(dirAbs, varFilename+".go")
-	text, err := pathx.LoadTemplate(category, errTemplateFile, template.Error)
-	if err != nil {
-		return err
-	}
+	//filename := filepath.Join(dirAbs, varFilename+".go")
+	//text, err := pathx.LoadTemplate(category, errTemplateFile, template.Error)
+	//if err != nil {
+	//	return err
+	//}
 
-	err = util.With("vars").Parse(text).SaveTo(map[string]any{
-		"pkg": g.pkg,
-	}, filename, false)
-	if err != nil {
-		return err
-	}
-
+	//err = util.With("vars").Parse(text).SaveTo(map[string]any{
+	//	"pkg": g.pkg,
+	//}, filename, false)
+	//if err != nil {
+	//	return err
+	//}
+	// ------danEditEnd------
 	g.Success("Done.")
 	return nil
 }

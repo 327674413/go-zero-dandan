@@ -95,23 +95,23 @@ type (
 	}
 
 	UserMain struct {
-		Id        string `db:"id"`
-		UnionId   string `db:"union_id"`   // 平台层用户唯一表示
-		StateEm   int64  `db:"state_em"`   // 用户状态枚举
-		Account   string `db:"account"`    // 登录账号
-		Password  string `db:"password"`   // 登录密码
-		Code      string `db:"code"`       // 用户编号
-		Nickname  string `db:"nickname"`   // 昵称
-		Phone     string `db:"phone"`      // 手机号(已验证)
-		PhoneArea string `db:"phone_area"` // 手机区号
-		Email     string `db:"email"`      // 邮箱地址
-		AvatarImg string `db:"avatar_img"` // 头像
-		Signature string `db:"signature"`  // 个性签名
-		SexEm     int64  `db:"sex_em"`     // 性别枚举
-		PlatId    string `db:"plat_id"`    // 应用id
-		CreateAt  int64  `db:"create_at"`  // 创建时间戳
-		UpdateAt  int64  `db:"update_at"`  // 更新时间戳
-		DeleteAt  int64  `db:"delete_at"`  // 删除时间戳
+		Id        string `db:"id" json:"id"`
+		UnionId   string `db:"union_id" json:"unionId"`     // 平台层用户唯一表示
+		StateEm   int64  `db:"state_em" json:"stateEm"`     // 用户状态枚举
+		Account   string `db:"account" json:"account"`      // 登录账号
+		Password  string `db:"password" json:"password"`    // 登录密码
+		Code      string `db:"code" json:"code"`            // 用户编号
+		Nickname  string `db:"nickname" json:"nickname"`    // 昵称
+		Phone     string `db:"phone" json:"phone"`          // 手机号(已验证)
+		PhoneArea string `db:"phone_area" json:"phoneArea"` // 手机区号
+		Email     string `db:"email" json:"email"`          // 邮箱地址
+		AvatarImg string `db:"avatar_img" json:"avatarImg"` // 头像
+		Signature string `db:"signature" json:"signature"`  // 个性签名
+		SexEm     int64  `db:"sex_em" json:"sexEm"`         // 性别枚举
+		PlatId    string `db:"plat_id" json:"platId"`       // 应用id
+		CreateAt  int64  `db:"create_at" json:"createAt"`   // 创建时间戳
+		UpdateAt  int64  `db:"update_at" json:"updateAt"`   // 更新时间戳
+		DeleteAt  int64  `db:"delete_at" json:"deleteAt"`   // 删除时间戳
 	}
 )
 
@@ -204,11 +204,6 @@ func (m *defaultUserMainModel) Reinit() *defaultUserMainModel {
 }
 func (m *defaultUserMainModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultUserMainModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultUserMainModel) Find() (*UserMain, error) {

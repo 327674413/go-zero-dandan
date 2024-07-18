@@ -82,10 +82,10 @@ type (
 	}
 
 	UserUnion struct {
-		Id       string `db:"id"`
-		CreateAt int64  `db:"create_at"` // 创建时间戳
-		UpdateAt int64  `db:"update_at"` // 更新时间戳
-		DeleteAt int64  `db:"delete_at"` // 删除时间戳
+		Id       string `db:"id" json:"id"`
+		CreateAt int64  `db:"create_at" json:"createAt"` // 创建时间戳
+		UpdateAt int64  `db:"update_at" json:"updateAt"` // 更新时间戳
+		DeleteAt int64  `db:"delete_at" json:"deleteAt"` // 删除时间戳
 	}
 )
 
@@ -178,11 +178,6 @@ func (m *defaultUserUnionModel) Reinit() *defaultUserUnionModel {
 }
 func (m *defaultUserUnionModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultUserUnionModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultUserUnionModel) Find() (*UserUnion, error) {

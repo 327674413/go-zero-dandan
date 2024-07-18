@@ -94,22 +94,22 @@ type (
 	}
 
 	GoodsMain struct {
-		Id        string `db:"id"`
-		Code      string `db:"code"`       // 商品编号
-		Name      string `db:"name"`       // 商品名称
-		Spec      string `db:"spec"`       // 商品规格
-		Cover     string `db:"cover"`      // 商品封面
-		SellPrice int64  `db:"sell_price"` // 商品售价
-		StoreQty  int64  `db:"store_qty"`  // 当前库存
-		State     int64  `db:"state"`      // 0未上架，1上架
-		IsSpecial int64  `db:"is_special"` // 是否活动专用的特殊商品
-		UnitId    string `db:"unit_id"`    // 单位
-		UnitName  string `db:"unit_name"`  // 单位名称
-		ViewNum   int64  `db:"view_num"`   // 浏览数量
-		PlatId    string `db:"plat_id"`
-		CreateAt  int64  `db:"create_at"`
-		EditAt    int64  `db:"edit_at"`
-		DeleteAt  int64  `db:"delete_at"`
+		Id        string `db:"id" json:"id"`
+		Code      string `db:"code" json:"code"`            // 商品编号
+		Name      string `db:"name" json:"name"`            // 商品名称
+		Spec      string `db:"spec" json:"spec"`            // 商品规格
+		Cover     string `db:"cover" json:"cover"`          // 商品封面
+		SellPrice int64  `db:"sell_price" json:"sellPrice"` // 商品售价
+		StoreQty  int64  `db:"store_qty" json:"storeQty"`   // 当前库存
+		State     int64  `db:"state" json:"state"`          // 0未上架，1上架
+		IsSpecial int64  `db:"is_special" json:"isSpecial"` // 是否活动专用的特殊商品
+		UnitId    string `db:"unit_id" json:"unitId"`       // 单位
+		UnitName  string `db:"unit_name" json:"unitName"`   // 单位名称
+		ViewNum   int64  `db:"view_num" json:"viewNum"`     // 浏览数量
+		PlatId    string `db:"plat_id" json:"platId"`
+		CreateAt  int64  `db:"create_at" json:"createAt"`
+		EditAt    int64  `db:"edit_at" json:"editAt"`
+		DeleteAt  int64  `db:"delete_at" json:"deleteAt"`
 	}
 )
 
@@ -202,11 +202,6 @@ func (m *defaultGoodsMainModel) Reinit() *defaultGoodsMainModel {
 }
 func (m *defaultGoodsMainModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultGoodsMainModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultGoodsMainModel) Find() (*GoodsMain, error) {

@@ -84,12 +84,12 @@ type (
 	}
 
 	MessageSysConfig struct {
-		Id              string `db:"id"`
-		SmsLimitHourNum int64  `db:"sms_limit_hour_num"` // 最近一小时内获取上限,0则不管控
-		SmsLimitDayNum  int64  `db:"sms_limit_day_num"`  // 每日获取上限,0则不管控
-		CreateAt        int64  `db:"create_at"`          // 创建时间戳
-		UpdateAt        int64  `db:"update_at"`          // 更新时间戳
-		DeleteAt        int64  `db:"delete_at"`          // 删除时间戳
+		Id              string `db:"id" json:"id"`
+		SmsLimitHourNum int64  `db:"sms_limit_hour_num" json:"smsLimitHourNum"` // 最近一小时内获取上限,0则不管控
+		SmsLimitDayNum  int64  `db:"sms_limit_day_num" json:"smsLimitDayNum"`   // 每日获取上限,0则不管控
+		CreateAt        int64  `db:"create_at" json:"createAt"`                 // 创建时间戳
+		UpdateAt        int64  `db:"update_at" json:"updateAt"`                 // 更新时间戳
+		DeleteAt        int64  `db:"delete_at" json:"deleteAt"`                 // 删除时间戳
 	}
 )
 
@@ -182,11 +182,6 @@ func (m *defaultMessageSysConfigModel) Reinit() *defaultMessageSysConfigModel {
 }
 func (m *defaultMessageSysConfigModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultMessageSysConfigModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultMessageSysConfigModel) Find() (*MessageSysConfig, error) {

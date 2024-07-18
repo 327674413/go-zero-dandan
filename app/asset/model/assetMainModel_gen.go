@@ -93,21 +93,21 @@ type (
 	}
 
 	AssetMain struct {
-		Id       string `db:"id"`
-		StateEm  int64  `db:"state_em"`  // 文件状态
-		Sha1     string `db:"sha1"`      // 哈希值
-		Name     string `db:"name"`      // 上传时的原始名称
-		ModeEm   int64  `db:"mode_em"`   // 存储模式枚举
-		Mime     string `db:"mime"`      // 文件类型
-		SizeNum  int64  `db:"size_num"`  // 文件字节
-		SizeText string `db:"size_text"` // 文件大小
-		Ext      string `db:"ext"`       // 文件后缀
-		Url      string `db:"url"`       // 文件链接
-		Path     string `db:"path"`      // 存储路径
-		PlatId   string `db:"plat_id"`   // 应用id
-		CreateAt int64  `db:"create_at"` // 创建时间戳
-		UpdateAt int64  `db:"update_at"` // 更新时间戳
-		DeleteAt int64  `db:"delete_at"` // 删除时间戳
+		Id       string `db:"id" json:"id"`
+		StateEm  int64  `db:"state_em" json:"stateEm"`   // 文件状态
+		Sha1     string `db:"sha1" json:"sha1"`          // 哈希值
+		Name     string `db:"name" json:"name"`          // 上传时的原始名称
+		ModeEm   int64  `db:"mode_em" json:"modeEm"`     // 存储模式枚举
+		Mime     string `db:"mime" json:"mime"`          // 文件类型
+		SizeNum  int64  `db:"size_num" json:"sizeNum"`   // 文件字节
+		SizeText string `db:"size_text" json:"sizeText"` // 文件大小
+		Ext      string `db:"ext" json:"ext"`            // 文件后缀
+		Url      string `db:"url" json:"url"`            // 文件链接
+		Path     string `db:"path" json:"path"`          // 存储路径
+		PlatId   string `db:"plat_id" json:"platId"`     // 应用id
+		CreateAt int64  `db:"create_at" json:"createAt"` // 创建时间戳
+		UpdateAt int64  `db:"update_at" json:"updateAt"` // 更新时间戳
+		DeleteAt int64  `db:"delete_at" json:"deleteAt"` // 删除时间戳
 	}
 )
 
@@ -200,11 +200,6 @@ func (m *defaultAssetMainModel) Reinit() *defaultAssetMainModel {
 }
 func (m *defaultAssetMainModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultAssetMainModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultAssetMainModel) Find() (*AssetMain, error) {

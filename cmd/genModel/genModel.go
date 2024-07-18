@@ -60,7 +60,6 @@ func main() {
 	} else {
 		goctlPrefix = "goctl"
 	}
-
 	for _, cmd := range commands {
 		for _, table := range cmd.Tables {
 			if *singleTb != "" && *singleTb != table {

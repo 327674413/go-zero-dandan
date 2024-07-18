@@ -86,14 +86,14 @@ type (
 	}
 
 	UserInfo struct {
-		Id           string    `db:"id"`
-		BirthDate    time.Time `db:"birth_date"`    // 出生日期
-		GraduateFrom string    `db:"graduate_from"` // 毕业学校
-		PlatId       string    `db:"plat_id"`       // 应用id
-		UserId       string    `db:"user_id"`
-		CreateAt     int64     `db:"create_at"` // 创建时间戳
-		UpdateAt     int64     `db:"update_at"` // 更新时间戳
-		DeleteAt     int64     `db:"delete_at"` // 删除时间戳
+		Id           string    `db:"id" json:"id"`
+		BirthDate    time.Time `db:"birth_date" json:"birthDate"`       // 出生日期
+		GraduateFrom string    `db:"graduate_from" json:"graduateFrom"` // 毕业学校
+		PlatId       string    `db:"plat_id" json:"platId"`             // 应用id
+		UserId       string    `db:"user_id" json:"userId"`
+		CreateAt     int64     `db:"create_at" json:"createAt"` // 创建时间戳
+		UpdateAt     int64     `db:"update_at" json:"updateAt"` // 更新时间戳
+		DeleteAt     int64     `db:"delete_at" json:"deleteAt"` // 删除时间戳
 	}
 )
 
@@ -186,11 +186,6 @@ func (m *defaultUserInfoModel) Reinit() *defaultUserInfoModel {
 }
 func (m *defaultUserInfoModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultUserInfoModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultUserInfoModel) Find() (*UserInfo, error) {

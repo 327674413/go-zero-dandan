@@ -95,23 +95,23 @@ type (
 	}
 
 	SocialFriendApply struct {
-		Id           string         `db:"id"`
-		UserId       string         `db:"user_id"`        // 发起人id
-		FriendUid    string         `db:"friend_uid"`     // 对方id
-		ApplyLastMsg string         `db:"apply_last_msg"` // 最后一次申请验证信息
-		ApplyStartAt int64          `db:"apply_start_at"` // 申请开始时间戳，用于过滤通过之前的历史申请
-		ApplyLastAt  int64          `db:"apply_last_at"`  // 最后一次申请时间，用来好申请列表排序用
-		OperateMsg   string         `db:"operate_msg"`    // 处理时填写的内容
-		OperateAt    int64          `db:"operate_at"`     // 处理时间戳
-		StateEm      int64          `db:"state_em"`       // 申请状态
-		Remark       string         `db:"remark"`         // 备注
-		IsRead       int64          `db:"is_read"`        // friend_uid被申请人是否已读
-		SourceEm     int64          `db:"source_em"`      // 来源枚举
-		PlatId       string         `db:"plat_id"`        // 应用id
-		Content      sql.NullString `db:"content"`        // 添加沟通记录
-		CreateAt     int64          `db:"create_at"`      // 创建时间戳
-		UpdateAt     int64          `db:"update_at"`      // 更新时间戳
-		DeleteAt     int64          `db:"delete_at"`      // 删除时间戳
+		Id           string         `db:"id" json:"id"`
+		UserId       string         `db:"user_id" json:"userId"`              // 发起人id
+		FriendUid    string         `db:"friend_uid" json:"friendUid"`        // 对方id
+		ApplyLastMsg string         `db:"apply_last_msg" json:"applyLastMsg"` // 最后一次申请验证信息
+		ApplyStartAt int64          `db:"apply_start_at" json:"applyStartAt"` // 申请开始时间戳，用于过滤通过之前的历史申请
+		ApplyLastAt  int64          `db:"apply_last_at" json:"applyLastAt"`   // 最后一次申请时间，用来好申请列表排序用
+		OperateMsg   string         `db:"operate_msg" json:"operateMsg"`      // 处理时填写的内容
+		OperateAt    int64          `db:"operate_at" json:"operateAt"`        // 处理时间戳
+		StateEm      int64          `db:"state_em" json:"stateEm"`            // 申请状态
+		Remark       string         `db:"remark" json:"remark"`               // 备注
+		IsRead       int64          `db:"is_read" json:"isRead"`              // friend_uid被申请人是否已读
+		SourceEm     int64          `db:"source_em" json:"sourceEm"`          // 来源枚举
+		PlatId       string         `db:"plat_id" json:"platId"`              // 应用id
+		Content      sql.NullString `db:"content" json:"content"`             // 添加沟通记录
+		CreateAt     int64          `db:"create_at" json:"createAt"`          // 创建时间戳
+		UpdateAt     int64          `db:"update_at" json:"updateAt"`          // 更新时间戳
+		DeleteAt     int64          `db:"delete_at" json:"deleteAt"`          // 删除时间戳
 	}
 )
 
@@ -204,11 +204,6 @@ func (m *defaultSocialFriendApplyModel) Reinit() *defaultSocialFriendApplyModel 
 }
 func (m *defaultSocialFriendApplyModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultSocialFriendApplyModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultSocialFriendApplyModel) Find() (*SocialFriendApply, error) {

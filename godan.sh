@@ -69,6 +69,7 @@ case $1 in
         go run .
         ;;
     model)
+        # godan model user 有第3个参数的话，会只生成改表model，不带则全部甚称，在genModel下写的定义
         cd $PROJECT_PATH/cmd/genModel/
         if [ "$2" != "" ]; then
             go run ./ -tb="$2" -dev

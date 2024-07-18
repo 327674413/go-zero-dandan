@@ -90,18 +90,18 @@ type (
 	}
 
 	MessageSmsTemp struct {
-		Id          string `db:"id"`
-		Name        string `db:"name"`
-		SecretId    string `db:"secret_id"`     // SecretId
-		SecretKey   string `db:"secret_key"`    // SecretKey
-		Region      string `db:"region"`        // region
-		SmsSdkAppid string `db:"sms_sdk_appid"` // SmsSdkAppId
-		SignName    string `db:"sign_name"`     // SignName
-		TemplateId  string `db:"template_id"`   // TemplateId
-		PlatId      string `db:"plat_id"`       // 应用id
-		CreateAt    int64  `db:"create_at"`     // 创建时间戳
-		UpdateAt    int64  `db:"update_at"`     // 更新时间戳
-		DeleteAt    int64  `db:"delete_at"`     // 删除时间戳
+		Id          string `db:"id" json:"id"`
+		Name        string `db:"name" json:"name"`
+		SecretId    string `db:"secret_id" json:"secretId"`        // SecretId
+		SecretKey   string `db:"secret_key" json:"secretKey"`      // SecretKey
+		Region      string `db:"region" json:"region"`             // region
+		SmsSdkAppid string `db:"sms_sdk_appid" json:"smsSdkAppid"` // SmsSdkAppId
+		SignName    string `db:"sign_name" json:"signName"`        // SignName
+		TemplateId  string `db:"template_id" json:"templateId"`    // TemplateId
+		PlatId      string `db:"plat_id" json:"platId"`            // 应用id
+		CreateAt    int64  `db:"create_at" json:"createAt"`        // 创建时间戳
+		UpdateAt    int64  `db:"update_at" json:"updateAt"`        // 更新时间戳
+		DeleteAt    int64  `db:"delete_at" json:"deleteAt"`        // 删除时间戳
 	}
 )
 
@@ -194,11 +194,6 @@ func (m *defaultMessageSmsTempModel) Reinit() *defaultMessageSmsTempModel {
 }
 func (m *defaultMessageSmsTempModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultMessageSmsTempModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultMessageSmsTempModel) Find() (*MessageSmsTemp, error) {

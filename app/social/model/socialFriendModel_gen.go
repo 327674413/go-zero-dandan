@@ -91,19 +91,19 @@ type (
 	}
 
 	SocialFriend struct {
-		Id          string `db:"id"`
-		UserId      string `db:"user_id"`      // 归属用户id
-		FriendUid   string `db:"friend_uid"`   // 好友用户id
-		FriendName  string `db:"friend_name"`  // 冗余好友名称
-		FriendAlias string `db:"friend_alias"` // 好友别名备注
-		FriendIcon  string `db:"friend_icon"`  // 冗余好友头像
-		SourceEm    int64  `db:"source_em"`    // 添加来源枚举
-		StateEm     int64  `db:"state_em"`     // 好友状态
-		Remark      string `db:"remark"`       // 备注
-		PlatId      string `db:"plat_id"`      // 应用id
-		CreateAt    int64  `db:"create_at"`    // 创建时间戳
-		UpdateAt    int64  `db:"update_at"`    // 更新时间戳
-		DeleteAt    int64  `db:"delete_at"`    // 删除时间戳
+		Id          string `db:"id" json:"id"`
+		UserId      string `db:"user_id" json:"userId"`           // 归属用户id
+		FriendUid   string `db:"friend_uid" json:"friendUid"`     // 好友用户id
+		FriendName  string `db:"friend_name" json:"friendName"`   // 冗余好友名称
+		FriendAlias string `db:"friend_alias" json:"friendAlias"` // 好友别名备注
+		FriendIcon  string `db:"friend_icon" json:"friendIcon"`   // 冗余好友头像
+		SourceEm    int64  `db:"source_em" json:"sourceEm"`       // 添加来源枚举
+		StateEm     int64  `db:"state_em" json:"stateEm"`         // 好友状态
+		Remark      string `db:"remark" json:"remark"`            // 备注
+		PlatId      string `db:"plat_id" json:"platId"`           // 应用id
+		CreateAt    int64  `db:"create_at" json:"createAt"`       // 创建时间戳
+		UpdateAt    int64  `db:"update_at" json:"updateAt"`       // 更新时间戳
+		DeleteAt    int64  `db:"delete_at" json:"deleteAt"`       // 删除时间戳
 	}
 )
 
@@ -196,11 +196,6 @@ func (m *defaultSocialFriendModel) Reinit() *defaultSocialFriendModel {
 }
 func (m *defaultSocialFriendModel) Dao() *dao.SqlxDao {
 	return m.dao
-}
-func (m *defaultSocialFriendModel) Delete(ctx context.Context, id string) error {
-	query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
-	_, err := m.conn.ExecCtx(ctx, query, id)
-	return err
 }
 
 func (m *defaultSocialFriendModel) Find() (*SocialFriend, error) {

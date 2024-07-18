@@ -89,3 +89,122 @@ func (m *default{{.upperStartCamelObject}}Model) Reinit() *default{{.upperStartC
 func (m *default{{.upperStartCamelObject}}Model) Dao() *dao.SqlxDao {
 	return m.dao
 }
+func (m *default{{.upperStartCamelObject}}Model) Find() (*{{.upperStartCamelObject}}, error) {
+	resp := &{{.upperStartCamelObject}}{}
+	err := m.dao.Find(resp)
+    if err != nil {
+        if err == sqlx.ErrNotFound {
+            return nil,nil
+        }
+        return nil, err
+    }
+    return resp, nil
+}
+func (m *default{{.upperStartCamelObject}}Model) FindById(id string) (*{{.upperStartCamelObject}}, error) {
+	resp := &{{.upperStartCamelObject}}{}
+	err := m.dao.FindById(resp,id)
+	if err != nil {
+        if err == sqlx.ErrNotFound {
+            return nil,nil
+        }
+        return nil, err
+    }
+    return resp, nil
+}
+func (m *default{{.upperStartCamelObject}}Model) CacheFind( redis *redisd.Redisd) (*{{.upperStartCamelObject}}, error) {
+	resp := &{{.upperStartCamelObject}}{}
+    err := m.dao.CacheFind(redis, resp)
+    if err != nil {
+        return nil, err
+    }
+    return resp, nil
+}
+func (m *default{{.upperStartCamelObject}}Model) CacheFindById( redis *redisd.Redisd, id string) (*{{.upperStartCamelObject}}, error) {
+	resp := &{{.upperStartCamelObject}}{}
+    err := m.dao.CacheFindById(redis, resp, id)
+    if err != nil {
+        return nil, err
+    }
+    return resp, nil
+}
+func (m *default{{.upperStartCamelObject}}Model) Total() (total int64,danErr error) {
+	return m.dao.Total()
+}
+func (m *default{{.upperStartCamelObject}}Model) Select() ([]*{{.upperStartCamelObject}},error) {
+	resp := make([]*{{.upperStartCamelObject}},0)
+	err := m.dao.Select(&resp)
+    if err != nil {
+        return nil, err
+    }
+    return resp, nil
+}
+func (m *default{{.upperStartCamelObject}}Model) SelectWithTotal() ([]*{{.upperStartCamelObject}},int64,error) {
+	resp := make([]*{{.upperStartCamelObject}},0)
+	var total int64
+	err := m.dao.Select(&resp,&total)
+    if err != nil {
+        return nil,0, err
+    }
+    return resp, total,nil
+}
+func (m *default{{.upperStartCamelObject}}Model) CacheSelect(redis *redisd.Redisd) ([]*{{.upperStartCamelObject}},error) {
+	resp := make([]*{{.upperStartCamelObject}},0)
+	err := m.dao.CacheSelect(redis,&resp)
+    if err != nil {
+        return nil, err
+    }
+    return resp, nil
+}
+
+func (m *default{{.upperStartCamelObject}}Model) Page(page int64, size int64) *default{{.upperStartCamelObject}}Model {
+    m.dao.Page(page,size)
+    return m
+}
+func (m *default{{.upperStartCamelObject}}Model) Insert(data *{{.upperStartCamelObject}}) (effectRow int64, danErr error) {
+    insertData,err := dao.PrepareData(data)
+    if err != nil{
+        return 0,err
+    }
+    return m.dao.Insert(insertData)
+}
+func (m *default{{.upperStartCamelObject}}Model) TxInsert(tx *sql.Tx, data *{{.upperStartCamelObject}}) (effectRow int64,danErr error) {
+    insertData,err := dao.PrepareData(data)
+    if err != nil{
+        return 0,err
+    }
+    return m.dao.TxInsert(tx, insertData)
+}
+func (m *default{{.upperStartCamelObject}}Model) Delete(id ...string) (effectRow int64,danErr error) {
+    return m.dao.Delete(id...)
+}
+func (m *default{{.upperStartCamelObject}}Model) TxDelete(tx *sql.Tx,id ...string) (effectRow int64,danErr error) {
+    return m.dao.TxDelete(tx,id...)
+}
+func (m *default{{.upperStartCamelObject}}Model) Update(data map[dao.TableField]any) (effectRow int64,err error) {
+    return m.dao.Update(data)
+}
+func (m *default{{.upperStartCamelObject}}Model) TxUpdate(tx *sql.Tx, data map[dao.TableField]any) (effectRow int64,err error) {
+    return m.dao.TxUpdate(tx, data)
+}
+func (m *default{{.upperStartCamelObject}}Model) Save(data *{{.upperStartCamelObject}}) (effectRow int64,err error) {
+    saveData,err := dao.PrepareData(data)
+    if err != nil{
+        return 0,err
+    }
+   return m.dao.Save(saveData)
+}
+func (m *default{{.upperStartCamelObject}}Model) TxSave(tx *sql.Tx,data *{{.upperStartCamelObject}}) (effectRow int64,err error) {
+    saveData,err := dao.PrepareData(data)
+    if err != nil{
+        return 0,err
+    }
+   return m.dao.Save(saveData)
+}
+func (m *default{{.upperStartCamelObject}}Model) tableName() string {
+	return m.table
+}
+// forGoctl 避免有的model没有time.Time类型时，goctl生成模版会因引入未使用的包而报错
+func (m *default{{.upperStartCamelObject}}Model) forGoctl() {
+	t := time.Time{}
+	fmt.Println(t)
+}

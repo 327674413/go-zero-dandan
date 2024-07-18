@@ -35,7 +35,8 @@ func genTypes(table Table, methods string, withCache bool) (string, error) {
 			"fields":                fieldsString,
 			"data":                  table,
 			// ------danEditStart------
-			"constDatabaseFields": constDatabaseFields,
+			"lowerStartCamelPrimaryKey": util.EscapeGolangKeyword(stringx.From(table.PrimaryKey.Name.ToCamel()).Untitle()),
+			"constDatabaseFields":       constDatabaseFields,
 			// ------danEditEnd------
 		})
 	if err != nil {
