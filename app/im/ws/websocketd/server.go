@@ -187,6 +187,10 @@ func (t *Server) handlerConn(conn *Conn) {
 			t.Close(conn)
 			return
 		}
+		if message.FrameType == FramePing {
+			//如果是ping消息，放置客户端被断开用，可不回复
+			continue
+		}
 		//根据消息机制进行处理
 		if t.isAck(message) {
 			t.Infof("ACK机制的消息来了 %v", message)
@@ -199,6 +203,7 @@ func (t *Server) handlerConn(conn *Conn) {
 
 	}
 }
+
 func (t *Server) isAck(message *Message) bool {
 	if message == nil {
 		return t.opt.ack != AckTypeNoAck

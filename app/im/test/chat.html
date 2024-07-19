@@ -123,7 +123,7 @@
     </div>
     <el-dialog title="添加好友"  :close-on-click-modal="false" :visible.sync="showAddFriendDialog" width="500">
         <div class="fl friend-add-dialog-search">
-            <el-input size="mini" prefix-icon="el-icon-search" clearable @keyup.enter.native="tapFriendAddSearch" placeholder="搜索好友" v-model="searchFriendVal" style="margin-right:10px;"></el-input>
+            <el-input size="mini" prefix-icon="el-icon-search" ref="searchNewFriendVal" clearable @keyup.enter.native="tapFriendAddSearch" placeholder="搜索好友" v-model="searchNewFriendVal" style="margin-right:10px;"></el-input>
             <el-button size="mini"  type="primary" class="conv-search-add" @click="tapFriendAddSearch">搜索</el-button>
         </div>
         <div class="friend-add-search-list">
@@ -193,12 +193,14 @@
                     Authorization:appToken
                 },
                 conn:null,
+                connHeartT:null,
                 connectState:0,
                 userToken:'',
                 currNav:'friend',
                 searchConvVal:'',
                 convList:[],
                 searchFriendVal:'',
+                searchNewFriendVal:'',
                 friendList:[],
                 showAddFriendDialog:false,
                 friendAddSearchList:[],
@@ -242,19 +244,21 @@
                 this.conn = new WebSocket(wsUrl +"/ws",this.headers.token);
                 this.conn.onopen = ()=>{
                     this.connectState = 2
+                    this.connHeartT = setInterval(()=>{
+                        this.heartPing()
+                    },300*1000)
                 }
                 this.conn.onclose = ()=>{
                     this.connectState = -1
                 };
                 this.conn.onmessage = (e)=> {
                     let msg = JSON.parse(e.data);
-                    console.log(e.data)
                     switch (msg.frameType) {
                         case 9:
                             tool.toastError(msg.data.msg)
                             break
                         case 0:
-                            console.log("消息来了")
+                            this.recvMsgHanler(msg)
                     }
 
                 };
@@ -262,6 +266,26 @@
                     console.error(evt.message,evt.reason,evt.code)
                     alert("websocket 连接失败")
                 };
+            },
+            heartPing(){
+              this.conn.send(JSON.stringify({"frameType":1}))
+            },
+            sendMsg(msgData){
+                this.conn.send(JSON.stringify(msgData))
+            },
+            recvMsgHanler(msg){
+                switch (msg.msgClas){
+                    case 4: //新好友申请
+                        this.recvMsgNewFriendApply()
+                }
+            },
+            recvMsgNewFriendApply(){
+                request({
+                    url:apiUrl + '/social/v1/friend/getMyFriendList',
+                    headers:this.headers,
+                }).then(res=>{
+                    this.friendList = res.list
+                })
             },
             tapNav(nav){
                 if (nav == "logout"){
@@ -317,19 +341,22 @@
             },
             tapShowFriendAdd(){
                 this.showAddFriendDialog = true
-                this.searchFriendVal = ''
+                this.searchNewFriendVal = ''
                 this.friendAddSearchList = []
                 this.friendAddSearchListState = ''
-                this.$refs.searchFriendVal.focus()
+                this.$nextTick(()=>{
+                    this.$refs.searchNewFriendVal.focus()
+                })
+
             },
             tapFriendAddSearch(){
-                if (this.searchFriendVal.trim() == '') return;
+                if (this.searchNewFriendVal.trim() == '') return;
                 this.friendAddSearchListState = "loading"
                 request({
                     url:apiUrl+'/social/v1/friend/searchNewFriendPage',
                     headers:this.headers,
                     data:{
-                        keyword:this.searchFriendVal
+                        keyword:this.searchNewFriendVal
                     }
                 }).then(res=>{
                     this.friendAddSearchList = res.list
