@@ -39,7 +39,7 @@ func (l *LoginByPhoneLogic) LoginByPhone(in *types.LoginByPhoneReq) (resp *types
 
 // defaultLoginByPhone 默认手机号登录
 func (l *LoginByPhoneLogic) defaultLoginByPhone(req *types.LoginByPhoneReq) (resp *types.UserInfoResp, err error) {
-	userBiz := biz.NewUserBiz(l.ctx, l.svc)
+	userBiz := biz.NewUserBiz(l.ctx, l.svc, l.resd, l.meta)
 	phone := *req.Phone
 	otpCode := *req.OtpCode
 	var phoneArea string

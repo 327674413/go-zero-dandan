@@ -149,23 +149,23 @@ func ErrorWithTempCtx(ctx context.Context, err error, initErrCode int, temps ...
 }
 
 // NewErr 创建新的error
-func NewErr(errMsg string, initErrCode ...int) error {
-	return newErr(nil, nil, errMsg, initErrCode...)
+func NewErr(errMsgOrEmpty string, initErrCode ...int) error {
+	return newErr(nil, nil, errMsgOrEmpty, initErrCode...)
 }
 
 // NewErrCtx 创建新的error，带上下文
-func NewErrCtx(ctx context.Context, errMsg string, initErrCode ...int) error {
-	return newErr(ctx, nil, errMsg, initErrCode...)
+func NewErrCtx(ctx context.Context, errMsgOrEmpty string, initErrCode ...int) error {
+	return newErr(ctx, nil, errMsgOrEmpty, initErrCode...)
 }
 
 // NewErrWithTemp 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量
-func NewErrWithTemp(errMsg string, errorCode int, temps ...string) error {
-	return newErrWithTemp(nil, nil, errMsg, errorCode, temps...)
+func NewErrWithTemp(errMsgOrEmpty string, errorCode int, temps ...string) error {
+	return newErrWithTemp(nil, nil, errMsgOrEmpty, errorCode, temps...)
 }
 
 // NewErrWithTempCtx 创建新的error，带模版,errorCode用resd.xxxxx，temps直接用语言包里的变量，带上下文
-func NewErrWithTempCtx(ctx context.Context, errMsg string, errorCode int, temps ...string) error {
-	return newErrWithTemp(ctx, nil, errMsg, errorCode, temps...)
+func NewErrWithTempCtx(ctx context.Context, errMsgOrEmpty string, errorCode int, temps ...string) error {
+	return newErrWithTemp(ctx, nil, errMsgOrEmpty, errorCode, temps...)
 }
 
 func AssertErr(failErr error) (*danError, bool) {

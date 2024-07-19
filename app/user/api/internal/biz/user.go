@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"fmt"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/message/rpc/message"
 	"go-zero-dandan/app/user/api/internal/svc"
@@ -12,6 +11,7 @@ import (
 	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/typed"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/common/utild/copier"
 	"strconv"
@@ -19,36 +19,33 @@ import (
 
 type UserBiz struct {
 	logx.Logger
-	ctx        context.Context
-	svcCtx     *svc.ServiceContext
-	lang       *i18n.Localizer
-	platId     string
-	platClasEm int64
+	ctx    context.Context
+	svcCtx *svc.ServiceContext
+	resd   *resd.Resp
+	meta   *typed.ReqMeta
 }
 
-func NewUserBiz(ctx context.Context, svcCtx *svc.ServiceContext) *UserBiz {
-	localizer := ctx.Value("lang").(*i18n.Localizer)
+func NewUserBiz(ctx context.Context, svcCtx *svc.ServiceContext, resp *resd.Resp, meta *typed.ReqMeta) *UserBiz {
 	biz := &UserBiz{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		lang:   localizer,
+		resd:   resp,
+		meta:   meta,
 	}
-	biz.initPlat()
 	return biz
 }
 func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err error) {
 	unionModel := model.NewUserUnionModel(t.ctx, t.svcCtx.SqlConn)
-	db, _ := t.svcCtx.SqlConn.RawDB()
-	tx, err := db.BeginTx(t.ctx, nil)
+	tx, err := unionModel.StartTrans()
 	if err != nil {
-		return nil, resd.Error(err, resd.MysqlStartTransErr)
+		return nil, t.resd.Error(err)
 	}
 	unionInfo := &model.UserUnion{}
 	unionInfo.Id = utild.MakeId()
-	_, err = unionModel.Ctx(t.ctx).TxInsert(tx, unionInfo)
+	_, err = unionModel.TxInsert(tx, unionInfo)
 	if err != nil {
-		return nil, resd.Error(err, resd.MysqlInsertErr)
+		return nil, t.resd.Error(err)
 	}
 	userMain := &model.UserMain{
 		Id:        unionInfo.Id,
@@ -57,18 +54,17 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 		Phone:     regInfo.Phone,
 		PhoneArea: regInfo.PhoneArea,
 	}
-	userMainModel := model.NewUserMainModel(t.ctx, t.svcCtx.SqlConn, t.platId)
+	userMainModel := model.NewUserMainModel(t.ctx, t.svcCtx.SqlConn, t.meta.PlatId)
 	if err != nil {
-		return nil, resd.Error(err)
+		return nil, t.resd.Error(err)
 	}
-	_, err = userMainModel.Ctx(t.ctx).TxInsert(tx, userMain)
+	_, err = userMainModel.TxInsert(tx, userMain)
 	if err != nil {
-		return nil, resd.Error(err)
+		return nil, t.resd.Error(err)
 	}
-	err = tx.Commit()
+	err = unionModel.Commit(tx)
 	if err != nil {
-		logx.Error(err)
-		return nil, resd.Error(err)
+		return nil, t.resd.Error(err)
 	}
 	res = &types.UserInfoResp{}
 	copier.Copy(&res, userMain)
@@ -76,7 +72,7 @@ func (t *UserBiz) defaultRegByPhone(regInfo *UserRegInfo) (res *types.UserInfoRe
 }
 func (t *UserBiz) RegByPhone(regInfo *UserRegInfo) (res *types.UserInfoResp, err error) {
 	regByPhoneStrage := map[int64]func(*UserRegInfo) (*types.UserInfoResp, error){}
-	if strateFunc, ok := regByPhoneStrage[t.platClasEm]; ok {
+	if strateFunc, ok := regByPhoneStrage[t.meta.PlatClasEm]; ok {
 		return strateFunc(regInfo)
 	} else {
 		return t.defaultRegByPhone(regInfo)
@@ -88,19 +84,20 @@ func (t *UserBiz) SendPhoneVerifyCode(phone string, phoneArea string) (string, e
 	code := strconv.Itoa(utild.Rand(1000, 9999))
 	err := t.svcCtx.Redis.SetExCtx(t.ctx, "verifyCode", phone, code, 300)
 	if err != nil {
-		return "", resd.Error(err, resd.RedisSetErr)
+		return "", t.resd.Error(err)
 	}
 	currAt := fmt.Sprintf("%d", utild.GetStamp())
 	err = t.svcCtx.Redis.SetExCtx(t.ctx, "verifyCodeGetAt", phone, currAt, 60)
 	if err != nil {
-		return "", resd.Error(err, resd.RedisSetErr)
+		return "", t.resd.Error(err)
 	}
 	if t.svcCtx.Mode == constd.ModeDev {
 		return code, nil
 	} else {
+		tempId := "1"
 		_, rpcErr := t.svcCtx.MessageRpc.SendPhone(context.Background(), &message.SendPhoneReq{
-			Phone:    phone,
-			TempId:   "1",
+			Phone:    &phone,
+			TempId:   &tempId,
 			TempData: []string{code, "5"},
 		})
 		if rpcErr != nil {
@@ -115,15 +112,15 @@ func (t *UserBiz) CheckPhoneVerifyCode(phone string, phoneArea string, code stri
 		return resd.Error(err)
 	}
 	if targetCode == "" {
-		return resd.NewErr("redis中无验证码", resd.VerifyCodeExpired)
+		return t.resd.NewErr(resd.ErrVerifyCodeExpired)
 	}
 	if targetCode != code {
-		return resd.NewErr("验证码失败", resd.VerifyCodeWrong)
+		return t.resd.NewErr(resd.ErrVerifyCodeWrong)
 	}
 	_, err = t.svcCtx.Redis.Del("verifyCode", phone)
 
 	if err != nil {
-		return resd.NewErr("验证码过期", resd.VerifyCodeExpired)
+		return t.resd.NewErr(resd.ErrVerifyCodeExpired)
 	}
 	return nil
 }
@@ -155,19 +152,5 @@ func (t *UserBiz) EditUserInfo(editUserInfoReq *userRpc.EditUserInfoReq) error {
 	if err != nil {
 		return resd.ErrorCtx(t.ctx, err)
 	}
-	return nil
-}
-
-func (t *UserBiz) initPlat() (err error) {
-	platClasEm := utild.AnyToInt64(t.ctx.Value("platClasEm"))
-	if platClasEm == 0 {
-		return resd.NewErrCtx(t.ctx, "token中未获取到platClasEm", resd.ErrPlatClas)
-	}
-	platId, _ := t.ctx.Value("platId").(string)
-	if platId == "" {
-		return resd.NewErrCtx(t.ctx, "token中未获取到platId", resd.ErrPlatId)
-	}
-	t.platId = platId
-	t.platClasEm = platClasEm
 	return nil
 }

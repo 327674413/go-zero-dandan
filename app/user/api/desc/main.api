@@ -19,7 +19,7 @@ type RegByPhoneReq {
 }
 type (
 	LoginByWxappCodeReq{
-		Code string `json:"code"`
+		Code *string `json:"code"`
 	}
 	LoginByWxappCodeResp {
 		UserInfo *UserInfoResp `json:"userInfo"`

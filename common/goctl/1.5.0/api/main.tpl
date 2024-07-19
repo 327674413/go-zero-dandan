@@ -27,7 +27,7 @@ func main() {
         panic(err)
     }
     server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
-        resp := resd.NewResp(r.Context(), resd.I18n.NewLang(r.FormValue("lang")))
+        resp := resd.NewResp(r.Context(), r.FormValue("lang"))
         resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
     }), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
         //跨域处理

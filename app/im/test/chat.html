@@ -62,6 +62,9 @@
                 <div class="chat-nav-item">
                     <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('call')">客服</div>
                 </div>
+                <div class="chat-nav-item" style="position: absolute;bottom:20px;">
+                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('logout')">退出</div>
+                </div>
             </div>
             <div class="chat-social">
                 <div class="chat-conv" v-if="currNav == 'conv'">
@@ -178,14 +181,23 @@
 <script src="static/js/tool.js"></script>
 <script src="static/js/request.js"></script>
 <script>
+    var apiUrl = "http://localhost:8812"
+    var wsUrl = "http://localhost:8808"
+    var appToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0'
     new Vue({
         el: '#app',
         data() {
             return {
+                headers:{
+                    token:'',
+                    Authorization:appToken
+                },
+                conn:null,
+                connectState:0,
+                userToken:'',
                 currNav:'friend',
                 searchConvVal:'',
                 convList:[],
-
                 searchFriendVal:'',
                 friendList:[],
                 showAddFriendDialog:false,
@@ -206,7 +218,8 @@
             }
         },
         created(){
-            this.getMyFriendList()
+            this.login()
+
         },
         mounted() {
             this.$refs.app.style.display = "block"
@@ -214,7 +227,47 @@
         beforeDestroy() {
         },
         methods:{
+            login(){
+                let urlParams = new URLSearchParams(window.location.search);
+                if (!urlParams.get('token')) {
+                    tool.toastError("缺少token")
+                    return
+                }
+                this.headers.token = urlParams.get('token')
+                this.getMyFriendList()
+                this.connectWs()
+
+            },
+            connectWs(){
+                this.conn = new WebSocket(wsUrl +"/ws",this.headers.token);
+                this.conn.onopen = ()=>{
+                    this.connectState = 2
+                }
+                this.conn.onclose = ()=>{
+                    this.connectState = -1
+                };
+                this.conn.onmessage = (e)=> {
+                    let msg = JSON.parse(e.data);
+                    console.log(e.data)
+                    switch (msg.frameType) {
+                        case 9:
+                            tool.toastError(msg.data.msg)
+                            break
+                        case 0:
+                            console.log("消息来了")
+                    }
+
+                };
+                this.conn.onerror = function (evt) {
+                    console.error(evt.message,evt.reason,evt.code)
+                    alert("websocket 连接失败")
+                };
+            },
             tapNav(nav){
+                if (nav == "logout"){
+                    location.href="./home.html"
+                    return
+                }
                 this.currNav = nav
             },
             getMyConvList(){
@@ -225,11 +278,8 @@
             },
             getMyFriendList(){
                 request({
-                    url:'http://localhost:8812/social/v1/friend/getMyFriendList',
-                    headers:{
-                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
-                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
-                    }
+                    url:apiUrl + '/social/v1/friend/getMyFriendList',
+                    headers:this.headers,
                 }).then(res=>{
                     this.friendList = res.list
                 })
@@ -245,11 +295,8 @@
                 }
                 this.friendAddSearchListState = "loading"
                 request({
-                    url:'http://localhost:8812/social/v1/friend/getMyFriendApplyRecvPage',
-                    headers:{
-                        'token':'04bd9323ac95a28978fbe166d55b33c75ab9bcc02f52cae2de54b0fff44a27a6',
-                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
-                    },
+                    url:apiUrl+'/social/v1/friend/getMyFriendApplyRecvPage',
+                    headers:this.headers,
                     data:{
                         page:this.recvFriendApplyListNextPage,
                         size:20,
@@ -279,11 +326,8 @@
                 if (this.searchFriendVal.trim() == '') return;
                 this.friendAddSearchListState = "loading"
                 request({
-                    url:'http://localhost:8812/social/v1/friend/searchNewFriendPage',
-                    headers:{
-                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
-                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
-                    },
+                    url:apiUrl+'/social/v1/friend/searchNewFriendPage',
+                    headers:this.headers,
                     data:{
                         keyword:this.searchFriendVal
                     }
@@ -323,11 +367,8 @@
             },
             operateFriendApply(index,data){
                 request({
-                    url:'http://localhost:8812/social/v1/friend/operateMyRecvFriendApply',
-                    headers:{
-                        'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
-                        'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
-                    },
+                    url:apiUrl+'/social/v1/friend/operateMyRecvFriendApply',
+                    headers:this.headers,
                     loading:'提交中',
                     data
                 }).then(res=>{
@@ -342,11 +383,8 @@
                     closeOnClickModal: false
                 }).then(({ value }) => {
                     request({
-                        url:'http://localhost:8812/social/v1/friend/createFriendApply',
-                        headers:{
-                            'token':'1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24',
-                            'Authorization':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0',
-                        },
+                        url:apiUrl+'/social/v1/friend/createFriendApply',
+                        headers:this.headers,
                         loading:'提交中',
                         data:{
                             applyMsg:value,

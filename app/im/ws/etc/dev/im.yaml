@@ -1,11 +1,16 @@
 Name: im-ws
 Host: 0.0.0.0
 Port: 8808
-Mode: dev
 ListenOn: 0.0.0.0:8808
 Log:
-  ServiceName: im-ws
-  Level: debug
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 6048000

@@ -34,7 +34,7 @@ func NewGetOneLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetOneLogi
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		resd:   resd.NewResp(ctx, meta.Lang),
 		meta:   meta,
 	}
 }

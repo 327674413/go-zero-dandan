@@ -73,6 +73,9 @@ type (
 		Count() (total int64, danErr error)
 		Inc(field string, num int) (effectRow int64, danErr error)
 		Dec(field string, num int) (effectRow int64, danErr error)
+		StartTrans() (tx *sql.Tx, danErr error)
+		Commit(tx *sql.Tx) (danErr error)
+		Rollback(tx *sql.Tx) (danErr error)
 		Ctx(ctx context.Context) *defaultSocialGroupMemberApplyModel
 		Reinit() *defaultSocialGroupMemberApplyModel
 		Dao() *dao.SqlxDao
@@ -314,6 +317,15 @@ func (m *defaultSocialGroupMemberApplyModel) TxSave(tx *sql.Tx, data *SocialGrou
 		return 0, err
 	}
 	return m.dao.Save(saveData)
+}
+func (m *defaultSocialGroupMemberApplyModel) StartTrans() (tx *sql.Tx, danErr error) {
+	return dao.StartTrans(m.conn, m.ctx)
+}
+func (m *defaultSocialGroupMemberApplyModel) Commit(tx *sql.Tx) (danErr error) {
+	return dao.Commit(tx)
+}
+func (m *defaultSocialGroupMemberApplyModel) Rollback(tx *sql.Tx) (danErr error) {
+	return dao.Rollback(tx)
 }
 func (m *defaultSocialGroupMemberApplyModel) tableName() string {
 	return m.table

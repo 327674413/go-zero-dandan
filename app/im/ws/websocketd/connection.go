@@ -3,6 +3,7 @@ package websocketd
 import (
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/core/logx"
+	"go-zero-dandan/common/resd"
 	"net/http"
 	"sync"
 	"time"
@@ -14,6 +15,8 @@ type Conn struct {
 	PlatId            string        //所属应用id
 	PlatClasEm        int64         //所属应用的应用类型
 	PortEm            int64         //连接的端口
+	Lang              string        //国际化当前语言
+	Resd              *resd.Resp    //国际化统一返回
 	*websocket.Conn                 // 嵌入的 websocket 连接
 	idleMu            sync.Mutex    // 用于保护共享资源的互斥锁
 	s                 *Server       // 指向关联的服务器实例
@@ -47,6 +50,8 @@ func NewConn(s *Server, w http.ResponseWriter, r *http.Request) *Conn {
 		idle:              time.Now(),              // 记录当前时间为上次活动时间
 		maxConnectionIdle: s.opt.maxConnectionIdle, // 设置最大连接空闲时间
 		done:              make(chan struct{}),     // 初始化通知通道
+		Lang:              r.FormValue("lang"),
+		Resd:              resd.NewResp(r.Context(), r.FormValue("lang")),
 		readMessageAckMq:  make([]*Message, 0, 2),
 		readMessageSeqMap: make(map[string]*Message),
 		readMessageChan:   make(chan *Message, 1), //给初始容量，防止阻塞，同时1个容量保证顺序
@@ -149,4 +154,28 @@ func (t *Conn) Close() error {
 		close(t.done) // 如果 t.done 通道还没有关闭，关闭它
 	}
 	return t.Conn.Close()
+}
+
+func (t *Conn) ErrMsgData(err error, errCode ...int) any {
+	code := resd.ErrSys
+	danErr, ok := resd.AssertErr(err)
+	if ok {
+		if len(errCode) > 0 {
+			code = errCode[0]
+		} else {
+			code = danErr.Code
+		}
+		return map[string]any{
+			"code": code,
+			"msg":  t.Resd.Msg(danErr.Code, danErr.GetTemps()),
+		}
+	} else {
+		if len(errCode) > 0 {
+			code = errCode[0]
+		}
+		return map[string]any{
+			"code": code,
+			"msg":  err.Error(),
+		}
+	}
 }

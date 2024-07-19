@@ -89,7 +89,7 @@ func StartTrans(conn sqlx.SqlConn, ctxOrNil context.Context) (tx *sql.Tx, danErr
 func Commit(tx *sql.Tx) error {
 	err := tx.Commit()
 	if err != nil {
-		return resd.Error(err)
+		return resd.Error(err, resd.ErrMysqlCommit)
 	}
 	return nil
 }
@@ -98,7 +98,7 @@ func Commit(tx *sql.Tx) error {
 func Rollback(tx *sql.Tx) error {
 	err := tx.Rollback()
 	if err != nil {
-		return resd.Error(err)
+		return resd.Error(err, resd.ErrMysqlRollback)
 	}
 	return nil
 }

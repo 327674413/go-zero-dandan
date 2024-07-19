@@ -26,7 +26,7 @@ func New{{.logic}}(ctx context.Context, svc *svc.ServiceContext) *{{.logic}} {
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc: svc,
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		resd:   resd.NewResp(ctx, meta.Lang),
 		meta:meta,
 	}
 }

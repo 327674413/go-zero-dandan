@@ -74,6 +74,9 @@ type (
 		Count() (total int64, danErr error)
 		Inc(field string, num int) (effectRow int64, danErr error)
 		Dec(field string, num int) (effectRow int64, danErr error)
+		StartTrans() (tx *sql.Tx, danErr error)
+		Commit(tx *sql.Tx) (danErr error)
+		Rollback(tx *sql.Tx) (danErr error)
 		Ctx(ctx context.Context) *defaultSocialFriendApplyModel
 		Reinit() *defaultSocialFriendApplyModel
 		Dao() *dao.SqlxDao
@@ -316,6 +319,15 @@ func (m *defaultSocialFriendApplyModel) TxSave(tx *sql.Tx, data *SocialFriendApp
 		return 0, err
 	}
 	return m.dao.Save(saveData)
+}
+func (m *defaultSocialFriendApplyModel) StartTrans() (tx *sql.Tx, danErr error) {
+	return dao.StartTrans(m.conn, m.ctx)
+}
+func (m *defaultSocialFriendApplyModel) Commit(tx *sql.Tx) (danErr error) {
+	return dao.Commit(tx)
+}
+func (m *defaultSocialFriendApplyModel) Rollback(tx *sql.Tx) (danErr error) {
+	return dao.Rollback(tx)
 }
 func (m *defaultSocialFriendApplyModel) tableName() string {
 	return m.table

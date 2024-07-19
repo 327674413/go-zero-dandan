@@ -8,7 +8,7 @@ import (
 
 // Authentication 定义鉴权的入口
 type Authentication interface {
-	Auth(w http.ResponseWriter, r *http.Request) bool
+	Auth(w http.ResponseWriter, r *http.Request) error
 	UserId(r *http.Request) string
 }
 
@@ -16,8 +16,8 @@ type Authentication interface {
 type authenication struct {
 }
 
-func (*authenication) Auth(w http.ResponseWriter, r *http.Request) bool {
-	return true
+func (*authenication) Auth(w http.ResponseWriter, r *http.Request) error {
+	return nil
 }
 func (*authenication) UserId(r *http.Request) string {
 	query := r.URL.Query()

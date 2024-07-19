@@ -24,9 +24,9 @@ func (m *UserTokenMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			//解析失败或没有用户id
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(200)
-			resp := resd.NewResp(r.Context(), resd.I18n.NewLang(r.FormValue("lang")))
+			resp := resd.NewResp(r.Context(), r.FormValue("lang"))
 			if reqMeta != nil && reqMeta.UserErr != "" {
-				resd.ApiFail(w, r, resp.NewErr(resd.ErrSys))
+				resd.ApiFail(w, r, resd.NewErrCtx(r.Context(), reqMeta.UserErr, resd.ErrSys))
 			} else {
 				resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthUserNotLogin))
 			}

@@ -7,8 +7,6 @@ import (
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
-
-	"go-zero-dandan/common/resd"
 )
 
 type GetMyFriendListLogic struct {
@@ -23,14 +21,14 @@ func NewGetMyFriendListLogic(ctx context.Context, svc *svc.ServiceContext) *GetM
 
 func (l *GetMyFriendListLogic) GetMyFriendList() (resp *types.FriendListResp, err error) {
 	if err = l.initReq(); err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	friends, err := l.svc.SocialRpc.GetUserFriendList(l.ctx, &social.GetUserFriendListReq{
 		UserId: &l.meta.UserId,
 		PlatId: &l.meta.PlatId,
 	})
 	if err != nil {
-		return nil, err
+		return nil, l.resd.Error(err)
 	}
 	list := make([]*types.FriendInfo, 0)
 	copier.Copy(&list, friends.List)

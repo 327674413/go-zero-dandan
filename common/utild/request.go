@@ -11,3 +11,7 @@ func GetRequestDomain(r *http.Request) string {
 	}
 	return url + r.Host
 }
+
+func GetRequestLang(r *http.Request) string {
+	return r.FormValue("lang")
+}

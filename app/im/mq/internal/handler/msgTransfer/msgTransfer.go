@@ -41,7 +41,7 @@ func (t *baseMsgTransfer) channel(ctx context.Context, data *websocketd.Push) er
 	return t.svc.WsClient.Send(websocketd.Message{
 		FrameType: websocketd.FrameData,
 		Method:    "push",
-		FormCode:  "chat_system_root", //目前这个formcode的作用不清楚
+		FromUid:   "chat_system_root",
 		Data:      data,
 	})
 }
@@ -51,7 +51,7 @@ func (t *baseMsgTransfer) single(ctx context.Context, data *websocketd.Push) err
 	return t.svc.WsClient.Send(websocketd.Message{
 		FrameType: websocketd.FrameData,
 		Method:    "push",
-		FormCode:  "chat_system_root", //目前这个formcode的作用不清楚
+		FromUid:   "chat_system_root",
 		Data:      data,
 	})
 }
@@ -78,7 +78,7 @@ func (t *baseMsgTransfer) group(ctx context.Context, data *websocketd.Push) erro
 	return t.svc.WsClient.Send(websocketd.Message{
 		FrameType: websocketd.FrameData,
 		Method:    "push",
-		FormCode:  "group msg",
+		FromUid:   "chat_system_root",
 		Data:      data,
 	})
 }

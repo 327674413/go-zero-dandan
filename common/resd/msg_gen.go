@@ -14,6 +14,8 @@ func init() {
 	msg[ErrCreateConversation] = "ErrCreateConversation"
 	msg[ErrDataBiz] = "ErrDataBiz"
 	msg[ErrDataExist1] = "ErrDataExist1"
+	msg[ErrJsonDecode] = "ErrJsonDecode"
+	msg[ErrJsonEncode] = "ErrJsonEncode"
 	msg[ErrLimiterErr] = "ErrLimiterErr"
 	msg[ErrMergeFileChunkNotFound] = "ErrMergeFileChunkNotFound"
 	msg[ErrMqPush] = "ErrMqPush"
@@ -89,6 +91,8 @@ const (
 	ErrCreateConversation              = 63000004
 	ErrDataBiz                         = 503
 	ErrDataExist1                      = 607
+	ErrJsonDecode                      = 52002
+	ErrJsonEncode                      = 52001
 	ErrLimiterErr                      = 40502
 	ErrMergeFileChunkNotFound          = 60901
 	ErrMqPush                          = 504

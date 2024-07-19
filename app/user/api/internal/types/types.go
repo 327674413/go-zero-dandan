@@ -25,7 +25,7 @@ type RegByPhoneReq struct {
 }
 
 type LoginByWxappCodeReq struct {
-	Code string `json:"code"`
+	Code *string `json:"code"`
 }
 
 type LoginByWxappCodeResp struct {

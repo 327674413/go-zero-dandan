@@ -38,7 +38,7 @@ func NewServiceLogicGen(ctx context.Context, svc *svc.ServiceContext) *ServiceLo
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		resd:   resd.NewResp(ctx, meta.Lang),
 		meta:   meta,
 	}
 }

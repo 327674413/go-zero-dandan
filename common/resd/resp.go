@@ -20,7 +20,8 @@ const (
 )
 
 // NewResp 创建统一错误返回
-func NewResp(ctxOrNil context.Context, i18nLang *Lang) *Resp {
+func NewResp(ctxOrNil context.Context, lang string) *Resp {
+	i18nLang := I18n.NewLang(lang)
 	if ctxOrNil == nil {
 		return &Resp{
 			ctx:  context.Background(),
@@ -68,8 +69,8 @@ func (t *Resp) NewErrWithTemp(initErrCode int, temps ...string) error {
 
 // fmtd 打印调试信息
 func printErr(skip int, danErr *danError, lang *Lang) {
-	if lang == nil {
-		fmtd.WithCaller(skip + 1).Error(lang.Msg(danErr.Code, danErr.GetTemps()))
+	if lang != nil && danErr.Msg == "" {
+		fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("[%d]%s", danErr.Code, lang.Msg(danErr.Code, danErr.GetTemps())))
 	} else {
 		fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("[%d]%s", danErr.Code, danErr.Msg))
 	}

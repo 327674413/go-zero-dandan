@@ -30,20 +30,19 @@
       var addr = $('#ws-addr').value
       token = token ? token : $('#user-token').value
       if (!addr) return alert('请输入ws地址')
-      userToken = token
-      connect(addr + "?platformEm=1&token=" + token)
+      location.href="./chat.html?token="+token
     }
     var cronyList = []
     var targetUser = {}
-    function connect(addr){
+    function connect(addr,token){
       if (window["WebSocket"]) {
-        conn = new WebSocket(addr);
+        conn = new WebSocket(addr,token);
         conn.onopen = function(){
           $('#chat').style.display = "flex"
           $('#login').style.display = "none"
           console.log('连接成功')
           //这里可能要放到onmessage了收到登录成功的消息后再处理
-          post("http://localhost:8801/user/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
+          post("http://localhost:8808/user/v1/getMyCronyList",{isNeedTotal:0}).then(res=>{
             let str = ""
             res.data.list.forEach((item,index)=>{
               str += `<div class="crony-item" onclick="tapCrony(${index})">${item.targetUserName}</div>`
@@ -220,12 +219,13 @@
 </head>
 <body>
 <div id="login">
-  <p class="login-item">websockt地址：<input type="text" value="ws://localhost:8808/connection" id="ws-addr" /></p>
+  <p class="login-item">websockt地址：<input type="text" value="ws://localhost:8808/ws" id="ws-addr" /></p>
   <p class="login-item">用户token：<input type="text" value="" id="user-token" /></p>
   <p class="login-item">
     <button class="login-btn" onclick="tapLogin()">自定义token登录</button>
-    <button class="login-btn" onclick="tapLogin('17fad3f466f971f0595fa9a2c442a4219cfab202acbe5cd5f3521f7edd273187')">登录用户96</button>
-    <button class="login-btn" onclick="tapLogin('27612c99538633fc430848054d106a40f43afc897ca12be097ad7eadd8169e8a')">登录用户95</button>
+    <button class="login-btn" onclick="tapLogin('1ab0759b0ecd1efcc9cf439d01b5580973399ffe062749e1009cbf30064cfb24')">登录用户96</button>
+    <button class="login-btn" onclick="tapLogin('bb7d406b6e4c3f3e8d8e70234c4e71311b4b698b2bae5dba858fa1bef02f0dd6')">登录用户95</button>
+    <button class="login-btn" onclick="tapLogin('60ddc4cc54081ee7c2ac8c507d057bf619998bb4f25c89f0ac2ca64955bb4f27')">登录用户94</button>
 
   </p>
 </div>

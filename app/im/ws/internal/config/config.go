@@ -11,7 +11,11 @@ type Config struct {
 	PlatRpc zrpc.RpcClientConf
 	//RedisConf redis.RedisConf
 	ListenOn string
-	Auth     struct {
+	I18n     struct {
+		Default string
+		Langs   []string
+	}
+	Auth struct {
 		AccessSecret string
 		AccessExpire int64
 	}

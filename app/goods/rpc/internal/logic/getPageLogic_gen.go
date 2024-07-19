@@ -40,7 +40,7 @@ func NewGetPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetPageLo
 		ctx:    ctx,
 		svc:    svc,
 		Logger: logx.WithContext(ctx),
-		resd:   resd.NewResp(ctx, resd.I18n.NewLang(meta.Lang)),
+		resd:   resd.NewResp(ctx, meta.Lang),
 		meta:   meta,
 	}
 }

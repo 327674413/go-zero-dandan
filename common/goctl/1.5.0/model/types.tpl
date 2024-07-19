@@ -32,6 +32,9 @@ type (
         Count() (total int64, danErr error)
         Inc(field string, num int) (effectRow int64, danErr error)
         Dec(field string, num int) (effectRow int64, danErr error)
+        StartTrans() (tx *sql.Tx, danErr error)
+        Commit(tx *sql.Tx) (danErr error)
+        Rollback(tx *sql.Tx) (danErr error)
         Ctx(ctx context.Context) *default{{.upperStartCamelObject}}Model
         Reinit() *default{{.upperStartCamelObject}}Model
         Dao() *dao.SqlxDao

@@ -63,6 +63,9 @@ type (
 		Count() (total int64, danErr error)
 		Inc(field string, num int) (effectRow int64, danErr error)
 		Dec(field string, num int) (effectRow int64, danErr error)
+		StartTrans() (tx *sql.Tx, danErr error)
+		Commit(tx *sql.Tx) (danErr error)
+		Rollback(tx *sql.Tx) (danErr error)
 		Ctx(ctx context.Context) *defaultMessageSysConfigModel
 		Reinit() *defaultMessageSysConfigModel
 		Dao() *dao.SqlxDao
@@ -294,6 +297,15 @@ func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig
 		return 0, err
 	}
 	return m.dao.Save(saveData)
+}
+func (m *defaultMessageSysConfigModel) StartTrans() (tx *sql.Tx, danErr error) {
+	return dao.StartTrans(m.conn, m.ctx)
+}
+func (m *defaultMessageSysConfigModel) Commit(tx *sql.Tx) (danErr error) {
+	return dao.Commit(tx)
+}
+func (m *defaultMessageSysConfigModel) Rollback(tx *sql.Tx) (danErr error) {
+	return dao.Rollback(tx)
 }
 func (m *defaultMessageSysConfigModel) tableName() string {
 	return m.table

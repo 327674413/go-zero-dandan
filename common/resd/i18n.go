@@ -69,7 +69,6 @@ func (t *DanI18n) NewLang(lang string) *Lang {
 // Trans 将模版变量注入模版
 func (t *Lang) Trans(temp string, tempData ...map[string]string) string {
 	if t == nil {
-		fmtd.Info("进入到nil了")
 		return ""
 	}
 	var data map[string]string
@@ -108,9 +107,6 @@ func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
 		tempData = tempDataArr[0]
 	}
 	m := make(map[string]string)
-	if t == nil {
-		fmtd.Error("msg的t也是nil")
-	}
 	for i, v := range tempData {
 		key := "Field" + fmt.Sprint(i+1)
 		if v == "" {

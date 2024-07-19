@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
-	"go-zero-dandan/common/fmtd"
 	"reflect"
 	"strconv"
 	"strings"
@@ -127,7 +126,6 @@ func StdToBase64(data interface{}) (string, error) {
 	if val.Kind() == reflect.Ptr && val.IsNil() {
 		return "", nil
 	}
-	fmtd.Info(data)
 	// 创建一个字节缓冲区
 	var buf bytes.Buffer
 	// 创建一个新的编码器

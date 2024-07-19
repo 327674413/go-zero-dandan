@@ -25,7 +25,7 @@ func (m *ReqRateLimitMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc 
 		} else {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(200)
-			resp := resd.NewResp(r.Context(), resd.I18n.NewLang(r.FormValue("lang")))
+			resp := resd.NewResp(r.Context(), r.FormValue("lang"))
 			resd.ApiFail(w, r, resp.NewErr(resd.ErrReqRateLimit))
 		}
 

@@ -9,6 +9,7 @@ import (
 	"go-zero-dandan/app/im/ws/internal/handler"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
+	"go-zero-dandan/common/resd"
 	"time"
 )
 
@@ -21,7 +22,15 @@ func ws() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
+	var err error
+	resd.Mode = c.Mode
+	resd.I18n, err = resd.NewI18n(&resd.I18nConfig{
+		LangPathList: c.I18n.Langs,
+		DefaultLang:  c.I18n.Default,
+	})
+	if err != nil {
+		panic(err)
+	}
 	if err := c.SetUp(); err != nil {
 		panic(err)
 	}

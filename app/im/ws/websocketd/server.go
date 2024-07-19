@@ -63,9 +63,9 @@ func (t *Server) ServerWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//校验用户的连接权限，比如是否登陆用户等
-	if !t.authenication.Auth(w, r) {
+	if err := t.authenication.Auth(w, r); err != nil {
 		//无权限
-		t.Send(&Message{FrameType: FrameData, Data: "不具备访问权限"}, conn)
+		t.Send(&Message{FrameType: FrameErr, Data: conn.ErrMsgData(err)}, conn)
 		//主动断开链接
 		conn.Close()
 		return

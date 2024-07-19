@@ -61,6 +61,9 @@ type (
 		Count() (total int64, danErr error)
 		Inc(field string, num int) (effectRow int64, danErr error)
 		Dec(field string, num int) (effectRow int64, danErr error)
+		StartTrans() (tx *sql.Tx, danErr error)
+		Commit(tx *sql.Tx) (danErr error)
+		Rollback(tx *sql.Tx) (danErr error)
 		Ctx(ctx context.Context) *defaultUserUnionModel
 		Reinit() *defaultUserUnionModel
 		Dao() *dao.SqlxDao
@@ -290,6 +293,15 @@ func (m *defaultUserUnionModel) TxSave(tx *sql.Tx, data *UserUnion) (effectRow i
 		return 0, err
 	}
 	return m.dao.Save(saveData)
+}
+func (m *defaultUserUnionModel) StartTrans() (tx *sql.Tx, danErr error) {
+	return dao.StartTrans(m.conn, m.ctx)
+}
+func (m *defaultUserUnionModel) Commit(tx *sql.Tx) (danErr error) {
+	return dao.Commit(tx)
+}
+func (m *defaultUserUnionModel) Rollback(tx *sql.Tx) (danErr error) {
+	return dao.Rollback(tx)
 }
 func (m *defaultUserUnionModel) tableName() string {
 	return m.table

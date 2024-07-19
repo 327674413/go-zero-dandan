@@ -9,6 +9,7 @@ type langErr struct {
 var Errs = []*langErr{
 	{200, "Ok", "完成"},
 	{201, "OkAsync", "提交成功"},
+	// 4开头权限类
 	{400, "ErrAuth", "权限异常"},
 	{40101, "ErrAuthPlat", "无效应用"},
 	{40201, "ErrAuthUserNotLogin", "您还未登录"},
@@ -16,8 +17,10 @@ var Errs = []*langErr{
 	{40302, "ErrAuthOperateState", "数据状态不允许操作"},
 	{40501, "ErrReqRateLimit", "请求太频繁，请休息一会"},
 	{40502, "ErrLimiterErr", "遇到了限流问题"},
+	// 5开头系统类
 	{500, "ErrSys", "遇到了点小问题"},
 	{50001, "ErrUserMainInfo", "系统异常：用户信息获取失败"},
+	// 501 数据库操作
 	{501, "ErrMysql", "数据库操作失败"},
 	{50101, "ErrMysqlInsert", "数据库插入失败"},
 	{50102, "ErrMysqlDelete", "数据库删除失败"},
@@ -28,6 +31,7 @@ var Errs = []*langErr{
 	{50107, "ErrMysqlCommit", "数据库提交事务失败"},
 	{50108, "ErrMysqlRollback", "数据库回滚失败"},
 	{50109, "ErrMysqlPrepareUpdate", "数据库更新失败"},
+	// 502 redis操作
 	{502, "ErrRedis", "redis异常"},
 	{50201, "ErrRedisSet", "缓存写入失败"},
 	{50202, "ErrRedisGet", "获取缓存失败"},
@@ -40,6 +44,8 @@ var Errs = []*langErr{
 	{502020001, "ErrRedisGetUserToken", "获取缓存失败"},
 	{503, "ErrDataBiz", "业务数据异常"},
 	{504, "ErrMqPush", "MQ推送异常"},
+	{52001, "ErrJsonEncode", "转换json失败"},
+	{52002, "ErrJsonDecode", "解析json失败"},
 	{521, "ErrCopier", "内部数据格式转换失败"},
 	{510, "ErrRpcResDecode", "RpcResDecode"},
 	{51001, "ErrRpcMissMeta", "缺失meta信息"},

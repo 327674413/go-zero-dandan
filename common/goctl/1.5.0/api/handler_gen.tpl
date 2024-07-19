@@ -13,7 +13,7 @@ func apiOk(w http.ResponseWriter, r *http.Request,resp any){
 func apiFail(w http.ResponseWriter, r *http.Request,err error){
 	if danErr, ok := resd.AssertErr(err); ok {
 		if ok {
-			danErr.Msg = resd.I18n.NewLang(r.FormValue("lang")).Msg(danErr.Code, danErr.GetTemps())
+			danErr.Msg = resd.NewResp(r.FormValue("lang")).Msg(danErr.Code, danErr.GetTemps())
 		}
 		httpx.OkJsonCtx(r.Context(), w, danErr)
 	} else {

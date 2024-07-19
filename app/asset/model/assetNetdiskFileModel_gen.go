@@ -80,6 +80,9 @@ type (
 		Count() (total int64, danErr error)
 		Inc(field string, num int) (effectRow int64, danErr error)
 		Dec(field string, num int) (effectRow int64, danErr error)
+		StartTrans() (tx *sql.Tx, danErr error)
+		Commit(tx *sql.Tx) (danErr error)
+		Rollback(tx *sql.Tx) (danErr error)
 		Ctx(ctx context.Context) *defaultAssetNetdiskFileModel
 		Reinit() *defaultAssetNetdiskFileModel
 		Dao() *dao.SqlxDao
@@ -328,6 +331,15 @@ func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile
 		return 0, err
 	}
 	return m.dao.Save(saveData)
+}
+func (m *defaultAssetNetdiskFileModel) StartTrans() (tx *sql.Tx, danErr error) {
+	return dao.StartTrans(m.conn, m.ctx)
+}
+func (m *defaultAssetNetdiskFileModel) Commit(tx *sql.Tx) (danErr error) {
+	return dao.Commit(tx)
+}
+func (m *defaultAssetNetdiskFileModel) Rollback(tx *sql.Tx) (danErr error) {
+	return dao.Rollback(tx)
 }
 func (m *defaultAssetNetdiskFileModel) tableName() string {
 	return m.table

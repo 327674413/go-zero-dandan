@@ -23,7 +23,7 @@ func (l *EditMyInfoLogic) EditMyInfo(in *types.EditMyInfoReq) (resp *types.Succe
 	if err := l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
-	userBiz := biz.NewUserBiz(l.ctx, l.svc)
+	userBiz := biz.NewUserBiz(l.ctx, l.svc, l.resd, l.meta)
 	editUserInfo := &userRpc.EditUserInfoReq{}
 	copier.Copy(&editUserInfo, l.req)
 	editUserInfo.Id = &l.meta.UserId

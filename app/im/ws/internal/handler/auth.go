@@ -7,6 +7,8 @@ import (
 	"go-zero-dandan/app/plat/rpc/plat"
 	"go-zero-dandan/app/user/rpc/user"
 	"go-zero-dandan/common/ctxd"
+	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild"
 	"net/http"
 )
 
@@ -23,15 +25,15 @@ func NewUserAuth(svc *svc.ServiceContext) *UserAuth {
 	}
 }
 
-func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
+func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) error {
 	userToken := r.Header.Get("token")
 	if userToken == "" {
 		//目前web端没通过url获取，放在这个协议里
 		userToken = r.Header.Get("sec-websocket-protocol")
 	}
+	resp := resd.NewResp(r.Context(), utild.GetRequestLang(r))
 	if userToken == "" {
-		logx.Info("ws连接未携带token")
-		return false
+		return resp.NewErrWithTemp(resd.ErrReqFieldEmpty1, "token")
 	}
 	//todo::暂时用写死的方式判断是系统层级的token，无需用户，1101代表mq专用
 	if userToken == t.svc.Config.Ws.SysToken {
@@ -39,19 +41,17 @@ func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		userMainInfo, err := t.svc.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: &userToken})
 		if err != nil {
-			logx.Info("未查询到用户信息", err)
-			return false
+			return resp.NewErr(resd.ErrAuthUserNotLogin)
 		}
 		platInfo, err := t.svc.PlatRpc.GetOne(r.Context(), &plat.IdReq{Id: &userMainInfo.PlatId})
 		if err != nil {
-			logx.Info("未查询到应用信息", err)
-			return false
+			return resp.Error(err)
 		}
 		*r = *r.WithContext(context.WithValue(r.Context(), "userId", userMainInfo.Id))
 		*r = *r.WithContext(context.WithValue(r.Context(), "platId", userMainInfo.PlatId))
 		*r = *r.WithContext(context.WithValue(r.Context(), "platClasEm", platInfo.ClasEm))
 	}
-	return true
+	return nil
 }
 func (t *UserAuth) UserId(r *http.Request) string {
 	return ctxd.UserId(r.Context())
