@@ -29,14 +29,13 @@ func main() {
     server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
         resp := resd.NewResp(r.Context(), r.FormValue("lang"))
         resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
-    }), rest.WithCustomCors(nil, func(w http.ResponseWriter) {
+    }), rest.WithCustomCors(func(header http.Header) {
         //跨域处理
-        w.Header().Set("Access-Control-Allow-Origin", "*")
-        w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-        w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-        w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
-        //w.Header().Set("Access-Control-Allow-Credentials", "true") //允许传输cookies
-    }, "*"))
+        header.Set("Access-Control-Allow-Origin", "*")
+        header.Add("Access-Control-Allow-Headers", "UserToken")
+        header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+        header.Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
+    }, nil, "*"))
 	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)

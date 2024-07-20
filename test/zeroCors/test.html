@@ -34,7 +34,8 @@
         const data = { key: 'value' }; // Replace this with the actual data you need to send
         const headers = new Headers({
             'Content-Type': 'application/json',
-            'UserHeader': 'YourCustomHeaderValue'
+            'AppToken': 'YourCustomHeaderValue',
+            'UserToken': 'YourCustomHeaderValue',
         });
 
         fetch(url, {

@@ -13,13 +13,13 @@ func main() {
 	config.Name = "test-api"
 	config.Port = 8080
 	config.Host = "0.0.0.0"
-	server := rest.MustNewServer(config, rest.WithCustomCors(nil, func(w http.ResponseWriter) {
+	server := rest.MustNewServer(config, rest.WithCustomCors(func(header http.Header) {
 		//跨域处理
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization,UserHeader")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
-	}, "*"))
+		header.Set("Access-Control-Allow-Origin", "*")
+		header.Add("Access-Control-Allow-Headers", "AppToken,UserToken")
+		header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+		header.Set("Access-Control-Expose-Headers", "Content-Length, Content-Type")
+	}, nil, "*"))
 	defer server.Stop()
 	server.AddRoutes(
 		[]rest.Route{
