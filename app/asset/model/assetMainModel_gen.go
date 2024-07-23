@@ -317,7 +317,7 @@ func (m *defaultAssetMainModel) TxSave(tx *sql.Tx, data *AssetMain) (effectRow i
 	return m.dao.Save(saveData)
 }
 func (m *defaultAssetMainModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultAssetMainModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

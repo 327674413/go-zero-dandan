@@ -41,17 +41,17 @@ func NewGetGroupUserOnlineLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *GetGroupUserOnlineLogicGen) initReq(req *socialRpc.GetGroupUserOnlineReq) error {
+func (l *GetGroupUserOnlineLogicGen) initReq(in *socialRpc.GetGroupUserOnlineReq) error {
 
-	if req.GroupId != nil {
-		l.req.GroupId = *req.GroupId
+	if in.GroupId != nil {
+		l.req.GroupId = *in.GroupId
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

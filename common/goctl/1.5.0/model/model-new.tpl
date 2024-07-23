@@ -201,7 +201,7 @@ func (m *default{{.upperStartCamelObject}}Model) TxSave(tx *sql.Tx,data *{{.uppe
    return m.dao.Save(saveData)
 }
 func (m *default{{.upperStartCamelObject}}Model) StartTrans() (tx *sql.Tx,danErr error) {
-    return dao.StartTrans(m.conn, m.ctx)
+    return dao.StartTrans(m.ctx,m.conn)
 }
 func (m *default{{.upperStartCamelObject}}Model) Commit(tx *sql.Tx) (danErr error) {
     return dao.Commit(tx)

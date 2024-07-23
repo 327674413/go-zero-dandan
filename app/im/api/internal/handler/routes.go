@@ -7,6 +7,7 @@ import (
 
 	friend "go-zero-dandan/app/im/api/internal/handler/friend"
 	group "go-zero-dandan/app/im/api/internal/handler/group"
+	sysMsg "go-zero-dandan/app/im/api/internal/handler/sysMsg"
 	"go-zero-dandan/app/im/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -87,6 +88,32 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
 		rest.WithPrefix("/social/v1"),
+		rest.WithTimeout(30000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.MetaMiddleware, serverCtx.UserInfoMiddleware, serverCtx.UserTokenMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/sysMsg/getMySysMsgUnreadNum",
+					Handler: sysMsg.GetMySysMsgUnreadNumHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/sysMsg/setMySysMsgReadByClas",
+					Handler: sysMsg.SetMySysMsgReadByClasHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/sysMsg/setMySysMsgReadById",
+					Handler: sysMsg.SetMySysMsgReadByIdHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/im/v1"),
 		rest.WithTimeout(30000*time.Millisecond),
 	)
 }

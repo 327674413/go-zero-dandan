@@ -27,6 +27,9 @@ const (
 	Im_PutConversations_FullMethodName        = "/im.im/PutConversations"
 	Im_CreateGroupConversation_FullMethodName = "/im.im/CreateGroupConversation"
 	Im_SendSysMsg_FullMethodName              = "/im.im/SendSysMsg"
+	Im_GetUserSysMsgUnreadNum_FullMethodName  = "/im.im/getUserSysMsgUnreadNum"
+	Im_SetUserSysMsgReadByClas_FullMethodName = "/im.im/setUserSysMsgReadByClas"
+	Im_SetUserSysMsgReadById_FullMethodName   = "/im.im/setUserSysMsgReadById"
 )
 
 // ImClient is the client API for Im service.
@@ -39,6 +42,9 @@ type ImClient interface {
 	PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 	CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
 	SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
+	GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error)
+	SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error)
+	SetUserSysMsgReadById(ctx context.Context, in *SetUserSysMsgReadByIdReq, opts ...grpc.CallOption) (*ResultResp, error)
 }
 
 type imClient struct {
@@ -103,6 +109,33 @@ func (c *imClient) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...gr
 	return out, nil
 }
 
+func (c *imClient) GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error) {
+	out := new(GetUserSysMsgUnreadNumResp)
+	err := c.cc.Invoke(ctx, Im_GetUserSysMsgUnreadNum_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imClient) SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Im_SetUserSysMsgReadByClas_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *imClient) SetUserSysMsgReadById(ctx context.Context, in *SetUserSysMsgReadByIdReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Im_SetUserSysMsgReadById_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ImServer is the server API for Im service.
 // All implementations must embed UnimplementedImServer
 // for forward compatibility
@@ -113,6 +146,9 @@ type ImServer interface {
 	PutConversations(context.Context, *PutConversationsReq) (*PutConversationsResp, error)
 	CreateGroupConversation(context.Context, *CreateGroupConversationReq) (*CreateGroupConversationResp, error)
 	SendSysMsg(context.Context, *SendSysMsgReq) (*ResultResp, error)
+	GetUserSysMsgUnreadNum(context.Context, *GetUserSysMsgUnreadNumReq) (*GetUserSysMsgUnreadNumResp, error)
+	SetUserSysMsgReadByClas(context.Context, *SetUserSysMsgReadByClasReq) (*ResultResp, error)
+	SetUserSysMsgReadById(context.Context, *SetUserSysMsgReadByIdReq) (*ResultResp, error)
 	mustEmbedUnimplementedImServer()
 }
 
@@ -137,6 +173,15 @@ func (UnimplementedImServer) CreateGroupConversation(context.Context, *CreateGro
 }
 func (UnimplementedImServer) SendSysMsg(context.Context, *SendSysMsgReq) (*ResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendSysMsg not implemented")
+}
+func (UnimplementedImServer) GetUserSysMsgUnreadNum(context.Context, *GetUserSysMsgUnreadNumReq) (*GetUserSysMsgUnreadNumResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserSysMsgUnreadNum not implemented")
+}
+func (UnimplementedImServer) SetUserSysMsgReadByClas(context.Context, *SetUserSysMsgReadByClasReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserSysMsgReadByClas not implemented")
+}
+func (UnimplementedImServer) SetUserSysMsgReadById(context.Context, *SetUserSysMsgReadByIdReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserSysMsgReadById not implemented")
 }
 func (UnimplementedImServer) mustEmbedUnimplementedImServer() {}
 
@@ -259,6 +304,60 @@ func _Im_SendSysMsg_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Im_GetUserSysMsgUnreadNum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserSysMsgUnreadNumReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImServer).GetUserSysMsgUnreadNum(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Im_GetUserSysMsgUnreadNum_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImServer).GetUserSysMsgUnreadNum(ctx, req.(*GetUserSysMsgUnreadNumReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Im_SetUserSysMsgReadByClas_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserSysMsgReadByClasReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImServer).SetUserSysMsgReadByClas(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Im_SetUserSysMsgReadByClas_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImServer).SetUserSysMsgReadByClas(ctx, req.(*SetUserSysMsgReadByClasReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Im_SetUserSysMsgReadById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserSysMsgReadByIdReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImServer).SetUserSysMsgReadById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Im_SetUserSysMsgReadById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImServer).SetUserSysMsgReadById(ctx, req.(*SetUserSysMsgReadByIdReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Im_ServiceDesc is the grpc.ServiceDesc for Im service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -289,6 +388,18 @@ var Im_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendSysMsg",
 			Handler:    _Im_SendSysMsg_Handler,
+		},
+		{
+			MethodName: "getUserSysMsgUnreadNum",
+			Handler:    _Im_GetUserSysMsgUnreadNum_Handler,
+		},
+		{
+			MethodName: "setUserSysMsgReadByClas",
+			Handler:    _Im_SetUserSysMsgReadByClas_Handler,
+		},
+		{
+			MethodName: "setUserSysMsgReadById",
+			Handler:    _Im_SetUserSysMsgReadById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

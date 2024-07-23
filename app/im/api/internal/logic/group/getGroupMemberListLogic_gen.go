@@ -43,10 +43,10 @@ func NewGetGroupMemberListLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *GetGroupMemberListLogicGen) initReq(req *types.GetGroupMemberListReq) error {
+func (l *GetGroupMemberListLogicGen) initReq(in *types.GetGroupMemberListReq) error {
 
-	if req.GroupId != nil {
-		l.req.GroupId = strings.TrimSpace(*req.GroupId)
+	if in.GroupId != nil {
+		l.req.GroupId = strings.TrimSpace(*in.GroupId)
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false

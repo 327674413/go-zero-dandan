@@ -47,38 +47,38 @@ func NewSendSysMsgLogicGen(ctx context.Context, svc *svc.ServiceContext) *SendSy
 	}
 }
 
-func (l *SendSysMsgLogicGen) initReq(req *imRpc.SendSysMsgReq) error {
+func (l *SendSysMsgLogicGen) initReq(in *imRpc.SendSysMsgReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.MsgTypeEm != nil {
-		l.req.MsgTypeEm = *req.MsgTypeEm
+	if in.MsgTypeEm != nil {
+		l.req.MsgTypeEm = *in.MsgTypeEm
 		l.hasReq.MsgTypeEm = true
 	} else {
 		l.hasReq.MsgTypeEm = false
 	}
 
-	if req.MsgContent != nil {
-		l.req.MsgContent = *req.MsgContent
+	if in.MsgContent != nil {
+		l.req.MsgContent = *in.MsgContent
 		l.hasReq.MsgContent = true
 	} else {
 		l.hasReq.MsgContent = false
 	}
 
-	if req.SendTime != nil {
-		l.req.SendTime = *req.SendTime
+	if in.SendTime != nil {
+		l.req.SendTime = *in.SendTime
 		l.hasReq.SendTime = true
 	} else {
 		l.hasReq.SendTime = false
 	}
 
-	if req.MsgClasEm != nil {
-		l.req.MsgClasEm = *req.MsgClasEm
+	if in.MsgClasEm != nil {
+		l.req.MsgClasEm = *in.MsgClasEm
 		l.hasReq.MsgClasEm = true
 	} else {
 		l.hasReq.MsgClasEm = false

@@ -311,7 +311,7 @@ func (m *defaultPlatMainModel) TxSave(tx *sql.Tx, data *PlatMain) (effectRow int
 	return m.dao.Save(saveData)
 }
 func (m *defaultPlatMainModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultPlatMainModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

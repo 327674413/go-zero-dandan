@@ -36,7 +36,7 @@ func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(in *types.Opera
 		OperateMsg:     &l.req.OperateMsg,
 	})
 	if err != nil {
-		return nil, resd.ErrorCtx(l.ctx, err)
+		return nil, l.resd.Error(err)
 	}
 	return &types.ResultResp{Result: true}, nil
 

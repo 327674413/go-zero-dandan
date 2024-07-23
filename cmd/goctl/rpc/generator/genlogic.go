@@ -152,6 +152,19 @@ func transRpcVarsType(typeName string, rpcName string) string {
 		re := regexp.MustCompile(`^map\[(\w+)](\w+)$`)
 		// 替换成 map[aaa]*bbb 格式
 		return re.ReplaceAllString(typeName, "map[$1]*"+rpcName+"Rpc.$2")
+	} else if len(typeName) > 2 && typeName[:2] == "[]" {
+		if typeName[:3] == "[]*" {
+			return "[]*" + rpcName + "Rpc." + typeName[3:]
+		} else if len(typeName) > 5 && typeName[:5] == "[]map" {
+			return "[]" + rpcName + "Rpc." + typeName[5:]
+		} else {
+			if typeName[2:] == "int64" || typeName[2:] == "bool" || typeName[2:] == "string" {
+				return "[]" + typeName[2:]
+			} else {
+				return "[]" + rpcName + "Rpc." + typeName[2:]
+			}
+
+		}
 	}
 	// 如果不匹配则按原值返回
 	return typeName
@@ -177,8 +190,8 @@ func getDanGenVars(params *getDanGenVarsReq) (defineVars, initVars string) {
 					ptStr = ""
 				}
 				initVars += fmt.Sprintf(`
-					if req.` + fieldName + `!= nil {
-						l.req.` + fieldName + ` = ` + ptStr + `req.` + fieldName + `
+					if in.` + fieldName + `!= nil {
+						l.req.` + fieldName + ` = ` + ptStr + `in.` + fieldName + `
 						l.hasReq.` + fieldName + ` = true
 					} else {
 						l.hasReq.` + fieldName + ` = false

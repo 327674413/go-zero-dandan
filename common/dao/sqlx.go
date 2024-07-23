@@ -67,7 +67,7 @@ func NewSqlxDao(conn sqlx.SqlConn, tableName string, defaultRowField string, sof
 }
 
 // StartTrans 开启事务
-func StartTrans(conn sqlx.SqlConn, ctxOrNil context.Context) (tx *sql.Tx, danErr error) {
+func StartTrans(ctxOrNil context.Context, conn sqlx.SqlConn) (tx *sql.Tx, danErr error) {
 	var sqlCtx context.Context
 	if ctxOrNil == nil {
 		sqlCtx = ctxOrNil
@@ -83,6 +83,44 @@ func StartTrans(conn sqlx.SqlConn, ctxOrNil context.Context) (tx *sql.Tx, danErr
 		return nil, resd.ErrorCtx(sqlCtx, err, resd.ErrMysqlStartTrans)
 	}
 	return tx, nil
+}
+
+// EndTrans 根据err自动提交或回滚,注意err要跟返回的一致，不能返回临时的err，目前看来没啥用了
+func EndTrans(ctxOrNil context.Context, tx *sql.Tx, errPtr *error) {
+	var ctx context.Context
+	if ctxOrNil == nil {
+		ctx = context.Background()
+	} else {
+		ctx = ctxOrNil
+	}
+	if rec := recover(); rec != nil {
+		tx.Rollback()
+		*errPtr = resd.NewErrCtx(ctx, fmt.Sprintf("panic: %v", rec))
+	} else if *errPtr != nil {
+		tx.Rollback()
+	} else {
+		err := tx.Commit()
+		if err != nil {
+			*errPtr = resd.ErrorCtx(ctx, err)
+		}
+	}
+}
+func WithTrans(ctxOrNil context.Context, conn sqlx.SqlConn, fn func(*sql.Tx) error) (err error) {
+	var ctx context.Context
+	if ctxOrNil == nil {
+		ctx = context.Background()
+	} else {
+		ctx = ctxOrNil
+	}
+	tx, err := StartTrans(ctx, conn)
+	if err != nil {
+		return err //额外打印一遍好像在这里没意义，暂时先不打印了
+	}
+	defer EndTrans(ctx, tx, &err)
+	if err = fn(tx); err != nil {
+		return err //额外打印一遍好像在这里没意义，暂时先不打印了
+	}
+	return
 }
 
 // Commit 提交事务

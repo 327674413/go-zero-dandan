@@ -64,3 +64,22 @@ service im-api {
 	post  /group/getGroupMemberList(GetGroupMemberListReq) returns(GroupMemberListResp)
 	
 }
+
+@server(
+	timeout: 30s
+	middleware: MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	jwt: Auth
+	group: sysMsg
+	prefix: im/v1
+)
+service im-api {
+	@doc "获取我的系统消息未读数"
+	@handler getMySysMsgUnreadNum
+	post /sysMsg/getMySysMsgUnreadNum (GetMySysMsgUnreadNumReq) returns (GetMySysMsgUnreadNumResp)
+	@doc "设置我的系统消息已读，通过消息类型"
+	@handler setMySysMsgReadByClas
+	post /sysMsg/setMySysMsgReadByClas (SetMySysMsgReadByClasReq) returns (ResultResp)
+	@doc "设置我的系统消息已读，通过id"
+	@handler setMySysMsgReadById
+	post /sysMsg/setMySysMsgReadById (SetMySysMsgReadByIdReq) returns (ResultResp)
+}

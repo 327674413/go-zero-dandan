@@ -41,17 +41,17 @@ func NewGetGroupMemberListLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *GetGroupMemberListLogicGen) initReq(req *socialRpc.GetGroupMemberListReq) error {
+func (l *GetGroupMemberListLogicGen) initReq(in *socialRpc.GetGroupMemberListReq) error {
 
-	if req.GroupId != nil {
-		l.req.GroupId = *req.GroupId
+	if in.GroupId != nil {
+		l.req.GroupId = *in.GroupId
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

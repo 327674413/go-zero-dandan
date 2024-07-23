@@ -49,45 +49,45 @@ func NewGetUserRecvFriendApplyPageLogicGen(ctx context.Context, svc *svc.Service
 	}
 }
 
-func (l *GetUserRecvFriendApplyPageLogicGen) initReq(req *socialRpc.GetUserRecvFriendApplyPageReq) error {
+func (l *GetUserRecvFriendApplyPageLogicGen) initReq(in *socialRpc.GetUserRecvFriendApplyPageReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.Page != nil {
-		l.req.Page = *req.Page
+	if in.Page != nil {
+		l.req.Page = *in.Page
 		l.hasReq.Page = true
 	} else {
 		l.hasReq.Page = false
 	}
 
-	if req.Size != nil {
-		l.req.Size = *req.Size
+	if in.Size != nil {
+		l.req.Size = *in.Size
 		l.hasReq.Size = true
 	} else {
 		l.hasReq.Size = false
 	}
 
-	if req.IsNeedTotal != nil {
-		l.req.IsNeedTotal = *req.IsNeedTotal
+	if in.IsNeedTotal != nil {
+		l.req.IsNeedTotal = *in.IsNeedTotal
 		l.hasReq.IsNeedTotal = true
 	} else {
 		l.hasReq.IsNeedTotal = false
 	}
 
-	if req.Match != nil {
-		l.req.Match = req.Match
+	if in.Match != nil {
+		l.req.Match = in.Match
 		l.hasReq.Match = true
 	} else {
 		l.hasReq.Match = false

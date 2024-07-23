@@ -307,7 +307,7 @@ func (m *defaultMessageSmsSendModel) TxSave(tx *sql.Tx, data *MessageSmsSend) (e
 	return m.dao.Save(saveData)
 }
 func (m *defaultMessageSmsSendModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultMessageSmsSendModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

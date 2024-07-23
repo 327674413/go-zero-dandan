@@ -40,7 +40,11 @@ func (t *Resp) Error(err error, initErrCode ...int) error {
 	if len(initErrCode) > 0 {
 		return errdWithTemp(t.ctx, t.Lang, err, initErrCode[0])
 	} else {
-		return errdWithTemp(t.ctx, t.Lang, err, ErrSys)
+		if danErr, ok := err.(*danError); ok {
+			return errdWithTemp(t.ctx, t.Lang, err, danErr.Code, danErr.GetTemps()...)
+		} else {
+			return errdWithTemp(t.ctx, t.Lang, err, ErrSys, danErr.GetTemps()...)
+		}
 	}
 
 }
@@ -63,14 +67,14 @@ func (t *Resp) NewErr(initErrCode ...int) error {
 // NewErrWithTemp 带模版的异常报错
 func (t *Resp) NewErrWithTemp(initErrCode int, temps ...string) error {
 	errCode := initErrCode
-	errMsg := t.Lang.Msg(errCode, temps)
-	return newErr(t.ctx, t.Lang, errMsg, errCode)
+	errMsg := t.Lang.Msg(errCode, temps...)
+	return newErrWithTemp(t.ctx, t.Lang, errMsg, errCode, temps...)
 }
 
 // fmtd 打印调试信息
 func printErr(skip int, danErr *danError, lang *Lang) {
 	if lang != nil && danErr.Msg == "" {
-		fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("[%d]%s", danErr.Code, lang.Msg(danErr.Code, danErr.GetTemps())))
+		fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("[%d]%s", danErr.Code, lang.Msg(danErr.Code, danErr.GetTemps()...)))
 	} else {
 		fmtd.WithCaller(skip + 1).Error(fmt.Sprintf("[%d]%s", danErr.Code, danErr.Msg))
 	}

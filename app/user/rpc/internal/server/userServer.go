@@ -5,10 +5,12 @@ package server
 
 import (
 	"context"
-
+	"encoding/json"
+	"errors"
 	"go-zero-dandan/app/user/rpc/internal/logic"
 	"go-zero-dandan/app/user/rpc/internal/svc"
 	"go-zero-dandan/app/user/rpc/types/userRpc"
+	"go-zero-dandan/common/resd"
 )
 
 type UserServer struct {
@@ -24,35 +26,112 @@ func NewUserServer(svcCtx *svc.ServiceContext) *UserServer {
 
 func (s *UserServer) GetUserByToken(ctx context.Context, in *userRpc.TokenReq) (*userRpc.UserMainInfo, error) {
 	l := logic.NewGetUserByTokenLogic(ctx, s.svcCtx)
-	return l.GetUserByToken(in)
+	resp, err := l.GetUserByToken(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) EditUserInfo(ctx context.Context, in *userRpc.EditUserInfoReq) (*userRpc.SuccResp, error) {
 	l := logic.NewEditUserInfoLogic(ctx, s.svcCtx)
-	return l.EditUserInfo(in)
+	resp, err := l.EditUserInfo(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) RegByAccount(ctx context.Context, in *userRpc.RegByAccountReq) (*userRpc.LoginResp, error) {
 	l := logic.NewRegByAccountLogic(ctx, s.svcCtx)
-	return l.RegByAccount(in)
+	resp, err := l.RegByAccount(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) GetUserById(ctx context.Context, in *userRpc.IdReq) (*userRpc.UserMainInfo, error) {
 	l := logic.NewGetUserByIdLogic(ctx, s.svcCtx)
-	return l.GetUserById(in)
+	resp, err := l.GetUserById(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) GetUserPage(ctx context.Context, in *userRpc.GetUserPageReq) (*userRpc.GetUserPageResp, error) {
 	l := logic.NewGetUserPageLogic(ctx, s.svcCtx)
-	return l.GetUserPage(in)
+	resp, err := l.GetUserPage(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) BindUnionUser(ctx context.Context, in *userRpc.BindUnionUserReq) (*userRpc.BindUnionUserResp, error) {
 	l := logic.NewBindUnionUserLogic(ctx, s.svcCtx)
-	return l.BindUnionUser(in)
+	resp, err := l.BindUnionUser(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *UserServer) GetUserNormalInfo(ctx context.Context, in *userRpc.GetUserInfoReq) (*userRpc.GetUserNormalInfoResp, error) {
 	l := logic.NewGetUserNormalInfoLogic(ctx, s.svcCtx)
-	return l.GetUserNormalInfo(in)
+	resp, err := l.GetUserNormalInfo(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }

@@ -95,7 +95,7 @@
                     </div>
                     <div class="fb btn friend-new" @click="tapShowFriendNewApply">
                         <div class="fl friend-new-text">新朋友</div>
-                        <div class="fc friend-new-num" v-if="friendNewNum > 0">{{friendNewNum > 99 ? '99+':friendNewNum}}</div>
+                        <div class="fc friend-new-num" v-if="unreadNewFriendApply > 0">{{unreadNewFriendApply > 99 ? '99+':unreadNewFriendApply}}</div>
                     </div>
                     <div class="friend-list">
                         <div class="fl btn friend-item" v-for="item in friendListCpd" :key="item.id">
@@ -181,6 +181,7 @@
 <script src="static/js/tool.js"></script>
 <script src="static/js/request.js"></script>
 <script>
+    const MsgClasEmNewFriendApply = 4
     var apiUrl = "http://localhost:8812"
     var wsUrl = "http://localhost:8808"
     var appToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0'
@@ -205,11 +206,11 @@
                 showAddFriendDialog:false,
                 friendAddSearchList:[],
                 friendAddSearchListState:'',
-                friendNewNum:10,
                 friendNewApplyShow:false,
                 recvFriendApplyList:[],
                 recvFriendApplyListState:'',
                 recvFriendApplyListNextPage:1,
+                unreadNewFriendApply:0,
 
                 searchGroupVal:'',
                 groupList:[],
@@ -237,6 +238,7 @@
                 }
                 this.headers.token = urlParams.get('token')
                 this.getMyFriendList()
+                this.getMySysMsgUnreadList()
                 this.connectWs()
 
             },
@@ -274,18 +276,14 @@
                 this.conn.send(JSON.stringify(msgData))
             },
             recvMsgHanler(msg){
-                switch (msg.msgClas){
-                    case 4: //新好友申请
+                if (!msg.data) return console.log("异常消息：",msg)
+                switch (msg.data.msgClas){
+                    case MsgClasEmNewFriendApply: //新好友申请
                         this.recvMsgNewFriendApply()
                 }
             },
             recvMsgNewFriendApply(){
-                request({
-                    url:apiUrl + '/social/v1/friend/getMyFriendList',
-                    headers:this.headers,
-                }).then(res=>{
-                    this.friendList = res.list
-                })
+                this.getMySysMsgUnreadList()
             },
             tapNav(nav){
                 if (nav == "logout"){
@@ -300,12 +298,31 @@
             tapShowConvAdd(){
 
             },
+            getMySysMsgUnreadList(){
+                request({
+                    url:apiUrl + '/im/v1/sysMsg/getMySysMsgUnreadNum',
+                    headers:this.headers,
+                }).then(res=>{
+                    this.unreadNewFriendApply = res.unread && res.unread[4] ? res.unread[4] : 0
+                })
+            },
             getMyFriendList(){
                 request({
                     url:apiUrl + '/social/v1/friend/getMyFriendList',
                     headers:this.headers,
                 }).then(res=>{
                     this.friendList = res.list
+                })
+            },
+            setNewFriendApplyRead(){
+                request({
+                    url:apiUrl + '/im/v1/sysMsg/setMySysMsgReadByClas',
+                    headers:this.headers,
+                    data:{
+                        msgClasEms:[MsgClasEmNewFriendApply],
+                    }
+                }).then(res=>{
+                    this.unreadNewFriendApply = 0
                 })
             },
             tapShowFriendNewApply(){
@@ -327,6 +344,12 @@
                     }
                 }).then(res=>{
                     this.recvFriendApplyList = res.list
+                    for (let i=0;i<res.list.length;i++){
+                        if (res.list[i].stateEm == 1) { //存在未处理再消除已读
+                            this.setNewFriendApplyRead()
+                            break;
+                        }
+                    }
                     if (this.recvFriendApplyList.length == 0){
                         this.recvFriendApplyListState = 'none'
                     } else if(res.list.length == 0) {

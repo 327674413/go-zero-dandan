@@ -15,6 +15,12 @@ DB:
 Auth:
   AccessSecret: "dandandandandandandandan"
   AccessExpire: 604800
+ImRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: im.rpc
+  NonBlock: true
 UserRpc:
   Etcd:
     Hosts:

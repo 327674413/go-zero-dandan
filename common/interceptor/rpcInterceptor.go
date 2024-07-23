@@ -8,6 +8,7 @@ import (
 	"go-zero-dandan/common/utild"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"strings"
 )
 
@@ -29,7 +30,12 @@ func RpcClientInterceptor() grpc.UnaryClientInterceptor {
 		newCtx := metadata.NewOutgoingContext(ctx, md)
 		//调用rpc
 		err = invoker(newCtx, method, req, reply, cc, opts...)
-		// 调用后目前暂时不做处理
+		if err == nil {
+			return nil
+		} else if rpcErr, ok := status.FromError(err); ok { // grpc err错误
+			//这里返回的时候，rpc其实已经国际化了，只需要code + 原文msg就可以
+			return resd.JsonToErr(ctx, rpcErr.Message())
+		}
 		return err
 	}
 }

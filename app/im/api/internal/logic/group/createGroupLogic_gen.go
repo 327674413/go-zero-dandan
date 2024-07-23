@@ -43,10 +43,10 @@ func NewCreateGroupLogicGen(ctx context.Context, svc *svc.ServiceContext) *Creat
 	}
 }
 
-func (l *CreateGroupLogicGen) initReq(req *types.CreateGroupReq) error {
+func (l *CreateGroupLogicGen) initReq(in *types.CreateGroupReq) error {
 
-	if req.Name != nil {
-		l.req.Name = strings.TrimSpace(*req.Name)
+	if in.Name != nil {
+		l.req.Name = strings.TrimSpace(*in.Name)
 		l.hasReq.Name = true
 	} else {
 		l.hasReq.Name = false

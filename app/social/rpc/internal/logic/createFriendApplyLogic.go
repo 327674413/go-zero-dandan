@@ -64,95 +64,95 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *socialRpc.CreateFriendApp
 			//先当作还是要对方点同意来弄，所以先不用处理
 		}
 	}
-	//基础校验完成，可以添加，开启事务
-	tx, err := dao.StartTrans(l.svc.SqlConn, l.ctx)
-	if err != nil {
-		return nil, l.resd.Error(err)
-	}
-	//确保有我 - 对方的关系
-	if existSelf == nil {
-		// 不存在，创建
-		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
-			Id:        utild.MakeId(),
-			UserId:    l.req.UserId,
-			FriendUid: l.req.FriendUid,
-			StateEm:   constd.SocialFriendStateEmApply,
-		}); err != nil {
-			return nil, l.resd.Error(err)
-		}
-	} else {
-		//存在，更新我 - 对方的状态
-		if _, err = friendModel.WhereId(existSelf.Id).TxUpdate(tx, map[dao.TableField]any{
-			model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
-		}); err != nil {
-			return nil, l.resd.Error(err)
-		}
-	}
-	//确保有对方 - 我的关系
-	if existFriend == nil {
-		//不存在，创建
-		if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
-			Id:        utild.MakeId(),
-			UserId:    l.req.FriendUid,
-			FriendUid: l.req.UserId,
-			StateEm:   constd.SocialFriendStateEmApply,
-		}); err != nil {
-			return nil, l.resd.Error(err)
-		}
-	} else {
-		//存在，更新 对我 - 我的状态
-		if _, err = friendModel.WhereId(existFriend.Id).TxUpdate(tx, map[dao.TableField]any{
-			model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
-		}); err != nil {
-			return nil, l.resd.Error(err)
-		}
-	}
-
-	//查看是否存在过申请
-	applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
-	existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
-	if err != nil {
-		return nil, l.resd.Error(err)
-	}
 	var applyId string
-	if existApply != nil {
-		//存在申请，更新与添加申请消息
-		applyId = existApply.Id
-		newContent := biz.AddApplyRecord(existApply.Content.String, l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
-		if _, err = applyModel.WhereId(applyId).TxUpdate(tx, map[dao.TableField]any{
-			model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
-			model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
-			model.SocialFriendApply_IsRead:       0,
-			model.SocialFriendApply_Content:      newContent,
-			model.SocialFriend_StateEm:           constd.SocialFriendStateEmApply,
-			model.SocialFriend_SourceEm:          in.SourceEm,
-		}); err != nil {
-			return nil, l.resd.Error(err)
+	//基础校验完成，可以添加，开启事务
+	err = dao.WithTrans(l.ctx, l.svc.SqlConn, func(tx *sql.Tx) error {
+		//确保有我 - 对方的关系
+		if existSelf == nil {
+			// 不存在，创建
+			if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
+				Id:        utild.MakeId(),
+				UserId:    l.req.UserId,
+				FriendUid: l.req.FriendUid,
+				StateEm:   constd.SocialFriendStateEmApply,
+			}); err != nil {
+				return l.resd.Error(err)
+			}
+		} else {
+			//存在，更新我 - 对方的状态
+			if _, err = friendModel.WhereId(existSelf.Id).TxUpdate(tx, map[dao.TableField]any{
+				model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
+			}); err != nil {
+				return l.resd.Error(err)
+			}
+		}
+		//确保有对方 - 我的关系
+		if existFriend == nil {
+			//不存在，创建
+			if _, err = friendModel.TxInsert(tx, &model.SocialFriend{
+				Id:        utild.MakeId(),
+				UserId:    l.req.FriendUid,
+				FriendUid: l.req.UserId,
+				StateEm:   constd.SocialFriendStateEmApply,
+			}); err != nil {
+				return l.resd.Error(err)
+			}
+		} else {
+			//存在，更新 对我 - 我的状态
+			if _, err = friendModel.WhereId(existFriend.Id).TxUpdate(tx, map[dao.TableField]any{
+				model.SocialFriend_StateEm: constd.SocialFriendStateEmApply,
+			}); err != nil {
+				return l.resd.Error(err)
+			}
 		}
 
-	} else {
-		//不存在申请，创建新申请
-		applyId = utild.MakeId()
-		newContent := biz.AddApplyRecord("", l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
-		if _, err = applyModel.TxInsert(tx, &model.SocialFriendApply{
-			Id:           applyId,
-			UserId:       l.req.UserId,
-			FriendUid:    l.req.FriendUid,
-			ApplyLastMsg: l.req.ApplyMsg,
-			ApplyLastAt:  time.Now().Unix(),
-			ApplyStartAt: time.Now().Unix(),
-			StateEm:      constd.SocialFriendStateEmApply,
-			SourceEm:     l.req.SourceEm,
-			Content: sql.NullString{
-				String: newContent,
-				Valid:  true,
-			},
-		}); err != nil {
-			return nil, l.resd.Error(err)
+		//查看是否存在过申请
+		applyModel := model.NewSocialFriendApplyModel(l.ctx, l.svc.SqlConn, l.req.PlatId)
+		existApply, err := applyModel.Where("friend_uid = ? AND user_id = ?", in.FriendUid, in.UserId).Find()
+		if err != nil {
+			return l.resd.Error(err)
 		}
 
-	}
-	if err := tx.Commit(); err != nil {
+		if existApply != nil {
+			//存在申请，更新与添加申请消息
+			applyId = existApply.Id
+			newContent := biz.AddApplyRecord(existApply.Content.String, l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+			if _, err = applyModel.WhereId(applyId).TxUpdate(tx, map[dao.TableField]any{
+				model.SocialFriendApply_ApplyLastMsg: in.ApplyMsg,
+				model.SocialFriendApply_ApplyLastAt:  time.Now().Unix(),
+				model.SocialFriendApply_IsRead:       0,
+				model.SocialFriendApply_Content:      newContent,
+				model.SocialFriend_StateEm:           constd.SocialFriendStateEmApply,
+				model.SocialFriend_SourceEm:          in.SourceEm,
+			}); err != nil {
+				return l.resd.Error(err)
+			}
+
+		} else {
+			//不存在申请，创建新申请
+			applyId = utild.MakeId()
+			newContent := biz.AddApplyRecord("", l.req.UserId, l.req.ApplyMsg, l.req.SourceEm, constd.SocialFriendApplyRecordTypeEmApply)
+			if _, err = applyModel.TxInsert(tx, &model.SocialFriendApply{
+				Id:           applyId,
+				UserId:       l.req.UserId,
+				FriendUid:    l.req.FriendUid,
+				ApplyLastMsg: l.req.ApplyMsg,
+				ApplyLastAt:  time.Now().Unix(),
+				ApplyStartAt: time.Now().Unix(),
+				StateEm:      constd.SocialFriendStateEmApply,
+				SourceEm:     l.req.SourceEm,
+				Content: sql.NullString{
+					String: newContent,
+					Valid:  true,
+				},
+			}); err != nil {
+				return l.resd.Error(err)
+			}
+
+		}
+		return nil
+	})
+	if err != nil {
 		return nil, l.resd.Error(err)
 	}
 	sendTime := utild.NowTime()

@@ -45,31 +45,31 @@ func NewGetPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetPageLo
 	}
 }
 
-func (l *GetPageLogicGen) initReq(req *goodsRpc.GetPageReq) error {
+func (l *GetPageLogicGen) initReq(in *goodsRpc.GetPageReq) error {
 
-	if req.Page != nil {
-		l.req.Page = *req.Page
+	if in.Page != nil {
+		l.req.Page = *in.Page
 		l.hasReq.Page = true
 	} else {
 		l.hasReq.Page = false
 	}
 
-	if req.Size != nil {
-		l.req.Size = *req.Size
+	if in.Size != nil {
+		l.req.Size = *in.Size
 		l.hasReq.Size = true
 	} else {
 		l.hasReq.Size = false
 	}
 
-	if req.Sort != nil {
-		l.req.Sort = *req.Sort
+	if in.Sort != nil {
+		l.req.Sort = *in.Sort
 		l.hasReq.Sort = true
 	} else {
 		l.hasReq.Sort = false
 	}
 
-	if req.TotalFlag != nil {
-		l.req.TotalFlag = *req.TotalFlag
+	if in.TotalFlag != nil {
+		l.req.TotalFlag = *in.TotalFlag
 		l.hasReq.TotalFlag = true
 	} else {
 		l.hasReq.TotalFlag = false

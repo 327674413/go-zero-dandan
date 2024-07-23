@@ -49,45 +49,45 @@ func NewOperateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceCon
 	}
 }
 
-func (l *OperateGroupMemberApplyLogicGen) initReq(req *socialRpc.OperateGroupMemberApplyReq) error {
+func (l *OperateGroupMemberApplyLogicGen) initReq(in *socialRpc.OperateGroupMemberApplyReq) error {
 
-	if req.ApplyId != nil {
-		l.req.ApplyId = *req.ApplyId
+	if in.ApplyId != nil {
+		l.req.ApplyId = *in.ApplyId
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
 	}
 
-	if req.GroupId != nil {
-		l.req.GroupId = *req.GroupId
+	if in.GroupId != nil {
+		l.req.GroupId = *in.GroupId
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.OperateUid != nil {
-		l.req.OperateUid = *req.OperateUid
+	if in.OperateUid != nil {
+		l.req.OperateUid = *in.OperateUid
 		l.hasReq.OperateUid = true
 	} else {
 		l.hasReq.OperateUid = false
 	}
 
-	if req.OperateStateEm != nil {
-		l.req.OperateStateEm = *req.OperateStateEm
+	if in.OperateStateEm != nil {
+		l.req.OperateStateEm = *in.OperateStateEm
 		l.hasReq.OperateStateEm = true
 	} else {
 		l.hasReq.OperateStateEm = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.OperateMsg != nil {
-		l.req.OperateMsg = *req.OperateMsg
+	if in.OperateMsg != nil {
+		l.req.OperateMsg = *in.OperateMsg
 		l.hasReq.OperateMsg = true
 	} else {
 		l.hasReq.OperateMsg = false

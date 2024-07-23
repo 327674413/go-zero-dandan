@@ -1,6 +1,5 @@
 package {{.pkgName}}
 import (
-    "go-zero-dandan/common/resd"
 	{{.imports}}
 )
 
@@ -14,8 +13,8 @@ func New{{.logic}}(ctx context.Context, svc *svc.ServiceContext) *{{.logic}} {
 	}
 }
 func (l *{{.logic}}) {{.function}}({{.request}}) {{.responseType}} {
-    if err = l.initReq(req);err != nil{
-         return l.resd.Error(err)
+    if err = l.initReq(in);err != nil{
+         return nil,l.resd.Error(err)
     }
 	{{.returnString}}
 }

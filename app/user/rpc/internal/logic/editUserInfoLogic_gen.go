@@ -53,59 +53,59 @@ func NewEditUserInfoLogicGen(ctx context.Context, svc *svc.ServiceContext) *Edit
 	}
 }
 
-func (l *EditUserInfoLogicGen) initReq(req *userRpc.EditUserInfoReq) error {
+func (l *EditUserInfoLogicGen) initReq(in *userRpc.EditUserInfoReq) error {
 
-	if req.Id != nil {
-		l.req.Id = *req.Id
+	if in.Id != nil {
+		l.req.Id = *in.Id
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false
 	}
 
-	if req.Nickname != nil {
-		l.req.Nickname = *req.Nickname
+	if in.Nickname != nil {
+		l.req.Nickname = *in.Nickname
 		l.hasReq.Nickname = true
 	} else {
 		l.hasReq.Nickname = false
 	}
 
-	if req.SexEm != nil {
-		l.req.SexEm = *req.SexEm
+	if in.SexEm != nil {
+		l.req.SexEm = *in.SexEm
 		l.hasReq.SexEm = true
 	} else {
 		l.hasReq.SexEm = false
 	}
 
-	if req.Email != nil {
-		l.req.Email = *req.Email
+	if in.Email != nil {
+		l.req.Email = *in.Email
 		l.hasReq.Email = true
 	} else {
 		l.hasReq.Email = false
 	}
 
-	if req.AvatarImg != nil {
-		l.req.AvatarImg = *req.AvatarImg
+	if in.AvatarImg != nil {
+		l.req.AvatarImg = *in.AvatarImg
 		l.hasReq.AvatarImg = true
 	} else {
 		l.hasReq.AvatarImg = false
 	}
 
-	if req.GraduateFrom != nil {
-		l.req.GraduateFrom = *req.GraduateFrom
+	if in.GraduateFrom != nil {
+		l.req.GraduateFrom = *in.GraduateFrom
 		l.hasReq.GraduateFrom = true
 	} else {
 		l.hasReq.GraduateFrom = false
 	}
 
-	if req.BirthDate != nil {
-		l.req.BirthDate = *req.BirthDate
+	if in.BirthDate != nil {
+		l.req.BirthDate = *in.BirthDate
 		l.hasReq.BirthDate = true
 	} else {
 		l.hasReq.BirthDate = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

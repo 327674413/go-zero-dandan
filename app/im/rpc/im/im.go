@@ -22,12 +22,16 @@ type (
 	GetChatLogResp              = imRpc.GetChatLogResp
 	GetConversationsReq         = imRpc.GetConversationsReq
 	GetConversationsResp        = imRpc.GetConversationsResp
+	GetUserSysMsgUnreadNumReq   = imRpc.GetUserSysMsgUnreadNumReq
+	GetUserSysMsgUnreadNumResp  = imRpc.GetUserSysMsgUnreadNumResp
 	PutConversationsReq         = imRpc.PutConversationsReq
 	PutConversationsResp        = imRpc.PutConversationsResp
 	ResultResp                  = imRpc.ResultResp
 	SendSysMsgReq               = imRpc.SendSysMsgReq
 	SetUpUserConversationReq    = imRpc.SetUpUserConversationReq
 	SetUpUserConversationResp   = imRpc.SetUpUserConversationResp
+	SetUserSysMsgReadByClasReq  = imRpc.SetUserSysMsgReadByClasReq
+	SetUserSysMsgReadByIdReq    = imRpc.SetUserSysMsgReadByIdReq
 
 	Im interface {
 		GetChatLog(ctx context.Context, in *GetChatLogReq, opts ...grpc.CallOption) (*GetChatLogResp, error)
@@ -36,6 +40,9 @@ type (
 		PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 		CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
 		SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
+		GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error)
+		SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error)
+		SetUserSysMsgReadById(ctx context.Context, in *SetUserSysMsgReadByIdReq, opts ...grpc.CallOption) (*ResultResp, error)
 	}
 
 	defaultIm struct {
@@ -77,4 +84,19 @@ func (m *defaultIm) CreateGroupConversation(ctx context.Context, in *CreateGroup
 func (m *defaultIm) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.SendSysMsg(ctx, in, opts...)
+}
+
+func (m *defaultIm) GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error) {
+	client := imRpc.NewImClient(m.cli.Conn())
+	return client.GetUserSysMsgUnreadNum(ctx, in, opts...)
+}
+
+func (m *defaultIm) SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	client := imRpc.NewImClient(m.cli.Conn())
+	return client.SetUserSysMsgReadByClas(ctx, in, opts...)
+}
+
+func (m *defaultIm) SetUserSysMsgReadById(ctx context.Context, in *SetUserSysMsgReadByIdReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	client := imRpc.NewImClient(m.cli.Conn())
+	return client.SetUserSysMsgReadById(ctx, in, opts...)
 }

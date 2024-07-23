@@ -209,8 +209,8 @@ func (t *Redisd) Get(field string, key string) (str string, danErr error) {
 		//报错返回错误信息
 		return "", resd.Error(err, resd.ErrRedisGet)
 	} else if str == "" {
-		//没找到数据，按空返回
-		return "", resd.Error(err, resd.ErrRedisKeyNil) //&NotFound{Msg: t.prefix + ":" + field + ":" + key}
+		//没找到数据，按空返回，不报错，暂时没场景需要区分是否为你nil，如果要区分到时用原声client处理
+		return "", nil
 	} else {
 		return str, nil
 	}

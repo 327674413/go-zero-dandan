@@ -51,52 +51,52 @@ func NewOperateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *OperateFriendApplyLogicGen) initReq(req *socialRpc.OperateFriendApplyReq) error {
+func (l *OperateFriendApplyLogicGen) initReq(in *socialRpc.OperateFriendApplyReq) error {
 
-	if req.ApplyId != nil {
-		l.req.ApplyId = *req.ApplyId
+	if in.ApplyId != nil {
+		l.req.ApplyId = *in.ApplyId
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
 	}
 
-	if req.OperateUid != nil {
-		l.req.OperateUid = *req.OperateUid
+	if in.OperateUid != nil {
+		l.req.OperateUid = *in.OperateUid
 		l.hasReq.OperateUid = true
 	} else {
 		l.hasReq.OperateUid = false
 	}
 
-	if req.OperateStateEm != nil {
-		l.req.OperateStateEm = *req.OperateStateEm
+	if in.OperateStateEm != nil {
+		l.req.OperateStateEm = *in.OperateStateEm
 		l.hasReq.OperateStateEm = true
 	} else {
 		l.hasReq.OperateStateEm = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.OperateMsg != nil {
-		l.req.OperateMsg = *req.OperateMsg
+	if in.OperateMsg != nil {
+		l.req.OperateMsg = *in.OperateMsg
 		l.hasReq.OperateMsg = true
 	} else {
 		l.hasReq.OperateMsg = false
 	}
 
-	if req.SysRoleEm != nil {
-		l.req.SysRoleEm = *req.SysRoleEm
+	if in.SysRoleEm != nil {
+		l.req.SysRoleEm = *in.SysRoleEm
 		l.hasReq.SysRoleEm = true
 	} else {
 		l.hasReq.SysRoleEm = false
 	}
 
-	if req.SysRoleUid != nil {
-		l.req.SysRoleUid = *req.SysRoleUid
+	if in.SysRoleUid != nil {
+		l.req.SysRoleUid = *in.SysRoleUid
 		l.hasReq.SysRoleUid = true
 	} else {
 		l.hasReq.SysRoleUid = false

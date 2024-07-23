@@ -47,38 +47,38 @@ func NewGetUserPageLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetUs
 	}
 }
 
-func (l *GetUserPageLogicGen) initReq(req *userRpc.GetUserPageReq) error {
+func (l *GetUserPageLogicGen) initReq(in *userRpc.GetUserPageReq) error {
 
-	if req.Page != nil {
-		l.req.Page = *req.Page
+	if in.Page != nil {
+		l.req.Page = *in.Page
 		l.hasReq.Page = true
 	} else {
 		l.hasReq.Page = false
 	}
 
-	if req.Size != nil {
-		l.req.Size = *req.Size
+	if in.Size != nil {
+		l.req.Size = *in.Size
 		l.hasReq.Size = true
 	} else {
 		l.hasReq.Size = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.NeedTotal != nil {
-		l.req.NeedTotal = *req.NeedTotal
+	if in.NeedTotal != nil {
+		l.req.NeedTotal = *in.NeedTotal
 		l.hasReq.NeedTotal = true
 	} else {
 		l.hasReq.NeedTotal = false
 	}
 
-	if req.Match != nil {
-		l.req.Match = req.Match
+	if in.Match != nil {
+		l.req.Match = in.Match
 		l.hasReq.Match = true
 	} else {
 		l.hasReq.Match = false

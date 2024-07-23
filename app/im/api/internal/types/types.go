@@ -155,3 +155,20 @@ type SearchNewFriendReq struct {
 type SearchNewFriendResp struct {
 	List []*NewFriendInfo `json:"list"`
 }
+
+type GetMySysMsgUnreadNumReq struct {
+	MsgClasEm *int64 `json:"msgClasEm,optional"`
+}
+
+type GetMySysMsgUnreadNumResp struct {
+	Unread map[int64]int64 `json:"unread"`
+}
+
+type SetMySysMsgReadByClasReq struct {
+	MsgClasEms []int64 `json:"msgClasEms,optional" check:"required"`
+}
+
+type SetMySysMsgReadByIdReq struct {
+	MsgClasEm *int64  `json:"msgClasEm,optional" check:"required"`
+	Ids       []int64 `json:"ids,optional" check:"required"`
+}

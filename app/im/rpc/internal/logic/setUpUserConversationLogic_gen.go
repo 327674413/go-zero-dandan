@@ -43,24 +43,24 @@ func NewSetUpUserConversationLogicGen(ctx context.Context, svc *svc.ServiceConte
 	}
 }
 
-func (l *SetUpUserConversationLogicGen) initReq(req *imRpc.SetUpUserConversationReq) error {
+func (l *SetUpUserConversationLogicGen) initReq(in *imRpc.SetUpUserConversationReq) error {
 
-	if req.SendId != nil {
-		l.req.SendId = *req.SendId
+	if in.SendId != nil {
+		l.req.SendId = *in.SendId
 		l.hasReq.SendId = true
 	} else {
 		l.hasReq.SendId = false
 	}
 
-	if req.RecvId != nil {
-		l.req.RecvId = *req.RecvId
+	if in.RecvId != nil {
+		l.req.RecvId = *in.RecvId
 		l.hasReq.RecvId = true
 	} else {
 		l.hasReq.RecvId = false
 	}
 
-	if req.ChatType != nil {
-		l.req.ChatType = *req.ChatType
+	if in.ChatType != nil {
+		l.req.ChatType = *in.ChatType
 		l.hasReq.ChatType = true
 	} else {
 		l.hasReq.ChatType = false

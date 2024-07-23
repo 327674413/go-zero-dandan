@@ -34,7 +34,7 @@ func New{{.logicName}}Gen(ctx context.Context,svc *svc.ServiceContext) *{{.logic
 }
 
 
-func (l *{{.logicName}}Gen) initReq({{if .hasReq}}req {{.request}}{{end}}) error {
+func (l *{{.logicName}}Gen) initReq({{if .hasReq}}in {{.request}}{{end}}) error {
     {{.danInitVars}}
 	return nil
 }

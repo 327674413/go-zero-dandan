@@ -42,7 +42,14 @@ var Errs = []*langErr{
 	{502010002, "ErrRedisSetVerifyCodeInterval", "redis set异常"},
 	{502010003, "ErrRedisSetUserLoginState", "redis set异常"},
 	{502020001, "ErrRedisGetUserToken", "获取缓存失败"},
-	{503, "ErrDataBiz", "业务数据异常"},
+
+	// 503 mongo
+	{50301, "ErrMongoInsert", "数据新增失败"},
+	{50302, "ErrMongoUpdate", "数据更新失败"},
+	{50302, "ErrMongoDelete", "数据删除失败"},
+	{50304, "ErrMongoSelect", "数据查询失败"},
+	{50305, "ErrMongoStrToId", "数据更新标识转化失败"},
+	// 504 kafka
 	{504, "ErrMqPush", "MQ推送异常"},
 	{52001, "ErrJsonEncode", "转换json失败"},
 	{52002, "ErrJsonDecode", "解析json失败"},
@@ -84,5 +91,6 @@ var Errs = []*langErr{
 	{63000002, "ErrSocialAlreadyBlackMe", "对方已把你拉黑"},
 	{63000003, "ErrSocialNotAddSelf", "不能添加自己为好友"},
 	{63000004, "ErrCreateConversation", "创建会话失败"},
+	{660, "ErrDataBiz", "业务数据异常"},
 	{700, "ErrTrdSmsSend", "TrdSmsSend"},
 }

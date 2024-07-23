@@ -47,38 +47,38 @@ func NewBindUnionUserLogicGen(ctx context.Context, svc *svc.ServiceContext) *Bin
 	}
 }
 
-func (l *BindUnionUserLogicGen) initReq(req *userRpc.BindUnionUserReq) error {
+func (l *BindUnionUserLogicGen) initReq(in *userRpc.BindUnionUserReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.BindClasEm != nil {
-		l.req.BindClasEm = *req.BindClasEm
+	if in.BindClasEm != nil {
+		l.req.BindClasEm = *in.BindClasEm
 		l.hasReq.BindClasEm = true
 	} else {
 		l.hasReq.BindClasEm = false
 	}
 
-	if req.Account != nil {
-		l.req.Account = *req.Account
+	if in.Account != nil {
+		l.req.Account = *in.Account
 		l.hasReq.Account = true
 	} else {
 		l.hasReq.Account = false
 	}
 
-	if req.Phone != nil {
-		l.req.Phone = *req.Phone
+	if in.Phone != nil {
+		l.req.Phone = *in.Phone
 		l.hasReq.Phone = true
 	} else {
 		l.hasReq.Phone = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

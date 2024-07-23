@@ -61,7 +61,7 @@ func genLogicByRoute(api *spec.ApiSpec, dir, rootPkg string, cfg *config.Config,
 		returnString = "return nil"
 	}
 	if len(route.RequestTypeName()) > 0 {
-		requestString = "req *" + requestGoTypeName(route, typesPacket)
+		requestString = "in *" + requestGoTypeName(route, typesPacket)
 	}
 
 	subDir := getLogicFolderPath(group, route)
@@ -71,7 +71,7 @@ func genLogicByRoute(api *spec.ApiSpec, dir, rootPkg string, cfg *config.Config,
 	hasUserInfo, mustUserInfo, userLoginInitVar := getDanUserLogin(api)
 	danForm, defineVars, initVars := getDanGenVars(&getDanGenVarsReq{
 		api:          api,
-		reqKey:       strings.Replace(requestString, "req *types.", "", -1),
+		reqKey:       strings.Replace(requestString, "in *types.", "", -1),
 		hasUserInfo:  hasUserInfo,
 		mustUserInfo: mustUserInfo,
 	})
@@ -179,8 +179,13 @@ func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVar
 	hasReqStr := ""
 	reqStr := ""
 	danForm = make([]*danFormField, 0)
+
 	// 先遍历，进行数据组装
 	for _, tp := range params.api.Types {
+		//临时调试用，专门针对某个方法打印
+		//if params.reqKey == "SetMySysMsgReadByClasReq" {
+		//	fmt.Println(params.reqKey, tp.Name())
+		//}
 		if tp.Name() == params.reqKey {
 			obj, ok := tp.(spec.DefineStruct)
 			if !ok {
@@ -189,7 +194,9 @@ func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVar
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-
+				if params.reqKey == "SetUserSysMsgReadByClasReq" {
+					fmt.Println(field.Type.Name())
+				}
 				danField := &danFormField{
 					field:     fieldName,
 					goType:    fieldType,
@@ -253,16 +260,16 @@ func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVar
 		// 判断字符串，要trim的写法值
 		fieldVal := ""
 		if form.goType == "string" || form.goType == "int64" || form.goType == "bool" {
-			fieldVal = "*req." + form.field
+			fieldVal = "*in." + form.field
 		} else {
-			fieldVal = "req." + form.field
+			fieldVal = "in." + form.field
 		}
 
 		if form.goType == "string" && form.TrimSpace {
-			fieldVal = "strings.TrimSpace(*req." + form.field + ")"
+			fieldVal = "strings.TrimSpace(*in." + form.field + ")"
 		}
 		initVars += fmt.Sprintf(`
-					if req.` + form.field + `!= nil {
+					if in.` + form.field + `!= nil {
 						l.req.` + form.field + ` = ` + fieldVal + `
 						l.hasReq.` + form.field + ` = true
 					} else {

@@ -49,31 +49,31 @@ func NewCreateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceCont
 	}
 }
 
-func (l *CreateGroupMemberApplyLogicGen) initReq(req *types.CreateGroupMemberApplyReq) error {
+func (l *CreateGroupMemberApplyLogicGen) initReq(in *types.CreateGroupMemberApplyReq) error {
 
-	if req.GroupId != nil {
-		l.req.GroupId = strings.TrimSpace(*req.GroupId)
+	if in.GroupId != nil {
+		l.req.GroupId = strings.TrimSpace(*in.GroupId)
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.GroupCode != nil {
-		l.req.GroupCode = strings.TrimSpace(*req.GroupCode)
+	if in.GroupCode != nil {
+		l.req.GroupCode = strings.TrimSpace(*in.GroupCode)
 		l.hasReq.GroupCode = true
 	} else {
 		l.hasReq.GroupCode = false
 	}
 
-	if req.ApplyMsg != nil {
-		l.req.ApplyMsg = strings.TrimSpace(*req.ApplyMsg)
+	if in.ApplyMsg != nil {
+		l.req.ApplyMsg = strings.TrimSpace(*in.ApplyMsg)
 		l.hasReq.ApplyMsg = true
 	} else {
 		l.hasReq.ApplyMsg = false
 	}
 
-	if req.SourceEm != nil {
-		l.req.SourceEm = *req.SourceEm
+	if in.SourceEm != nil {
+		l.req.SourceEm = *in.SourceEm
 		l.hasReq.SourceEm = true
 	} else {
 		l.hasReq.SourceEm = false

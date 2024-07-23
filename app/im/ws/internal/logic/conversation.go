@@ -39,7 +39,7 @@ func (l *Conversation) SingleChat(chat *websocketd.Chat, userId string) error {
 		ChatType:       chat.ChatType,
 		MsgType:        chat.MsgType,
 		MsgContent:     chat.Content,
-		SendTime:       time.Now().UnixNano(),
+		SendTime:       utild.NowTime(),
 		State:          0,
 		ReadRecords:    nil,
 		UpdateAt:       time.Time{},

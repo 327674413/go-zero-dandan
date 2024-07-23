@@ -101,10 +101,10 @@ func (t *Lang) Trans(temp string, tempData ...map[string]string) string {
 }
 
 // Msg 只对Var开头的内容进行二次转义，*Var来开头不转并去掉*
-func (t *Lang) Msg(msgCode int, tempDataArr ...[]string) string {
+func (t *Lang) Msg(msgCode int, tempDatas ...string) string {
 	tempData := make([]string, 0)
-	if len(tempDataArr) > 0 {
-		tempData = tempDataArr[0]
+	for _, v := range tempDatas {
+		tempData = append(tempData, v)
 	}
 	m := make(map[string]string)
 	for i, v := range tempData {

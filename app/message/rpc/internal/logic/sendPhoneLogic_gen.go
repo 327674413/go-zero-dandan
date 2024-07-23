@@ -45,31 +45,31 @@ func NewSendPhoneLogicGen(ctx context.Context, svc *svc.ServiceContext) *SendPho
 	}
 }
 
-func (l *SendPhoneLogicGen) initReq(req *messageRpc.SendPhoneReq) error {
+func (l *SendPhoneLogicGen) initReq(in *messageRpc.SendPhoneReq) error {
 
-	if req.Phone != nil {
-		l.req.Phone = *req.Phone
+	if in.Phone != nil {
+		l.req.Phone = *in.Phone
 		l.hasReq.Phone = true
 	} else {
 		l.hasReq.Phone = false
 	}
 
-	if req.PhoneArea != nil {
-		l.req.PhoneArea = *req.PhoneArea
+	if in.PhoneArea != nil {
+		l.req.PhoneArea = *in.PhoneArea
 		l.hasReq.PhoneArea = true
 	} else {
 		l.hasReq.PhoneArea = false
 	}
 
-	if req.TempData != nil {
-		l.req.TempData = req.TempData
+	if in.TempData != nil {
+		l.req.TempData = in.TempData
 		l.hasReq.TempData = true
 	} else {
 		l.hasReq.TempData = false
 	}
 
-	if req.TempId != nil {
-		l.req.TempId = *req.TempId
+	if in.TempId != nil {
+		l.req.TempId = *in.TempId
 		l.hasReq.TempId = true
 	} else {
 		l.hasReq.TempId = false

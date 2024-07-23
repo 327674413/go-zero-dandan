@@ -47,38 +47,38 @@ func NewGetChatLogLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetCha
 	}
 }
 
-func (l *GetChatLogLogicGen) initReq(req *imRpc.GetChatLogReq) error {
+func (l *GetChatLogLogicGen) initReq(in *imRpc.GetChatLogReq) error {
 
-	if req.ConversationId != nil {
-		l.req.ConversationId = *req.ConversationId
+	if in.ConversationId != nil {
+		l.req.ConversationId = *in.ConversationId
 		l.hasReq.ConversationId = true
 	} else {
 		l.hasReq.ConversationId = false
 	}
 
-	if req.StartSendTime != nil {
-		l.req.StartSendTime = *req.StartSendTime
+	if in.StartSendTime != nil {
+		l.req.StartSendTime = *in.StartSendTime
 		l.hasReq.StartSendTime = true
 	} else {
 		l.hasReq.StartSendTime = false
 	}
 
-	if req.EndSendTime != nil {
-		l.req.EndSendTime = *req.EndSendTime
+	if in.EndSendTime != nil {
+		l.req.EndSendTime = *in.EndSendTime
 		l.hasReq.EndSendTime = true
 	} else {
 		l.hasReq.EndSendTime = false
 	}
 
-	if req.Count != nil {
-		l.req.Count = *req.Count
+	if in.Count != nil {
+		l.req.Count = *in.Count
 		l.hasReq.Count = true
 	} else {
 		l.hasReq.Count = false
 	}
 
-	if req.MsgId != nil {
-		l.req.MsgId = *req.MsgId
+	if in.MsgId != nil {
+		l.req.MsgId = *in.MsgId
 		l.hasReq.MsgId = true
 	} else {
 		l.hasReq.MsgId = false

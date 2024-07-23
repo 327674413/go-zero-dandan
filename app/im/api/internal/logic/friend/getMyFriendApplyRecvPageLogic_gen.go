@@ -44,17 +44,17 @@ func NewGetMyFriendApplyRecvPageLogicGen(ctx context.Context, svc *svc.ServiceCo
 	}
 }
 
-func (l *GetMyFriendApplyRecvPageLogicGen) initReq(req *types.GetMyFriendApplyRecvPageReq) error {
+func (l *GetMyFriendApplyRecvPageLogicGen) initReq(in *types.GetMyFriendApplyRecvPageReq) error {
 
-	if req.Page != nil {
-		l.req.Page = *req.Page
+	if in.Page != nil {
+		l.req.Page = *in.Page
 		l.hasReq.Page = true
 	} else {
 		l.hasReq.Page = false
 	}
 
-	if req.Size != nil {
-		l.req.Size = *req.Size
+	if in.Size != nil {
+		l.req.Size = *in.Size
 		l.hasReq.Size = true
 	} else {
 		l.hasReq.Size = false

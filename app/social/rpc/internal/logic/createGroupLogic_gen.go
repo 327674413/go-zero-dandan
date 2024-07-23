@@ -45,31 +45,31 @@ func NewCreateGroupLogicGen(ctx context.Context, svc *svc.ServiceContext) *Creat
 	}
 }
 
-func (l *CreateGroupLogicGen) initReq(req *socialRpc.CreateGroupReq) error {
+func (l *CreateGroupLogicGen) initReq(in *socialRpc.CreateGroupReq) error {
 
-	if req.Name != nil {
-		l.req.Name = *req.Name
+	if in.Name != nil {
+		l.req.Name = *in.Name
 		l.hasReq.Name = true
 	} else {
 		l.hasReq.Name = false
 	}
 
-	if req.Status != nil {
-		l.req.Status = *req.Status
+	if in.Status != nil {
+		l.req.Status = *in.Status
 		l.hasReq.Status = true
 	} else {
 		l.hasReq.Status = false
 	}
 
-	if req.CreateUid != nil {
-		l.req.CreateUid = *req.CreateUid
+	if in.CreateUid != nil {
+		l.req.CreateUid = *in.CreateUid
 		l.hasReq.CreateUid = true
 	} else {
 		l.hasReq.CreateUid = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

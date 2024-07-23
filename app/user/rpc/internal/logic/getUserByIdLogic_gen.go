@@ -39,10 +39,10 @@ func NewGetUserByIdLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetUs
 	}
 }
 
-func (l *GetUserByIdLogicGen) initReq(req *userRpc.IdReq) error {
+func (l *GetUserByIdLogicGen) initReq(in *userRpc.IdReq) error {
 
-	if req.Id != nil {
-		l.req.Id = *req.Id
+	if in.Id != nil {
+		l.req.Id = *in.Id
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false

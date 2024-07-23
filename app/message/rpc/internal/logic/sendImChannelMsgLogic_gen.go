@@ -51,52 +51,52 @@ func NewSendImChannelMsgLogicGen(ctx context.Context, svc *svc.ServiceContext) *
 	}
 }
 
-func (l *SendImChannelMsgLogicGen) initReq(req *messageRpc.SendImChannelMsgReq) error {
+func (l *SendImChannelMsgLogicGen) initReq(in *messageRpc.SendImChannelMsgReq) error {
 
-	if req.ChannelId != nil {
-		l.req.ChannelId = *req.ChannelId
+	if in.ChannelId != nil {
+		l.req.ChannelId = *in.ChannelId
 		l.hasReq.ChannelId = true
 	} else {
 		l.hasReq.ChannelId = false
 	}
 
-	if req.SendType != nil {
-		l.req.SendType = *req.SendType
+	if in.SendType != nil {
+		l.req.SendType = *in.SendType
 		l.hasReq.SendType = true
 	} else {
 		l.hasReq.SendType = false
 	}
 
-	if req.RecvUid != nil {
-		l.req.RecvUid = *req.RecvUid
+	if in.RecvUid != nil {
+		l.req.RecvUid = *in.RecvUid
 		l.hasReq.RecvUid = true
 	} else {
 		l.hasReq.RecvUid = false
 	}
 
-	if req.SendAt != nil {
-		l.req.SendAt = *req.SendAt
+	if in.SendAt != nil {
+		l.req.SendAt = *in.SendAt
 		l.hasReq.SendAt = true
 	} else {
 		l.hasReq.SendAt = false
 	}
 
-	if req.MsgType != nil {
-		l.req.MsgType = *req.MsgType
+	if in.MsgType != nil {
+		l.req.MsgType = *in.MsgType
 		l.hasReq.MsgType = true
 	} else {
 		l.hasReq.MsgType = false
 	}
 
-	if req.MsgContent != nil {
-		l.req.MsgContent = *req.MsgContent
+	if in.MsgContent != nil {
+		l.req.MsgContent = *in.MsgContent
 		l.hasReq.MsgContent = true
 	} else {
 		l.hasReq.MsgContent = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

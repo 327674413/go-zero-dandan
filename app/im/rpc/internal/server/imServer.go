@@ -5,10 +5,12 @@ package server
 
 import (
 	"context"
-
+	"encoding/json"
+	"errors"
 	"go-zero-dandan/app/im/rpc/internal/logic"
 	"go-zero-dandan/app/im/rpc/internal/svc"
 	"go-zero-dandan/app/im/rpc/types/imRpc"
+	"go-zero-dandan/common/resd"
 )
 
 type ImServer struct {
@@ -24,30 +26,144 @@ func NewImServer(svcCtx *svc.ServiceContext) *ImServer {
 
 func (s *ImServer) GetChatLog(ctx context.Context, in *imRpc.GetChatLogReq) (*imRpc.GetChatLogResp, error) {
 	l := logic.NewGetChatLogLogic(ctx, s.svcCtx)
-	return l.GetChatLog(in)
+	resp, err := l.GetChatLog(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *ImServer) SetUpUserConversation(ctx context.Context, in *imRpc.SetUpUserConversationReq) (*imRpc.SetUpUserConversationResp, error) {
 	l := logic.NewSetUpUserConversationLogic(ctx, s.svcCtx)
-	return l.SetUpUserConversation(in)
+	resp, err := l.SetUpUserConversation(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *ImServer) GetConversations(ctx context.Context, in *imRpc.GetConversationsReq) (*imRpc.GetConversationsResp, error) {
 	l := logic.NewGetConversationsLogic(ctx, s.svcCtx)
-	return l.GetConversations(in)
+	resp, err := l.GetConversations(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *ImServer) PutConversations(ctx context.Context, in *imRpc.PutConversationsReq) (*imRpc.PutConversationsResp, error) {
 	l := logic.NewPutConversationsLogic(ctx, s.svcCtx)
-	return l.PutConversations(in)
+	resp, err := l.PutConversations(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *ImServer) CreateGroupConversation(ctx context.Context, in *imRpc.CreateGroupConversationReq) (*imRpc.CreateGroupConversationResp, error) {
 	l := logic.NewCreateGroupConversationLogic(ctx, s.svcCtx)
-	return l.CreateGroupConversation(in)
+	resp, err := l.CreateGroupConversation(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *ImServer) SendSysMsg(ctx context.Context, in *imRpc.SendSysMsgReq) (*imRpc.ResultResp, error) {
 	l := logic.NewSendSysMsgLogic(ctx, s.svcCtx)
-	return l.SendSysMsg(in)
+	resp, err := l.SendSysMsg(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
+}
+
+func (s *ImServer) GetUserSysMsgUnreadNum(ctx context.Context, in *imRpc.GetUserSysMsgUnreadNumReq) (*imRpc.GetUserSysMsgUnreadNumResp, error) {
+	l := logic.NewGetUserSysMsgUnreadNumLogic(ctx, s.svcCtx)
+	resp, err := l.GetUserSysMsgUnreadNum(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
+}
+
+func (s *ImServer) SetUserSysMsgReadByClas(ctx context.Context, in *imRpc.SetUserSysMsgReadByClasReq) (*imRpc.ResultResp, error) {
+	l := logic.NewSetUserSysMsgReadByClasLogic(ctx, s.svcCtx)
+	resp, err := l.SetUserSysMsgReadByClas(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
+}
+
+func (s *ImServer) SetUserSysMsgReadById(ctx context.Context, in *imRpc.SetUserSysMsgReadByIdReq) (*imRpc.ResultResp, error) {
+	l := logic.NewSetUserSysMsgReadByIdLogic(ctx, s.svcCtx)
+	resp, err := l.SetUserSysMsgReadById(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }

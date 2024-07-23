@@ -5,10 +5,12 @@ package server
 
 import (
 	"context"
-
+	"encoding/json"
+	"errors"
 	"go-zero-dandan/app/plat/rpc/internal/logic"
 	"go-zero-dandan/app/plat/rpc/internal/svc"
 	"go-zero-dandan/app/plat/rpc/types/platRpc"
+	"go-zero-dandan/common/resd"
 )
 
 type PlatServer struct {
@@ -24,5 +26,16 @@ func NewPlatServer(svcCtx *svc.ServiceContext) *PlatServer {
 
 func (s *PlatServer) GetOne(ctx context.Context, in *platRpc.IdReq) (*platRpc.PlatInfo, error) {
 	l := logic.NewGetOneLogic(ctx, s.svcCtx)
-	return l.GetOne(in)
+	resp, err := l.GetOne(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }

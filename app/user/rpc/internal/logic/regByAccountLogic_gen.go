@@ -57,73 +57,73 @@ func NewRegByAccountLogicGen(ctx context.Context, svc *svc.ServiceContext) *RegB
 	}
 }
 
-func (l *RegByAccountLogicGen) initReq(req *userRpc.RegByAccountReq) error {
+func (l *RegByAccountLogicGen) initReq(in *userRpc.RegByAccountReq) error {
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.Account != nil {
-		l.req.Account = *req.Account
+	if in.Account != nil {
+		l.req.Account = *in.Account
 		l.hasReq.Account = true
 	} else {
 		l.hasReq.Account = false
 	}
 
-	if req.Password != nil {
-		l.req.Password = *req.Password
+	if in.Password != nil {
+		l.req.Password = *in.Password
 		l.hasReq.Password = true
 	} else {
 		l.hasReq.Password = false
 	}
 
-	if req.Nickname != nil {
-		l.req.Nickname = *req.Nickname
+	if in.Nickname != nil {
+		l.req.Nickname = *in.Nickname
 		l.hasReq.Nickname = true
 	} else {
 		l.hasReq.Nickname = false
 	}
 
-	if req.Phone != nil {
-		l.req.Phone = *req.Phone
+	if in.Phone != nil {
+		l.req.Phone = *in.Phone
 		l.hasReq.Phone = true
 	} else {
 		l.hasReq.Phone = false
 	}
 
-	if req.PhoneArea != nil {
-		l.req.PhoneArea = *req.PhoneArea
+	if in.PhoneArea != nil {
+		l.req.PhoneArea = *in.PhoneArea
 		l.hasReq.PhoneArea = true
 	} else {
 		l.hasReq.PhoneArea = false
 	}
 
-	if req.SexEm != nil {
-		l.req.SexEm = *req.SexEm
+	if in.SexEm != nil {
+		l.req.SexEm = *in.SexEm
 		l.hasReq.SexEm = true
 	} else {
 		l.hasReq.SexEm = false
 	}
 
-	if req.Email != nil {
-		l.req.Email = *req.Email
+	if in.Email != nil {
+		l.req.Email = *in.Email
 		l.hasReq.Email = true
 	} else {
 		l.hasReq.Email = false
 	}
 
-	if req.AvatarImg != nil {
-		l.req.AvatarImg = *req.AvatarImg
+	if in.AvatarImg != nil {
+		l.req.AvatarImg = *in.AvatarImg
 		l.hasReq.AvatarImg = true
 	} else {
 		l.hasReq.AvatarImg = false
 	}
 
-	if req.IsLogin != nil {
-		l.req.IsLogin = *req.IsLogin
+	if in.IsLogin != nil {
+		l.req.IsLogin = *in.IsLogin
 		l.hasReq.IsLogin = true
 	} else {
 		l.hasReq.IsLogin = false

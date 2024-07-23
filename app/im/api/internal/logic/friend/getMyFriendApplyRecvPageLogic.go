@@ -5,8 +5,6 @@ import (
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/common/fmtd"
-
 	"go-zero-dandan/common/resd"
 )
 
@@ -24,7 +22,6 @@ func (l *GetMyFriendApplyRecvPageLogic) GetMyFriendApplyRecvPage(in *types.GetMy
 	if err = l.initReq(in); err != nil {
 		return nil, err
 	}
-	fmtd.Info(l.meta)
 	rpcReq := &socialRpc.GetUserRecvFriendApplyPageReq{
 		UserId: &l.meta.UserId,
 		PlatId: &l.meta.PlatId,

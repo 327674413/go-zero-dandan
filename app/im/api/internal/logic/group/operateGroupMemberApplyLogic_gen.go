@@ -47,24 +47,24 @@ func NewOperateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceCon
 	}
 }
 
-func (l *OperateGroupMemberApplyLogicGen) initReq(req *types.OperateGroupMemberApplyReq) error {
+func (l *OperateGroupMemberApplyLogicGen) initReq(in *types.OperateGroupMemberApplyReq) error {
 
-	if req.ApplyId != nil {
-		l.req.ApplyId = strings.TrimSpace(*req.ApplyId)
+	if in.ApplyId != nil {
+		l.req.ApplyId = strings.TrimSpace(*in.ApplyId)
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
 	}
 
-	if req.OpreateStateEm != nil {
-		l.req.OpreateStateEm = *req.OpreateStateEm
+	if in.OpreateStateEm != nil {
+		l.req.OpreateStateEm = *in.OpreateStateEm
 		l.hasReq.OpreateStateEm = true
 	} else {
 		l.hasReq.OpreateStateEm = false
 	}
 
-	if req.OpreateMsg != nil {
-		l.req.OpreateMsg = strings.TrimSpace(*req.OpreateMsg)
+	if in.OpreateMsg != nil {
+		l.req.OpreateMsg = strings.TrimSpace(*in.OpreateMsg)
 		l.hasReq.OpreateMsg = true
 	} else {
 		l.hasReq.OpreateMsg = false

@@ -32,7 +32,7 @@ type MsgMarkRead struct {
 // SysToUserMsg 系统消息
 type SysToUserMsg struct {
 	websocketd.MsgClas `json:"msgClas"`
-	UserId             string `json:"userId"`
+	RecvId             string `json:"recvId"`
 	websocketd.MsgType `json:"msgType"`
 	MsgContent         string `json:"msgContent"`
 	SendTime           string `json:"sendTime"`

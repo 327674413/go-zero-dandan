@@ -47,10 +47,10 @@ func NewOperateMyRecvFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceCo
 	}
 }
 
-func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFriendApplyReq) error {
+func (l *OperateMyRecvFriendApplyLogicGen) initReq(in *types.OperateMyRecvFriendApplyReq) error {
 
-	if req.ApplyId != nil {
-		l.req.ApplyId = strings.TrimSpace(*req.ApplyId)
+	if in.ApplyId != nil {
+		l.req.ApplyId = strings.TrimSpace(*in.ApplyId)
 		l.hasReq.ApplyId = true
 	} else {
 		l.hasReq.ApplyId = false
@@ -64,8 +64,8 @@ func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFrien
 		return resd.NewErrWithTempCtx(l.ctx, "ApplyId不得为空", resd.ErrReqFieldEmpty1, "ApplyId")
 	}
 
-	if req.OperateStateEm != nil {
-		l.req.OperateStateEm = *req.OperateStateEm
+	if in.OperateStateEm != nil {
+		l.req.OperateStateEm = *in.OperateStateEm
 		l.hasReq.OperateStateEm = true
 	} else {
 		l.hasReq.OperateStateEm = false
@@ -75,8 +75,8 @@ func (l *OperateMyRecvFriendApplyLogicGen) initReq(req *types.OperateMyRecvFrien
 		return resd.NewErrWithTempCtx(l.ctx, "缺少参数OperateStateEm", resd.ErrReqFieldRequired1, "OperateStateEm")
 	}
 
-	if req.OperateMsg != nil {
-		l.req.OperateMsg = strings.TrimSpace(*req.OperateMsg)
+	if in.OperateMsg != nil {
+		l.req.OperateMsg = strings.TrimSpace(*in.OperateMsg)
 		l.hasReq.OperateMsg = true
 	} else {
 		l.hasReq.OperateMsg = false

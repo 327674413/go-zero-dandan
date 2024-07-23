@@ -5,10 +5,12 @@ package server
 
 import (
 	"context"
-
+	"encoding/json"
+	"errors"
 	"go-zero-dandan/app/message/rpc/internal/logic"
 	"go-zero-dandan/app/message/rpc/internal/svc"
 	"go-zero-dandan/app/message/rpc/types/messageRpc"
+	"go-zero-dandan/common/resd"
 )
 
 type MessageServer struct {
@@ -24,20 +26,64 @@ func NewMessageServer(svcCtx *svc.ServiceContext) *MessageServer {
 
 func (s *MessageServer) SendPhone(ctx context.Context, in *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
 	l := logic.NewSendPhoneLogic(ctx, s.svcCtx)
-	return l.SendPhone(in)
+	resp, err := l.SendPhone(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *MessageServer) SendPhoneAsync(ctx context.Context, in *messageRpc.SendPhoneReq) (*messageRpc.ResultResp, error) {
 	l := logic.NewSendPhoneAsyncLogic(ctx, s.svcCtx)
-	return l.SendPhoneAsync(in)
+	resp, err := l.SendPhoneAsync(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *MessageServer) SendImChannelMsg(ctx context.Context, in *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
 	l := logic.NewSendImChannelMsgLogic(ctx, s.svcCtx)
-	return l.SendImChannelMsg(in)
+	resp, err := l.SendImChannelMsg(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *MessageServer) SendImChannelMsgAsync(ctx context.Context, in *messageRpc.SendImChannelMsgReq) (*messageRpc.ResultResp, error) {
 	l := logic.NewSendImChannelMsgAsyncLogic(ctx, s.svcCtx)
-	return l.SendImChannelMsgAsync(in)
+	resp, err := l.SendImChannelMsgAsync(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }

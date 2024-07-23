@@ -75,6 +75,21 @@ message ResultResp {
 	 int64 code = 1;
 	 string content = 2;
 }
+message getUserSysMsgUnreadNumReq {
+	optional string userId = 1;
+	optional int64 msgClasEm = 2;
+}
+message getUserSysMsgUnreadNumResp {
+	 map<int64, int64> unread = 1;
+}
+message setUserSysMsgReadByClasReq {
+	optional string userId = 1;
+	repeated int64 clasList = 2;
+}
+message setUserSysMsgReadByIdReq {
+	optional string userId = 1;
+	repeated string msgIdList = 2;
+}
 
 	
 service im {
@@ -84,5 +99,8 @@ service im {
 	rpc PutConversations(PutConversationsReq) returns (PutConversationsResp);
 	rpc CreateGroupConversation(CreateGroupConversationReq) returns (CreateGroupConversationResp);
 	rpc SendSysMsg(SendSysMsgReq) returns (ResultResp);
+	rpc getUserSysMsgUnreadNum(getUserSysMsgUnreadNumReq) returns (getUserSysMsgUnreadNumResp);
+	rpc setUserSysMsgReadByClas(setUserSysMsgReadByClasReq) returns (ResultResp);
+	rpc setUserSysMsgReadById(setUserSysMsgReadByIdReq) returns (ResultResp);
 }
 

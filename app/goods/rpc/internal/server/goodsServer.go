@@ -5,10 +5,12 @@ package server
 
 import (
 	"context"
-
+	"encoding/json"
+	"errors"
 	"go-zero-dandan/app/goods/rpc/internal/logic"
 	"go-zero-dandan/app/goods/rpc/internal/svc"
 	"go-zero-dandan/app/goods/rpc/types/goodsRpc"
+	"go-zero-dandan/common/resd"
 )
 
 type GoodsServer struct {
@@ -24,15 +26,48 @@ func NewGoodsServer(svcCtx *svc.ServiceContext) *GoodsServer {
 
 func (s *GoodsServer) GetOne(ctx context.Context, in *goodsRpc.IdReq) (*goodsRpc.GoodsInfo, error) {
 	l := logic.NewGetOneLogic(ctx, s.svcCtx)
-	return l.GetOne(in)
+	resp, err := l.GetOne(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *GoodsServer) GetPage(ctx context.Context, in *goodsRpc.GetPageReq) (*goodsRpc.GetPageResp, error) {
 	l := logic.NewGetPageLogic(ctx, s.svcCtx)
-	return l.GetPage(in)
+	resp, err := l.GetPage(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }
 
 func (s *GoodsServer) GetHotPageByCursor(ctx context.Context, in *goodsRpc.GetHotPageByCursorReq) (*goodsRpc.GetPageByCursorResp, error) {
 	l := logic.NewGetHotPageByCursorLogic(ctx, s.svcCtx)
-	return l.GetHotPageByCursor(in)
+	resp, err := l.GetHotPageByCursor(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
 }

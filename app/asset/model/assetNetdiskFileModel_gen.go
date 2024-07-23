@@ -333,7 +333,7 @@ func (m *defaultAssetNetdiskFileModel) TxSave(tx *sql.Tx, data *AssetNetdiskFile
 	return m.dao.Save(saveData)
 }
 func (m *defaultAssetNetdiskFileModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultAssetNetdiskFileModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

@@ -299,7 +299,7 @@ func (m *defaultMessageSysConfigModel) TxSave(tx *sql.Tx, data *MessageSysConfig
 	return m.dao.Save(saveData)
 }
 func (m *defaultMessageSysConfigModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultMessageSysConfigModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

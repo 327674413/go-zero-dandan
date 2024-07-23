@@ -45,31 +45,31 @@ func NewGetHotPageByCursorLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *GetHotPageByCursorLogicGen) initReq(req *goodsRpc.GetHotPageByCursorReq) error {
+func (l *GetHotPageByCursorLogicGen) initReq(in *goodsRpc.GetHotPageByCursorReq) error {
 
-	if req.Page != nil {
-		l.req.Page = *req.Page
+	if in.Page != nil {
+		l.req.Page = *in.Page
 		l.hasReq.Page = true
 	} else {
 		l.hasReq.Page = false
 	}
 
-	if req.Size != nil {
-		l.req.Size = *req.Size
+	if in.Size != nil {
+		l.req.Size = *in.Size
 		l.hasReq.Size = true
 	} else {
 		l.hasReq.Size = false
 	}
 
-	if req.Cursor != nil {
-		l.req.Cursor = *req.Cursor
+	if in.Cursor != nil {
+		l.req.Cursor = *in.Cursor
 		l.hasReq.Cursor = true
 	} else {
 		l.hasReq.Cursor = false
 	}
 
-	if req.LastId != nil {
-		l.req.LastId = *req.LastId
+	if in.LastId != nil {
+		l.req.LastId = *in.LastId
 		l.hasReq.LastId = true
 	} else {
 		l.hasReq.LastId = false

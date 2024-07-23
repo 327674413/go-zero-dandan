@@ -303,7 +303,7 @@ func (m *defaultUserInfoModel) TxSave(tx *sql.Tx, data *UserInfo) (effectRow int
 	return m.dao.Save(saveData)
 }
 func (m *defaultUserInfoModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultUserInfoModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

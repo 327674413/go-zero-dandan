@@ -41,17 +41,17 @@ func NewGetFriendOnlineLogicGen(ctx context.Context, svc *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetFriendOnlineLogicGen) initReq(req *socialRpc.GetFriendOnlineReq) error {
+func (l *GetFriendOnlineLogicGen) initReq(in *socialRpc.GetFriendOnlineReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

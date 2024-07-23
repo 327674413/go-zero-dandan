@@ -272,6 +272,7 @@ services:
     volumes:
       - ./docker/data/mongo/data:/data/db
       - ./docker/data/mongo/logs:/var/log/mongodb  # 挂载日志目录
+    #command: ["mongod", "--replSet", "rs0"] # 设置副本集中运行，这样才能使用事务,如果启用就得用集群
     restart: always
     privileged: true
     networks:

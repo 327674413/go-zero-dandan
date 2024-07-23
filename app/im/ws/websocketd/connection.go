@@ -167,7 +167,7 @@ func (t *Conn) ErrMsgData(err error, errCode ...int) any {
 		}
 		return map[string]any{
 			"code": code,
-			"msg":  t.Resd.Msg(danErr.Code, danErr.GetTemps()),
+			"msg":  t.Resd.Msg(danErr.Code, danErr.GetTemps()...),
 		}
 	} else {
 		if len(errCode) > 0 {

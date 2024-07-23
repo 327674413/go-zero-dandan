@@ -47,38 +47,38 @@ func NewCreateGroupMemberApplyLogicGen(ctx context.Context, svc *svc.ServiceCont
 	}
 }
 
-func (l *CreateGroupMemberApplyLogicGen) initReq(req *socialRpc.CreateGroupMemberApplyReq) error {
+func (l *CreateGroupMemberApplyLogicGen) initReq(in *socialRpc.CreateGroupMemberApplyReq) error {
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.GroupId != nil {
-		l.req.GroupId = *req.GroupId
+	if in.GroupId != nil {
+		l.req.GroupId = *in.GroupId
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.ApplyMsg != nil {
-		l.req.ApplyMsg = *req.ApplyMsg
+	if in.ApplyMsg != nil {
+		l.req.ApplyMsg = *in.ApplyMsg
 		l.hasReq.ApplyMsg = true
 	} else {
 		l.hasReq.ApplyMsg = false
 	}
 
-	if req.JoinSourceEm != nil {
-		l.req.JoinSourceEm = *req.JoinSourceEm
+	if in.JoinSourceEm != nil {
+		l.req.JoinSourceEm = *in.JoinSourceEm
 		l.hasReq.JoinSourceEm = true
 	} else {
 		l.hasReq.JoinSourceEm = false
 	}
 
-	if req.InviteUid != nil {
-		l.req.InviteUid = *req.InviteUid
+	if in.InviteUid != nil {
+		l.req.InviteUid = *in.InviteUid
 		l.hasReq.InviteUid = true
 	} else {
 		l.hasReq.InviteUid = false

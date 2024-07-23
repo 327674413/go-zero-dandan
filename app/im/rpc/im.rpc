@@ -1,3 +1,5 @@
+//import "desc/friend.rpc"
+
 type ChatLog {
    Id string
    ConversationId string
@@ -73,6 +75,27 @@ type ResultResp{
   Code int64
   Content string
 }
+type (
+  getUserSysMsgUnreadNumReq{
+    userId *string `json:"sendId,optional" check:"required"`
+    msgClasEm *int64 `json:"msgClasEm,optional"`
+  }
+  getUserSysMsgUnreadNumResp{
+    unread map[int64]int64 `json:"unread"`
+  }
+)
+type (
+  setUserSysMsgReadByClasReq{
+    userId *string `json:"userId,optional" check:"required"`
+    clasList []int64 `json:"clasList,optional" check:"required"`
+  }
+)
+type (
+  setUserSysMsgReadByIdReq{
+    userId *string `json:"userId,optional" check:"required"`
+    msgIdList []string `json:"msgIdList,optional" check:"required"`
+  }
+)
 @server(
   middleware: MetaMiddleware
 )
@@ -97,4 +120,15 @@ service Im {
   @handler SendSysMsg
   post /SendSysMsg(SendSysMsgReq) returns (ResultResp)
 
+  @doc "获取系统消息未读数"
+  @handler getUserSysMsgUnreadNum
+  post /getUserSysMsgUnreadNum(getUserSysMsgUnreadNumReq) returns (getUserSysMsgUnreadNumResp)
+
+  @doc "设置用户系统消息已读,根据消息类型"
+  @handler setUserSysMsgReadByClas
+  post /setUserSysMsgReadByClas(setUserSysMsgReadByClasReq) returns (ResultResp)
+
+  @doc "设置用户系统消息已读,根据消息id"
+  @handler setUserSysMsgReadById
+  post /setUserSysMsgReadById(setUserSysMsgReadByIdReq) returns (ResultResp)
 }

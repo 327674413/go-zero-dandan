@@ -49,24 +49,24 @@ func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) 
 	}
 }
 
-func (l *CreateFriendApplyLogicGen) initReq(req *socialRpc.CreateFriendApplyReq) error {
+func (l *CreateFriendApplyLogicGen) initReq(in *socialRpc.CreateFriendApplyReq) error {
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.FriendUid != nil {
-		l.req.FriendUid = *req.FriendUid
+	if in.FriendUid != nil {
+		l.req.FriendUid = *in.FriendUid
 		l.hasReq.FriendUid = true
 	} else {
 		l.hasReq.FriendUid = false
@@ -80,22 +80,22 @@ func (l *CreateFriendApplyLogicGen) initReq(req *socialRpc.CreateFriendApplyReq)
 		return l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "FriendUid")
 	}
 
-	if req.ApplyMsg != nil {
-		l.req.ApplyMsg = *req.ApplyMsg
+	if in.ApplyMsg != nil {
+		l.req.ApplyMsg = *in.ApplyMsg
 		l.hasReq.ApplyMsg = true
 	} else {
 		l.hasReq.ApplyMsg = false
 	}
 
-	if req.ApplyAt != nil {
-		l.req.ApplyAt = *req.ApplyAt
+	if in.ApplyAt != nil {
+		l.req.ApplyAt = *in.ApplyAt
 		l.hasReq.ApplyAt = true
 	} else {
 		l.hasReq.ApplyAt = false
 	}
 
-	if req.SourceEm != nil {
-		l.req.SourceEm = *req.SourceEm
+	if in.SourceEm != nil {
+		l.req.SourceEm = *in.SourceEm
 		l.hasReq.SourceEm = true
 	} else {
 		l.hasReq.SourceEm = false

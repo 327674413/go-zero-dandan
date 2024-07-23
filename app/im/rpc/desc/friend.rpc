@@ -1,0 +1,6 @@
+type GetRecvFriendApplyNoticeReq{
+    UserId *string
+}
+type GetRecvFriendApplyNoticeResp{
+    NoRead int64
+}

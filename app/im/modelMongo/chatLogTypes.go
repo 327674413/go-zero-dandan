@@ -11,7 +11,7 @@ type ChatLog struct {
 	ConversationId string              `bson:"conversationId"`
 	SendId         string              `bson:"sendId"`
 	RecvId         string              `bson:"recvId"`
-	MsgFrom        int                 `bson:"msgFrom"`
+	MsgFrom        int                 `bson:"msgFrom"` //不知道啥用还
 	ChatType       websocketd.ChatType `bson:"chatType"`
 	MsgType        websocketd.MsgType  `bson:"msgType"`
 	MsgContent     string              `bson:"msgContent"`

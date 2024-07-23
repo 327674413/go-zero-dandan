@@ -43,24 +43,24 @@ func NewGetUserRelationLogicGen(ctx context.Context, svc *svc.ServiceContext) *G
 	}
 }
 
-func (l *GetUserRelationLogicGen) initReq(req *socialRpc.GetUserRelationReq) error {
+func (l *GetUserRelationLogicGen) initReq(in *socialRpc.GetUserRelationReq) error {
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false
 	}
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.FriendUids != nil {
-		l.req.FriendUids = req.FriendUids
+	if in.FriendUids != nil {
+		l.req.FriendUids = in.FriendUids
 		l.hasReq.FriendUids = true
 	} else {
 		l.hasReq.FriendUids = false

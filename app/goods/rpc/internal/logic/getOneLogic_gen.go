@@ -39,10 +39,10 @@ func NewGetOneLogicGen(ctx context.Context, svc *svc.ServiceContext) *GetOneLogi
 	}
 }
 
-func (l *GetOneLogicGen) initReq(req *goodsRpc.IdReq) error {
+func (l *GetOneLogicGen) initReq(in *goodsRpc.IdReq) error {
 
-	if req.Id != nil {
-		l.req.Id = *req.Id
+	if in.Id != nil {
+		l.req.Id = *in.Id
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false

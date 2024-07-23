@@ -41,17 +41,17 @@ func NewGetUserFriendListLogicGen(ctx context.Context, svc *svc.ServiceContext) 
 	}
 }
 
-func (l *GetUserFriendListLogicGen) initReq(req *socialRpc.GetUserFriendListReq) error {
+func (l *GetUserFriendListLogicGen) initReq(in *socialRpc.GetUserFriendListReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.PlatId != nil {
-		l.req.PlatId = *req.PlatId
+	if in.PlatId != nil {
+		l.req.PlatId = *in.PlatId
 		l.hasReq.PlatId = true
 	} else {
 		l.hasReq.PlatId = false

@@ -41,17 +41,17 @@ func NewCreateGroupConversationLogicGen(ctx context.Context, svc *svc.ServiceCon
 	}
 }
 
-func (l *CreateGroupConversationLogicGen) initReq(req *imRpc.CreateGroupConversationReq) error {
+func (l *CreateGroupConversationLogicGen) initReq(in *imRpc.CreateGroupConversationReq) error {
 
-	if req.GroupId != nil {
-		l.req.GroupId = *req.GroupId
+	if in.GroupId != nil {
+		l.req.GroupId = *in.GroupId
 		l.hasReq.GroupId = true
 	} else {
 		l.hasReq.GroupId = false
 	}
 
-	if req.CreateId != nil {
-		l.req.CreateId = *req.CreateId
+	if in.CreateId != nil {
+		l.req.CreateId = *in.CreateId
 		l.hasReq.CreateId = true
 	} else {
 		l.hasReq.CreateId = false

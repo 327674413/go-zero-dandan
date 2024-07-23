@@ -16,6 +16,8 @@ type ServiceContext struct {
 	WsClient websocketd.Client
 	modelMongo.ChatLogModel
 	modelMongo.ConversationModel
+	modelMongo.SysMsgLogModel
+	modelMongo.SysMsgStatModel
 	SocialRpc social.Social
 }
 
@@ -25,6 +27,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Config:            c,
 		ChatLogModel:      modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
 		ConversationModel: modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
+		SysMsgLogModel:    modelMongo.MustSysMsgLogModel(c.Mongo.Url, c.Mongo.Db),
+		SysMsgStatModel:   modelMongo.MustSysMsgStatModel(c.Mongo.Url, c.Mongo.Db),
 		SocialRpc:         socialRpc,
 	}
 	token, err := svc.GetSystemToken()

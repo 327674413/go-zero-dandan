@@ -47,17 +47,17 @@ func NewCreateFriendApplyLogicGen(ctx context.Context, svc *svc.ServiceContext) 
 	}
 }
 
-func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) error {
+func (l *CreateFriendApplyLogicGen) initReq(in *types.CreateFriendApplyReq) error {
 
-	if req.ApplyMsg != nil {
-		l.req.ApplyMsg = strings.TrimSpace(*req.ApplyMsg)
+	if in.ApplyMsg != nil {
+		l.req.ApplyMsg = strings.TrimSpace(*in.ApplyMsg)
 		l.hasReq.ApplyMsg = true
 	} else {
 		l.hasReq.ApplyMsg = false
 	}
 
-	if req.FriendUid != nil {
-		l.req.FriendUid = strings.TrimSpace(*req.FriendUid)
+	if in.FriendUid != nil {
+		l.req.FriendUid = strings.TrimSpace(*in.FriendUid)
 		l.hasReq.FriendUid = true
 	} else {
 		l.hasReq.FriendUid = false
@@ -71,8 +71,8 @@ func (l *CreateFriendApplyLogicGen) initReq(req *types.CreateFriendApplyReq) err
 		return resd.NewErrWithTempCtx(l.ctx, "FriendUid不得为空", resd.ErrReqFieldEmpty1, "FriendUid")
 	}
 
-	if req.SourceEm != nil {
-		l.req.SourceEm = *req.SourceEm
+	if in.SourceEm != nil {
+		l.req.SourceEm = *in.SourceEm
 		l.hasReq.SourceEm = true
 	} else {
 		l.hasReq.SourceEm = false

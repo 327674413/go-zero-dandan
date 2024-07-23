@@ -39,10 +39,10 @@ func NewGetConversationsLogicGen(ctx context.Context, svc *svc.ServiceContext) *
 	}
 }
 
-func (l *GetConversationsLogicGen) initReq(req *imRpc.GetConversationsReq) error {
+func (l *GetConversationsLogicGen) initReq(in *imRpc.GetConversationsReq) error {
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false

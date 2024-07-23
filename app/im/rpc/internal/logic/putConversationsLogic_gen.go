@@ -43,24 +43,24 @@ func NewPutConversationsLogicGen(ctx context.Context, svc *svc.ServiceContext) *
 	}
 }
 
-func (l *PutConversationsLogicGen) initReq(req *imRpc.PutConversationsReq) error {
+func (l *PutConversationsLogicGen) initReq(in *imRpc.PutConversationsReq) error {
 
-	if req.Id != nil {
-		l.req.Id = *req.Id
+	if in.Id != nil {
+		l.req.Id = *in.Id
 		l.hasReq.Id = true
 	} else {
 		l.hasReq.Id = false
 	}
 
-	if req.UserId != nil {
-		l.req.UserId = *req.UserId
+	if in.UserId != nil {
+		l.req.UserId = *in.UserId
 		l.hasReq.UserId = true
 	} else {
 		l.hasReq.UserId = false
 	}
 
-	if req.ConversationList != nil {
-		l.req.ConversationList = req.ConversationList
+	if in.ConversationList != nil {
+		l.req.ConversationList = in.ConversationList
 		l.hasReq.ConversationList = true
 	} else {
 		l.hasReq.ConversationList = false

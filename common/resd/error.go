@@ -2,6 +2,7 @@ package resd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/common/constd"
@@ -12,10 +13,25 @@ type danError struct {
 	Result     bool     `json:"result"`
 	Code       int      `json:"code"`
 	Msg        string   `json:"msg"`
-	temps      []string `json:"-"`
+	Temps      []string `json:"temps"`
 	level      string   `json:"-"` //用来区分异常还是业务合法的，但想全走日志，当作完整的链路返回，就暂时不需要了
 	callers    []string `json:"-"`
 	callerSkip int      `json:"-"`
+}
+
+func JsonToErr(ctxOrNil context.Context, jsonStr string) error {
+	var ctx context.Context
+	if ctxOrNil == nil {
+		ctx = context.Background()
+	} else {
+		ctx = ctxOrNil
+	}
+	err := danError{}
+	jErr := json.Unmarshal([]byte(jsonStr), &err)
+	if jErr != nil {
+		return ErrorCtx(ctx, jErr, ErrJsonDecode)
+	}
+	return &err
 }
 
 // error实现
@@ -25,13 +41,13 @@ func (t *danError) Error() string {
 
 // SetTemps 设置模i18n的模版
 func (t *danError) SetTemps(temps []string) *danError {
-	t.temps = temps
+	t.Temps = temps
 	return t
 }
 
 // GetTemps 获取当前设置了的模版
 func (t *danError) GetTemps() []string {
-	return t.temps
+	return t.Temps
 }
 
 func (t *danError) AppendCaller(caller string) *danError {
@@ -124,9 +140,12 @@ func Error(err error, newErrCode ...int) error {
 	if len(newErrCode) > 0 {
 		return errdWithTemp(nil, nil, err, newErrCode[0])
 	} else {
-		return errdWithTemp(nil, nil, err, ErrSys)
+		if danErr, ok := err.(*danError); ok {
+			return errdWithTemp(nil, nil, err, danErr.Code)
+		} else {
+			return errdWithTemp(nil, nil, err, ErrSys)
+		}
 	}
-
 }
 
 // ErrorCtx 对error进行封装返回,带上下文
@@ -134,7 +153,11 @@ func ErrorCtx(ctx context.Context, err error, newErrCode ...int) error {
 	if len(newErrCode) > 0 {
 		return errdWithTemp(ctx, nil, err, newErrCode[0])
 	} else {
-		return errdWithTemp(ctx, nil, err, ErrSys)
+		if danErr, ok := err.(*danError); ok {
+			return errdWithTemp(ctx, nil, err, danErr.Code)
+		} else {
+			return errdWithTemp(ctx, nil, err, ErrSys)
+		}
 	}
 }
 

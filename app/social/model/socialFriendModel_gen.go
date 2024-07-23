@@ -313,7 +313,7 @@ func (m *defaultSocialFriendModel) TxSave(tx *sql.Tx, data *SocialFriend) (effec
 	return m.dao.Save(saveData)
 }
 func (m *defaultSocialFriendModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultSocialFriendModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)

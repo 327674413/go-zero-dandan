@@ -39,10 +39,10 @@ func NewGetUserByTokenLogicGen(ctx context.Context, svc *svc.ServiceContext) *Ge
 	}
 }
 
-func (l *GetUserByTokenLogicGen) initReq(req *userRpc.TokenReq) error {
+func (l *GetUserByTokenLogicGen) initReq(in *userRpc.TokenReq) error {
 
-	if req.Token != nil {
-		l.req.Token = *req.Token
+	if in.Token != nil {
+		l.req.Token = *in.Token
 		l.hasReq.Token = true
 	} else {
 		l.hasReq.Token = false

@@ -39,10 +39,10 @@ func NewGetUserNormalInfoLogicGen(ctx context.Context, svc *svc.ServiceContext) 
 	}
 }
 
-func (l *GetUserNormalInfoLogicGen) initReq(req *userRpc.GetUserInfoReq) error {
+func (l *GetUserNormalInfoLogicGen) initReq(in *userRpc.GetUserInfoReq) error {
 
-	if req.Ids != nil {
-		l.req.Ids = req.Ids
+	if in.Ids != nil {
+		l.req.Ids = in.Ids
 		l.hasReq.Ids = true
 	} else {
 		l.hasReq.Ids = false

@@ -319,7 +319,7 @@ func (m *defaultSocialGroupMemberApplyModel) TxSave(tx *sql.Tx, data *SocialGrou
 	return m.dao.Save(saveData)
 }
 func (m *defaultSocialGroupMemberApplyModel) StartTrans() (tx *sql.Tx, danErr error) {
-	return dao.StartTrans(m.conn, m.ctx)
+	return dao.StartTrans(m.ctx, m.conn)
 }
 func (m *defaultSocialGroupMemberApplyModel) Commit(tx *sql.Tx) (danErr error) {
 	return dao.Commit(tx)
