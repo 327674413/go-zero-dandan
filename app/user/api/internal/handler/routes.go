@@ -51,6 +51,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/editMyInfo",
 					Handler: userInfo.EditMyInfoHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/getMyUserMainInfo",
+					Handler: userInfo.GetMyUserMainInfoHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

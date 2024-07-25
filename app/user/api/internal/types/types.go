@@ -87,3 +87,18 @@ type UserInfoResp struct {
 	UpdateAt  int64  `json:"updateAt"`
 	UserToken string `json:"userToken"`
 }
+
+type UserMainInfo struct {
+	Id        string `json:"id"`
+	UnionId   string `json:"unionId"`
+	StateEm   int64  `json:"stateEm"`
+	Account   string `json:"account"`
+	Nickname  string `json:"nickname"`
+	Phone     string `json:"phone"`
+	PhoneArea string `json:"phoneArea"`
+	SexEm     int64  `json:"sexEm"`
+	Email     string `json:"email"`
+	AvatarImg string `json:"avatarImg"`
+	PlatId    string `json:"platId"`
+	Signature string `json:"signature"`
+}

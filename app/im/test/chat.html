@@ -46,6 +46,7 @@
 </head>
 <body>
 <div id="app" ref="app">
+    <div v-if="userInfo.id" style="position: absolute;bottom:30px;text-align: center;padding:30px;width:100%;box-sizing: border-box;">当前用户：{{userInfo.phone}}</div>
     <div class="chat-wrapper">
         <div class="fl chat">
             <div class="chat-nav fl">
@@ -138,7 +139,7 @@
                     <el-tag effect="plain" class="btn" v-if="item.stateEm == 1" @click="tapCreateAddFriendApply(item)">待验证</el-tag>
                     <el-tag type="warning"  v-if="item.stateEm == 99" >本人</el-tag>
                     <el-tag type="success" effect="plain" v-if="item.stateEm == 2">好友</el-tag>
-                    <el-tag type="info" v-if="item.stateEm == -2">黑名单</el-tag>
+                    <el-tag type="info" class="btn" v-if="item.stateEm == -2"  @click="tapCreateAddFriendApply(item)">对方拒绝</el-tag>
                 </div>
                 <div class="fc search-result" v-if="friendAddSearchListState != ''">
                     <div v-loading="loading" class="fc search-loading" v-if="friendAddSearchListState == 'loading'"></div>
@@ -182,7 +183,9 @@
 <script src="static/js/request.js"></script>
 <script>
     const MsgClasEmNewFriendApply = 4
-    var apiUrl = "http://localhost:8812"
+    const MsgClasEmNewFriendOperated = 5
+    var apiImUrl = "http://localhost:8812"
+    var apiUserUrl = "http://localhost:8801"
     var wsUrl = "http://localhost:8808"
     var appToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0'
     new Vue({
@@ -193,6 +196,7 @@
                     token:'',
                     Authorization:appToken
                 },
+                userInfo:{},
                 conn:null,
                 connHeartT:null,
                 connectState:0,
@@ -236,6 +240,7 @@
                     return
                 }
                 this.headers.token = urlParams.get('token')
+                this.getUserInfo()
                 this.getMyFriendList()
                 this.getMySysMsgUnreadList()
                 this.connectWs()
@@ -301,10 +306,15 @@
                 switch (msg.data.msgClas){
                     case MsgClasEmNewFriendApply: //新好友申请
                         this.recvMsgNewFriendApply()
+                    case MsgClasEmNewFriendOperated:
+                        this.recvFriendApplyOperated(msg.data)
                 }
             },
             recvMsgNewFriendApply(){
                 this.getMySysMsgUnreadList()
+            },
+            recvFriendApplyOperated(data){
+                this.getMyFriendList()
             },
             tapNav(nav){
                 if (nav == "logout"){
@@ -321,15 +331,24 @@
             },
             getMySysMsgUnreadList(){
                 request({
-                    url:apiUrl + '/im/v1/sysMsg/getMySysMsgUnreadNum',
+                    url:apiImUrl + '/im/v1/sysMsg/getMySysMsgUnreadNum',
                     headers:this.headers,
                 }).then(res=>{
                     this.unreadNewFriendApply = res.unread && res.unread[4] ? res.unread[4] : 0
                 })
             },
+            getUserInfo(){
+                request({
+                    url:apiUserUrl + '/user/v1/getMyUserMainInfo',
+                    headers:this.headers,
+                }).then(res=>{
+                    this.userInfo = res
+
+                })
+            },
             getMyFriendList(){
                 request({
-                    url:apiUrl + '/social/v1/friend/getMyFriendList',
+                    url:apiImUrl + '/social/v1/friend/getMyFriendList',
                     headers:this.headers,
                 }).then(res=>{
                     this.friendList = res.list
@@ -337,7 +356,7 @@
             },
             setNewFriendApplyRead(){
                 request({
-                    url:apiUrl + '/im/v1/sysMsg/setMySysMsgReadByClas',
+                    url:apiImUrl + '/im/v1/sysMsg/setMySysMsgReadByClas',
                     headers:this.headers,
                     data:{
                         msgClasEms:[MsgClasEmNewFriendApply],
@@ -357,7 +376,7 @@
                 }
                 this.friendAddSearchListState = "loading"
                 request({
-                    url:apiUrl+'/social/v1/friend/getMyFriendApplyRecvPage',
+                    url:apiImUrl+'/social/v1/friend/getMyFriendApplyRecvPage',
                     headers:this.headers,
                     data:{
                         page:this.recvFriendApplyListNextPage,
@@ -397,7 +416,7 @@
                 if (this.searchNewFriendVal.trim() == '') return;
                 this.friendAddSearchListState = "loading"
                 request({
-                    url:apiUrl+'/social/v1/friend/searchNewFriendPage',
+                    url:apiImUrl+'/social/v1/friend/searchNewFriendPage',
                     headers:this.headers,
                     data:{
                         keyword:this.searchNewFriendVal
@@ -438,13 +457,16 @@
             },
             operateFriendApply(index,data){
                 request({
-                    url:apiUrl+'/social/v1/friend/operateMyRecvFriendApply',
+                    url:apiImUrl+'/social/v1/friend/operateMyRecvFriendApply',
                     headers:this.headers,
                     loading:'提交中',
                     data
                 }).then(res=>{
                     this.recvFriendApplyList[index].stateEm = data.operateStateEm
                     tool.toastSucc('提交成功')
+                    if (data.operateStateEm == 2) {
+                        this.getMyFriendList()
+                    }
                 })
             },
             tapCreateAddFriendApply(friend){
@@ -454,7 +476,7 @@
                     closeOnClickModal: false
                 }).then(({ value }) => {
                     request({
-                        url:apiUrl+'/social/v1/friend/createFriendApply',
+                        url:apiImUrl+'/social/v1/friend/createFriendApply',
                         headers:this.headers,
                         loading:'提交中',
                         data:{

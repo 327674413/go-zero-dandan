@@ -25,4 +25,6 @@ service user-api {
 service user-api {
 	@handler editMyInfo
 	post /editMyInfo(EditMyInfoReq) returns (SuccessResp)
+	@handler getMyUserMainInfo
+	post /getMyUserMainInfo returns (UserMainInfo)
 }

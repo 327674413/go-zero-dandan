@@ -49,31 +49,31 @@ func NewRegByPhoneLogicGen(ctx context.Context, svc *svc.ServiceContext) *RegByP
 	}
 }
 
-func (l *RegByPhoneLogicGen) initReq(req *types.RegByPhoneReq) error {
+func (l *RegByPhoneLogicGen) initReq(in *types.RegByPhoneReq) error {
 
-	if req.Phone != nil {
-		l.req.Phone = strings.TrimSpace(*req.Phone)
+	if in.Phone != nil {
+		l.req.Phone = strings.TrimSpace(*in.Phone)
 		l.hasReq.Phone = true
 	} else {
 		l.hasReq.Phone = false
 	}
 
-	if req.PhoneArea != nil {
-		l.req.PhoneArea = strings.TrimSpace(*req.PhoneArea)
+	if in.PhoneArea != nil {
+		l.req.PhoneArea = strings.TrimSpace(*in.PhoneArea)
 		l.hasReq.PhoneArea = true
 	} else {
 		l.hasReq.PhoneArea = false
 	}
 
-	if req.OtpCode != nil {
-		l.req.OtpCode = strings.TrimSpace(*req.OtpCode)
+	if in.OtpCode != nil {
+		l.req.OtpCode = strings.TrimSpace(*in.OtpCode)
 		l.hasReq.OtpCode = true
 	} else {
 		l.hasReq.OtpCode = false
 	}
 
-	if req.PortEm != nil {
-		l.req.PortEm = *req.PortEm
+	if in.PortEm != nil {
+		l.req.PortEm = *in.PortEm
 		l.hasReq.PortEm = true
 	} else {
 		l.hasReq.PortEm = false

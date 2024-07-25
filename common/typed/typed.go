@@ -6,6 +6,7 @@ type ReqRpcErr struct {
 	Temps []string `json:"temps"`
 }
 type ReqMeta struct {
+	UserToken  string     `json:"userToken"`
 	UserId     string     `json:"userId"`
 	ErrUser    *ReqRpcErr `json:"errUser"`
 	Lang       string     `json:"lang"`

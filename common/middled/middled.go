@@ -57,7 +57,7 @@ func SetCtxUser(r *http.Request, userRpc user.User) context.Context {
 
 		}
 		meta.UserId = userInfo.Id
-
+		meta.UserToken = userToken
 	}
 	ctx = context.WithValue(ctx, ctxd.KeyReqMeta, meta)
 	return ctx

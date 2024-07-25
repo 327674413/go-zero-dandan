@@ -51,38 +51,38 @@ func NewEditMyInfoLogicGen(ctx context.Context, svc *svc.ServiceContext) *EditMy
 	}
 }
 
-func (l *EditMyInfoLogicGen) initReq(req *types.EditMyInfoReq) error {
+func (l *EditMyInfoLogicGen) initReq(in *types.EditMyInfoReq) error {
 
-	if req.Nickname != nil {
-		l.req.Nickname = strings.TrimSpace(*req.Nickname)
+	if in.Nickname != nil {
+		l.req.Nickname = strings.TrimSpace(*in.Nickname)
 		l.hasReq.Nickname = true
 	} else {
 		l.hasReq.Nickname = false
 	}
 
-	if req.SexEm != nil {
-		l.req.SexEm = *req.SexEm
+	if in.SexEm != nil {
+		l.req.SexEm = *in.SexEm
 		l.hasReq.SexEm = true
 	} else {
 		l.hasReq.SexEm = false
 	}
 
-	if req.Avatar != nil {
-		l.req.Avatar = strings.TrimSpace(*req.Avatar)
+	if in.Avatar != nil {
+		l.req.Avatar = strings.TrimSpace(*in.Avatar)
 		l.hasReq.Avatar = true
 	} else {
 		l.hasReq.Avatar = false
 	}
 
-	if req.GraduateFrom != nil {
-		l.req.GraduateFrom = strings.TrimSpace(*req.GraduateFrom)
+	if in.GraduateFrom != nil {
+		l.req.GraduateFrom = strings.TrimSpace(*in.GraduateFrom)
 		l.hasReq.GraduateFrom = true
 	} else {
 		l.hasReq.GraduateFrom = false
 	}
 
-	if req.BirthDate != nil {
-		l.req.BirthDate = strings.TrimSpace(*req.BirthDate)
+	if in.BirthDate != nil {
+		l.req.BirthDate = strings.TrimSpace(*in.BirthDate)
 		l.hasReq.BirthDate = true
 	} else {
 		l.hasReq.BirthDate = false

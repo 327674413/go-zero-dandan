@@ -45,17 +45,17 @@ func NewGetPhoneVerifyCodeLogicGen(ctx context.Context, svc *svc.ServiceContext)
 	}
 }
 
-func (l *GetPhoneVerifyCodeLogicGen) initReq(req *types.GetPhoneVerifyCodeReq) error {
+func (l *GetPhoneVerifyCodeLogicGen) initReq(in *types.GetPhoneVerifyCodeReq) error {
 
-	if req.Phone != nil {
-		l.req.Phone = strings.TrimSpace(*req.Phone)
+	if in.Phone != nil {
+		l.req.Phone = strings.TrimSpace(*in.Phone)
 		l.hasReq.Phone = true
 	} else {
 		l.hasReq.Phone = false
 	}
 
-	if req.PhoneArea != nil {
-		l.req.PhoneArea = strings.TrimSpace(*req.PhoneArea)
+	if in.PhoneArea != nil {
+		l.req.PhoneArea = strings.TrimSpace(*in.PhoneArea)
 		l.hasReq.PhoneArea = true
 	} else {
 		l.hasReq.PhoneArea = false
