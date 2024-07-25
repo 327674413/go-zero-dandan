@@ -222,7 +222,6 @@
         },
         created(){
             this.login()
-
         },
         mounted() {
             this.$refs.app.style.display = "block"
@@ -246,6 +245,7 @@
                 this.conn = new WebSocket(wsUrl +"/ws",this.headers.token);
                 this.conn.onopen = ()=>{
                     this.connectState = 2
+                    clearInterval(this.connHeartT);
                     this.connHeartT = setInterval(()=>{
                         this.heartPing()
                     },300*1000)
@@ -266,14 +266,35 @@
                 };
                 this.conn.onerror = function (evt) {
                     console.error(evt.message,evt.reason,evt.code)
-                    alert("websocket 连接失败")
                 };
+
             },
             heartPing(){
-              this.conn.send(JSON.stringify({"frameType":1}))
+                let msgData = {"frameType":1}
+                if (this.conn.readyState === WebSocket.OPEN) {
+                    this.sendMsg(msgData)
+                } else {
+                    // WebSocket 已关闭或正在关闭，重新连接
+                    this.connectWs();
+                    // 等待连接成功后再发送消息
+                    setTimeout(() => this.sendMsg(msgData), 3000);
+                }
+                // 重连机制不知道怎么才好，现在写的都有瑕疵，会重复定时器
+                // let msgData = {"frameType":1}
+                // if (this.conn.readyState === WebSocket.OPEN) {
+                //     this.conn.send(JSON.stringify(msgData));
+                // } else if (this.conn.readyState === WebSocket.CONNECTING) {
+                //     // 如果 WebSocket 正在连接中，稍后再尝试发送消息
+                //     setTimeout(() => this.sendMsg(msgData), 5000);
+                // } else {
+                //     // WebSocket 已关闭或正在关闭，重新连接
+                //     this.connectWs();
+                //     // 等待连接成功后再发送消息
+                //     setTimeout(() => this.sendMsg(msgData), 5000);
+                // }
             },
             sendMsg(msgData){
-                this.conn.send(JSON.stringify(msgData))
+                this.conn.send(JSON.stringify(msgData));
             },
             recvMsgHanler(msg){
                 if (!msg.data) return console.log("异常消息：",msg)

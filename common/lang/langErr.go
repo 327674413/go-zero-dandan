@@ -19,7 +19,8 @@ var Errs = []*langErr{
 	{40502, "ErrLimiterErr", "遇到了限流问题"},
 	// 5开头系统类
 	{500, "ErrSys", "遇到了点小问题"},
-	{50001, "ErrUserMainInfo", "系统异常：用户信息获取失败"},
+	{50001, "ErrUserMainInfo", "用户信息获取失败"},
+	{50002, "ErrRpcService", "服务暂不可用"},
 	// 501 数据库操作
 	{501, "ErrMysql", "数据库操作失败"},
 	{50101, "ErrMysqlInsert", "数据库插入失败"},

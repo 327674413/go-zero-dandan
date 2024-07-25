@@ -41,7 +41,20 @@ func SetCtxUser(r *http.Request, userRpc user.User) context.Context {
 		// 存在报错
 		if err != nil && !resd.IsUserNotLoginErr(err) {
 			userInfo = &user.UserMainInfo{}
-			meta.UserErr = err.Error()
+			danErr, ok := resd.AssertErr(err)
+			if ok {
+				meta.ErrUser = &typed.ReqRpcErr{
+					Msg:   danErr.Msg,
+					Code:  danErr.Code,
+					Temps: danErr.GetTemps(),
+				}
+			} else {
+				meta.ErrUser = &typed.ReqRpcErr{
+					Msg:  err.Error(),
+					Code: resd.ErrSys,
+				}
+			}
+
 		}
 		meta.UserId = userInfo.Id
 

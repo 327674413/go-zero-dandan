@@ -67,6 +67,7 @@ func init() {
 	msg[ErrReqWait] = "ErrReqWait"
 	msg[ErrRpcMissMeta] = "ErrRpcMissMeta"
 	msg[ErrRpcResDecode] = "ErrRpcResDecode"
+	msg[ErrRpcService] = "ErrRpcService"
 	msg[ErrSocialAlreadyBlackMe] = "ErrSocialAlreadyBlackMe"
 	msg[ErrSocialAlreadyFriend] = "ErrSocialAlreadyFriend"
 	msg[ErrSocialNotAddSelf] = "ErrSocialNotAddSelf"
@@ -149,6 +150,7 @@ const (
 	ErrReqWait                         = 605
 	ErrRpcMissMeta                     = 51001
 	ErrRpcResDecode                    = 510
+	ErrRpcService                      = 50002
 	ErrSocialAlreadyBlackMe            = 63000002
 	ErrSocialAlreadyFriend             = 63000001
 	ErrSocialNotAddSelf                = 63000003

@@ -25,8 +25,8 @@ func (m *UserTokenMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(200)
 			resp := resd.NewResp(r.Context(), r.FormValue("lang"))
-			if reqMeta != nil && reqMeta.UserErr != "" {
-				resd.ApiFail(w, r, resp.NewErr(resd.ErrSys))
+			if reqMeta != nil && reqMeta.ErrUser != nil {
+				resd.ApiFail(w, r, resp.NewErrWithTemp(reqMeta.ErrUser.Code, reqMeta.ErrUser.Temps...))
 			} else {
 				resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthUserNotLogin))
 			}

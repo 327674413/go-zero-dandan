@@ -26,6 +26,9 @@ func JsonToErr(ctxOrNil context.Context, jsonStr string) error {
 	} else {
 		ctx = ctxOrNil
 	}
+	if jsonStr[:1] != "{" {
+		return NewErrCtx(ctx, "RPC服务错误："+jsonStr, ErrRpcService)
+	}
 	err := danError{}
 	jErr := json.Unmarshal([]byte(jsonStr), &err)
 	if jErr != nil {
