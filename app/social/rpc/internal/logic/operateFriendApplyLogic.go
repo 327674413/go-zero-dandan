@@ -9,7 +9,6 @@ import (
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
-	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/dao"
 	"go-zero-dandan/common/resd"
@@ -88,35 +87,32 @@ func (l *OperateFriendApplyLogic) OperateFriendApply(in *socialRpc.OperateFriend
 			return l.resd.NewErr(resd.ErrDataBiz)
 		}
 		//获取对方用户信息
-		friendInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-			Id: &apply.UserId,
-		})
-		if err != nil {
-			return l.resd.Error(err)
-		}
-		//获取我的用户信息
-		myInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
-			Id: &apply.FriendUid,
-		})
-		if err != nil {
-			return l.resd.Error(err)
-		}
+		//暂时决定不冗余了，这里线不用获取两边人的信息了
+		//friendInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
+		//	Id: &apply.UserId,
+		//})
+		//if err != nil {
+		//	return l.resd.Error(err)
+		//}
+		////获取我的用户信息
+		//myInfo, err := l.svc.UserRpc.GetUserById(l.ctx, &userRpc.IdReq{
+		//	Id: &apply.FriendUid,
+		//})
+		//if err != nil {
+		//	return l.resd.Error(err)
+		//}
 		// 更新对方 - 我的好友关系
 		_, err = friendModel.WhereId(friendRelat.Id).TxUpdate(tx, map[dao.TableField]any{
-			model.SocialFriend_StateEm:    l.req.OperateStateEm,
-			model.SocialFriend_FriendName: myInfo.Nickname,
-			model.SocialFriend_FriendIcon: myInfo.AvatarImg,
-			model.SocialFriend_SourceEm:   apply.SourceEm,
+			model.SocialFriend_StateEm:  l.req.OperateStateEm,
+			model.SocialFriend_SourceEm: apply.SourceEm,
 		})
 		if err != nil {
 			return resd.ErrorCtx(l.ctx, err)
 		}
 		// 更新我 - 对方好友关系
 		_, err = friendModel.WhereId(myRelat.Id).TxUpdate(tx, map[dao.TableField]any{
-			model.SocialFriend_StateEm:    l.req.OperateStateEm,
-			model.SocialFriend_FriendName: friendInfo.Nickname,
-			model.SocialFriend_FriendIcon: friendInfo.AvatarImg,
-			model.SocialFriend_SourceEm:   -1 * apply.SourceEm,
+			model.SocialFriend_StateEm:  l.req.OperateStateEm,
+			model.SocialFriend_SourceEm: -1 * apply.SourceEm,
 		})
 		if err != nil {
 			return l.resd.Error(err)

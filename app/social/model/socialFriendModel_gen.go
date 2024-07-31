@@ -25,19 +25,17 @@ var (
 )
 
 const (
-	SocialFriend_Id          dao.TableField = "id"
-	SocialFriend_UserId      dao.TableField = "user_id"
-	SocialFriend_FriendUid   dao.TableField = "friend_uid"
-	SocialFriend_FriendName  dao.TableField = "friend_name"
-	SocialFriend_FriendAlias dao.TableField = "friend_alias"
-	SocialFriend_FriendIcon  dao.TableField = "friend_icon"
-	SocialFriend_SourceEm    dao.TableField = "source_em"
-	SocialFriend_StateEm     dao.TableField = "state_em"
-	SocialFriend_Remark      dao.TableField = "remark"
-	SocialFriend_PlatId      dao.TableField = "plat_id"
-	SocialFriend_CreateAt    dao.TableField = "create_at"
-	SocialFriend_UpdateAt    dao.TableField = "update_at"
-	SocialFriend_DeleteAt    dao.TableField = "delete_at"
+	SocialFriend_Id           dao.TableField = "id"
+	SocialFriend_UserId       dao.TableField = "user_id"
+	SocialFriend_FriendUid    dao.TableField = "friend_uid"
+	SocialFriend_FriendAlias  dao.TableField = "friend_alias"
+	SocialFriend_SourceEm     dao.TableField = "source_em"
+	SocialFriend_StateEm      dao.TableField = "state_em"
+	SocialFriend_FriendRemark dao.TableField = "friend_remark"
+	SocialFriend_PlatId       dao.TableField = "plat_id"
+	SocialFriend_CreateAt     dao.TableField = "create_at"
+	SocialFriend_UpdateAt     dao.TableField = "update_at"
+	SocialFriend_DeleteAt     dao.TableField = "delete_at"
 )
 
 type (
@@ -95,19 +93,17 @@ type (
 	}
 
 	SocialFriend struct {
-		Id          string `db:"id" json:"id"`
-		UserId      string `db:"user_id" json:"userId"`           // 归属用户id
-		FriendUid   string `db:"friend_uid" json:"friendUid"`     // 好友用户id
-		FriendName  string `db:"friend_name" json:"friendName"`   // 冗余好友名称
-		FriendAlias string `db:"friend_alias" json:"friendAlias"` // 好友别名备注
-		FriendIcon  string `db:"friend_icon" json:"friendIcon"`   // 冗余好友头像
-		SourceEm    int64  `db:"source_em" json:"sourceEm"`       // 添加来源枚举
-		StateEm     int64  `db:"state_em" json:"stateEm"`         // 好友状态
-		Remark      string `db:"remark" json:"remark"`            // 备注
-		PlatId      string `db:"plat_id" json:"platId"`           // 应用id
-		CreateAt    int64  `db:"create_at" json:"createAt"`       // 创建时间戳
-		UpdateAt    int64  `db:"update_at" json:"updateAt"`       // 更新时间戳
-		DeleteAt    int64  `db:"delete_at" json:"deleteAt"`       // 删除时间戳
+		Id           string `db:"id" json:"id"`
+		UserId       string `db:"user_id" json:"userId"`             // 归属用户id
+		FriendUid    string `db:"friend_uid" json:"friendUid"`       // 好友用户id
+		FriendAlias  string `db:"friend_alias" json:"friendAlias"`   // 好友别名备注
+		SourceEm     int64  `db:"source_em" json:"sourceEm"`         // 添加来源枚举
+		StateEm      int64  `db:"state_em" json:"stateEm"`           // 好友状态
+		FriendRemark string `db:"friend_remark" json:"friendRemark"` // 备注
+		PlatId       string `db:"plat_id" json:"platId"`             // 应用id
+		CreateAt     int64  `db:"create_at" json:"createAt"`         // 创建时间戳
+		UpdateAt     int64  `db:"update_at" json:"updateAt"`         // 更新时间戳
+		DeleteAt     int64  `db:"delete_at" json:"deleteAt"`         // 删除时间戳
 	}
 )
 

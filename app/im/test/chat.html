@@ -12,7 +12,7 @@
         .btn:hover{cursor: pointer;}
         #app{display: none;}
         .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%);}
-        .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
+        .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;align-items: flex-start;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
         .chat-nav{flex:0 0 66px;background: #66b1ff;height:100%;flex-direction: column;padding:30px 0;box-sizing: border-box;}
         .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
         .chat-nav-item{margin-top:10px;}
@@ -29,6 +29,11 @@
         .friend-name{font-size: 15px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
         .friend-add-search-list{padding-top:10px;}
 
+        .friend-detail-avatar{argin-right:6px;border-radius: 6px;width:80px;height:80px;}
+        .friend-detail-avatar-text{font-size: 40px;background: #3a8ee6;color:#fff;}
+        .friend-detail-name{font-size: 28px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+
+        .chat-content{padding:20px;}
 
         .search-result{padding:50px 30px;}
 
@@ -99,7 +104,7 @@
                         <div class="fc friend-new-num" v-if="unreadNewFriendApply > 0">{{unreadNewFriendApply > 99 ? '99+':unreadNewFriendApply}}</div>
                     </div>
                     <div class="friend-list">
-                        <div class="fl btn friend-item" v-for="item in friendListCpd" :key="item.id">
+                        <div class="fl btn friend-item" v-for="item in friendListCpd" :key="item.id" @click="tapFriendItem(item)">
                             <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
                             <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
                             <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
@@ -113,12 +118,26 @@
                     客服
                 </div>
             </div>
-            <div id="chat-content">
-                <div id="chat-target"></div>
-                <form id="form" style="display: none;">
-                    <input type="submit" value="Send" />
-                    <input type="text" id="msg" size="64" autofocus />
-                </form>
+            <div class="chat-content">
+                <div class="chat-content-conv" v-if="currNav == 'conv'">
+                    <div id="chat-target"></div>
+                    <form id="form" style="display: none;">
+                        <input type="submit" value="Send" />
+                        <input type="text" id="msg" size="64" autofocus />
+                    </form>
+                </div>
+                <div class="chat-content-conv" v-if="currNav == 'friend'">
+                    <div class="friend-detail" v-if="currFriendDetail.id">
+                        <div class="fl">
+                            <img v-if="currFriendDetail.friendAvatarImg" :src="currFriendDetail.friendAvatarImg" class="friend-detail-avatar"  />
+                            <div v-else class="friend-detail-avatar friend-detail-avatar-text fc" >{{currFriendDetail.friendName.substring(0,1).toUpperCase()}}</div>
+                            <i v-if="currFriendDetail.sexEm == 2" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#f37e7d;"></i>
+                            <i v-if="currFriendDetail.sexEm == 1" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#45b6ef;"></i>
+                            <i v-if="currFriendDetail.sexEm == 0" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#ccc;"></i>
+                            <div class="friend-detail-name">{{currFriendDetail.friendAlias ? currFriendDetail.friendAlias : currFriendDetail.friendName}}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -206,6 +225,7 @@
                 convList:[],
                 searchFriendVal:'',
                 searchNewFriendVal:'',
+                currFriendDetail:{},
                 friendList:[],
                 showAddFriendDialog:false,
                 friendAddSearchList:[],
@@ -328,6 +348,9 @@
             },
             tapShowConvAdd(){
 
+            },
+            tapFriendItem(item){
+              this.currFriendDetail = item
             },
             getMySysMsgUnreadList(){
                 request({

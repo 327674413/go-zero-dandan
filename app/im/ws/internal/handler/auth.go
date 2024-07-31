@@ -41,7 +41,11 @@ func (t *UserAuth) Auth(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		userMainInfo, err := t.svc.UserRpc.GetUserByToken(r.Context(), &user.TokenReq{Token: &userToken})
 		if err != nil {
-			return resp.NewErr(resd.ErrAuthUserNotLogin)
+			if !resd.IsUserNotLoginErr(err) {
+				return resp.NewErr(resd.ErrSys)
+			} else {
+				return resp.NewErr(resd.ErrAuthUserNotLogin)
+			}
 		}
 		platInfo, err := t.svc.PlatRpc.GetOne(r.Context(), &plat.IdReq{Id: &userMainInfo.PlatId})
 		if err != nil {
