@@ -54,6 +54,9 @@ type (
 		Field(field string) *defaultSocialGroupModel
 		Except(fields ...string) *defaultSocialGroupModel
 		Alias(alias string) *defaultSocialGroupModel
+		LeftJoin(joinTable string) *defaultSocialGroupModel
+		RightJoin(joinTable string) *defaultSocialGroupModel
+		InnerJoin(joinTable string) *defaultSocialGroupModel
 		Where(whereStr string, whereData ...any) *defaultSocialGroupModel
 		WhereId(id string) *defaultSocialGroupModel
 		Order(order string) *defaultSocialGroupModel
@@ -159,6 +162,18 @@ func (m *defaultSocialGroupModel) Where(whereStr string, whereData ...any) *defa
 
 func (m *defaultSocialGroupModel) Alias(alias string) *defaultSocialGroupModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultSocialGroupModel) LeftJoin(joinTable string) *defaultSocialGroupModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultSocialGroupModel) RightJoin(joinTable string) *defaultSocialGroupModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultSocialGroupModel) InnerJoin(joinTable string) *defaultSocialGroupModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultSocialGroupModel) Field(field string) *defaultSocialGroupModel {

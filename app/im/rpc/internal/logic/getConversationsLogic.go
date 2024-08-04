@@ -61,7 +61,7 @@ func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) 
 			res.ConversationList[item.ConversationId].Total = item.Total
 			//会话详情总数 - 用户会话关系中的总数，就是未读消息数
 			res.ConversationList[item.ConversationId].ToRead = item.Total - total
-			//更改当前会话为显示状态
+			//更改当前会话为显示状态（有可能用户会把会话删除，删除了就是false）
 			res.ConversationList[item.ConversationId].IsShow = true
 		}
 	}

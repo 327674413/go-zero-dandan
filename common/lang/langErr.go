@@ -57,6 +57,8 @@ var Errs = []*langErr{
 	{521, "ErrCopier", "内部数据格式转换失败"},
 	{510, "ErrRpcResDecode", "RpcResDecode"},
 	{51001, "ErrRpcMissMeta", "缺失meta信息"},
+
+	//业务类
 	{600, "ErrReqKeyRequired", "未提供主键"},
 	{601, "ErrReqFieldRequired1", "缺少参数{{.Field1}}"},
 	{60101, "ErrReqFieldEmpty1", "{{.Field1}}不能为空"},
@@ -88,6 +90,7 @@ var Errs = []*langErr{
 	{60500001, "ErrReqGetPhoneVerifyCodeWait", "获取验证码太频繁，请稍后再试"},
 	{60500002, "ErrReqGetPhoneVerifyCodeDayLimit", "今日获取短信超出上限，请明日再试"},
 	{60500003, "ErrReqGetPhoneVerifyCodeHourLimit", "一小时内获取短信超出上限，请稍后再试"},
+	//630 im应用类
 	{63000001, "ErrSocialAlreadyFriend", "已经是好友了"},
 	{63000002, "ErrSocialAlreadyBlackMe", "对方已把你拉黑"},
 	{63000003, "ErrSocialNotAddSelf", "不能添加自己为好友"},

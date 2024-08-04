@@ -26,13 +26,14 @@ message GetUserRelationResp {
 message FriendInfo {
 	 string id = 1;
 	 string userId = 2;
-	 string remark = 3;
+	 string friendRemark = 3;
 	 int64 sourceEm = 4;
 	 string friendUid = 5;
 	 string platId = 6;
 	 string friendName = 7;
 	 string friendAlias = 8;
 	 string friendIcon = 9;
+	 int64 friendSexEm = 10;
 }
 message FriendApply {
 	 string id = 1;

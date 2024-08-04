@@ -56,6 +56,9 @@ type (
 		Field(field string) *defaultSocialGroupMemberApplyModel
 		Except(fields ...string) *defaultSocialGroupMemberApplyModel
 		Alias(alias string) *defaultSocialGroupMemberApplyModel
+		LeftJoin(joinTable string) *defaultSocialGroupMemberApplyModel
+		RightJoin(joinTable string) *defaultSocialGroupMemberApplyModel
+		InnerJoin(joinTable string) *defaultSocialGroupMemberApplyModel
 		Where(whereStr string, whereData ...any) *defaultSocialGroupMemberApplyModel
 		WhereId(id string) *defaultSocialGroupMemberApplyModel
 		Order(order string) *defaultSocialGroupMemberApplyModel
@@ -163,6 +166,18 @@ func (m *defaultSocialGroupMemberApplyModel) Where(whereStr string, whereData ..
 
 func (m *defaultSocialGroupMemberApplyModel) Alias(alias string) *defaultSocialGroupMemberApplyModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultSocialGroupMemberApplyModel) LeftJoin(joinTable string) *defaultSocialGroupMemberApplyModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultSocialGroupMemberApplyModel) RightJoin(joinTable string) *defaultSocialGroupMemberApplyModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultSocialGroupMemberApplyModel) InnerJoin(joinTable string) *defaultSocialGroupMemberApplyModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultSocialGroupMemberApplyModel) Field(field string) *defaultSocialGroupMemberApplyModel {

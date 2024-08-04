@@ -47,6 +47,18 @@ func (m *default{{.upperStartCamelObject}}Model) Alias(alias string) *default{{.
 	m.dao.Alias(alias)
     return m
 }
+func (m *default{{.upperStartCamelObject}}Model) LeftJoin(joinTable string) *default{{.upperStartCamelObject}}Model {
+	m.dao.LeftJoin(joinTable)
+    return m
+}
+func (m *default{{.upperStartCamelObject}}Model) RightJoin(joinTable string) *default{{.upperStartCamelObject}}Model {
+	m.dao.RightJoin(joinTable)
+    return m
+}
+func (m *default{{.upperStartCamelObject}}Model) InnerJoin(joinTable string) *default{{.upperStartCamelObject}}Model {
+	m.dao.InnerJoin(joinTable)
+    return m
+}
 func (m *default{{.upperStartCamelObject}}Model) Field(field string) *default{{.upperStartCamelObject}}Model {
 	m.dao.Field(field)
     return m

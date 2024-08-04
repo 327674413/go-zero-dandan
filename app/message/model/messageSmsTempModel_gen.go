@@ -52,6 +52,9 @@ type (
 		Field(field string) *defaultMessageSmsTempModel
 		Except(fields ...string) *defaultMessageSmsTempModel
 		Alias(alias string) *defaultMessageSmsTempModel
+		LeftJoin(joinTable string) *defaultMessageSmsTempModel
+		RightJoin(joinTable string) *defaultMessageSmsTempModel
+		InnerJoin(joinTable string) *defaultMessageSmsTempModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsTempModel
 		WhereId(id string) *defaultMessageSmsTempModel
 		Order(order string) *defaultMessageSmsTempModel
@@ -155,6 +158,18 @@ func (m *defaultMessageSmsTempModel) Where(whereStr string, whereData ...any) *d
 
 func (m *defaultMessageSmsTempModel) Alias(alias string) *defaultMessageSmsTempModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultMessageSmsTempModel) LeftJoin(joinTable string) *defaultMessageSmsTempModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSmsTempModel) RightJoin(joinTable string) *defaultMessageSmsTempModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSmsTempModel) InnerJoin(joinTable string) *defaultMessageSmsTempModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultMessageSmsTempModel) Field(field string) *defaultMessageSmsTempModel {

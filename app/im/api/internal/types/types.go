@@ -2,13 +2,14 @@
 package types
 
 type FriendInfo struct {
-	Id          string `json:"id"`
-	FriendUid   string `json:"friendUid"`
-	FriendName  string `json:"friendName"`
-	FriendAlias string `json:"friendAlias"`
-	FriendIcon  string `json:"friendIcon"`
-	SourceEm    int64  `json:"sourcEm"`
-	Remark      string `json:"remark"`
+	Id           string `json:"id"`
+	FriendUid    string `json:"friendUid"`
+	FriendName   string `json:"friendName"`
+	FriendAlias  string `json:"friendAlias"`
+	FriendIcon   string `json:"friendIcon"`
+	FriendSexEm  int64  `json:"friendSexEm"`
+	SourceEm     int64  `json:"sourcEm"`
+	FriendRemark string `json:"friendRemark"`
 }
 
 type FriendApply struct {
@@ -171,4 +172,52 @@ type SetMySysMsgReadByClasReq struct {
 type SetMySysMsgReadByIdReq struct {
 	MsgClasEm *int64  `json:"msgClasEm,optional" check:"required"`
 	Ids       []int64 `json:"ids,optional" check:"required"`
+}
+
+type ChatLog struct {
+	Id             string `json:"id"`
+	ConversationId string `json:"conversationId"`
+	SendId         string `json:"sendId"`
+	RecvId         string `json:"recvId"`
+	MsgType        int64  `json:"msgType"`
+	MsgContent     string `json:"msgContent"`
+	ChatType       int64  `json:"chatType"`
+	SendTime       string `json:"SendTime"`
+}
+
+type Conversation struct {
+	ConversationId string   `json:"conversationId"`
+	ChatType       int64    `json:"chatType"`
+	TargetId       string   `json:"targetId"`
+	IsShow         bool     `json:"isShow"`
+	Seq            int64    `json:"seq"`
+	Read           int64    `json:"read"`
+	Total          int64    `json:"total"`
+	Unread         int64    `json:"unread"`
+	LastMsg        *ChatLog `json:"lastMsg"`
+	LastAt         int64    `json:"lastAt"`
+}
+
+type GetChatLogReq struct {
+	ConversationId *string `json:"conversationId,optional" check:"required"`
+	StartSendAt    *int64  `json:"startSendTime,optional"`
+	EndSendAt      *int64  `json:"endSendTime,optional"`
+	Count          *int64  `json:"count,optional"`
+}
+
+type GetChatLogResp struct {
+	List []*ChatLog `json:"list"`
+}
+
+type GetConversationListResp struct {
+	Conversations map[string]*Conversation `json:"conversations"`
+}
+
+type UpdateConversationListReq struct {
+	ConversationList map[string]*Conversation `json:"conversationList,optional" check:"required"`
+}
+
+type SetUpUserConversationReq struct {
+	RecvId   *string `json:"recvId,optional" check:"required"`
+	ChatType *int64  `json:"chatType,optional" check:"required"`
 }

@@ -5,8 +5,8 @@ import (
 	"go-zero-dandan/app/social/model"
 	"go-zero-dandan/app/social/rpc/internal/svc"
 	"go-zero-dandan/app/social/rpc/types/socialRpc"
+	"go-zero-dandan/app/user/rpc/types/userRpc"
 	"go-zero-dandan/common/constd"
-	"go-zero-dandan/common/utild/copier"
 )
 
 type GetUserFriendListLogic struct {
@@ -36,11 +36,31 @@ func (l *GetUserFriendListLogic) GetUserFriendList(in *socialRpc.GetUserFriendLi
 	resp := &socialRpc.FriendListResp{
 		List: make([]*socialRpc.FriendInfo, 0),
 	}
-	if err = copier.Copy(&resp.List, list); err != nil {
-		return nil, l.resd.Error(err)
+	userIds := make([]string, len(list))
+	for k, v := range list {
+		userIds[k] = v.FriendUid
 	}
+	userInfos, err := l.svc.UserRpc.GetUserNormalInfo(l.ctx, &userRpc.GetUserInfoReq{
+		Ids: userIds,
+	})
+	for _, v := range list {
+		friendInfo := &socialRpc.FriendInfo{
+			Id:           v.Id,
+			UserId:       v.UserId,
+			FriendRemark: v.FriendRemark,
+			SourceEm:     v.SourceEm,
+			FriendUid:    v.FriendUid,
+			PlatId:       v.PlatId,
+		}
+		if userInfo, ok := userInfos.Users[v.FriendUid]; ok {
+			friendInfo.FriendSexEm = userInfo.MainInfo.SexEm
+			friendInfo.FriendName = userInfo.MainInfo.Nickname
+			friendInfo.FriendIcon = userInfo.MainInfo.AvatarImg
+		}
+		resp.List = append(resp.List, friendInfo)
+	}
+
 	return resp, nil
-	return &socialRpc.FriendListResp{}, nil
 }
 func (l *GetUserFriendListLogic) checkReqParams(in *socialRpc.GetUserFriendListReq) error {
 	return nil

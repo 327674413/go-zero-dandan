@@ -50,6 +50,9 @@ type (
 		Field(field string) *defaultMessageSmsSendModel
 		Except(fields ...string) *defaultMessageSmsSendModel
 		Alias(alias string) *defaultMessageSmsSendModel
+		LeftJoin(joinTable string) *defaultMessageSmsSendModel
+		RightJoin(joinTable string) *defaultMessageSmsSendModel
+		InnerJoin(joinTable string) *defaultMessageSmsSendModel
 		Where(whereStr string, whereData ...any) *defaultMessageSmsSendModel
 		WhereId(id string) *defaultMessageSmsSendModel
 		Order(order string) *defaultMessageSmsSendModel
@@ -151,6 +154,18 @@ func (m *defaultMessageSmsSendModel) Where(whereStr string, whereData ...any) *d
 
 func (m *defaultMessageSmsSendModel) Alias(alias string) *defaultMessageSmsSendModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultMessageSmsSendModel) LeftJoin(joinTable string) *defaultMessageSmsSendModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSmsSendModel) RightJoin(joinTable string) *defaultMessageSmsSendModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSmsSendModel) InnerJoin(joinTable string) *defaultMessageSmsSendModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultMessageSmsSendModel) Field(field string) *defaultMessageSmsSendModel {

@@ -12,15 +12,37 @@
         .btn:hover{cursor: pointer;}
         #app{display: none;}
         .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%);}
-        .chat{background: #f4f4f4;width:70vw;height:40vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;align-items: flex-start;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
+        .chat{background: #f4f4f4;width:70vw;height:80vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;align-items: flex-start;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
         .chat-nav{flex:0 0 66px;background: #66b1ff;height:100%;flex-direction: column;padding:30px 0;box-sizing: border-box;}
         .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
         .chat-nav-item{margin-top:10px;}
         .chat-nav-item:hover{cursor: pointer;}
         .chat-social{flex:0 0 260px;width:260px;background: #f8f8f8;border-right: 1px solid #e0e0e0;height:100%;}
+        .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
+        .chat-msg-name{font-size:14px;color:#8a8a8a;padding:2px;}
+        .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
+        .chat-msg-recv .chat-msg-content{background: #E5E5EA;}
+        .chat-msg-send .chat-msg-content{background: #95EC69;}
+        .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;}
+        .chat-msg-recv .chat-msg-avatar{margin-right:10px;background: #06f;}
+        .chat-msg-send .chat-msg-avatar{margin-left:10px;background: #f60;}
+        .chat-msg-recv .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-right: 5px solid #E5E5EA;left: -5px;top: 8px;}
+        .chat-msg-send .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-left: 5px solid #95EC69;right: -5px;top: 8px;}
 
-
-        .social-search{padding:10px 15px;border-bottom: 1px solid #e0e0e0;}
+        .chat-content{box-sizing: border-box;height:100%;width: 100%;position: relative;}
+        .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
+        .chat-content-target-name{height:50px;padding:0 20px;}
+        .chat-conv-msg{flex-grow: 1;width: 100%;}
+        .chat-content-friend{height:100%;}
+        .chat-content-conv{height:100%;display: flex;flex-direction: column;}
+        .chat-conv-input {width: 100%;flex-grow:1;border: none;padding: 5px;resize: none;overflow-y: auto;box-sizing: border-box;white-space: pre-wrap;word-break: break-word;}
+        .chat-conv-input:focus {outline: none;}
+        .chat-conv-form{flex:0 0 200px;display: flex;flex-direction: column;border-top:1px solid #ccc;}
+        .chat-conv-tool{flex:0 0 40px;box-sizing: border-box;padding:5px 10px;}
+        .chat-conv-tool-btn{font-size: 24px;color:#444;}
+        .chat-conv-tool-btn:hover{cursor: pointer;}
+        .chat-conv-tool-item{margin-right:10px;}
+        .social-search{padding:0 15px;height:50px;border-bottom: 1px solid #e0e0e0;}
         .friend-new{padding:10px 20px;border-bottom: 1px solid #e0e0e0;}
         .friend-new-num{flex:0 0 25px;width:25px;height:25px;background: #f56c6c;border-radius: 50%;color:#fff;font-size: 12px;}
         .friend-item{padding:10px;}
@@ -29,15 +51,20 @@
         .friend-name{font-size: 15px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
         .friend-add-search-list{padding-top:10px;}
 
+        .chat-friend-list .active{background: #eee;}
+        .friend-detail{}
+        .friend-detail-user{padding:30px;}
+
         .friend-detail-avatar{argin-right:6px;border-radius: 6px;width:80px;height:80px;}
         .friend-detail-avatar-text{font-size: 40px;background: #3a8ee6;color:#fff;}
         .friend-detail-name{font-size: 28px;overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+        .friend-detail-tochat{position: absolute;bottom:30px;left: 0;width:100%;}
 
-        .chat-content{padding:20px;}
 
         .search-result{padding:50px 30px;}
 
-        .conv-item{padding:10px;}
+        .conv-list .active{background: #eee;}
+        .conv-item{padding:10px;width:100%;}
         .conv-item:hover{cursor: pointer;}
         .conv-avatar{flex:0 0 40px;margin-right:6px;border-radius: 6px;width:40px;height:40px;}
         .conv-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
@@ -47,11 +74,12 @@
         .conv-date{font-size: 11px;color:#bbb;max-width: 70px;}
         .conv-content-bottom{height:22px;}
         .conv-chat{overflow: hidden; white-space: nowrap; text-overflow: ellipsis;font-size: 12px;color:#8a8a8a;}
+
     </style>
 </head>
 <body>
 <div id="app" ref="app">
-    <div v-if="userInfo.id" style="position: absolute;bottom:30px;text-align: center;padding:30px;width:100%;box-sizing: border-box;">当前用户：{{userInfo.phone}}</div>
+    <div v-if="userInfo.id" style="position: absolute;bottom:0;text-align: center;padding:30px;width:100%;box-sizing: border-box;">当前用户：{{userInfo.phone}}</div>
     <div class="chat-wrapper">
         <div class="fl chat">
             <div class="chat-nav fl">
@@ -79,16 +107,19 @@
                         <el-button size="mini" circle icon="el-icon-plus" class="conv-search-add" @click="tapShowConvAdd"></el-button>
                     </div>
                     <div class="conv-list">
-                        <div class="fl conv-item" v-for="item in friendListCpd" :key="item.id">
-                            <img :src="item.friendAvatarImg" class="conv-avatar" v-if="item.friendAvatarImg" />
-                            <div class="conv-avatar conv-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
-                            <div class="conv-content">
-                                <div class="fb conv-content-top">
-                                    <div class="conv-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
-                                    <div class="conv-date">{{item.friendDate}}</div>
-                                </div>
-                                <div class="fl conv-content-bottom">
-                                    <div class="conv-chat">{{item.lastChat}}</div>
+                        <div class="fl conv-item-wrapper" :class="{active:index == activeConvIndex}" @click="tapConvItem(index)" v-for="(item,index) in convList" :key="item.id">
+                            <div class="fl conv-item" v-if="item.isShow && item.chatType == 2">
+                                <img v-if="friendList[friendListIndexByUid[item.targetId]] && friendList[friendListIndexByUid[item.targetId]].friendAvatarImg" :src="friendList[friendListIndexByUid[item.targetId]].friendAvatarImg" class="conv-avatar"  />
+                                <div class="conv-avatar conv-avatar-text fc" v-if="friendList[friendListIndexByUid[item.targetId]] && !friendList[friendListIndexByUid[item.targetId]].friendAvatarImg">{{friendList[friendListIndexByUid[item.targetId]].friendName.substring(0,1).toUpperCase()}}</div>
+                                <div class="conv-content">
+                                    <div class="fb conv-content-top">
+                                        <div class="conv-name" v-if="friendList[friendListIndexByUid[item.targetId]]">{{friendList[friendListIndexByUid[item.targetId]].friendAlias ? friendList[friendListIndexByUid[item.targetId]].friendAlias : friendList[friendListIndexByUid[item.targetId]].friendName}}</div>
+                                        <div class="conv-date">{{formatConvTime(item.lastAt)}}</div>
+                                    </div>
+                                    <div class="fl conv-content-bottom">
+                                        <div class="conv-chat" v-if="activeConvIndex !== index && item.inputMsg"><span style="color:red;padding-right:4px;">[草稿]</span>{{item.inputMsg}}</div>
+                                        <div class="conv-chat" v-if="item.lastMsg">{{item.lastMsg.msgContent}}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -103,8 +134,8 @@
                         <div class="fl friend-new-text">新朋友</div>
                         <div class="fc friend-new-num" v-if="unreadNewFriendApply > 0">{{unreadNewFriendApply > 99 ? '99+':unreadNewFriendApply}}</div>
                     </div>
-                    <div class="friend-list">
-                        <div class="fl btn friend-item" v-for="item in friendListCpd" :key="item.id" @click="tapFriendItem(item)">
+                    <div class="chat-friend-list">
+                        <div class="fl btn friend-item" :class="{active:activeFriendIndex === index}" v-for="(item,index) in friendListCpd" :key="item.id" @click="tapFriendItem(index)">
                             <img :src="item.friendAvatarImg" class="friend-avatar" v-if="item.friendAvatarImg" />
                             <div class="friend-avatar friend-avatar-text fc" v-if="!item.friendAvatarImg">{{item.friendName.substring(0,1).toUpperCase()}}</div>
                             <div class="friend-name">{{item.friendAlias ? item.friendAlias : item.friendName}}</div>
@@ -119,23 +150,43 @@
                 </div>
             </div>
             <div class="chat-content">
-                <div class="chat-content-conv" v-if="currNav == 'conv'">
-                    <div id="chat-target"></div>
-                    <form id="form" style="display: none;">
-                        <input type="submit" value="Send" />
-                        <input type="text" id="msg" size="64" autofocus />
-                    </form>
+                <div class="chat-content-conv" v-if="currNav == 'conv' && activeConvIndex > -1">
+                    <div class="fb chat-content-target">
+                        <div class="fl chat-content-target-name">房东十分大</div>
+                    </div>
+                    <div class="chat-conv-msg">
+                        <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgContent">
+                            <div class="chat-msg-avatar"></div>
+                            <div class="chat-msg-wrapper">
+                                <div class="fl chat-msg-name">对方名字</div>
+                                <div class="fl chat-msg-content">item.msgContent</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-conv-form">
+                        <div class="fb chat-conv-tool">
+                            <div class="fl">
+                                <div class="chat-conv-tool-item"><i class="el-icon-picture-outline chat-conv-tool-btn"></i></div>
+                                <div class="chat-conv-tool-item"><i class="el-icon-chat-dot-round chat-conv-tool-btn"></i></div>
+                            </div>
+                            <div class="fl">
+                                <div style="color:#ccc;font-size: 14px;">使用Enter键发送消息</div>
+                            </div>
+                        </div>
+                        <div class="chat-conv-input" contenteditable="true" placeholder="按回车键可以发送"  @input="chatInputUpdate"  @keydown="chatInputEnter" ref="chatInput"></div>
+                    </div>
                 </div>
-                <div class="chat-content-conv" v-if="currNav == 'friend'">
+                <div class="chat-content-friend" v-if="currNav == 'friend'">
                     <div class="friend-detail" v-if="currFriendDetail.id">
-                        <div class="fl">
+                        <div class="fl friend-detail-user">
                             <img v-if="currFriendDetail.friendAvatarImg" :src="currFriendDetail.friendAvatarImg" class="friend-detail-avatar"  />
                             <div v-else class="friend-detail-avatar friend-detail-avatar-text fc" >{{currFriendDetail.friendName.substring(0,1).toUpperCase()}}</div>
-                            <i v-if="currFriendDetail.sexEm == 2" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#f37e7d;"></i>
-                            <i v-if="currFriendDetail.sexEm == 1" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#45b6ef;"></i>
-                            <i v-if="currFriendDetail.sexEm == 0" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#ccc;"></i>
+                            <i v-if="currFriendDetail.friendSexEm == 2" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#f37e7d;"></i>
+                            <i v-if="currFriendDetail.friendSexEm == 1" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#45b6ef;"></i>
+                            <i v-if="currFriendDetail.friendSexEm == 0" class="el-icon-user-solid" style="margin-left:10px;font-size: 32px;color:#ccc;"></i>
                             <div class="friend-detail-name">{{currFriendDetail.friendAlias ? currFriendDetail.friendAlias : currFriendDetail.friendName}}</div>
                         </div>
+                        <div class="fc friend-detail-tochat"><el-button type="primary" @click="tapCreateConv">发消息</el-button></div>
                     </div>
                 </div>
             </div>
@@ -220,13 +271,16 @@
                 connHeartT:null,
                 connectState:0,
                 userToken:'',
-                currNav:'friend',
+                currNav:'conv',
                 searchConvVal:'',
                 convList:[],
+                activeConvIndex:-1,
+                activeFriendIndex:-1,
                 searchFriendVal:'',
                 searchNewFriendVal:'',
                 currFriendDetail:{},
                 friendList:[],
+                friendListIndexByUid:{},
                 showAddFriendDialog:false,
                 friendAddSearchList:[],
                 friendAddSearchListState:'',
@@ -262,6 +316,7 @@
                 this.headers.token = urlParams.get('token')
                 this.getUserInfo()
                 this.getMyFriendList()
+                this.getMyConvList()
                 this.getMySysMsgUnreadList()
                 this.connectWs()
 
@@ -344,13 +399,126 @@
                 this.currNav = nav
             },
             getMyConvList(){
-
+                request({
+                    url:apiImUrl + '/im/v1/conversation/getConversationList',
+                    headers:this.headers,
+                }).then(res=>{
+                    let convList = []
+                    for (let k in res.conversations){
+                        let conv = res.conversations[k]
+                        conv.msgContent = []
+                        convList.push(conv)
+                    }
+                    this.convList = convList
+                })
             },
             tapShowConvAdd(){
 
             },
-            tapFriendItem(item){
-              this.currFriendDetail = item
+            sendChatMsg(){
+                console.log('send')
+                let content = this.$refs.chatInput.innerText.trim()
+                this.$refs.chatInput.innerText = ''
+                this.convList[this.activeConvIndex].inputMsg = ''
+                let data = {
+                    id: "1",
+                    method: "conversation.chat",
+                    data: {
+                        chatType: 2,
+                        recvId:this.convList[this.activeConvIndex].friendUid,
+                        msg: {
+                            content: content
+                        }
+                    }
+                }
+                this.sendMsg(data)
+            },
+            tapFriendItem(index){
+                this.activeFriendIndex = index
+                this.currFriendDetail = this.friendList[index]
+            },
+            chatInputUpdate(e){
+                this.convList[this.activeConvIndex].inputMsg = e.target.innerText;
+            },
+            tapConvItem(index){
+                this.activeConvIndex = index
+                this.$nextTick(()=>{
+                    if (this.convList[index].inputMsg) {
+                        this.$refs.chatInput.innerText = this.convList[index].inputMsg
+                        if (this.$refs.chatInput.innerText !== '')this.moveCursorToEnd(this.$refs.chatInput);
+                    }
+
+                    this.$refs.chatInput.focus();
+                })
+
+            },
+            tapCreateConv(){
+                this.currNav = "conv"
+                this.tapConvByFriend(this.currFriendDetail)
+                request({
+                    url:apiImUrl + '/im/v1/conversation/setUpUserConversation',
+                    headers:this.headers,
+                    data:{
+                        recvId:this.currFriendDetail.friendUid,
+                        chatType:2,
+                    }
+                }).then(res=>{
+
+                })
+
+            },
+            chatInputEnter(e){
+                if (e.key === 'Enter') {
+                    if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
+                        // 插入换行
+                        document.execCommand('insertLineBreak');
+                        e.preventDefault();
+                    } else {
+                        // 发送消息
+                        e.preventDefault();
+                        this.sendChatMsg();
+                    }
+                }
+            },
+            // 将光标移动到 contenteditable 元素的末尾
+            moveCursorToEnd(element) {
+                if (document.createRange && window.getSelection) {
+                    const range = document.createRange();
+                    const selection = window.getSelection();
+
+                    range.selectNodeContents(element);
+                    range.collapse(false); // false 表示将光标放在内容末尾
+
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else {
+                    // 兼容 IE9 和老旧浏览器
+                    const range = document.body.createTextRange();
+                    range.moveToElementText(element);
+                    range.collapse(false);
+                    range.select();
+                }
+            },
+            tapConvByFriend(friendInfo){
+                let findIndex = this.convList.findIndex(obj => obj.friendUid === friendInfo.friendUid);
+                if (findIndex !== -1) {
+                    // 将目标对象从数组中删除
+                    let [targetObj] = this.convList.splice(findIndex, 1);
+                    // 将目标对象插入到数组的第一个位置
+                    this.convList.unshift(targetObj);
+                } else {
+                    this.convList.unshift({
+                        friendUid:friendInfo.friendUid,
+                        friendSexEm:friendInfo.friendSexEm,
+                        friendAlias:friendInfo.friendAlias,
+                        friendIcon:friendInfo.friendIcon,
+                        friendName:friendInfo.friendName,
+                        inputMsg:''
+                    });
+                }
+                this.$nextTick(()=>{
+                    this.tapConvItem(0)
+                })
             },
             getMySysMsgUnreadList(){
                 request({
@@ -375,6 +543,10 @@
                     headers:this.headers,
                 }).then(res=>{
                     this.friendList = res.list
+                    this.friendList.forEach((v,k)=>{
+                        console.log(v)
+                        this.friendListIndexByUid[v.friendUid] = k
+                    })
                 })
             },
             setNewFriendApplyRead(){
@@ -514,6 +686,41 @@
 
                 });
 
+            },
+            formatConvTime(timestamp){
+                const inputDate = new Date(timestamp * 1000); // 将时间戳从秒转换为毫秒
+                const now = new Date();
+
+                const inputDay = inputDate.getDate();
+                const inputMonth = inputDate.getMonth() + 1;
+                const inputYear = inputDate.getFullYear();
+
+                const nowDay = now.getDate();
+                const nowMonth = now.getMonth() + 1;
+                const nowYear = now.getFullYear();
+
+                const inputHours = inputDate.getHours().toString().padStart(2, '0');
+                const inputMinutes = inputDate.getMinutes().toString().padStart(2, '0');
+
+                // Same day
+                if (inputYear === nowYear && inputMonth === nowMonth && inputDay === nowDay) {
+                    return `${inputHours}:${inputMinutes}`;
+                }
+
+                // Yesterday
+                const yesterday = new Date(now);
+                yesterday.setDate(nowDay - 1);
+                if (inputYear === yesterday.getFullYear() && inputMonth === (yesterday.getMonth() + 1) && inputDay === yesterday.getDate()) {
+                    return `昨天 ${inputHours}:${inputMinutes}`;
+                }
+
+                // Other years
+                if (inputYear !== nowYear) {
+                    return `${inputYear}年${inputMonth}月${inputDay}日`;
+                }
+
+                // Other days in current year
+                return `${inputMonth}月${inputDay}日`;
             }
         },
         computed:{

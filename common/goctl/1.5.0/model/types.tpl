@@ -15,6 +15,9 @@ type (
 		Field(field string) *default{{.upperStartCamelObject}}Model
 		Except(fields ...string) *default{{.upperStartCamelObject}}Model
         Alias(alias string) *default{{.upperStartCamelObject}}Model
+        LeftJoin(joinTable string) *default{{.upperStartCamelObject}}Model
+        RightJoin(joinTable string) *default{{.upperStartCamelObject}}Model
+        InnerJoin(joinTable string) *default{{.upperStartCamelObject}}Model
         Where(whereStr string, whereData ...any) *default{{.upperStartCamelObject}}Model
         WhereId(id string) *default{{.upperStartCamelObject}}Model
         Order(order string) *default{{.upperStartCamelObject}}Model

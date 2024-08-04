@@ -39,6 +39,8 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserCo
 			err := l.svc.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{
 				ConversationId: conversationId,
 				ChatType:       websocketd.ChatTypeSingle,
+				LastAt:         utild.GetStamp(),
+				PlatId:         l.meta.PlatId,
 			})
 			if err != nil {
 				return nil, l.resd.Error(err)
@@ -90,8 +92,13 @@ func (l *SetUpUserConversationLogic) setupUserConversation(conversationId string
 		ConversationId: conversationId,
 		ChatType:       chatType,
 		IsShow:         isShow,
+		TargetId:       recvId,
+		LastAt:         utild.GetStamp(),
 	}
 	//更新
 	err = l.svc.ConversationsModel.Save(l.ctx, conversations)
-	return l.resd.Error(err)
+	if err != nil {
+		return l.resd.Error(err)
+	}
+	return nil
 }

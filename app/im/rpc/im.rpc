@@ -23,7 +23,8 @@ type Conversation {
   ToRead int64
   // 已读消息
   Read int64
-  Msg ChatLog
+  LastMsg ChatLog
+  LastAt int64
 }
 type GetConversationsReq {
    UserId string

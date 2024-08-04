@@ -48,6 +48,9 @@ type (
 		Field(field string) *defaultUserInfoModel
 		Except(fields ...string) *defaultUserInfoModel
 		Alias(alias string) *defaultUserInfoModel
+		LeftJoin(joinTable string) *defaultUserInfoModel
+		RightJoin(joinTable string) *defaultUserInfoModel
+		InnerJoin(joinTable string) *defaultUserInfoModel
 		Where(whereStr string, whereData ...any) *defaultUserInfoModel
 		WhereId(id string) *defaultUserInfoModel
 		Order(order string) *defaultUserInfoModel
@@ -147,6 +150,18 @@ func (m *defaultUserInfoModel) Where(whereStr string, whereData ...any) *default
 
 func (m *defaultUserInfoModel) Alias(alias string) *defaultUserInfoModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultUserInfoModel) LeftJoin(joinTable string) *defaultUserInfoModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultUserInfoModel) RightJoin(joinTable string) *defaultUserInfoModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultUserInfoModel) InnerJoin(joinTable string) *defaultUserInfoModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultUserInfoModel) Field(field string) *defaultUserInfoModel {

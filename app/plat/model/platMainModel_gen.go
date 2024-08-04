@@ -52,6 +52,9 @@ type (
 		Field(field string) *defaultPlatMainModel
 		Except(fields ...string) *defaultPlatMainModel
 		Alias(alias string) *defaultPlatMainModel
+		LeftJoin(joinTable string) *defaultPlatMainModel
+		RightJoin(joinTable string) *defaultPlatMainModel
+		InnerJoin(joinTable string) *defaultPlatMainModel
 		Where(whereStr string, whereData ...any) *defaultPlatMainModel
 		WhereId(id string) *defaultPlatMainModel
 		Order(order string) *defaultPlatMainModel
@@ -155,6 +158,18 @@ func (m *defaultPlatMainModel) Where(whereStr string, whereData ...any) *default
 
 func (m *defaultPlatMainModel) Alias(alias string) *defaultPlatMainModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultPlatMainModel) LeftJoin(joinTable string) *defaultPlatMainModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultPlatMainModel) RightJoin(joinTable string) *defaultPlatMainModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultPlatMainModel) InnerJoin(joinTable string) *defaultPlatMainModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultPlatMainModel) Field(field string) *defaultPlatMainModel {

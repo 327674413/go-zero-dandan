@@ -46,6 +46,9 @@ type (
 		Field(field string) *defaultMessageSysConfigModel
 		Except(fields ...string) *defaultMessageSysConfigModel
 		Alias(alias string) *defaultMessageSysConfigModel
+		LeftJoin(joinTable string) *defaultMessageSysConfigModel
+		RightJoin(joinTable string) *defaultMessageSysConfigModel
+		InnerJoin(joinTable string) *defaultMessageSysConfigModel
 		Where(whereStr string, whereData ...any) *defaultMessageSysConfigModel
 		WhereId(id string) *defaultMessageSysConfigModel
 		Order(order string) *defaultMessageSysConfigModel
@@ -143,6 +146,18 @@ func (m *defaultMessageSysConfigModel) Where(whereStr string, whereData ...any) 
 
 func (m *defaultMessageSysConfigModel) Alias(alias string) *defaultMessageSysConfigModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultMessageSysConfigModel) LeftJoin(joinTable string) *defaultMessageSysConfigModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSysConfigModel) RightJoin(joinTable string) *defaultMessageSysConfigModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultMessageSysConfigModel) InnerJoin(joinTable string) *defaultMessageSysConfigModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultMessageSysConfigModel) Field(field string) *defaultMessageSysConfigModel {

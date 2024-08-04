@@ -55,6 +55,9 @@ type (
 		Field(field string) *defaultAssetMainModel
 		Except(fields ...string) *defaultAssetMainModel
 		Alias(alias string) *defaultAssetMainModel
+		LeftJoin(joinTable string) *defaultAssetMainModel
+		RightJoin(joinTable string) *defaultAssetMainModel
+		InnerJoin(joinTable string) *defaultAssetMainModel
 		Where(whereStr string, whereData ...any) *defaultAssetMainModel
 		WhereId(id string) *defaultAssetMainModel
 		Order(order string) *defaultAssetMainModel
@@ -161,6 +164,18 @@ func (m *defaultAssetMainModel) Where(whereStr string, whereData ...any) *defaul
 
 func (m *defaultAssetMainModel) Alias(alias string) *defaultAssetMainModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultAssetMainModel) LeftJoin(joinTable string) *defaultAssetMainModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultAssetMainModel) RightJoin(joinTable string) *defaultAssetMainModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultAssetMainModel) InnerJoin(joinTable string) *defaultAssetMainModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultAssetMainModel) Field(field string) *defaultAssetMainModel {

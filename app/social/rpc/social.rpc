@@ -20,13 +20,14 @@ type GetUserRelationResp{
 type FriendInfo {
   Id string
   UserId string
-  Remark string
+  FriendRemark string
   SourceEm int64
   FriendUid string
   PlatId string
   FriendName string
   FriendAlias string
   FriendIcon string
+  FriendSexEm int64
 }
 
 

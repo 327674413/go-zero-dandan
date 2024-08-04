@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -175,6 +176,30 @@ type danFormField struct {
 
 }
 
+func transApiVarsType(typeName string) string {
+	// 首先进行前缀检查
+	if len(typeName) > 4 && typeName[:4] == "map[" {
+		// 正则表达式匹配 map[aaa]*bbb 或者 map[aaa]bbb 格式
+		re := regexp.MustCompile(`^map\[(\w+)](\*?)(\w+)$`)
+		// 替换成map[aaa]*bbb格式
+		return re.ReplaceAllString(typeName, "map[$1]*types.$3")
+	} else if len(typeName) > 2 && typeName[:2] == "[]" {
+		if typeName[:3] == "[]*" {
+			return "[]*types." + typeName[3:]
+		} else if len(typeName) > 5 && typeName[:5] == "[]map" {
+			return "[]types." + typeName[5:]
+		} else {
+			if typeName[2:] == "int64" || typeName[2:] == "bool" || typeName[2:] == "string" {
+				return "[]" + typeName[2:]
+			} else {
+				return "[]types." + typeName[2:]
+			}
+
+		}
+	}
+	// 如果不匹配则按原值返回
+	return typeName
+}
 func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVars, initVars string) {
 	hasReqStr := ""
 	reqStr := ""
@@ -194,8 +219,8 @@ func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVar
 			for _, field := range obj.Members {
 				fieldName := toFirstUpper(field.Name)
 				fieldType := transReqType(field.Type.Name())
-				if params.reqKey == "SetUserSysMsgReadByClasReq" {
-					fmt.Println(field.Type.Name())
+				if params.reqKey == "UpdateConversationListReq" {
+					fmt.Println(field.Type.Name(), transApiVarsType(field.Type.Name()))
 				}
 				danField := &danFormField{
 					field:     fieldName,
@@ -253,7 +278,7 @@ func getDanGenVars(params *getDanGenVarsReq) (danForm []*danFormField, defineVar
 	//开始处理表单逻辑
 	for _, form := range danForm {
 		// 组装l.req.xxx
-		reqStr += fmt.Sprintf("%s %s %s\n", form.field, form.goType, form.jsonTag)
+		reqStr += fmt.Sprintf("%s %s %s\n", form.field, transApiVarsType(form.goType), form.jsonTag)
 		// 组装l.hasReq.xxx
 		hasReqStr += fmt.Sprintf("%s bool\n", form.field)
 		// 组装初始化值

@@ -146,12 +146,13 @@ func transReqType(typeName string) string {
 
 // ------danEditStart------
 func transRpcVarsType(typeName string, rpcName string) string {
+
 	// 首先进行前缀检查
 	if len(typeName) > 4 && typeName[:4] == "map[" {
-		// 正则表达式匹配 map[aaa]bbb 格式
-		re := regexp.MustCompile(`^map\[(\w+)](\w+)$`)
-		// 替换成 map[aaa]*bbb 格式
-		return re.ReplaceAllString(typeName, "map[$1]*"+rpcName+"Rpc.$2")
+		// 正则表达式匹配 map[aaa]*bbb 或者 map[aaa]bbb 格式
+		re := regexp.MustCompile(`^map\[(\w+)](\*?)(\w+)$`)
+		// 替换成map[aaa]*bbb格式
+		return re.ReplaceAllString(typeName, "map[$1]*"+rpcName+"Rpc.$3")
 	} else if len(typeName) > 2 && typeName[:2] == "[]" {
 		if typeName[:3] == "[]*" {
 			return "[]*" + rpcName + "Rpc." + typeName[3:]

@@ -56,6 +56,9 @@ type (
 		Field(field string) *defaultGoodsMainModel
 		Except(fields ...string) *defaultGoodsMainModel
 		Alias(alias string) *defaultGoodsMainModel
+		LeftJoin(joinTable string) *defaultGoodsMainModel
+		RightJoin(joinTable string) *defaultGoodsMainModel
+		InnerJoin(joinTable string) *defaultGoodsMainModel
 		Where(whereStr string, whereData ...any) *defaultGoodsMainModel
 		WhereId(id string) *defaultGoodsMainModel
 		Order(order string) *defaultGoodsMainModel
@@ -163,6 +166,18 @@ func (m *defaultGoodsMainModel) Where(whereStr string, whereData ...any) *defaul
 
 func (m *defaultGoodsMainModel) Alias(alias string) *defaultGoodsMainModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultGoodsMainModel) LeftJoin(joinTable string) *defaultGoodsMainModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultGoodsMainModel) RightJoin(joinTable string) *defaultGoodsMainModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultGoodsMainModel) InnerJoin(joinTable string) *defaultGoodsMainModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultGoodsMainModel) Field(field string) *defaultGoodsMainModel {

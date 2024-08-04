@@ -57,6 +57,9 @@ type (
 		Field(field string) *defaultSocialFriendApplyModel
 		Except(fields ...string) *defaultSocialFriendApplyModel
 		Alias(alias string) *defaultSocialFriendApplyModel
+		LeftJoin(joinTable string) *defaultSocialFriendApplyModel
+		RightJoin(joinTable string) *defaultSocialFriendApplyModel
+		InnerJoin(joinTable string) *defaultSocialFriendApplyModel
 		Where(whereStr string, whereData ...any) *defaultSocialFriendApplyModel
 		WhereId(id string) *defaultSocialFriendApplyModel
 		Order(order string) *defaultSocialFriendApplyModel
@@ -165,6 +168,18 @@ func (m *defaultSocialFriendApplyModel) Where(whereStr string, whereData ...any)
 
 func (m *defaultSocialFriendApplyModel) Alias(alias string) *defaultSocialFriendApplyModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultSocialFriendApplyModel) LeftJoin(joinTable string) *defaultSocialFriendApplyModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultSocialFriendApplyModel) RightJoin(joinTable string) *defaultSocialFriendApplyModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultSocialFriendApplyModel) InnerJoin(joinTable string) *defaultSocialFriendApplyModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultSocialFriendApplyModel) Field(field string) *defaultSocialFriendApplyModel {

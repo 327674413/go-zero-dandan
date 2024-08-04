@@ -26,7 +26,8 @@ message Conversation {
 	 int64 total = 6;
 	 int64 toRead = 7;
 	 int64 read = 8;
-	 ChatLog msg = 9;
+	 ChatLog lastMsg = 9;
+	 int64 lastAt = 10;
 }
 message GetConversationsReq {
 	optional string userId = 1;

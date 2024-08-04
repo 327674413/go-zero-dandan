@@ -23,8 +23,7 @@ func (l *GetUserNormalInfoLogic) GetUserNormalInfo(req *userRpc.GetUserInfoReq) 
 	if err := l.initReq(req); err != nil {
 		return nil, l.resd.Error(err)
 	}
-	userMainModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
-	userInfoMap, err := l.getNormalInfoByIds(l.req.Ids, userMainModel)
+	userInfoMap, err := l.getNormalInfoByIds(l.req.Ids)
 	data := make(map[string]*userRpc.UserNormalInfo)
 	for _, id := range l.req.Ids {
 		if v, ok := userInfoMap[id]; ok {
@@ -52,7 +51,7 @@ func (l *GetUserNormalInfoLogic) GetUserNormalInfo(req *userRpc.GetUserInfoReq) 
 	return &userRpc.GetUserNormalInfoResp{Users: data}, nil
 }
 
-func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string, userMainModel model.UserMainModel) (map[string]*model.UserMain, error) {
+func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string) (map[string]*model.UserMain, error) {
 	//通过并行获取数据
 	userMainInfos, err := mr.MapReduce[string, *model.UserMain, map[string]*model.UserMain](func(source chan<- string) {
 		//生成要处理的数据
@@ -61,6 +60,7 @@ func (l *GetUserNormalInfoLogic) getNormalInfoByIds(ids []string, userMainModel 
 		}
 	}, func(id string, writer mr.Writer[*model.UserMain], cancel func(error)) {
 		//处理数据
+		userMainModel := model.NewUserMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
 		userMain, err := userMainModel.CacheFindById(l.svc.Redis, id)
 		if err != nil {
 			cancel(err)

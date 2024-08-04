@@ -158,18 +158,21 @@ func (t *SqlxDao) Limit(num int64) *SqlxDao {
 }
 
 // LeftJoin 左联表
-func (t *SqlxDao) LeftJoin(joinStr string) {
-	t.joinTables = append(t.joinTables, joinStr)
+func (t *SqlxDao) LeftJoin(joinTable string) *SqlxDao {
+	t.joinTables = append(t.joinTables, joinTable)
+	return t
 }
 
 // RightJoin 左联表
-func (t *SqlxDao) RightJoin(joinStr string) {
-	t.joinTables = append(t.joinTables, joinStr)
+func (t *SqlxDao) RightJoin(joinTable string) *SqlxDao {
+	t.joinTables = append(t.joinTables, joinTable)
+	return t
 }
 
 // InnerJoin 左联表
-func (t *SqlxDao) InnerJoin(joinStr string) {
-	t.joinTables = append(t.joinTables, joinStr)
+func (t *SqlxDao) InnerJoin(joinTable string) *SqlxDao {
+	t.joinTables = append(t.joinTables, joinTable)
+	return t
 }
 
 // Count 查询数量，必须先设置where再使用
@@ -293,11 +296,10 @@ func (t *SqlxDao) Find(targetStructPtr any) error {
 	}
 	checkParamsNum := strings.Count(whereParam, "?")
 	if checkParamsNum > 0 && checkParamsNum != len(t.whereData) {
-		return resd.NewErrCtx(t.ctx, fmt.Sprintf("查询参数不匹配，预置%d，实际%d", checkParamsNum, len(t.whereData)), resd.ErrMysqlSelect)
+		return resd.NewErrCtx(t.ctx, fmt.Sprintf("查询参数不匹配，预置%d[%s]，实际%d,内容：%v", checkParamsNum, t.whereSql, len(t.whereData), t.whereData), resd.ErrMysqlSelect)
 	}
 	sql := fmt.Sprintf("select %s from %s where "+whereParam+t.orderSql+" limit 1", fieldParam, tableParam)
 	if t.ctx != nil {
-		fmt.Println(sql, t.whereData)
 		err = t.conn.QueryRowPartialCtx(t.ctx, targetStructPtr, sql, t.whereData...)
 	} else {
 		err = t.conn.QueryRowPartial(targetStructPtr, sql, t.whereData...)
@@ -468,7 +470,10 @@ func (t *SqlxDao) CacheFindById(redis *redisd.Redisd, targetStructPtr any, id st
 	}
 	err = t.FindById(targetStructPtr, id)
 	if err != nil {
-		return err
+		if err == sqlx.ErrNotFound {
+			return err
+		}
+		return resd.Error(err)
 	}
 	// todo::如果没查到，是不是会有问题
 	if t.ctx == nil {
@@ -911,7 +916,6 @@ func (t *SqlxDao) Reinit() {
 	t.querySize = 0
 	t.queryPage = 0
 	t.err = nil
-	t.ctx = nil
 }
 
 // Conn 获取当前的sqlx.SqlConn

@@ -1,0 +1,42 @@
+type ChatLog {
+    Id             string `json:"id"`
+    ConversationId string `json:"conversationId"`
+    SendId         string `json:"sendId"`
+    RecvId         string `json:"recvId"`
+    MsgType        int64  `json:"msgType"`
+    MsgContent     string `json:"msgContent"`
+    ChatType       int64 `json:"chatType"`
+    SendTime       string  `json:"SendTime"`
+}
+type Conversation {
+    ConversationId string `json:"conversationId"`
+    ChatType       int64  `json:"chatType"`
+    TargetId       string `json:"targetId"`
+    IsShow         bool   `json:"isShow"`
+    Seq            int64  `json:"seq"`
+    Read           int64  `json:"read"`
+    Total          int64  `json:"total"`
+    Unread         int64  `json:"unread"`
+    LastMsg *ChatLog  `json:"lastMsg"`
+    LastAt int64  `json:"lastAt"`
+}
+type  GetChatLogReq {
+    ConversationId *string `json:"conversationId,optional" check:"required"`
+    StartSendAt  *int64  `json:"startSendTime,optional"`
+    EndSendAt   *int64  `json:"endSendTime,optional"`
+    Count          *int64  `json:"count,optional"`
+}
+type GetChatLogResp {
+    List []*ChatLog `json:"list"`
+}
+
+type GetConversationListResp{
+    Conversations map[string]*Conversation `json:"conversations"`
+}
+type UpdateConversationListReq {
+    ConversationList map[string]*Conversation `json:"conversationList,optional" check:"required"`
+}
+type SetUpUserConversationReq {
+    RecvId   *string `json:"recvId,optional" check:"required"`
+    ChatType *int64  `json:"chatType,optional" check:"required"`
+}

@@ -6,8 +6,9 @@ type (
 		FriendName string `json:"friendName"`
 		FriendAlias string `json:"friendAlias"`
 		FriendIcon string `json:"friendIcon"`
+		FriendSexEm int64 `json:"friendSexEm"`
 	 	SourceEm int64  `json:"sourcEm"`
-		Remark string `json:"remark"`
+		FriendRemark string `json:"friendRemark"`
 	}
 
 	FriendApply {

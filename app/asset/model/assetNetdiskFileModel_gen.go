@@ -63,6 +63,9 @@ type (
 		Field(field string) *defaultAssetNetdiskFileModel
 		Except(fields ...string) *defaultAssetNetdiskFileModel
 		Alias(alias string) *defaultAssetNetdiskFileModel
+		LeftJoin(joinTable string) *defaultAssetNetdiskFileModel
+		RightJoin(joinTable string) *defaultAssetNetdiskFileModel
+		InnerJoin(joinTable string) *defaultAssetNetdiskFileModel
 		Where(whereStr string, whereData ...any) *defaultAssetNetdiskFileModel
 		WhereId(id string) *defaultAssetNetdiskFileModel
 		Order(order string) *defaultAssetNetdiskFileModel
@@ -177,6 +180,18 @@ func (m *defaultAssetNetdiskFileModel) Where(whereStr string, whereData ...any) 
 
 func (m *defaultAssetNetdiskFileModel) Alias(alias string) *defaultAssetNetdiskFileModel {
 	m.dao.Alias(alias)
+	return m
+}
+func (m *defaultAssetNetdiskFileModel) LeftJoin(joinTable string) *defaultAssetNetdiskFileModel {
+	m.dao.LeftJoin(joinTable)
+	return m
+}
+func (m *defaultAssetNetdiskFileModel) RightJoin(joinTable string) *defaultAssetNetdiskFileModel {
+	m.dao.RightJoin(joinTable)
+	return m
+}
+func (m *defaultAssetNetdiskFileModel) InnerJoin(joinTable string) *defaultAssetNetdiskFileModel {
+	m.dao.InnerJoin(joinTable)
 	return m
 }
 func (m *defaultAssetNetdiskFileModel) Field(field string) *defaultAssetNetdiskFileModel {

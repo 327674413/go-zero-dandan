@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	conversation "go-zero-dandan/app/im/api/internal/handler/conversation"
 	friend "go-zero-dandan/app/im/api/internal/handler/friend"
 	group "go-zero-dandan/app/im/api/internal/handler/group"
 	sysMsg "go-zero-dandan/app/im/api/internal/handler/sysMsg"
@@ -109,6 +110,37 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Method:  http.MethodPost,
 					Path:    "/sysMsg/setMySysMsgReadById",
 					Handler: sysMsg.SetMySysMsgReadByIdHandler(serverCtx),
+				},
+			}...,
+		),
+		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),
+		rest.WithPrefix("/im/v1"),
+		rest.WithTimeout(30000*time.Millisecond),
+	)
+
+	server.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.MetaMiddleware, serverCtx.UserInfoMiddleware, serverCtx.UserTokenMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodPost,
+					Path:    "/conversation/getcChatlog",
+					Handler: conversation.GetChatLogHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/conversation/setUpUserConversation",
+					Handler: conversation.SetUpUserConversationHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/conversation/getConversationList",
+					Handler: conversation.GetConversationListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/conversation/updateConversationList",
+					Handler: conversation.UpdateConversationListHandler(serverCtx),
 				},
 			}...,
 		),

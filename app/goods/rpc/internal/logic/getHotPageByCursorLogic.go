@@ -73,7 +73,7 @@ func (l *GetHotPageByCursorLogic) GetHotPageByCursor(in *goodsRpc.GetHotPageByCu
 			isEnd = true
 		}
 		// 根据id获取数据
-		list, err := l.getGoodsByIds(ids, &goodsModel)
+		list, err := l.getGoodsByIds(ids)
 		if err != nil {
 			return nil, resd.ErrorCtx(l.ctx, err)
 		}
@@ -188,7 +188,7 @@ func (l *GetHotPageByCursorLogic) getCacheIds(page, size int64) ([]string, error
 	}
 	return ids, nil
 }
-func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []string, goodsModel *model.GoodsMainModel) ([]*model.GoodsMain, error) {
+func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []string) ([]*model.GoodsMain, error) {
 	//通过并行获取数据
 	goodses, err := mr.MapReduce[string, *model.GoodsMain, []*model.GoodsMain](func(source chan<- string) {
 		//生成要处理的数据
@@ -200,7 +200,8 @@ func (l *GetHotPageByCursorLogic) getGoodsByIds(ids []string, goodsModel *model.
 		}
 	}, func(id string, writer mr.Writer[*model.GoodsMain], cancel func(error)) {
 		//处理数据
-		goods, err := (*goodsModel).CacheFindById(l.svc.Redis, id)
+		goodsModel := model.NewGoodsMainModel(l.ctx, l.svc.SqlConn, l.meta.PlatId)
+		goods, err := goodsModel.CacheFindById(l.svc.Redis, id)
 		if err != nil {
 			cancel(err)
 			return

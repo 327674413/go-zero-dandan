@@ -3,6 +3,7 @@ package modelMongo
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/mon"
+	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -68,7 +69,7 @@ func (m *defaultConversationModel) UpdateMsg(ctx context.Context, chatLog *ChatL
 		bson.M{
 			// 更新会话总消息数
 			"$inc": bson.M{"total": 1},
-			"$set": bson.M{"lastMsg": chatLog},
+			"$set": bson.M{"lastMsg": chatLog, "lastAt": utild.GetStamp()},
 		},
 	)
 	return err
