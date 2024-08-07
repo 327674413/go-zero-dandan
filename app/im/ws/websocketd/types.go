@@ -51,7 +51,7 @@ func (t AckType) ToString() string {
 type (
 	//Msg 聊天消息内容
 	Msg struct {
-		MsgType     `mapstructure:"msgType"`
+		MsgType     `mapstructure:"msgType" json:"msgType"`
 		Content     string            `mapstructure:"content" json:"content"`
 		MsgId       string            `mapstructure:"msgId" json:"msgId"`
 		ReadRecords map[string]string `mapstructure:"readRecords" json:"readRecords"`
@@ -63,6 +63,7 @@ type (
 		RecvId         string `mapstructure:"recvId" json:"recvId"`
 		Msg            `mapstructure:"msg" json:"msg"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
+		MsgClas        `mapstructure:"msgClas" json:"msgClas"`
 		SendTime       string `mapstructure:"sendTime" json:"sendTime"`
 	}
 	// Push 解析kafka的消息

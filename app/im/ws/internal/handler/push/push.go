@@ -44,6 +44,9 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 			},
 			ChatType: data.ChatType,
 			SendTime: data.SendTime,
+			MsgClas:  data.MsgClas,
+			SendId:   data.SendId,
+			RecvId:   data.RecvId,
 		}), rconn)
 	} else {
 		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.SysMsg{

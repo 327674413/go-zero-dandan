@@ -18,21 +18,25 @@
         .chat-nav-item{margin-top:10px;}
         .chat-nav-item:hover{cursor: pointer;}
         .chat-social{flex:0 0 260px;width:260px;background: #f8f8f8;border-right: 1px solid #e0e0e0;height:100%;}
+
+
+        .chat-msg-item{margin-bottom:20px;}
         .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
-        .chat-msg-name{font-size:14px;color:#8a8a8a;padding:2px;}
+        .chat-msg-name{font-size:12px;color:#8a8a8a;padding:2px;}
         .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
-        .chat-msg-recv .chat-msg-content{background: #E5E5EA;}
+        .chat-msg-recv .chat-msg-content{background: #fff;}
         .chat-msg-send .chat-msg-content{background: #95EC69;}
-        .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;}
-        .chat-msg-recv .chat-msg-avatar{margin-right:10px;background: #06f;}
-        .chat-msg-send .chat-msg-avatar{margin-left:10px;background: #f60;}
-        .chat-msg-recv .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-right: 5px solid #E5E5EA;left: -5px;top: 8px;}
+        .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;color:#fff;}
+        .chat-msg-recv .chat-msg-avatar{margin-right:10px;}
+        .chat-msg-send .chat-msg-avatar{margin-left:10px;}
+        .chat-msg-recv .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-right: 5px solid #fff;left: -5px;top: 8px;}
         .chat-msg-send .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-left: 5px solid #95EC69;right: -5px;top: 8px;}
 
         .chat-content{box-sizing: border-box;height:100%;width: 100%;position: relative;}
         .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
         .chat-content-target-name{height:50px;padding:0 20px;}
-        .chat-conv-msg{flex-grow: 1;width: 100%;}
+        .chat-conv-msg{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px;overflow-y:auto;}
+
         .chat-content-friend{height:100%;}
         .chat-content-conv{height:100%;display: flex;flex-direction: column;}
         .chat-conv-input {width: 100%;flex-grow:1;border: none;padding: 5px;resize: none;overflow-y: auto;box-sizing: border-box;white-space: pre-wrap;word-break: break-word;}
@@ -66,7 +70,10 @@
         .conv-list .active{background: #eee;}
         .conv-item{padding:10px;width:100%;}
         .conv-item:hover{cursor: pointer;}
-        .conv-avatar{flex:0 0 40px;margin-right:6px;border-radius: 6px;width:40px;height:40px;}
+        .conv-avatar-wrapper{position: relative;margin-right:10px;}
+        .conv-new-num1{position:absolute;right:-5px;top:-5px;width: 18px;height:18px;background: #f56c6c;border-radius: 50%;color:#fff;font-size: 11px;}
+        .conv-new-num2{position:absolute;right:-10px;top:-8px;padding:0 5px;height:18px;background: #f56c6c;border-radius: 40%;color:#fff;font-size: 11px;}
+        .conv-avatar{flex:0 0 40px;border-radius: 6px;width:40px;height:40px;}
         .conv-avatar-text{font-size: 24px;background: #3a8ee6;color:#fff;}
         .conv-content{flex-grow: 1;overflow: hidden;}
         .conv-content-top{height:25px;}
@@ -109,11 +116,16 @@
                     <div class="conv-list">
                         <div class="fl conv-item-wrapper" :class="{active:index == activeConvIndex}" @click="tapConvItem(index)" v-for="(item,index) in convList" :key="item.id">
                             <div class="fl conv-item" v-if="item.isShow && item.chatType == 2">
-                                <img v-if="friendList[friendListIndexByUid[item.targetId]] && friendList[friendListIndexByUid[item.targetId]].friendAvatarImg" :src="friendList[friendListIndexByUid[item.targetId]].friendAvatarImg" class="conv-avatar"  />
-                                <div class="conv-avatar conv-avatar-text fc" v-if="friendList[friendListIndexByUid[item.targetId]] && !friendList[friendListIndexByUid[item.targetId]].friendAvatarImg">{{friendList[friendListIndexByUid[item.targetId]].friendName.substring(0,1).toUpperCase()}}</div>
-                                <div class="conv-content">
+                                <div class="conv-avatar-wrapper">
+                                    <div class="fc conv-new-num1" v-if="item.unread > 0 && item.unread < 10">{{item.unread}}</div>
+                                    <div class="fc conv-new-num2" v-if="item.unread >= 10 && item.unread < 100">{{item.unread}}+</div>
+                                    <div class="fc conv-new-num2" v-if="item.unread >= 100">99+</div>
+                                    <img v-if="friendObj[item.targetId] && friendObj[item.targetId].friendAvatarImg" :src="friendObj[item.targetId].friendAvatarImg" class="conv-avatar"  />
+                                    <div class="conv-avatar conv-avatar-text fc" v-if="friendObj[item.targetId] && !friendObj[item.targetId].friendAvatarImg">{{friendObj[item.targetId].friendName.substring(0,1).toUpperCase()}}</div>
+                                </div>
+                               <div class="conv-content">
                                     <div class="fb conv-content-top">
-                                        <div class="conv-name" v-if="friendList[friendListIndexByUid[item.targetId]]">{{friendList[friendListIndexByUid[item.targetId]].friendAlias ? friendList[friendListIndexByUid[item.targetId]].friendAlias : friendList[friendListIndexByUid[item.targetId]].friendName}}</div>
+                                        <div class="conv-name" v-if="friendObj[item.targetId]">{{friendObj[item.targetId].friendAlias ? friendObj[item.targetId].friendAlias : friendObj[item.targetId].friendName}}</div>
                                         <div class="conv-date">{{formatConvTime(item.lastAt)}}</div>
                                     </div>
                                     <div class="fl conv-content-bottom">
@@ -152,16 +164,26 @@
             <div class="chat-content">
                 <div class="chat-content-conv" v-if="currNav == 'conv' && activeConvIndex > -1">
                     <div class="fb chat-content-target">
-                        <div class="fl chat-content-target-name">房东十分大</div>
+                        <div class="fl chat-content-target-name">{{friendObj[convList[activeConvIndex].targetId].friendAlias ? friendObj[convList[activeConvIndex].targetId].friendAlias : friendObj[convList[activeConvIndex].targetId].friendName}}</div>
                     </div>
                     <div class="chat-conv-msg">
                         <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgContent">
-                            <div class="chat-msg-avatar"></div>
+                        <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
                             <div class="chat-msg-wrapper">
-                                <div class="fl chat-msg-name">对方名字</div>
-                                <div class="fl chat-msg-content">item.msgContent</div>
+                                <div class="fl chat-msg-content">{{item.msg.content}}</div>
+                            </div>
+                            <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
+                            <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
+                        </div>
+                        <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
+                            <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />
+                            <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>
+                            <div class="chat-msg-wrapper">
+                                <div class="fl chat-msg-name">{{friendObj[item.sendId].friendName}}</div>
+                                <div class="fl chat-msg-content">{{item.msg.content}}</div>
                             </div>
                         </div>
+                    </div>
                     </div>
                     <div class="chat-conv-form">
                         <div class="fb chat-conv-tool">
@@ -252,6 +274,7 @@
 <script src="static/js/tool.js"></script>
 <script src="static/js/request.js"></script>
 <script>
+    const MsgClasEmChat = 1
     const MsgClasEmNewFriendApply = 4
     const MsgClasEmNewFriendOperated = 5
     var apiImUrl = "http://localhost:8812"
@@ -280,7 +303,7 @@
                 searchNewFriendVal:'',
                 currFriendDetail:{},
                 friendList:[],
-                friendListIndexByUid:{},
+                friendObj:{},
                 showAddFriendDialog:false,
                 friendAddSearchList:[],
                 friendAddSearchListState:'',
@@ -383,6 +406,26 @@
                         this.recvMsgNewFriendApply()
                     case MsgClasEmNewFriendOperated:
                         this.recvFriendApplyOperated(msg.data)
+                    case MsgClasEmChat:
+                        if (msg.data.chatType == 2){
+                            this.recvChatSingleMsg(msg.data)
+                        }
+                }
+            },
+            recvChatSingleMsg(data){
+                for (let i=0;i < this.convList.length;i++){
+                    if (this.convList[i].conversationId == data.conversationId){
+                        this.convList[i].total++
+                        this.convList[i].unread++
+                        let dateObject = new Date(data.sendTime.replace(" ", "T"))
+                        this.convList[i].lastAt = dateObject.getTime() / 1000
+                        this.convList[i].lastMsg = this.msgDetailDataToListData(data)
+                        console.log(this.convList[i])
+                        let [targetObj] = this.convList.splice(i, 1);
+                        // 将目标对象插入到数组的第一个位置
+                        this.convList.unshift(targetObj);
+                        return
+                    }
                 }
             },
             recvMsgNewFriendApply(){
@@ -416,22 +459,39 @@
 
             },
             sendChatMsg(){
-                console.log('send')
                 let content = this.$refs.chatInput.innerText.trim()
+                if (content == "") return
                 this.$refs.chatInput.innerText = ''
                 this.convList[this.activeConvIndex].inputMsg = ''
+                let msgData = {
+                    chatType: 2,
+                    recvId:this.convList[this.activeConvIndex].targetId,
+                    sendId:this.userInfo.id,
+                    msg: {
+                        content: content,
+                        msgType:1,
+                    }
+                }
                 let data = {
                     id: "1",
                     method: "conversation.chat",
-                    data: {
-                        chatType: 2,
-                        recvId:this.convList[this.activeConvIndex].friendUid,
-                        msg: {
-                            content: content
-                        }
-                    }
+                    data: msgData
                 }
+                this.convList[this.activeConvIndex].msgContent.push(msgData)
+                this.convList[this.activeConvIndex].lastMsg = this.msgDetailDataToListData(msgData)
                 this.sendMsg(data)
+            },
+            msgDetailDataToListData(data){
+                return {
+                    id:             data.msg.msgId,
+                    conversationId: data.conversationId,
+                    sendId:         data.sendId,
+                    recvId:         data.recvId,
+                    msgType:        data.msg.msgType,
+                    msgContent:     data.msg.content,
+                    chatType:       data.chatType,
+                    sendTime:       data.sendTime,
+                }
             },
             tapFriendItem(index){
                 this.activeFriendIndex = index
@@ -508,12 +568,13 @@
                     this.convList.unshift(targetObj);
                 } else {
                     this.convList.unshift({
-                        friendUid:friendInfo.friendUid,
-                        friendSexEm:friendInfo.friendSexEm,
-                        friendAlias:friendInfo.friendAlias,
-                        friendIcon:friendInfo.friendIcon,
-                        friendName:friendInfo.friendName,
-                        inputMsg:''
+                        chatType:2,
+                        conversationId:'',
+                        isShow:true,
+                        lastAt:Math.floor(Date.now() / 1000),
+                        lastMsg:'',
+                        targetId:friendInfo.friendUid,
+                        msgContent:[],
                     });
                 }
                 this.$nextTick(()=>{
@@ -543,10 +604,11 @@
                     headers:this.headers,
                 }).then(res=>{
                     this.friendList = res.list
+                    let friendObj = {}
                     this.friendList.forEach((v,k)=>{
-                        console.log(v)
-                        this.friendListIndexByUid[v.friendUid] = k
+                        friendObj[v.friendUid] = v
                     })
+                    this.friendObj = friendObj
                 })
             },
             setNewFriendApplyRead(){

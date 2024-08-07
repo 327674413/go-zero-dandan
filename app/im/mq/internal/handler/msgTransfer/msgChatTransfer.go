@@ -7,6 +7,7 @@ import (
 	"go-zero-dandan/app/im/mq/internal/svc"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/websocketd"
+	"go-zero-dandan/common/constd"
 	"go-zero-dandan/pkg/bitmapd"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -44,6 +45,7 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
 		RecvIds:        data.RecvIds,
+		MsgClas:        constd.MsgClasEmChat,
 	})
 }
 
