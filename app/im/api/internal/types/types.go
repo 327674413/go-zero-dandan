@@ -182,7 +182,9 @@ type ChatLog struct {
 	MsgType        int64  `json:"msgType"`
 	MsgContent     string `json:"msgContent"`
 	ChatType       int64  `json:"chatType"`
-	SendTime       string `json:"SendTime"`
+	SendTime       string `json:"sendTime"`
+	SendAtMs       int64  `json:"sendAtMs"`
+	MsgState       int64  `json:"msgState"`
 }
 
 type Conversation struct {
@@ -195,7 +197,7 @@ type Conversation struct {
 	Total          int64    `json:"total"`
 	Unread         int64    `json:"unread"`
 	LastMsg        *ChatLog `json:"lastMsg"`
-	LastAt         int64    `json:"lastAt"`
+	LastAtMs       int64    `json:"lastAtMs"`
 }
 
 type GetChatLogReq struct {

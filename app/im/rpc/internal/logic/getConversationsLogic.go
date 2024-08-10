@@ -67,8 +67,10 @@ func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) 
 				MsgContent:     item.LastMsg.MsgContent,
 				ChatType:       int64(item.LastMsg.ChatType),
 				SendTime:       item.LastMsg.SendTime,
-				ReadRecords:    item.LastMsg.ReadRecords,
+				SendAtMs:       item.LastMsg.SendAtMs,
+				MsgReads:       item.LastMsg.MsgReads,
 			}
+			res.ConversationList[item.ConversationId].LastAtMs = item.LastMsg.SendAtMs
 		}
 
 		//用户会话关系中的消息总数

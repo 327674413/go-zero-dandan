@@ -48,7 +48,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserCo
 		//有查到数据，已经建立过了，更新消息序号、窗口信息
 		convData = conversationRes
 		convData.ReadSeq = convData.Total
-		convData.LastAt = utild.GetStamp()
+		convData.LastAtMs = utild.GetTimeMs()
 		//更新操作人的会话
 		_, err = l.svc.ConversationModel.Update(l.ctx, convData)
 		if err != nil {
@@ -65,7 +65,7 @@ func (l *SetUpUserConversationLogic) SetUpUserConversation(in *imRpc.SetUpUserCo
 		convData = &modelMongo.Conversation{
 			ConversationId: conversationId,
 			ChatType:       websocketd.ChatTypeSingle,
-			LastAt:         utild.GetStamp(),
+			LastAtMs:       utild.GetTimeMs(),
 			PlatId:         l.meta.PlatId,
 		}
 		err := l.svc.ConversationModel.Insert(l.ctx, convData)

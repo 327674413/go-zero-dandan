@@ -2,13 +2,11 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/modelMongo"
+	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/utild"
-	"time"
-
-	"github.com/zeromicro/go-zero/core/logx"
-	"go-zero-dandan/app/im/ws/internal/svc"
 )
 
 type Conversation struct {
@@ -35,15 +33,13 @@ func (l *Conversation) SingleChat(chat *websocketd.Chat, userId string) error {
 		ConversationId: chat.ConversationId,
 		SendId:         userId,
 		RecvId:         chat.RecvId,
-		MsgFrom:        0,
 		ChatType:       chat.ChatType,
 		MsgType:        chat.MsgType,
-		MsgContent:     chat.Content,
+		MsgContent:     chat.MsgContent,
 		SendTime:       utild.NowTime(),
-		State:          0,
-		ReadRecords:    nil,
-		UpdateAt:       time.Time{},
-		CreateAt:       time.Time{},
+		SendAtMs:       utild.GetTimeMs(),
+		MsgState:       0,
+		MsgReads:       nil,
 	}
 	return l.svc.ChatLogModel.Insert(l.ctx, data)
 }

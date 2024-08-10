@@ -12,8 +12,9 @@ type MsgChatTransfer struct {
 	RecvId              string   `json:"recvId"`
 	RecvIds             []string `json:"recvIds"`
 	SendTime            string   `json:"sendTime"`
+	SendAtMs            int64    `json:"sendAtMs"`
 	websocketd.MsgType  `json:"msgType"`
-	Content             string `json:"content"`
+	MsgContent          string `json:"msgContent"`
 	PlatId              string `json:"platId"`
 	MsgId               string `json:"msgId"`
 	TempId              string `json:"tempId"`

@@ -71,7 +71,7 @@ func (t *MsgReadTransfer) Consume(key, value string) error {
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
 		MsgClas:        websocketd.MsgClasMakeRead,
-		ReadRecords:    readRecords,
+		MsgReads:       readRecords,
 	}
 	switch data.ChatType {
 	case websocketd.ChatTypeSingle:
@@ -113,15 +113,15 @@ func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.Ms
 	for _, chatLog := range chatLogs {
 		switch chatLog.ChatType {
 		case websocketd.ChatTypeSingle:
-			chatLog.ReadRecords = []byte{1}
+			chatLog.MsgReads = []byte{1}
 		case websocketd.ChatTypeGroup:
-			readRecords := bitmapd.Load(chatLog.ReadRecords)
+			readRecords := bitmapd.Load(chatLog.MsgReads)
 			readRecords.SetId(data.SendId)
-			chatLog.ReadRecords = readRecords.Export()
+			chatLog.MsgReads = readRecords.Export()
 		}
 		//为了保证精度，转成base64返回给前端判断已读状态
-		res[chatLog.ID.Hex()] = base64.StdEncoding.EncodeToString(chatLog.ReadRecords)
-		err = t.svc.ChatLogModel.UpdateMakeRead(ctx, chatLog.ID, chatLog.ReadRecords)
+		res[chatLog.ID.Hex()] = base64.StdEncoding.EncodeToString(chatLog.MsgReads)
+		err = t.svc.ChatLogModel.UpdateMakeRead(ctx, chatLog.ID, chatLog.MsgReads)
 		if err != nil {
 			return nil, err
 		}

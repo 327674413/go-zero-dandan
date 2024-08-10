@@ -9,7 +9,9 @@ type ChatLog {
   MsgContent string
   ChatType int64
   SendTime string
-  ReadRecords []byte
+  SendAtMs int64
+  MsgReads []byte
+  MsgState int64
 }
 type Conversation {
   ConversationId string
@@ -25,7 +27,7 @@ type Conversation {
   // 已读消息
   Read int64
   LastMsg ChatLog
-  LastAt int64
+  LastAtMs int64
 }
 type GetConversationsReq {
    UserId string

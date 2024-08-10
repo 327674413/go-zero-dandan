@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/mon"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -53,7 +52,7 @@ func (m *defaultConversationsModel) UpdateMsg(ctx context.Context, userId string
 	update := bson.M{
 		"$set": bson.M{
 			"conversationList." + chatLog.ConversationId + ".lastMsg": chatLog,
-			"conversationList." + chatLog.ConversationId + ".lastAt":  utild.GetStamp(),
+			"conversationList." + chatLog.ConversationId + ".lastAt":  chatLog.SendAtMs,
 		},
 		"$inc": bson.M{
 			"conversationList." + chatLog.ConversationId + ".total":   1,

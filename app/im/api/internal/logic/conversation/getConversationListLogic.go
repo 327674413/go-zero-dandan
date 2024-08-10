@@ -2,10 +2,11 @@ package conversation
 
 import (
 	"context"
-	"go-zero-dandan/app/im/rpc/types/imRpc"
-
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
+	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild/copier"
 )
 
 type GetConversationListLogic struct {
@@ -28,31 +29,11 @@ func (l *GetConversationListLogic) GetConversationList() (resp *types.GetConvers
 	resp = &types.GetConversationListResp{
 		Conversations: make(map[string]*types.Conversation),
 	}
-	for _, v := range data.ConversationList {
-		conv := &types.Conversation{
-			ConversationId: v.ConversationId,
-			ChatType:       v.ChatType,
-			TargetId:       v.TargetId,
-			IsShow:         v.IsShow,
-			ReadSeq:        v.ReadSeq,
-			Unread:         v.Unread,
-			Total:          v.Total,
-			LastAt:         v.LastAt,
-			DeleteSeq:      v.DeleteSeq,
-		}
-		if v.LastMsg != nil {
-			conv.LastMsg = &types.ChatLog{
-				Id:             v.LastMsg.Id,
-				ConversationId: v.LastMsg.ConversationId,
-				SendId:         v.LastMsg.SendId,
-				RecvId:         v.LastMsg.RecvId,
-				MsgType:        v.LastMsg.MsgType,
-				MsgContent:     v.LastMsg.MsgContent,
-				ChatType:       v.LastMsg.ChatType,
-				SendTime:       v.LastMsg.SendTime,
-			}
-		}
-		resp.Conversations[v.ConversationId] = conv
+	convMap := make(map[string]*types.Conversation)
+	if err = copier.Copy(&convMap, data.ConversationList); err != nil {
+		return nil, l.resd.Error(err, resd.ErrCopier)
 	}
-	return
+	resp.Conversations = convMap
+	return resp, nil
+
 }

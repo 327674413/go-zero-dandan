@@ -36,23 +36,22 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 	if data.MsgClas == constd.MsgClasEmChat {
 		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
 			ConversationId: data.ConversationId,
-			Msg: websocketd.Msg{
-				Content:     data.Content,
-				MsgType:     data.MsgType,
-				MsgId:       data.MsgId,
-				ReadRecords: data.ReadRecords,
-			},
-			ChatType: data.ChatType,
-			SendTime: data.SendTime,
-			MsgClas:  data.MsgClas,
-			SendId:   data.SendId,
-			RecvId:   data.RecvId,
+			MsgContent:     data.MsgContent,
+			MsgType:        data.MsgType,
+			MsgId:          data.MsgId,
+			MsgReads:       data.MsgReads,
+			ChatType:       data.ChatType,
+			SendTime:       data.SendTime,
+			SendAtMs:       data.SendAtMs,
+			MsgClas:        data.MsgClas,
+			SendId:         data.SendId,
+			RecvId:         data.RecvId,
 		}), rconn)
 	} else {
 		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.SysMsg{
 			MsgClas:    data.MsgClas,
 			MsgType:    data.MsgType,
-			MsgContent: data.Content,
+			MsgContent: data.MsgContent,
 			SendTime:   data.SendTime,
 		}), rconn)
 	}

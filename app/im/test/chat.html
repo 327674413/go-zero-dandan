@@ -145,7 +145,7 @@
                                <div class="conv-content">
                                     <div class="fb conv-content-top">
                                         <div class="conv-name" v-if="friendObj[item.targetId]">{{friendObj[item.targetId].friendAlias ? friendObj[item.targetId].friendAlias : friendObj[item.targetId].friendName}}</div>
-                                        <div class="conv-date">{{formatConvTime(item.lastAt)}}</div>
+                                        <div class="conv-date">{{formatConvTime(item.lastAtMs)}}</div>
                                     </div>
                                     <div class="fl conv-content-bottom">
                                         <div class="conv-chat" v-if="activeConvIndex !== index && item.inputMsg"><span style="color:red;padding-right:4px;">[草稿]</span>{{item.inputMsg}}</div>
@@ -193,24 +193,24 @@
                         <div class="fl chat-content-target-name">{{friendObj[convList[activeConvIndex].targetId].friendAlias ? friendObj[convList[activeConvIndex].targetId].friendAlias : friendObj[convList[activeConvIndex].targetId].friendName}}</div>
                         <div class="fl btn chat-content-target-more" @click="showConvDrawer = true" ref="convDrawerBtn"><i class="el-icon-more"></i></div>
                     </div>
-                    <div class="chat-conv-msg">
-                        <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgContent">
-                        <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
-                            <div class="chat-msg-wrapper">
-                                <div class="fl chat-msg-content">{{item.msg.content}}</div>
+                    <div class="chat-conv-msg" ref="chatConvMsgWindow">
+                        <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgList">
+                            <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
+                                <div class="chat-msg-wrapper">
+                                    <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                </div>
+                                <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
+                                <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
                             </div>
-                            <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
-                            <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
-                        </div>
-                        <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
-                            <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />
-                            <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>
-                            <div class="chat-msg-wrapper">
-                                <div class="fl chat-msg-name">{{friendObj[item.sendId].friendName}}</div>
-                                <div class="fl chat-msg-content">{{item.msg.content}}</div>
+                            <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
+                                <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />
+                                <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>
+                                <div class="chat-msg-wrapper">
+                                    <div class="fl chat-msg-name">{{friendObj[item.sendId].friendName}}</div>
+                                    <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     </div>
                     <div class="chat-conv-form">
                         <div class="fb chat-conv-tool">
@@ -447,36 +447,44 @@
                     if (this.convList[i].conversationId == data.conversationId){
                         this.convList[i].total++
                         this.convList[i].unread++
-                        let dateObject = new Date(data.sendTime.replace(" ", "T"))
-                        this.convList[i].lastAt = dateObject.getTime() / 1000
-                        this.convList[i].lastMsg = this.msgDetailDataToListData(data)
-                        this.convList[i].msgContent.unshift(data.msg)
+                        this.convList[i].lastAtMs = data.sendAtMs
+                        this.convList[i].lastMsg = data
+                        this.convList[i].msgList.push(data)
+                        this.convList[i].isShow = true
                         let [targetObj] = this.convList.splice(i, 1);
                         // 将目标对象插入到数组的第一个位置
                         this.convList.unshift(targetObj);
+                        //如果当前是激活状态，刷新界面，并且更新未读状态
+                        if (this.activeConvIndex == i){
+                            this.scrollChatWindowToBottom()
+                            this.tapConvItem(i)
+                        }
                         return
                     }
                 }
                 //没找到，从好友列表里找，创建会话
                 for (let i=0;i<this.friendList.length;i++){
                     if (this.friendList[i].friendUid == data.sendId){
-                        let dateObject = new Date(data.sendTime.replace(" ", "T"))
                         this.convList.unshift({
                             chatType:2,
                             conversationId:data.conversationId,
                             isShow:true,
-                            lastAt:dateObject.getTime() / 1000,
-                            lastMsg:data.msg,
+                            lastAtMs:data.sendAtMs,
+                            lastMsg:data,
                             targetId:data.sendId,
-                            msgContent:[data.msg],
+                            msgList:[data],
                             total:1,
                             readSeq:0,
                             unread:1,
                         });
-                        console.log(this.convList)
                         return
                     }
                 }
+            },
+            scrollChatWindowToBottom(){
+                this.$nextTick(()=>{
+                    this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
+                })
             },
             tapChatWindow(e){
                 if (
@@ -540,10 +548,10 @@
                     let convList = []
                     for (let k in res.conversations){
                         let conv = res.conversations[k]
-                        conv.msgContent = []
+                        conv.msgList = []
                         convList.push(conv)
                     }
-                    convList.sort((a, b) => b.lastAt - a.lastAt);
+                    convList.sort((a, b) => b.lastAtMs - a.lastAtMs);
                     this.convList = convList
                 })
             },
@@ -559,33 +567,22 @@
                     chatType: 2,
                     recvId:this.convList[this.activeConvIndex].targetId,
                     sendId:this.userInfo.id,
-                    msg: {
-                        content: content,
-                        msgType:1,
-                    }
+                    tempId: Date.now() + '' + (Math.floor(Math.random() * 900000000) + 100000000), // 临时id，时间戳+9位长度的随机数,
+                    sendAtMs:Date.now() , //先用来显示消息时间排序用，
+                    msgContent: content,
+                    msgType:1,
                 }
                 let data = {
-                    tempId: Date.now() +  '' + Math.floor(Math.random() * 1e9), // 临时id，时间戳+9位随机数,
                     method: "conversation.chat",
                     data: msgData
                 }
-                this.convList[this.activeConvIndex].msgContent.push(msgData)
-                this.convList[this.activeConvIndex].lastMsg = this.msgDetailDataToListData(msgData)
+                this.convList[this.activeConvIndex].msgList.push(msgData)
+                this.convList[this.activeConvIndex].lastMsg = msgData
+                this.convList[this.activeConvIndex].lastAtMs = msgData.sendAtMs
                 this.convList[this.activeConvIndex].seq++
                 this.convList[this.activeConvIndex].total++
                 this.sendMsg(data)
-            },
-            msgDetailDataToListData(data){
-                return {
-                    id:             data.msg.msgId,
-                    conversationId: data.conversationId,
-                    sendId:         data.sendId,
-                    recvId:         data.recvId,
-                    msgType:        data.msg.msgType,
-                    msgContent:     data.msg.content,
-                    chatType:       data.chatType,
-                    sendTime:       data.sendTime,
-                }
+                this.scrollChatWindowToBottom()
             },
             tapFriendItem(index){
                 this.activeFriendIndex = index
@@ -596,6 +593,8 @@
             },
             //点击会话列表中某个会话
             tapConvItem(index){
+                console.log(this.friendObj,this.convList[index])
+
                 //设置当前会话选中状态
                 this.activeConvIndex = index
                 //激活会话的请求，处理未读消息等
@@ -609,6 +608,7 @@
                         if (this.$refs.chatInput.innerText !== '')this.moveCursorToEnd(this.$refs.chatInput);
                     }
                     //输入框聚焦
+                    console.log('222222')
                     this.$refs.chatInput.focus();
                 })
 
@@ -679,7 +679,7 @@
                         lastAt:Math.floor(Date.now() / 1000),
                         lastMsg:'',
                         targetId:friendInfo.friendUid,
-                        msgContent:[],
+                        msgList:[],
                     });
                 }
                 this.$nextTick(()=>{
@@ -854,8 +854,8 @@
                 });
 
             },
-            formatConvTime(timestamp){
-                const inputDate = new Date(timestamp * 1000); // 将时间戳从秒转换为毫秒
+            formatConvTime(timeMs){
+                const inputDate = new Date(timeMs);
                 const now = new Date();
 
                 const inputDay = inputDate.getDate();

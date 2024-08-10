@@ -49,22 +49,19 @@ func (t AckType) ToString() string {
 }
 
 type (
-	//Msg 聊天消息内容
-	Msg struct {
-		MsgType     `mapstructure:"msgType" json:"msgType"`
-		Content     string            `mapstructure:"content" json:"content"`
-		MsgId       string            `mapstructure:"msgId" json:"msgId"`
-		ReadRecords map[string]string `mapstructure:"readRecords" json:"readRecords"`
-	}
 	//Chat 聊天会话
 	Chat struct {
 		ConversationId string `mapstructure:"conversationId" json:"conversationId"`
 		SendId         string `mapstructure:"sendId" json:"sendId"`
 		RecvId         string `mapstructure:"recvId" json:"recvId"`
-		Msg            `mapstructure:"msg" json:"msg"`
+		MsgType        `mapstructure:"msgType" json:"msgType"`
+		MsgContent     string            `mapstructure:"msgContent" json:"msgContent"`
+		MsgId          string            `mapstructure:"msgId" json:"msgId"`
+		MsgReads       map[string]string `mapstructure:"msgReads" json:"msgReads"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
 		MsgClas        `mapstructure:"msgClas" json:"msgClas"`
 		SendTime       string `mapstructure:"sendTime" json:"sendTime"`
+		SendAtMs       int64  `mapstructure:"sendAtMs" json:"sendAtMs"`
 		TempId         string `mapstructure:"tempId" json:"tempId"`
 	}
 	// Push 解析kafka的消息
@@ -77,10 +74,11 @@ type (
 		RecvId         string                                  `mapstructure:"recvId" json:"recvId"`
 		RecvIds        []string                                `mapstructure:"recvIds" json:"recvIds"`
 		SendTime       string                                  `mapstructure:"sendTime" json:"sendTime"`
-		ReadRecords    map[string]string                       `mapstructure:"readRecords" json:"readRecords"`
+		SendAtMs       int64                                   `mapstructure:"sendAtMs" json:"sendAtMs"`
+		MsgReads       map[string]string                       `mapstructure:"msgReads" json:"msgReads"`
 		MsgClas        MsgClas                                 `mapstructure:"msgClas" json:"msgClas"` //业务类型：0聊天消息 1消息已读等
 		MsgType        `mapstructure:"msgType" json:"msgType"` //消息数据类型：文本消息、图片消息等
-		Content        string                                  `mapstructure:"content" json:"content"`
+		MsgContent     string                                  `mapstructure:"msgContent" json:"msgContent"`
 	}
 	// MarkRead 已读消息
 	MarkRead struct {

@@ -8,6 +8,7 @@ import (
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/fmtd"
 	"go-zero-dandan/common/resd"
 	"go-zero-dandan/pkg/bitmapd"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -35,13 +36,15 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 	if err := t.addChatLog(ctx, msgId, data); err != nil {
 		t.Errorf("msgTransfer 写入消息,err:%v", err)
 	}
+	fmtd.Info(data.MsgContent)
 	//发送给ws进行push
 	return t.Transfer(ctx, &websocketd.Push{
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
 		MsgId:          data.MsgId,
 		SendTime:       data.SendTime,
-		Content:        data.Content,
+		SendAtMs:       data.SendAtMs,
+		MsgContent:     data.MsgContent,
 		ConversationId: data.ConversationId,
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
@@ -57,15 +60,18 @@ func (t *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.Object
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
 		SendTime:       data.SendTime,
-		MsgContent:     data.Content,
+		SendAtMs:       data.SendAtMs,
+		MsgContent:     data.MsgContent,
 		ConversationId: data.ConversationId,
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
+		TempId:         data.TempId,
 	}
+	fmtd.Info(chatLog.SendAtMs)
 	//将此条消息的发送者设置为已读(每条消息都记录是否已读方式)
 	readRecords := bitmapd.NewBitmap()
 	readRecords.SetId(chatLog.SendId)
-	chatLog.ReadRecords = readRecords.Export()
+	chatLog.MsgReads = readRecords.Export()
 	//存储消息数据
 	err := t.svc.ChatLogModel.Insert(ctx, &chatLog)
 	if err != nil {

@@ -13,6 +13,13 @@ import (
 func GetStamp() int64 {
 	return time.Now().Unix()
 }
+func GetTimeMs() int64 {
+	now := time.Now()
+	// 获取当前时间的 Unix 时间戳（纳秒）
+	nanoseconds := now.UnixNano()
+	// 将纳秒转换为毫秒
+	return nanoseconds / int64(time.Millisecond)
+}
 func NowTime() string {
 	return Date("Y-m-d H:i:s")
 }

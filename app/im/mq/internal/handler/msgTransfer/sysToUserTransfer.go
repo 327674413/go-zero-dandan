@@ -36,12 +36,12 @@ func (t *SysToUserTransfer) Consume(key, value string) error {
 
 	//发送给ws进行push
 	return t.Transfer(ctx, &websocketd.Push{
-		MsgClas:  data.MsgClas,
-		RecvId:   data.RecvId,
-		MsgType:  data.MsgType,
-		Content:  data.MsgContent,
-		SendTime: data.SendTime,
-		ChatType: websocketd.ChatTypeSingle,
+		MsgClas:    data.MsgClas,
+		RecvId:     data.RecvId,
+		MsgType:    data.MsgType,
+		MsgContent: data.MsgContent,
+		SendTime:   data.SendTime,
+		ChatType:   websocketd.ChatTypeSingle,
 	})
 }
 func (t *SysToUserTransfer) addSysMsgLog(ctx context.Context, msgId primitive.ObjectID, data *kafkad.SysToUserMsg) error {

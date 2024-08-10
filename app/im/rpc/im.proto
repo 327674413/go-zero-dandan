@@ -15,7 +15,9 @@ message ChatLog {
 	 string msgContent = 6;
 	 int64 chatType = 7;
 	 string sendTime = 8;
-	 bytes readRecords = 9;
+	 int64 sendAtMs = 9;
+	 bytes msgReads = 10;
+	 int64 msgState = 11;
 }
 message Conversation {
 	 string conversationId = 1;
@@ -28,7 +30,7 @@ message Conversation {
 	 int64 unread = 8;
 	 int64 read = 9;
 	 ChatLog lastMsg = 10;
-	 int64 lastAt = 11;
+	 int64 lastAtMs = 11;
 }
 message GetConversationsReq {
 	optional string userId = 1;

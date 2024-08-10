@@ -11,13 +11,14 @@ type ChatLog struct {
 	ConversationId string              `bson:"conversationId"`
 	SendId         string              `bson:"sendId"`
 	RecvId         string              `bson:"recvId"`
-	MsgFrom        int                 `bson:"msgFrom"` //不知道啥用还
+	SendAtMs       int64               `bson:"sendAtMs"`
 	ChatType       websocketd.ChatType `bson:"chatType"`
 	MsgType        websocketd.MsgType  `bson:"msgType"`
 	MsgContent     string              `bson:"msgContent"`
 	SendTime       string              `bson:"sendTime"`
-	State          int                 `bson:"state"`
-	ReadRecords    []byte              `bson:"readRecords"`
+	MsgState       int64               `bson:"state"`
+	MsgReads       []byte              `bson:"msgReads"`
+	TempId         string              `bson:"tempId"` //前端生成的临时id
 	PlatId         string              `bson:"platId"`
 
 	// TODO: Fill your own fields

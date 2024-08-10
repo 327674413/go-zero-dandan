@@ -3,10 +3,10 @@ package conversation
 import (
 	"fmt"
 	"github.com/mitchellh/mapstructure"
-	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
+	"go-zero-dandan/common/fmtd"
 	"go-zero-dandan/common/utild"
 	"go-zero-dandan/pkg/mapd"
 )
@@ -36,7 +36,7 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 		case websocketd.ChatTypeGroup:
 
 		}
-		logx.Info("推送消息到kafka")
+		fmtd.Info(msg.Data)
 		// 将消息转化为mq消息的格式，并发送的mq
 		err := svc.MsgChatTransferClient.Push(&kafkad.MsgChatTransfer{
 			ConversationId: data.ConversationId,
@@ -44,8 +44,9 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			SendId:         conn.Uid,
 			RecvId:         data.RecvId,
 			SendTime:       utild.Date("Y-m-d H:i:s"),
-			MsgType:        data.Msg.MsgType,
-			Content:        data.Msg.Content,
+			SendAtMs:       utild.GetTimeMs(),
+			MsgType:        data.MsgType,
+			MsgContent:     data.MsgContent,
 			MsgId:          data.MsgId,
 			TempId:         data.TempId,
 		})
