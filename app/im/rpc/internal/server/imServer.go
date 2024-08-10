@@ -104,6 +104,22 @@ func (s *ImServer) CreateGroupConversation(ctx context.Context, in *imRpc.Create
 	return resp, err
 }
 
+func (s *ImServer) DeleteUserConversation(ctx context.Context, in *imRpc.DeleteUserConversationReq) (*imRpc.ResultResp, error) {
+	l := logic.NewDeleteUserConversationLogic(ctx, s.svcCtx)
+	resp, err := l.DeleteUserConversation(in)
+	if err != nil {
+		danErr, ok := resd.AssertErr(err)
+		if ok {
+			byt, err := json.Marshal(danErr)
+			if err == nil {
+				return nil, errors.New(string(byt))
+			}
+		}
+		return nil, err
+	}
+	return resp, err
+}
+
 func (s *ImServer) SendSysMsg(ctx context.Context, in *imRpc.SendSysMsgReq) (*imRpc.ResultResp, error) {
 	l := logic.NewSendSysMsgLogic(ctx, s.svcCtx)
 	resp, err := l.SendSysMsg(in)

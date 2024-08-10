@@ -34,11 +34,11 @@ func (l *GetConversationListLogic) GetConversationList() (resp *types.GetConvers
 			ChatType:       v.ChatType,
 			TargetId:       v.TargetId,
 			IsShow:         v.IsShow,
-			Seq:            v.Seq,
-			Read:           v.Read,
+			ReadSeq:        v.ReadSeq,
+			Unread:         v.Unread,
 			Total:          v.Total,
-			Unread:         v.ToRead,
 			LastAt:         v.LastAt,
+			DeleteSeq:      v.DeleteSeq,
 		}
 		if v.LastMsg != nil {
 			conv.LastMsg = &types.ChatLog{

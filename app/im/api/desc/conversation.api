@@ -13,8 +13,8 @@ type Conversation {
     ChatType       int64  `json:"chatType"`
     TargetId       string `json:"targetId"`
     IsShow         bool   `json:"isShow"`
-    Seq            int64  `json:"seq"`
-    Read           int64  `json:"read"`
+    ReadSeq            int64  `json:"readSeq"`
+    DeleteSeq int64 `json:"deleteSeq"`
     Total          int64  `json:"total"`
     Unread         int64  `json:"unread"`
     LastMsg *ChatLog  `json:"lastMsg"`

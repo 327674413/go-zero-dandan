@@ -38,6 +38,6 @@ func (l *OperateMyRecvFriendApplyLogic) OperateMyRecvFriendApply(in *types.Opera
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}
-	return &types.ResultResp{Result: true}, nil
+	return &types.ResultResp{}, nil
 
 }

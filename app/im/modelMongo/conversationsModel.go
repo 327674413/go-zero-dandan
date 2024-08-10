@@ -3,6 +3,8 @@ package modelMongo
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/mon"
+	"go-zero-dandan/common/resd"
+	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -17,6 +19,7 @@ type (
 		conversationsModel
 		FindByUserId(ctx context.Context, userId string) (*Conversations, error)
 		Save(ctx context.Context, data *Conversations) error
+		UpdateMsg(ctx context.Context, userId string, data *ChatLog) error
 	}
 
 	customConversationsModel struct {
@@ -38,7 +41,31 @@ func MustConversationsModel(url, db string) ConversationsModel {
 func (m *defaultConversationsModel) Save(ctx context.Context, data *Conversations) error {
 	data.UpdateAt = time.Now()
 	_, err := m.conn.UpdateOne(ctx, bson.M{"_id": data.ID}, bson.M{"$set": data}, options.Update().SetUpsert(true))
+	if err != nil {
+		return resd.ErrorCtx(ctx, err, resd.ErrMongoUpdate)
+	}
 	return err
+}
+
+func (m *defaultConversationsModel) UpdateMsg(ctx context.Context, userId string, chatLog *ChatLog) error {
+	filter := bson.M{"userId": userId, "conversationList." + chatLog.ConversationId: bson.M{"$exists": true}}
+
+	update := bson.M{
+		"$set": bson.M{
+			"conversationList." + chatLog.ConversationId + ".lastMsg": chatLog,
+			"conversationList." + chatLog.ConversationId + ".lastAt":  utild.GetStamp(),
+		},
+		"$inc": bson.M{
+			"conversationList." + chatLog.ConversationId + ".total":   1,
+			"conversationList." + chatLog.ConversationId + ".readSeq": 1,
+		},
+	}
+	_, err := m.conn.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return resd.ErrorCtx(ctx, err, resd.ErrMongoUpdate)
+	}
+
+	return nil
 }
 func (m *defaultConversationsModel) FindByUserId(ctx context.Context, userId string) (*Conversations, error) {
 	var data Conversations
@@ -48,8 +75,8 @@ func (m *defaultConversationsModel) FindByUserId(ctx context.Context, userId str
 	case nil:
 		return &data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
-		return nil, err
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoSelect)
 	}
 }

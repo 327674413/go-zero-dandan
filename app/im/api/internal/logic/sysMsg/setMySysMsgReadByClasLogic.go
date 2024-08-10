@@ -28,7 +28,5 @@ func (l *SetMySysMsgReadByClasLogic) SetMySysMsgReadByClas(in *types.SetMySysMsg
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}
-	return &types.ResultResp{
-		Result: true,
-	}, nil
+	return &types.ResultResp{}, nil
 }

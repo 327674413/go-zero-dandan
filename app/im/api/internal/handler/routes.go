@@ -142,6 +142,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/conversation/updateConversationList",
 					Handler: conversation.UpdateConversationListHandler(serverCtx),
 				},
+				{
+					Method:  http.MethodPost,
+					Path:    "/conversation/deleteMyConv",
+					Handler: conversation.DeleteConversationHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

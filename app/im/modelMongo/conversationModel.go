@@ -3,6 +3,7 @@ package modelMongo
 import (
 	"context"
 	"github.com/zeromicro/go-zero/core/stores/mon"
+	"go-zero-dandan/common/resd"
 	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -16,7 +17,7 @@ type (
 		conversationModel
 		UpdateMsg(ctx context.Context, chatLog *ChatLog) error
 		ListByConversationIds(ctx context.Context, ids []string) ([]*Conversation, error)
-		FindByCode(ctx context.Context, id string) (*Conversation, error)
+		FindByConvId(ctx context.Context, id string) (*Conversation, error)
 	}
 
 	customConversationModel struct {
@@ -31,7 +32,7 @@ func NewConversationModel(url, db, collection string) ConversationModel {
 		defaultConversationModel: newDefaultConversationModel(conn),
 	}
 }
-func (m *defaultConversationModel) FindByCode(ctx context.Context, id string) (*Conversation, error) {
+func (m *defaultConversationModel) FindByConvId(ctx context.Context, id string) (*Conversation, error) {
 	var data Conversation
 
 	err := m.conn.FindOne(ctx, &data, bson.M{"conversationId": id})
@@ -39,9 +40,9 @@ func (m *defaultConversationModel) FindByCode(ctx context.Context, id string) (*
 	case nil:
 		return &data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
-		return nil, err
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoSelect)
 	}
 }
 
@@ -57,9 +58,9 @@ func (m *defaultConversationModel) ListByConversationIds(ctx context.Context, id
 	case nil:
 		return data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
-		return nil, err
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoSelect)
 	}
 }
 
@@ -72,7 +73,10 @@ func (m *defaultConversationModel) UpdateMsg(ctx context.Context, chatLog *ChatL
 			"$set": bson.M{"lastMsg": chatLog, "lastAt": utild.GetStamp()},
 		},
 	)
-	return err
+	if err != nil {
+		return resd.ErrorCtx(ctx, err, resd.ErrMongoUpdate)
+	}
+	return nil
 }
 func MustConversationModel(url, db string) ConversationModel {
 	return NewConversationModel(url, db, "conversation")

@@ -16,6 +16,7 @@ type MsgChatTransfer struct {
 	Content             string `json:"content"`
 	PlatId              string `json:"platId"`
 	MsgId               string `json:"msgId"`
+	TempId              string `json:"tempId"`
 	websocketd.MsgClas  `json:"msgClas"`
 }
 

@@ -16,11 +16,12 @@ type Conversation {
   ChatType int64
   TargetId  string
   IsShow bool
-  Seq int64
+  ReadSeq int64
+  DeleteSeq int64 
   // 总消息数
   Total int64
   // 未读消息数
-  ToRead int64
+  Unread int64
   // 已读消息
   Read int64
   LastMsg ChatLog
@@ -76,6 +77,7 @@ type ResultResp{
   Code int64
   Content string
 }
+
 type (
   getUserSysMsgUnreadNumReq{
     userId *string `json:"sendId,optional" check:"required"`
@@ -97,6 +99,12 @@ type (
     msgIdList []string `json:"msgIdList,optional" check:"required"`
   }
 )
+type (
+  DeleteUserConversationReq{
+    UserId string `json:"userId,optional" check:"required"`
+    ConversationId string `json:"conversationId,optional" check:"required"`
+  }
+)
 @server(
   middleware: MetaMiddleware
 )
@@ -113,9 +121,13 @@ service Im {
   // 更新会话
   @handler PutConversations
   post /PutConversations(PutConversationsReq) returns (PutConversationsResp)
-
+  //创建群组会话
   @handler CreateGroupConversation
   post /CreateGroupConversation(CreateGroupConversationReq) returns (CreateGroupConversationResp)
+
+  @doc "删除用户会话"
+  @handler DeleteUserConversation
+  post /DeleteUserConversation(DeleteUserConversationReq) returns (ResultResp)
 
   // 发送系统消息
   @handler SendSysMsg

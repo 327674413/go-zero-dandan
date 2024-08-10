@@ -50,6 +50,7 @@ var Errs = []*langErr{
 	{50302, "ErrMongoDelete", "数据删除失败"},
 	{50304, "ErrMongoSelect", "数据查询失败"},
 	{50305, "ErrMongoStrToId", "数据更新标识转化失败"},
+	{50306, "ErrMongoIdHex", "不合法的ID标识"},
 	// 504 kafka
 	{504, "ErrMqPush", "MQ推送异常"},
 	{52001, "ErrJsonEncode", "转换json失败"},

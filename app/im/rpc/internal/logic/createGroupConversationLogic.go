@@ -24,14 +24,14 @@ func (l *CreateGroupConversationLogic) CreateGroupConversation(in *imRpc.CreateG
 		return nil, l.resd.Error(err)
 	}
 	res := &imRpc.CreateGroupConversationResp{}
-	_, err := l.svc.ConversationModel.FindByCode(l.ctx, l.req.GroupId)
-	//未报错则有数据，已存在
+	conv, err := l.svc.ConversationModel.FindByConvId(l.ctx, l.req.GroupId)
+	//有报错
 	if err == nil {
-		return res, nil
-	}
-	//不是未找到，是报错，则返回报错
-	if err != modelMongo.ErrNotFound {
 		return nil, l.resd.Error(err)
+	}
+	//没报错且有数据
+	if conv != nil {
+		return res, nil
 	}
 	//未找到，创建
 	err = l.svc.ConversationModel.Insert(l.ctx, &modelMongo.Conversation{

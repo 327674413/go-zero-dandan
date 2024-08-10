@@ -65,12 +65,14 @@ type (
 		ChatType       `mapstructure:"chatType" json:"chatType"`
 		MsgClas        `mapstructure:"msgClas" json:"msgClas"`
 		SendTime       string `mapstructure:"sendTime" json:"sendTime"`
+		TempId         string `mapstructure:"tempId" json:"tempId"`
 	}
 	// Push 解析kafka的消息
 	Push struct {
 		ConversationId string `mapstructure:"conversationId" json:"conversationId"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
 		MsgId          string                                  `mapstructure:"msgId" json:"msgId"`
+		TempId         string                                  `mapstructure:"tempId" json:"tempId"`
 		SendId         string                                  `mapstructure:"sendId" json:"sendId"`
 		RecvId         string                                  `mapstructure:"recvId" json:"recvId"`
 		RecvIds        []string                                `mapstructure:"recvIds" json:"recvIds"`

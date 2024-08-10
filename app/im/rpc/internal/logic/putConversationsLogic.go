@@ -45,7 +45,7 @@ func (l *PutConversationsLogic) PutConversations(in *imRpc.PutConversationsReq) 
 			ChatType:       websocketd.ChatType(v.ChatType),
 			IsShow:         v.IsShow,
 			Total:          v.Read + oldTotal, //会话总数 = 本次读数 + 原先的会话总数
-			Seq:            v.Seq,
+			ReadSeq:        v.ReadSeq,
 		}
 	}
 	_, err = l.svc.ConversationsModel.Update(l.ctx, data)

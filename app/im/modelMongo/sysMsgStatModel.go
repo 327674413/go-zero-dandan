@@ -88,7 +88,7 @@ func (m *defaultSysMsgStatModel) GetUserUnread(ctx context.Context, userId strin
 	case nil:
 		return data, nil
 	case mon.ErrNotFound:
-		return data, nil
+		return nil, nil
 	default:
 		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoSelect)
 	}

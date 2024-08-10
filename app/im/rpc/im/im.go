@@ -17,6 +17,7 @@ type (
 	Conversation                = imRpc.Conversation
 	CreateGroupConversationReq  = imRpc.CreateGroupConversationReq
 	CreateGroupConversationResp = imRpc.CreateGroupConversationResp
+	DeleteUserConversationReq   = imRpc.DeleteUserConversationReq
 	EmptyReq                    = imRpc.EmptyReq
 	GetChatLogReq               = imRpc.GetChatLogReq
 	GetChatLogResp              = imRpc.GetChatLogResp
@@ -39,6 +40,7 @@ type (
 		GetConversations(ctx context.Context, in *GetConversationsReq, opts ...grpc.CallOption) (*GetConversationsResp, error)
 		PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 		CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
+		DeleteUserConversation(ctx context.Context, in *DeleteUserConversationReq, opts ...grpc.CallOption) (*ResultResp, error)
 		SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 		GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error)
 		SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error)
@@ -79,6 +81,11 @@ func (m *defaultIm) PutConversations(ctx context.Context, in *PutConversationsRe
 func (m *defaultIm) CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error) {
 	client := imRpc.NewImClient(m.cli.Conn())
 	return client.CreateGroupConversation(ctx, in, opts...)
+}
+
+func (m *defaultIm) DeleteUserConversation(ctx context.Context, in *DeleteUserConversationReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	client := imRpc.NewImClient(m.cli.Conn())
+	return client.DeleteUserConversation(ctx, in, opts...)
 }
 
 func (m *defaultIm) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {

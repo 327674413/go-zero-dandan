@@ -16,6 +16,7 @@ type ServiceContext struct {
 	WsClient websocketd.Client
 	modelMongo.ChatLogModel
 	modelMongo.ConversationModel
+	modelMongo.ConversationsModel
 	modelMongo.SysMsgLogModel
 	modelMongo.SysMsgStatModel
 	SocialRpc social.Social
@@ -24,12 +25,13 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	socialRpc := social.NewSocial(zrpc.MustNewClient(c.SocialRpc, zrpc.WithUnaryClientInterceptor(interceptor.RpcClientInterceptor())))
 	svc := &ServiceContext{
-		Config:            c,
-		ChatLogModel:      modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
-		ConversationModel: modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
-		SysMsgLogModel:    modelMongo.MustSysMsgLogModel(c.Mongo.Url, c.Mongo.Db),
-		SysMsgStatModel:   modelMongo.MustSysMsgStatModel(c.Mongo.Url, c.Mongo.Db),
-		SocialRpc:         socialRpc,
+		Config:             c,
+		ChatLogModel:       modelMongo.MustChatLogModel(c.Mongo.Url, c.Mongo.Db),
+		ConversationModel:  modelMongo.MustConversationModel(c.Mongo.Url, c.Mongo.Db),
+		ConversationsModel: modelMongo.MustConversationsModel(c.Mongo.Url, c.Mongo.Db),
+		SysMsgLogModel:     modelMongo.MustSysMsgLogModel(c.Mongo.Url, c.Mongo.Db),
+		SysMsgStatModel:    modelMongo.MustSysMsgStatModel(c.Mongo.Url, c.Mongo.Db),
+		SocialRpc:          socialRpc,
 	}
 	token, err := svc.GetSystemToken()
 	if err != nil {

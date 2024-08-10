@@ -26,6 +26,7 @@ const (
 	Im_GetConversations_FullMethodName        = "/im.im/GetConversations"
 	Im_PutConversations_FullMethodName        = "/im.im/PutConversations"
 	Im_CreateGroupConversation_FullMethodName = "/im.im/CreateGroupConversation"
+	Im_DeleteUserConversation_FullMethodName  = "/im.im/DeleteUserConversation"
 	Im_SendSysMsg_FullMethodName              = "/im.im/SendSysMsg"
 	Im_GetUserSysMsgUnreadNum_FullMethodName  = "/im.im/getUserSysMsgUnreadNum"
 	Im_SetUserSysMsgReadByClas_FullMethodName = "/im.im/setUserSysMsgReadByClas"
@@ -41,6 +42,7 @@ type ImClient interface {
 	GetConversations(ctx context.Context, in *GetConversationsReq, opts ...grpc.CallOption) (*GetConversationsResp, error)
 	PutConversations(ctx context.Context, in *PutConversationsReq, opts ...grpc.CallOption) (*PutConversationsResp, error)
 	CreateGroupConversation(ctx context.Context, in *CreateGroupConversationReq, opts ...grpc.CallOption) (*CreateGroupConversationResp, error)
+	DeleteUserConversation(ctx context.Context, in *DeleteUserConversationReq, opts ...grpc.CallOption) (*ResultResp, error)
 	SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error)
 	GetUserSysMsgUnreadNum(ctx context.Context, in *GetUserSysMsgUnreadNumReq, opts ...grpc.CallOption) (*GetUserSysMsgUnreadNumResp, error)
 	SetUserSysMsgReadByClas(ctx context.Context, in *SetUserSysMsgReadByClasReq, opts ...grpc.CallOption) (*ResultResp, error)
@@ -100,6 +102,15 @@ func (c *imClient) CreateGroupConversation(ctx context.Context, in *CreateGroupC
 	return out, nil
 }
 
+func (c *imClient) DeleteUserConversation(ctx context.Context, in *DeleteUserConversationReq, opts ...grpc.CallOption) (*ResultResp, error) {
+	out := new(ResultResp)
+	err := c.cc.Invoke(ctx, Im_DeleteUserConversation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *imClient) SendSysMsg(ctx context.Context, in *SendSysMsgReq, opts ...grpc.CallOption) (*ResultResp, error) {
 	out := new(ResultResp)
 	err := c.cc.Invoke(ctx, Im_SendSysMsg_FullMethodName, in, out, opts...)
@@ -145,6 +156,7 @@ type ImServer interface {
 	GetConversations(context.Context, *GetConversationsReq) (*GetConversationsResp, error)
 	PutConversations(context.Context, *PutConversationsReq) (*PutConversationsResp, error)
 	CreateGroupConversation(context.Context, *CreateGroupConversationReq) (*CreateGroupConversationResp, error)
+	DeleteUserConversation(context.Context, *DeleteUserConversationReq) (*ResultResp, error)
 	SendSysMsg(context.Context, *SendSysMsgReq) (*ResultResp, error)
 	GetUserSysMsgUnreadNum(context.Context, *GetUserSysMsgUnreadNumReq) (*GetUserSysMsgUnreadNumResp, error)
 	SetUserSysMsgReadByClas(context.Context, *SetUserSysMsgReadByClasReq) (*ResultResp, error)
@@ -170,6 +182,9 @@ func (UnimplementedImServer) PutConversations(context.Context, *PutConversations
 }
 func (UnimplementedImServer) CreateGroupConversation(context.Context, *CreateGroupConversationReq) (*CreateGroupConversationResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGroupConversation not implemented")
+}
+func (UnimplementedImServer) DeleteUserConversation(context.Context, *DeleteUserConversationReq) (*ResultResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteUserConversation not implemented")
 }
 func (UnimplementedImServer) SendSysMsg(context.Context, *SendSysMsgReq) (*ResultResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendSysMsg not implemented")
@@ -286,6 +301,24 @@ func _Im_CreateGroupConversation_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Im_DeleteUserConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteUserConversationReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ImServer).DeleteUserConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Im_DeleteUserConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ImServer).DeleteUserConversation(ctx, req.(*DeleteUserConversationReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Im_SendSysMsg_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SendSysMsgReq)
 	if err := dec(in); err != nil {
@@ -384,6 +417,10 @@ var Im_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateGroupConversation",
 			Handler:    _Im_CreateGroupConversation_Handler,
+		},
+		{
+			MethodName: "DeleteUserConversation",
+			Handler:    _Im_DeleteUserConversation_Handler,
 		},
 		{
 			MethodName: "SendSysMsg",

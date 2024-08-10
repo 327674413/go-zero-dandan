@@ -19,6 +19,7 @@ func init() {
 	msg[ErrLimiterErr] = "ErrLimiterErr"
 	msg[ErrMergeFileChunkNotFound] = "ErrMergeFileChunkNotFound"
 	msg[ErrMongoDelete] = "ErrMongoDelete"
+	msg[ErrMongoIdHex] = "ErrMongoIdHex"
 	msg[ErrMongoInsert] = "ErrMongoInsert"
 	msg[ErrMongoSelect] = "ErrMongoSelect"
 	msg[ErrMongoStrToId] = "ErrMongoStrToId"
@@ -102,6 +103,7 @@ const (
 	ErrLimiterErr                      = 40502
 	ErrMergeFileChunkNotFound          = 60901
 	ErrMongoDelete                     = 50302
+	ErrMongoIdHex                      = 50306
 	ErrMongoInsert                     = 50301
 	ErrMongoSelect                     = 50304
 	ErrMongoStrToId                    = 50305

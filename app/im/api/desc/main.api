@@ -66,7 +66,8 @@ type (
 	}
 )
 type ResultResp{
-	Result bool `json:"result"`
+	Code bool `json:"result"`
+	Content string `json:"content"`
 }
 type (
 	CreateFriendApplyReq {
@@ -127,8 +128,7 @@ type (
 
 
 type IdReq{
-	Id *string `json:"id,optional"`
-	PlatId *string `json:"platId,optional"`
+	Id *string `json:"id,optional" check:"required"`
 }
 
 type (

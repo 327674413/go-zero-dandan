@@ -56,7 +56,7 @@ func (m *defaultChatLogModel) ListByMsgIds(ctx context.Context, msgIds []string)
 	case nil:
 		return data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId
 	case nil:
 		return data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
 		return nil, err
 	}

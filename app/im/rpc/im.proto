@@ -22,12 +22,13 @@ message Conversation {
 	 int64 chatType = 2;
 	 string targetId = 3;
 	 bool isShow = 4;
-	 int64 seq = 5;
-	 int64 total = 6;
-	 int64 toRead = 7;
-	 int64 read = 8;
-	 ChatLog lastMsg = 9;
-	 int64 lastAt = 10;
+	 int64 readSeq = 5;
+	 int64 deleteSeq = 6;
+	 int64 total = 7;
+	 int64 unread = 8;
+	 int64 read = 9;
+	 ChatLog lastMsg = 10;
+	 int64 lastAt = 11;
 }
 message GetConversationsReq {
 	optional string userId = 1;
@@ -91,6 +92,10 @@ message setUserSysMsgReadByIdReq {
 	optional string userId = 1;
 	repeated string msgIdList = 2;
 }
+message DeleteUserConversationReq {
+	optional string userId = 1;
+	optional string conversationId = 2;
+}
 
 	
 service im {
@@ -99,6 +104,7 @@ service im {
 	rpc GetConversations(GetConversationsReq) returns (GetConversationsResp);
 	rpc PutConversations(PutConversationsReq) returns (PutConversationsResp);
 	rpc CreateGroupConversation(CreateGroupConversationReq) returns (CreateGroupConversationResp);
+	rpc DeleteUserConversation(DeleteUserConversationReq) returns (ResultResp);
 	rpc SendSysMsg(SendSysMsgReq) returns (ResultResp);
 	rpc getUserSysMsgUnreadNum(getUserSysMsgUnreadNumReq) returns (getUserSysMsgUnreadNumResp);
 	rpc setUserSysMsgReadByClas(setUserSysMsgReadByClasReq) returns (ResultResp);

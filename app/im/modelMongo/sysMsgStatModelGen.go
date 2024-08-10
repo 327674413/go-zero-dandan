@@ -3,6 +3,7 @@ package modelMongo
 
 import (
 	"context"
+	"go-zero-dandan/common/resd"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/mon"
@@ -39,13 +40,16 @@ func (m *defaultSysMsgStatModel) Insert(ctx context.Context, data *SysMsgStat) e
 	}
 
 	_, err := m.conn.InsertOne(ctx, data)
+	if err != nil {
+		return resd.ErrorCtx(ctx, err, resd.ErrMongoInsert)
+	}
 	return err
 }
 
 func (m *defaultSysMsgStatModel) FindOne(ctx context.Context, id string) (*SysMsgStat, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, ErrInvalidObjectId
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoIdHex)
 	}
 
 	var data SysMsgStat
@@ -55,9 +59,9 @@ func (m *defaultSysMsgStatModel) FindOne(ctx context.Context, id string) (*SysMs
 	case nil:
 		return &data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
-		return nil, err
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoSelect)
 	}
 }
 
@@ -65,15 +69,21 @@ func (m *defaultSysMsgStatModel) Update(ctx context.Context, data *SysMsgStat) (
 	data.UpdateAt = time.Now()
 
 	res, err := m.conn.UpdateOne(ctx, bson.M{"_id": data.ID}, bson.M{"$set": data})
+	if err != nil {
+		return nil, resd.ErrorCtx(ctx, err, resd.ErrMongoUpdate)
+	}
 	return res, err
 }
 
 func (m *defaultSysMsgStatModel) Delete(ctx context.Context, id string) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return 0, ErrInvalidObjectId
+		return 0, resd.ErrorCtx(ctx, err, resd.ErrMongoIdHex)
 	}
 
 	res, err := m.conn.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return 0, resd.ErrorCtx(ctx, err, resd.ErrMongoDelete)
+	}
 	return res, err
 }

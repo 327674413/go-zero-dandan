@@ -35,7 +35,26 @@
         .chat-content{box-sizing: border-box;height:100%;width: 100%;position: relative;}
         .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
         .chat-content-target-name{height:50px;padding:0 20px;}
+        .chat-content-target-more{height:100%;padding:0 10px;}
         .chat-conv-msg{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px;overflow-y:auto;}
+        .chat-content-drawer{position: absolute;top:50px;right:0;width:200px;background: #fff;z-index:3;height:100%;border:1px solid #eee;border-top-color: #ccc;}
+        .chat-conv-del{padding-top:30px;}
+        /* 过渡效果的定义 */
+        .slide-right-enter-active, .slide-right-leave-active {
+            transition: all 0.5s ease; /* 动画持续时间和缓动效果 */
+        }
+
+        /* 进入时的初始状态 */
+        .slide-right-enter {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        /* 离开时的状态 */
+        .slide-right-leave-to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
 
         .chat-content-friend{height:100%;}
         .chat-content-conv{height:100%;display: flex;flex-direction: column;}
@@ -87,9 +106,9 @@
 <body>
 <div id="app" ref="app">
     <div v-if="userInfo.id" style="position: absolute;bottom:0;text-align: center;padding:30px;width:100%;box-sizing: border-box;">当前用户：{{userInfo.phone}}</div>
-    <div class="chat-wrapper">
+    <div class="chat-wrapper" @click="tapChatWindow">
         <div class="fl chat">
-            <div class="chat-nav fl">
+            <div class="chat-nav fl" ref="chatNav">
                 <div class="chat-nav-avatar fc" style="background: red;color:#fff;">我</div>
                 <div class="chat-nav-item">
                     <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('conv')">消息</div>
@@ -118,7 +137,7 @@
                             <div class="fl conv-item" v-if="item.isShow && item.chatType == 2">
                                 <div class="conv-avatar-wrapper">
                                     <div class="fc conv-new-num1" v-if="item.unread > 0 && item.unread < 10">{{item.unread}}</div>
-                                    <div class="fc conv-new-num2" v-if="item.unread >= 10 && item.unread < 100">{{item.unread}}+</div>
+                                    <div class="fc conv-new-num2" v-if="item.unread >= 10 && item.unread < 100">{{item.unread}}</div>
                                     <div class="fc conv-new-num2" v-if="item.unread >= 100">99+</div>
                                     <img v-if="friendObj[item.targetId] && friendObj[item.targetId].friendAvatarImg" :src="friendObj[item.targetId].friendAvatarImg" class="conv-avatar"  />
                                     <div class="conv-avatar conv-avatar-text fc" v-if="friendObj[item.targetId] && !friendObj[item.targetId].friendAvatarImg">{{friendObj[item.targetId].friendName.substring(0,1).toUpperCase()}}</div>
@@ -162,9 +181,17 @@
                 </div>
             </div>
             <div class="chat-content">
+                <div v-if="currNav == 'conv'">
+                    <transition name="slide-right" >
+                        <div class="chat-content-drawer" v-if="showConvDrawer" ref="convDrawer">
+                            <div class="fc chat-conv-del"><el-button type="danger" @click="tapDelConv">删除聊天</el-button></div>
+                        </div>
+                    </transition>
+                </div>
                 <div class="chat-content-conv" v-if="currNav == 'conv' && activeConvIndex > -1">
                     <div class="fb chat-content-target">
                         <div class="fl chat-content-target-name">{{friendObj[convList[activeConvIndex].targetId].friendAlias ? friendObj[convList[activeConvIndex].targetId].friendAlias : friendObj[convList[activeConvIndex].targetId].friendName}}</div>
+                        <div class="fl btn chat-content-target-more" @click="showConvDrawer = true" ref="convDrawerBtn"><i class="el-icon-more"></i></div>
                     </div>
                     <div class="chat-conv-msg">
                         <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgContent">
@@ -296,6 +323,7 @@
                 userToken:'',
                 currNav:'conv',
                 searchConvVal:'',
+                showConvDrawer:false,
                 convList:[],
                 activeConvIndex:-1,
                 activeFriendIndex:-1,
@@ -339,7 +367,8 @@
                 this.headers.token = urlParams.get('token')
                 this.getUserInfo()
                 this.getMyFriendList()
-                this.getMyConvList()
+                //本地没有缓存，首次登陆，初始化获取消息列表
+                this.getMyCloudConvList()
                 this.getMySysMsgUnreadList()
                 this.connectWs()
 
@@ -413,6 +442,7 @@
                 }
             },
             recvChatSingleMsg(data){
+                //先从会话里找
                 for (let i=0;i < this.convList.length;i++){
                     if (this.convList[i].conversationId == data.conversationId){
                         this.convList[i].total++
@@ -420,13 +450,74 @@
                         let dateObject = new Date(data.sendTime.replace(" ", "T"))
                         this.convList[i].lastAt = dateObject.getTime() / 1000
                         this.convList[i].lastMsg = this.msgDetailDataToListData(data)
-                        console.log(this.convList[i])
+                        this.convList[i].msgContent.unshift(data.msg)
                         let [targetObj] = this.convList.splice(i, 1);
                         // 将目标对象插入到数组的第一个位置
                         this.convList.unshift(targetObj);
                         return
                     }
                 }
+                //没找到，从好友列表里找，创建会话
+                for (let i=0;i<this.friendList.length;i++){
+                    if (this.friendList[i].friendUid == data.sendId){
+                        let dateObject = new Date(data.sendTime.replace(" ", "T"))
+                        this.convList.unshift({
+                            chatType:2,
+                            conversationId:data.conversationId,
+                            isShow:true,
+                            lastAt:dateObject.getTime() / 1000,
+                            lastMsg:data.msg,
+                            targetId:data.sendId,
+                            msgContent:[data.msg],
+                            total:1,
+                            readSeq:0,
+                            unread:1,
+                        });
+                        console.log(this.convList)
+                        return
+                    }
+                }
+            },
+            tapChatWindow(e){
+                if (
+                    this.showConvDrawer &&
+                    this.$refs.convDrawer &&
+                    !this.$refs.convDrawer.contains(e.target) &&
+                    !this.$refs.convDrawerBtn.contains(e.target) &&
+                    !this.$refs.chatNav.contains(e.target)
+
+                ) {
+                    this.showConvDrawer = false;
+                }
+            },
+            tapDelConv(){
+                if (!this.convList[this.activeConvIndex].conversationId) {
+                    return this.removeCurrConvItem()
+                }
+                this.$confirm('删除聊天将会清空聊天记录, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    request({
+                        url:apiImUrl + '/im/v1/conversation/deleteMyConv',
+                        headers:this.headers,
+                        data:{
+                            id:this.convList[this.activeConvIndex].conversationId
+                        }
+                    }).then(res=>{
+                        this.removeCurrConvItem()
+                    })
+                }).catch(() => {
+
+
+                });
+            },
+            //移除当前选中的会话
+            removeCurrConvItem(){
+                this.convList.splice(this.activeConvIndex,1)
+                this.activeConvIndex = -1
+                if (this.showConvDrawer) this.showConvDrawer = false
             },
             recvMsgNewFriendApply(){
                 this.getMySysMsgUnreadList()
@@ -441,7 +532,7 @@
                 }
                 this.currNav = nav
             },
-            getMyConvList(){
+            getMyCloudConvList(){
                 request({
                     url:apiImUrl + '/im/v1/conversation/getConversationList',
                     headers:this.headers,
@@ -452,6 +543,7 @@
                         conv.msgContent = []
                         convList.push(conv)
                     }
+                    convList.sort((a, b) => b.lastAt - a.lastAt);
                     this.convList = convList
                 })
             },
@@ -473,12 +565,14 @@
                     }
                 }
                 let data = {
-                    id: "1",
+                    tempId: Date.now() +  '' + Math.floor(Math.random() * 1e9), // 临时id，时间戳+9位随机数,
                     method: "conversation.chat",
                     data: msgData
                 }
                 this.convList[this.activeConvIndex].msgContent.push(msgData)
                 this.convList[this.activeConvIndex].lastMsg = this.msgDetailDataToListData(msgData)
+                this.convList[this.activeConvIndex].seq++
+                this.convList[this.activeConvIndex].total++
                 this.sendMsg(data)
             },
             msgDetailDataToListData(data){
@@ -500,32 +594,43 @@
             chatInputUpdate(e){
                 this.convList[this.activeConvIndex].inputMsg = e.target.innerText;
             },
+            //点击会话列表中某个会话
             tapConvItem(index){
+                //设置当前会话选中状态
                 this.activeConvIndex = index
+                //激活会话的请求，处理未读消息等
+                this.setUpConv(index)
+                //等渲染完毕，会话内容展示后，进行相关dom操作
                 this.$nextTick(()=>{
+                    //如果有暂存的输入内容，恢复到输入框中
                     if (this.convList[index].inputMsg) {
                         this.$refs.chatInput.innerText = this.convList[index].inputMsg
+                        //让光标移动到最后位置
                         if (this.$refs.chatInput.innerText !== '')this.moveCursorToEnd(this.$refs.chatInput);
                     }
-
+                    //输入框聚焦
                     this.$refs.chatInput.focus();
                 })
 
             },
-            tapCreateConv(){
-                this.currNav = "conv"
-                this.tapConvByFriend(this.currFriendDetail)
-                request({
+            setUpConv(index){
+                //移除本地未读
+                if (this.convList[index].unread > 0){
+                    this.convList[index].unread = 0
+                }
+                //记录窗口激活
+                return request({
                     url:apiImUrl + '/im/v1/conversation/setUpUserConversation',
                     headers:this.headers,
                     data:{
-                        recvId:this.currFriendDetail.friendUid,
-                        chatType:2,
+                        recvId:this.convList[index].targetId,
+                        chatType:this.convList[index].chatType,
                     }
-                }).then(res=>{
-
                 })
-
+            },
+            tapCreateConv(){
+                this.currNav = "conv"
+                this.tapConvByFriend(this.currFriendDetail)
             },
             chatInputEnter(e){
                 if (e.key === 'Enter') {
@@ -793,14 +898,6 @@
                 })
                 return list
             },
-            convListCpd(){
-                let list = []
-                this.friendList.forEach(item=>{
-                    item.friendDate = '2014/05/01'
-                    item.lastChat = '弗拉加经理看手机啊弗兰克经理卡就哭了经理卡看了'
-                })
-                return this.friendList
-            }
         }
     })
 </script>

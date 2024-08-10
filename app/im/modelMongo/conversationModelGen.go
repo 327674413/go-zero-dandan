@@ -3,6 +3,7 @@ package modelMongo
 
 import (
 	"context"
+	"go-zero-dandan/common/resd"
 	"time"
 
 	"github.com/zeromicro/go-zero/core/stores/mon"
@@ -50,7 +51,7 @@ func (m *defaultConversationModel) FindOne(ctx context.Context, id string) (*Con
 	case nil:
 		return &data, nil
 	case mon.ErrNotFound:
-		return nil, ErrNotFound
+		return nil, nil
 	default:
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func (m *defaultConversationModel) Update(ctx context.Context, data *Conversatio
 func (m *defaultConversationModel) Delete(ctx context.Context, id string) (int64, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return 0, ErrInvalidObjectId
+		return 0, resd.ErrorCtx(ctx, err, resd.ErrMongoIdHex)
 	}
 
 	res, err := m.conn.DeleteOne(ctx, bson.M{"_id": oid})

@@ -67,7 +67,8 @@ type GroupMemberApply struct {
 }
 
 type ResultResp struct {
-	Result bool `json:"result"`
+	Code    bool   `json:"result"`
+	Content string `json:"content"`
 }
 
 type CreateFriendApplyReq struct {
@@ -137,8 +138,7 @@ type GroupApplyListResp struct {
 }
 
 type IdReq struct {
-	Id     *string `json:"id,optional"`
-	PlatId *string `json:"platId,optional"`
+	Id *string `json:"id,optional" check:"required"`
 }
 
 type NewFriendInfo struct {
@@ -190,8 +190,8 @@ type Conversation struct {
 	ChatType       int64    `json:"chatType"`
 	TargetId       string   `json:"targetId"`
 	IsShow         bool     `json:"isShow"`
-	Seq            int64    `json:"seq"`
-	Read           int64    `json:"read"`
+	ReadSeq        int64    `json:"readSeq"`
+	DeleteSeq      int64    `json:"deleteSeq"`
 	Total          int64    `json:"total"`
 	Unread         int64    `json:"unread"`
 	LastMsg        *ChatLog `json:"lastMsg"`

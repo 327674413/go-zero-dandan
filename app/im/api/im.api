@@ -108,4 +108,12 @@ service im-api {
 	@doc "更新会话"
 	@handler updateConversationList
 	post /conversation/updateConversationList(UpdateConversationListReq) returns(ResultResp)
+	
+	@doc "删除会话"
+	@handler deleteConversation
+	post /conversation/deleteMyConv(IdReq) returns(ResultResp)
+	
+	//	@doc "获取消息的已读未读用户（群聊用）"
+	//	@handler getChatLogReadInfo
+	//	post /conversation/getChatLogReadInfo(GetChatLogReadInfoReq) returns(GetChatLogReadInfoResp)
 }

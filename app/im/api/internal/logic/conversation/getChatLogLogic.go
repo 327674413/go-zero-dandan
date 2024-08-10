@@ -2,6 +2,8 @@ package conversation
 
 import (
 	"context"
+	"go-zero-dandan/app/im/rpc/types/imRpc"
+	"go-zero-dandan/common/utild/copier"
 
 	"go-zero-dandan/app/im/api/internal/svc"
 	"go-zero-dandan/app/im/api/internal/types"
@@ -20,5 +22,18 @@ func (l *GetChatLogLogic) GetChatLog(in *types.GetChatLogReq) (resp *types.GetCh
 	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}
-	return
+	data, err := l.svc.ImRpc.GetChatLog(l.ctx, &imRpc.GetChatLogReq{
+		ConversationId: &l.req.ConversationId,
+		StartSendTime:  &l.req.StartSendAt,
+		EndSendTime:    &l.req.EndSendAt,
+		Count:          &l.req.Count,
+	})
+	if err != nil {
+		return nil, l.resd.Error(err)
+	}
+
+	var res types.GetChatLogResp
+	copier.Copy(&res, data)
+
+	return &res, err
 }

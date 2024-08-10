@@ -35,5 +35,5 @@ func (l *CreateFriendApplyLogic) CreateFriendApply(in *types.CreateFriendApplyRe
 	if err != nil {
 		return nil, resd.ErrorCtx(l.ctx, err)
 	}
-	return &types.ResultResp{Result: true}, nil
+	return &types.ResultResp{}, nil
 }

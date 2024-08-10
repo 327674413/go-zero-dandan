@@ -47,6 +47,7 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			MsgType:        data.Msg.MsgType,
 			Content:        data.Msg.Content,
 			MsgId:          data.MsgId,
+			TempId:         data.TempId,
 		})
 		if err != nil {
 			server.Send(websocketd.NewErrMessage(err), conn)
