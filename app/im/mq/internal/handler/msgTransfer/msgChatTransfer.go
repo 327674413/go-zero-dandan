@@ -39,9 +39,9 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 	fmtd.Info(data.MsgContent)
 	//发送给ws进行push
 	return t.Transfer(ctx, &websocketd.Push{
+		Id:             msgId.Hex(),
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
-		MsgId:          msgId.Hex(),
 		SendTime:       data.SendTime,
 		SendAtMs:       data.SendAtMs,
 		MsgContent:     data.MsgContent,

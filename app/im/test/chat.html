@@ -41,7 +41,10 @@
         .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
         .chat-content-target-name{height:50px;padding:0 20px;}
         .chat-content-target-more{height:100%;padding:0 10px;}
-        .chat-conv-msg{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px 15px;overflow-y:auto;}
+        .chat-conv-msg-wrapper{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px 15px;position: relative;overflow: hidden;}
+        .chat-conv-msg{width:100%;height:100%;overflow-y:auto;}
+        .chat-conv-msg-new-bottom{position: absolute;bottom:10px;left:50%;transform: translateX(-50%);color:#3a8ee6;font-size: 13px;box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);padding:5px 15px;border-radius: 30px;z-index:3;}
+        .chat-conv-msg-new-bottom-icon{transform: rotate(90deg);font-size: 16px;margin-right:5px;}
         .chat-content-drawer{position: absolute;top:50px;right:0;width:200px;background: #fff;z-index:3;height:100%;border:1px solid #eee;border-top-color: #ccc;}
         .chat-conv-del{padding-top:30px;}
         /* 过渡效果的定义 */
@@ -208,26 +211,32 @@
                         <div class="fl chat-content-target-name">{{friendObj[convList[activeConvIndex].targetId].friendAlias ? friendObj[convList[activeConvIndex].targetId].friendAlias : friendObj[convList[activeConvIndex].targetId].friendName}}</div>
                         <div class="fl btn chat-content-target-more" @click="showConvDrawer = true" ref="convDrawerBtn"><i class="el-icon-more"></i></div>
                     </div>
-                    <div class="chat-conv-msg" ref="chatConvMsgWindow">
-                        <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgList">
-                            <div class="fc chat-msg-time" v-if="item.isShowTime">{{formatConvTime(item.sendTime)}}</div>
-                            <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
-                                <div class="chat-msg-wrapper">
-                                    <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                    <div class="chat-conv-msg-wrapper">
+                        <div class="fc chat-conv-msg-new-bottom btn" v-if="showChatWindowMoreBottom" @click.stop="tapChatWindowMoreBottom">
+                            <i class="chat-conv-msg-new-bottom-icon el-icon-d-arrow-right "></i> {{convList[activeConvIndex].unread}}条新消息
+                        </div>
+                        <div class="chat-conv-msg" ref="chatConvMsgWindow" @scroll="onChatConvMsgListScroll">
+                            <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgList">
+                                <div class="fc chat-msg-time" v-if="item.isShowTime">{{formatConvTime(item.sendTime)}}</div>
+                                <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
+                                    <div class="chat-msg-wrapper">
+                                        <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                    </div>
+                                    <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
+                                    <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
                                 </div>
-                                <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
-                                <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
-                            </div>
-                            <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
-                                <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />
-                                <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>
-                                <div class="chat-msg-wrapper">
-                                    <div class="fl chat-msg-name">{{friendObj[item.sendId].friendName}}</div>
-                                    <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
+                                    <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />
+                                    <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>
+                                    <div class="chat-msg-wrapper">
+                                        <div class="fl chat-msg-name">{{friendObj[item.sendId].friendName}}</div>
+                                        <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="chat-conv-form">
                         <div class="fb chat-conv-tool">
                             <div class="fl">
@@ -238,7 +247,7 @@
                                 <div style="color:#ccc;font-size: 14px;">使用Enter键发送消息</div>
                             </div>
                         </div>
-                        <div class="chat-conv-input" contenteditable="true" placeholder="按回车键可以发送"  @input="chatInputUpdate"  @keydown="chatInputEnter" ref="chatInput"></div>
+                        <div class="chat-conv-input" contenteditable="true" placeholder="按回车键可以发送"  @input="chatInputUpdate" @compositionstart="chatCompositionStart" @compositionend="chatCompositionEnd"  @keydown="chatInputEnter" ref="chatInput"></div>
                     </div>
                 </div>
                 <div class="chat-content-friend" v-if="currNav == 'friend'">
@@ -343,6 +352,8 @@
                 currNav:'conv',
                 searchConvVal:'',
                 showConvDrawer:false,
+                showChatWindowMoreBottom:false,
+                vshowChatWindowMoreTop:false,
                 convList:[],
                 activeConvIndex:-1,
                 activeFriendIndex:-1,
@@ -359,7 +370,7 @@
                 recvFriendApplyListState:'',
                 recvFriendApplyListNextPage:1,
                 unreadNewFriendApply:0,
-
+                isChatComposing:false,
                 searchGroupVal:'',
                 groupList:[],
                 showAddGroupDialog:false,
@@ -462,6 +473,12 @@
                         }
                 }
             },
+            chatCompositionStart() {
+                this.isChatComposing = true;
+            },
+            chatCompositionEnd() {
+                this.isChatComposing = false;
+            },
             recvChatSingleMsg(data){
                 //先从会话里找
                 for (let i=0;i < this.convList.length;i++){
@@ -477,7 +494,14 @@
                         this.convList.unshift(targetObj);
                         //如果当前是激活状态，刷新界面，并且更新未读状态
                         if (this.activeConvIndex == i){
-                            this.scrollChatWindowToBottom()
+                            this.$nextTick(()=>{
+                                if (this.$refs.chatConvMsgWindow.scrollHeight - this.$refs.chatConvMsgWindow.scrollTop - this.$refs.chatConvMsgWindow.offsetHeight > 100){
+                                    // 滚动条距离底部超过100
+                                    this.showChatWindowMoreBottom = true
+                                }else {
+                                    this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
+                                }
+                            })
                             this.tapConvItem(i)
                         }
                         return
@@ -501,11 +525,6 @@
                         return
                     }
                 }
-            },
-            scrollChatWindowToBottom(){
-                this.$nextTick(()=>{
-                    this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
-                })
             },
             tapChatWindow(e){
                 if (
@@ -603,7 +622,9 @@
                 this.convList[this.activeConvIndex].seq++
                 this.convList[this.activeConvIndex].total++
                 this.sendMsg(data)
-                this.scrollChatWindowToBottom()
+                this.$nextTick(()=>{
+                    this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
+                })
             },
             tapFriendItem(index){
                 this.activeFriendIndex = index
@@ -621,10 +642,10 @@
                         this.getChatMsgHisList(index)
                     }
                 }
-                //设置当前会话选中状态
-                this.activeConvIndex = index
                 //激活会话的请求，处理未读消息等
                 this.setUpConv(index)
+                //设置当前会话选中状态
+                this.activeConvIndex = index
                 //等渲染完毕，会话内容展示后，进行相关dom操作
                 this.$nextTick(()=>{
                     //如果有暂存的输入内容，恢复到输入框中
@@ -637,6 +658,22 @@
                     this.$refs.chatInput.focus();
                 })
 
+            },
+            onChatConvMsgListScroll(){
+                const scrollTop = this.$refs.chatConvMsgWindow.scrollTop;
+                const offsetHeight = this.$refs.chatConvMsgWindow.offsetHeight;
+                const scrollHeight = this.$refs.chatConvMsgWindow.scrollHeight;
+                // 检查是否距离底部 100px
+                if (scrollHeight - scrollTop - offsetHeight <= 100) {
+                    // 触发事件
+                    this.onScrollNearBottom();
+                }
+            },
+            tapChatWindowMoreBottom(){
+                this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
+            },
+            onScrollNearBottom(){
+                if (this.showChatWindowMoreBottom) this.showChatWindowMoreBottom =false
             },
             getChatMsgHisList(index){
                 let conversationId = this.convList[index].conversationId
@@ -659,14 +696,15 @@
                         this.convList[convIndex].msgList.unshift(item)
                     })
                     this.$nextTick(()=>{
-                        this.scrollChatWindowToBottom()
+                        this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
                     })
                 })
             },
             setUpConv(index){
                 //移除本地未读
                 if (this.convList[index].unread > 0){
-                    this.convList[index].unread = 0
+                    //先不做批量已读，根据滚动已读
+                    //this.convList[index].unread = 0
                 }
                 //云同步窗口激活
                 if (this.isCloudHis){
@@ -686,7 +724,7 @@
                 this.tapConvByFriend(this.currFriendDetail)
             },
             chatInputEnter(e){
-                if (e.key === 'Enter') {
+                if (!this.isChatComposing && e.key === 'Enter') {
                     if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
                         // 插入换行
                         document.execCommand('insertLineBreak');

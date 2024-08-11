@@ -47,7 +47,7 @@ func Chat(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			SendAtMs:       utild.GetTimeMs(),
 			MsgType:        data.MsgType,
 			MsgContent:     data.MsgContent,
-			MsgId:          data.MsgId,
+			MsgId:          data.Id,
 			TempId:         data.TempId,
 		})
 		if err != nil {

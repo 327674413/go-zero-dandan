@@ -51,12 +51,12 @@ func (t AckType) ToString() string {
 type (
 	//Chat 聊天会话
 	Chat struct {
+		Id             string `mapstructure:"id" json:"id"`
 		ConversationId string `mapstructure:"conversationId" json:"conversationId"`
 		SendId         string `mapstructure:"sendId" json:"sendId"`
 		RecvId         string `mapstructure:"recvId" json:"recvId"`
 		MsgType        `mapstructure:"msgType" json:"msgType"`
 		MsgContent     string            `mapstructure:"msgContent" json:"msgContent"`
-		MsgId          string            `mapstructure:"msgId" json:"msgId"`
 		MsgReads       map[string]string `mapstructure:"msgReads" json:"msgReads"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
 		MsgClas        `mapstructure:"msgClas" json:"msgClas"`
@@ -68,7 +68,7 @@ type (
 	Push struct {
 		ConversationId string `mapstructure:"conversationId" json:"conversationId"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
-		MsgId          string                                  `mapstructure:"msgId" json:"msgId"`
+		Id             string                                  `mapstructure:"id" json:"id"`
 		TempId         string                                  `mapstructure:"tempId" json:"tempId"`
 		SendId         string                                  `mapstructure:"sendId" json:"sendId"`
 		RecvId         string                                  `mapstructure:"recvId" json:"recvId"`

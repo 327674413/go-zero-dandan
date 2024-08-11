@@ -38,7 +38,7 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 			ConversationId: data.ConversationId,
 			MsgContent:     data.MsgContent,
 			MsgType:        data.MsgType,
-			MsgId:          data.MsgId,
+			Id:             data.Id,
 			MsgReads:       data.MsgReads,
 			ChatType:       data.ChatType,
 			SendTime:       data.SendTime,
