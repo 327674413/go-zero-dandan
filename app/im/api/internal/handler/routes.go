@@ -124,13 +124,13 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Route{
 				{
 					Method:  http.MethodPost,
-					Path:    "/conversation/getcChatlog",
+					Path:    "/conversation/getChatLog",
 					Handler: conversation.GetChatLogHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,
-					Path:    "/conversation/setUpUserConversation",
-					Handler: conversation.SetUpUserConversationHandler(serverCtx),
+					Path:    "/conversation/setUpMyConversation",
+					Handler: conversation.SetUpMyConversationHandler(serverCtx),
 				},
 				{
 					Method:  http.MethodPost,

@@ -24,8 +24,8 @@ func (l *GetChatLogLogic) GetChatLog(in *types.GetChatLogReq) (resp *types.GetCh
 	}
 	data, err := l.svc.ImRpc.GetChatLog(l.ctx, &imRpc.GetChatLogReq{
 		ConversationId: &l.req.ConversationId,
-		StartSendTime:  &l.req.StartSendAt,
-		EndSendTime:    &l.req.EndSendAt,
+		StartSendAt:    &l.req.StartSendAt,
+		EndSendAt:      &l.req.EndSendAt,
 		Count:          &l.req.Count,
 	})
 	if err != nil {

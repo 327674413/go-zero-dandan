@@ -202,8 +202,8 @@ type Conversation struct {
 
 type GetChatLogReq struct {
 	ConversationId *string `json:"conversationId,optional" check:"required"`
-	StartSendAt    *int64  `json:"startSendTime,optional"`
-	EndSendAt      *int64  `json:"endSendTime,optional"`
+	StartSendAt    *int64  `json:"startSendAt,optional"`
+	EndSendAt      *int64  `json:"endSendAt,optional"`
 	Count          *int64  `json:"count,optional"`
 }
 
@@ -219,7 +219,7 @@ type UpdateConversationListReq struct {
 	ConversationList map[string]*Conversation `json:"conversationList,optional" check:"required"`
 }
 
-type SetUpUserConversationReq struct {
+type SetUpMyConversationReq struct {
 	RecvId   *string `json:"recvId,optional" check:"required"`
 	ChatType *int64  `json:"chatType,optional" check:"required"`
 }

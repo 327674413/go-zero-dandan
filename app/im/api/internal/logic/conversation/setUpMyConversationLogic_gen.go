@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-type SetUpUserConversationLogicGen struct {
+type SetUpMyConversationLogicGen struct {
 	logx.Logger
 	ctx          context.Context
 	svc          *svc.ServiceContext
@@ -31,12 +31,12 @@ type SetUpUserConversationLogicGen struct {
 	}
 }
 
-func NewSetUpUserConversationLogicGen(ctx context.Context, svc *svc.ServiceContext) *SetUpUserConversationLogicGen {
+func NewSetUpMyConversationLogicGen(ctx context.Context, svc *svc.ServiceContext) *SetUpMyConversationLogicGen {
 	meta, _ := ctx.Value("reqMeta").(*typed.ReqMeta)
 	if meta == nil {
 		meta = &typed.ReqMeta{}
 	}
-	return &SetUpUserConversationLogicGen{
+	return &SetUpMyConversationLogicGen{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svc:    svc,
@@ -45,7 +45,7 @@ func NewSetUpUserConversationLogicGen(ctx context.Context, svc *svc.ServiceConte
 	}
 }
 
-func (l *SetUpUserConversationLogicGen) initReq(in *types.SetUpUserConversationReq) error {
+func (l *SetUpMyConversationLogicGen) initReq(in *types.SetUpMyConversationReq) error {
 
 	if in.RecvId != nil {
 		l.req.RecvId = strings.TrimSpace(*in.RecvId)

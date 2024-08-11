@@ -62,7 +62,8 @@ func (m *defaultChatLogModel) ListByMsgIds(ctx context.Context, msgIds []string)
 	}
 }
 
-func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId string, startSendTime, endSendTime, limit int64) ([]*ChatLog, error) {
+// ListBySendTime 倒序，小于等于开始时间戳，大于结束时间时间戳，从新到旧获取聊天记录
+func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId string, startSendAt, endSendAt, limit int64) ([]*ChatLog, error) {
 	var data []*ChatLog
 	opt := options.FindOptions{Limit: &DefaultChatLogLimit, Sort: bson.M{"sendTime": -1}}
 	if limit > 0 {
@@ -71,14 +72,14 @@ func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId
 	filter := bson.M{
 		"conversationId": conversationId,
 	}
-	if endSendTime > 0 {
-		filter["sendTime"] = bson.M{
-			"$gt":  endSendTime,
-			"$lte": startSendTime,
+	if endSendAt > 0 {
+		filter["sendAtMs"] = bson.M{
+			"$gt":  endSendAt*1000 + 999,
+			"$lte": startSendAt * 1000,
 		}
 	} else {
-		filter["sendTime"] = bson.M{
-			"$lt": startSendTime,
+		filter["sendAtMs"] = bson.M{
+			"$lte": startSendAt * 1000,
 		}
 	}
 	err := m.conn.Find(ctx, &data, filter, &opt)

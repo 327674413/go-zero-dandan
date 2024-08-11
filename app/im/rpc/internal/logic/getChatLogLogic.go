@@ -47,7 +47,7 @@ func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLog
 		}, nil
 	}
 	// 根据时间段
-	data, err := l.svc.ChatLogModel.ListBySendTime(l.ctx, l.req.ConversationId, l.req.StartSendTime, l.req.EndSendTime, l.req.Count)
+	data, err := l.svc.ChatLogModel.ListBySendTime(l.ctx, l.req.ConversationId, l.req.StartSendAt, l.req.EndSendAt, l.req.Count)
 	if err != nil {
 		return nil, l.resd.Error(err)
 	}

@@ -95,11 +95,11 @@ service im-api {
 service im-api {
 	@doc "根据用户获取聊天记录"
 	@handler getChatLog
-	post /conversation/getcChatlog(GetChatLogReq) returns(GetChatLogResp)
+	post /conversation/getChatLog(GetChatLogReq) returns(GetChatLogResp)
 	
 	@doc "建立会话"
-	@handler setUpUserConversation
-	post /conversation/setUpUserConversation(SetUpUserConversationReq) returns(ResultResp)
+	@handler setUpMyConversation
+	post /conversation/setUpMyConversation(SetUpMyConversationReq) returns(ResultResp)
 	
 	@doc "获取会话"
 	@handler getConversationList

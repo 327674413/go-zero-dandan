@@ -19,15 +19,15 @@ type GetChatLogLogicGen struct {
 	logx.Logger
 	req struct {
 		ConversationId string
-		StartSendTime  int64
-		EndSendTime    int64
+		StartSendAt    int64
+		EndSendAt      int64
 		Count          int64
 		MsgId          string
 	}
 	hasReq struct {
 		ConversationId bool
-		StartSendTime  bool
-		EndSendTime    bool
+		StartSendAt    bool
+		EndSendAt      bool
 		Count          bool
 		MsgId          bool
 	}
@@ -56,18 +56,18 @@ func (l *GetChatLogLogicGen) initReq(in *imRpc.GetChatLogReq) error {
 		l.hasReq.ConversationId = false
 	}
 
-	if in.StartSendTime != nil {
-		l.req.StartSendTime = *in.StartSendTime
-		l.hasReq.StartSendTime = true
+	if in.StartSendAt != nil {
+		l.req.StartSendAt = *in.StartSendAt
+		l.hasReq.StartSendAt = true
 	} else {
-		l.hasReq.StartSendTime = false
+		l.hasReq.StartSendAt = false
 	}
 
-	if in.EndSendTime != nil {
-		l.req.EndSendTime = *in.EndSendTime
-		l.hasReq.EndSendTime = true
+	if in.EndSendAt != nil {
+		l.req.EndSendAt = *in.EndSendAt
+		l.hasReq.EndSendAt = true
 	} else {
-		l.hasReq.EndSendTime = false
+		l.hasReq.EndSendAt = false
 	}
 
 	if in.Count != nil {

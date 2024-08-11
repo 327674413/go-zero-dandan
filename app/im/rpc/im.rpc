@@ -53,8 +53,8 @@ type PutConversationsReq {
 type PutConversationsResp {}
 type GetChatLogReq {
   ConversationId string
-  StartSendTime int64
-  EndSendTime int64
+  StartSendAt int64
+  EndSendAt int64
   Count int64
   MsgId string
 }

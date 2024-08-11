@@ -54,8 +54,8 @@ message PutConversationsResp {
 }
 message GetChatLogReq {
 	optional string conversationId = 1;
-	optional int64 startSendTime = 2;
-	optional int64 endSendTime = 3;
+	optional int64 startSendAt = 2;
+	optional int64 endSendAt = 3;
 	optional int64 count = 4;
 	optional string msgId = 5;
 }

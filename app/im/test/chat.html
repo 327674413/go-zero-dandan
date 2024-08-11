@@ -6,27 +6,32 @@
     <link rel="stylesheet" href="static/css/common.css">
     <style>
         *{padding:0;margin:0;}
-        .fl{display: flex;align-items: center;justify-content: flex-start;}
-        .fc{display: flex;align-items: center;justify-content: center;}
-        .fr{display: flex;align-items: center;justify-content: flex-end;}
+        .fl{display: flex;align-items: center;justify-content: flex-start;box-sizing: border-box;}
+        .fc{display: flex;align-items: center;justify-content: center;box-sizing: border-box;}
+        .fr{display: flex;align-items: center;justify-content: flex-end;box-sizing: border-box;}
         .btn:hover{cursor: pointer;}
         #app{display: none;}
         .chat-wrapper{position:fixed;left:50%;top:50%;transform: translate(-50%,-50%);}
         .chat{background: #f4f4f4;width:70vw;height:80vh;min-height: 500px;min-width: 600px;border-radius: 5px;border:1px solid #eee;overflow: hidden;align-items: flex-start;/*transition: all .4s cubic-bezier(.645,.045,.355,1);*/}
         .chat-nav{flex:0 0 66px;background: #66b1ff;height:100%;flex-direction: column;padding:30px 0;box-sizing: border-box;}
         .chat-nav-avatar{width:40px;height:40px;border-radius: 5px;}
-        .chat-nav-item{margin-top:10px;}
-        .chat-nav-item:hover{cursor: pointer;}
+        .chat-nav-item{padding:2px 0;width: 100%;}
+        .chat-nav-item-bg{width:56px;padding:10px 0;}
+        .chat-nav-item-bg:hover, .chat-nav-item-active{cursor: pointer;background: #f8f8f8;border-radius: 5px 0 0 5px;}
+        .chat-nav-icon{color:#fff;font-size: 26px;}
+        .chat-nav-item-bg:hover .chat-nav-icon,.chat-nav-item-active .chat-nav-icon{color:#3a8ee6;font-size: 26px;}
+        .chat-nav-item-bg:hover path,.chat-nav-item-active path{fill:#3a8ee6;}
         .chat-social{flex:0 0 260px;width:260px;background: #f8f8f8;border-right: 1px solid #e0e0e0;height:100%;}
 
 
-        .chat-msg-item{margin-bottom:20px;}
+        .chat-msg-item{margin-bottom:20px;align-items: flex-start;}
+        .chat-msg-time{padding:10px;color:#808080;font-size: 13px;}
         .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
         .chat-msg-name{font-size:12px;color:#8a8a8a;padding:2px;}
         .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
         .chat-msg-recv .chat-msg-content{background: #fff;}
         .chat-msg-send .chat-msg-content{background: #95EC69;}
-        .chat-msg-avatar{width:50px;height:50px;border-radius: 10px;color:#fff;}
+        .chat-msg-avatar{width:50px;height:50px;flex-shrink:0;border-radius: 10px;color:#fff;}
         .chat-msg-recv .chat-msg-avatar{margin-right:10px;}
         .chat-msg-send .chat-msg-avatar{margin-left:10px;}
         .chat-msg-recv .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-right: 5px solid #fff;left: -5px;top: 8px;}
@@ -36,7 +41,7 @@
         .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
         .chat-content-target-name{height:50px;padding:0 20px;}
         .chat-content-target-more{height:100%;padding:0 10px;}
-        .chat-conv-msg{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px;overflow-y:auto;}
+        .chat-conv-msg{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px 15px;overflow-y:auto;}
         .chat-content-drawer{position: absolute;top:50px;right:0;width:200px;background: #fff;z-index:3;height:100%;border:1px solid #eee;border-top-color: #ccc;}
         .chat-conv-del{padding-top:30px;}
         /* 过渡效果的定义 */
@@ -109,21 +114,34 @@
     <div class="chat-wrapper" @click="tapChatWindow">
         <div class="fl chat">
             <div class="chat-nav fl" ref="chatNav">
-                <div class="chat-nav-avatar fc" style="background: red;color:#fff;">我</div>
-                <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('conv')">消息</div>
+                <div class="chat-nav-avatar fc" style="background: #fff;color:#3a8ee6;margin-bottom:20px;">我</div>
+
+                <div class="fr chat-nav-item" @click="tapNav('conv')">
+                    <div class="fc chat-nav-item-bg" :class="{'chat-nav-item-active':currNav == 'conv'}">
+                        <el-badge :value="unreadNewFriendApply" :hidden="unreadConvTotal == 0" :is-dot="false">
+                            <i class="el-icon-chat-line-round chat-nav-icon"></i>
+                        </el-badge>
+                    </div>
                 </div>
-                <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('friend')">好友</div>
+                <div class="fr chat-nav-item"  @click="tapNav('friend')">
+                    <div class="fc chat-nav-item-bg" :class="{'chat-nav-item-active':currNav == 'friend'}">
+                        <el-badge :value="unreadNewFriendApply" :hidden="unreadNewFriendApply == 0" :is-dot="false">
+                            <i class="el-icon-user-solid chat-nav-icon"></i>
+                        </el-badge>
+                    </div>
                 </div>
-                <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('group')">群组</div>
+                <div class="fr chat-nav-item" @click="tapNav('group')">
+                    <div class="fc chat-nav-item-bg" :class="{'chat-nav-item-active':currNav == 'group'}">
+                        <el-badge :value="unreadNewGroupApply" :hidden="unreadNewGroupApply == 0" :is-dot="false">
+                            <svg t="1723361490120" class="chat-nav-item-group" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5565" width="30" height="30"><path d="M575.457882 507.512471c59.226353-23.476706 101.285647-81.212235 101.285647-148.690824 0-88.229647-71.785412-160-160.015058-160s-160 71.770353-160 160c0 67.478588 42.044235 125.214118 101.270588 148.690824-131.689412 27.226353-231.002353 144.097882-231.002353 283.738353 0 33.957647 23.823059 45.206588 42.962823 54.241882l1.099295 0.451765c77.176471 27.241412 188.792471 34.499765 242.582588 34.499764 58.654118 0 173.477647-9.517176 249.735529-35.855059 28.581647-10.962824 43.083294-28.912941 43.083294-53.338352 0-139.655529-99.312941-256.527059-231.002353-283.738353z" p-id="5566" fill="#fff"></path><path d="M382.780235 494.034824c-37.903059-35.343059-61.741176-85.564235-61.741176-141.477648 0-68.472471 35.644235-128.512 89.283765-162.93647v-0.015059c-0.331294-0.466824-0.813176-0.737882-1.189648-1.129412-0.391529-0.421647-0.632471-0.948706-1.099294-1.325176a160.301176 160.301176 0 0 0-100.141176-35.312941c-88.229647 0-160.015059 71.770353-160.015059 160 0 67.478588 42.059294 125.214118 101.285647 148.690823C117.458824 487.755294 18.160941 604.626824 18.160941 744.267294c0 24.440471 14.501647 42.375529 43.459765 53.488941 42.887529 14.817882 96.105412 23.356235 134.128941 27.994353a322.409412 322.409412 0 0 1-2.409412-38.731294c0-130.439529 77.778824-242.642824 189.44-292.98447zM786.808471 460.544c59.226353-23.476706 101.285647-81.212235 101.285647-148.690824 0-88.229647-71.785412-160-160.015059-160-36.939294 0-73.005176 12.905412-101.51153 36.321883l-4.246588 3.478588a193.400471 193.400471 0 0 1 85.940706 160.903529c0 55.913412-23.838118 106.134588-61.741176 141.477648 111.661176 50.341647 189.44 162.544941 189.44 292.98447 0 13.402353-0.918588 26.578824-2.499765 39.544471l0.798118-0.090353c39.137882-4.547765 95.216941-13.206588 140.483764-28.852706 28.581647-10.962824 43.083294-28.912941 43.083294-53.338353 0-139.655529-99.312941-256.527059-231.017411-283.738353z" p-id="5567" fill="#fff"></path></svg>
+                        </el-badge>
+                    </div>
                 </div>
-                <div class="chat-nav-item">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('call')">客服</div>
-                </div>
-                <div class="chat-nav-item" style="position: absolute;bottom:20px;">
-                    <div style="background: #ff6600;font-size: 12px;padding:5px;" @click="tapNav('logout')">退出</div>
+
+                <div class="fc chat-nav-item" style="position: absolute;bottom:20px;width:50px;">
+                    <div class="fc btn"  @click="tapNav('logout')">
+                        <svg t="1723363168072" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6614" width="25" height="25"><path d="M512 0c30.72 0 51.2 20.48 51.2 51.2v307.2c0 30.72-20.48 51.2-51.2 51.2s-51.2-20.48-51.2-51.2V51.2c0-30.72 20.48-51.2 51.2-51.2z" fill="#ffffff" p-id="6615"></path><path d="M512 1024C230.4 1024 0 793.6 0 512c0-158.72 71.68-302.08 194.56-399.36 20.48-15.36 56.32-15.36 71.68 10.24 15.36 20.48 10.24 51.2-10.24 66.56C158.72 271.36 102.4 389.12 102.4 512c0 225.28 184.32 409.6 409.6 409.6s409.6-184.32 409.6-409.6c0-128-56.32-240.64-153.6-322.56-20.48-15.36-25.6-51.2-10.24-71.68 15.36-20.48 51.2-25.6 71.68-10.24 122.88 102.4 194.56 245.76 194.56 404.48 0 281.6-230.4 512-512 512z" fill="#ffffff" p-id="6616"></path></svg>
+                    </div>
                 </div>
             </div>
             <div class="chat-social">
@@ -163,7 +181,7 @@
                     </div>
                     <div class="fb btn friend-new" @click="tapShowFriendNewApply">
                         <div class="fl friend-new-text">新朋友</div>
-                        <div class="fc friend-new-num" v-if="unreadNewFriendApply > 0">{{unreadNewFriendApply > 99 ? '99+':unreadNewFriendApply}}</div>
+                        <el-badge style="margin-top:5px;" v-if="unreadNewFriendApply > 0" :value="unreadNewFriendApply"  :max="99"></el-badge>
                     </div>
                     <div class="chat-friend-list">
                         <div class="fl btn friend-item" :class="{active:activeFriendIndex === index}" v-for="(item,index) in friendListCpd" :key="item.id" @click="tapFriendItem(index)">
@@ -175,9 +193,6 @@
                 </div>
                 <div class="chat-group" v-if="currNav == 'group'">
                     群组
-                </div>
-                <div class="chat-call" v-if="currNav == 'call'">
-                    客服
                 </div>
             </div>
             <div class="chat-content">
@@ -195,6 +210,7 @@
                     </div>
                     <div class="chat-conv-msg" ref="chatConvMsgWindow">
                         <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgList">
+                            <div class="fc chat-msg-time" v-if="item.isShowTime">{{formatConvTime(item.sendTime)}}</div>
                             <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
                                 <div class="chat-msg-wrapper">
                                     <div class="fl chat-msg-content">{{item.msgContent}}</div>
@@ -316,6 +332,9 @@
                     token:'',
                     Authorization:appToken
                 },
+                unreadConvTotal:0,
+                unreadNewGroupApply:0,
+                isCloudHis:true,
                 userInfo:{},
                 conn:null,
                 connHeartT:null,
@@ -367,8 +386,10 @@
                 this.headers.token = urlParams.get('token')
                 this.getUserInfo()
                 this.getMyFriendList()
-                //本地没有缓存，首次登陆，初始化获取消息列表
-                this.getMyCloudConvList()
+                //云消息记录时，获取会话列表
+                if (this.isCloudHis){
+                    this.getMyCloudConvList()
+                }
                 this.getMySysMsgUnreadList()
                 this.connectWs()
 
@@ -593,8 +614,13 @@
             },
             //点击会话列表中某个会话
             tapConvItem(index){
-                console.log(this.friendObj,this.convList[index])
-
+                //云消息记录，并且不是重复点击，获取历史记录
+                if (this.isCloudHis && index != this.activeConvIndex){
+                    //并且是需要有会话id的，不是刚创建的
+                    if (this.convList[index].conversationId){
+                        this.getChatMsgHisList(index)
+                    }
+                }
                 //设置当前会话选中状态
                 this.activeConvIndex = index
                 //激活会话的请求，处理未读消息等
@@ -608,25 +634,52 @@
                         if (this.$refs.chatInput.innerText !== '')this.moveCursorToEnd(this.$refs.chatInput);
                     }
                     //输入框聚焦
-                    console.log('222222')
                     this.$refs.chatInput.focus();
                 })
 
+            },
+            getChatMsgHisList(index){
+                let conversationId = this.convList[index].conversationId
+                request({
+                    url:apiImUrl + '/im/v1/conversation/getChatLog',
+                    headers:this.headers,
+                    data:{
+                        conversationId:conversationId,
+                        startSendAt:Math.floor(Date.now() / 1000)
+                    }
+                }).then(res=>{
+                    let convIndex  = this.convList.findIndex(item=>item.conversationId == conversationId)
+                    if (convIndex == -1) console.log('会话不存在')
+                    let total = res.list.length
+                    res.list.forEach((item,index)=>{
+                        if (index > 0){
+                            if (res.list[index-1].sendAtMs - item.sendAtMs > 300*1000) item.isShowTime = true
+                        }
+                        if (index+1 == total) item.isShowTime = true
+                        this.convList[convIndex].msgList.unshift(item)
+                    })
+                    this.$nextTick(()=>{
+                        this.scrollChatWindowToBottom()
+                    })
+                })
             },
             setUpConv(index){
                 //移除本地未读
                 if (this.convList[index].unread > 0){
                     this.convList[index].unread = 0
                 }
-                //记录窗口激活
-                return request({
-                    url:apiImUrl + '/im/v1/conversation/setUpUserConversation',
-                    headers:this.headers,
-                    data:{
-                        recvId:this.convList[index].targetId,
-                        chatType:this.convList[index].chatType,
-                    }
-                })
+                //云同步窗口激活
+                if (this.isCloudHis){
+                    return request({
+                        url:apiImUrl + '/im/v1/conversation/setUpMyConversation',
+                        headers:this.headers,
+                        data:{
+                            recvId:this.convList[index].targetId,
+                            chatType:this.convList[index].chatType,
+                        }
+                    })
+                }
+
             },
             tapCreateConv(){
                 this.currNav = "conv"
@@ -665,7 +718,8 @@
                 }
             },
             tapConvByFriend(friendInfo){
-                let findIndex = this.convList.findIndex(obj => obj.friendUid === friendInfo.friendUid);
+                //先查找用户的会话是否存在
+                let findIndex = this.convList.findIndex(obj => obj.targetId === friendInfo.friendUid);
                 if (findIndex !== -1) {
                     // 将目标对象从数组中删除
                     let [targetObj] = this.convList.splice(findIndex, 1);
@@ -676,7 +730,7 @@
                         chatType:2,
                         conversationId:'',
                         isShow:true,
-                        lastAt:Math.floor(Date.now() / 1000),
+                        lastAtMs:Date.now(),
                         lastMsg:'',
                         targetId:friendInfo.friendUid,
                         msgList:[],

@@ -9,15 +9,15 @@ import (
 	"net/http"
 )
 
-func SetUpUserConversationHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func SetUpMyConversationHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.SetUpUserConversationReq
+		var req types.SetUpMyConversationReq
 		if err := httpx.Parse(r, &req); err != nil {
 			httpx.OkJsonCtx(r.Context(), w, resd.Error(err))
 			return
 		}
-		l := conversation.NewSetUpUserConversationLogic(r.Context(), svcCtx)
-		resp, err := l.SetUpUserConversation(&req)
+		l := conversation.NewSetUpMyConversationLogic(r.Context(), svcCtx)
+		resp, err := l.SetUpMyConversation(&req)
 		if err != nil {
 			resd.ApiFail(w, r, err)
 		} else {

@@ -9,16 +9,16 @@ import (
 	"go-zero-dandan/app/im/api/internal/types"
 )
 
-type SetUpUserConversationLogic struct {
-	*SetUpUserConversationLogicGen
+type SetUpMyConversationLogic struct {
+	*SetUpMyConversationLogicGen
 }
 
-func NewSetUpUserConversationLogic(ctx context.Context, svc *svc.ServiceContext) *SetUpUserConversationLogic {
-	return &SetUpUserConversationLogic{
-		SetUpUserConversationLogicGen: NewSetUpUserConversationLogicGen(ctx, svc),
+func NewSetUpMyConversationLogic(ctx context.Context, svc *svc.ServiceContext) *SetUpMyConversationLogic {
+	return &SetUpMyConversationLogic{
+		SetUpMyConversationLogicGen: NewSetUpMyConversationLogicGen(ctx, svc),
 	}
 }
-func (l *SetUpUserConversationLogic) SetUpUserConversation(in *types.SetUpUserConversationReq) (resp *types.ResultResp, err error) {
+func (l *SetUpMyConversationLogic) SetUpMyConversation(in *types.SetUpMyConversationReq) (resp *types.ResultResp, err error) {
 	if err = l.initReq(in); err != nil {
 		return nil, l.resd.Error(err)
 	}

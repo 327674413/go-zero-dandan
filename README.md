@@ -26,7 +26,6 @@
 - ws里也接入国际化 与 打印调试
 - 确认下api和rpc 用户信息那块是否需要init
 - 完善im基础功能：好友、群组、聊天、公告、已读状态
-- 对rpc没启动时，报错信息是produced zero addresses的封装
 - trace_id需要延续到kafka吗？如何弄？
 # 笔记
 

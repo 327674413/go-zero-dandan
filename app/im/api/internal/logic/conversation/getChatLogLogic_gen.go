@@ -23,8 +23,8 @@ type GetChatLogLogicGen struct {
 	mustUserInfo bool
 	req          struct {
 		ConversationId string `json:"conversationId,optional"`
-		StartSendAt    int64  `json:"startSendTime,optional"`
-		EndSendAt      int64  `json:"endSendTime,optional"`
+		StartSendAt    int64  `json:"startSendAt,optional"`
+		EndSendAt      int64  `json:"endSendAt,optional"`
 		Count          int64  `json:"count,optional"`
 	}
 	hasReq struct {
