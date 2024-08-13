@@ -25,10 +25,10 @@
 
 
         .chat-msg-item{margin-bottom:20px;align-items: flex-start;}
-        .chat-msg-time{padding:10px;color:#808080;font-size: 13px;}
+        .chat-msg-time{padding:10px;color:#808080;font-size: 12px;}
         .chat-msg-state{padding:0 5px;font-size:12px;color:red;}
         .chat-msg-name{font-size:12px;color:#8a8a8a;padding:2px;}
-        .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;margin-bottom: 10px;position: relative;}
+        .chat-msg-content{border-radius: 8px;padding:10px;align-items: flex-end;position: relative;font-size: 14px;}
         .chat-msg-recv .chat-msg-content{background: #fff;}
         .chat-msg-send .chat-msg-content{background: #95EC69;}
         .chat-msg-avatar{width:50px;height:50px;flex-shrink:0;border-radius: 10px;color:#fff;}
@@ -36,12 +36,16 @@
         .chat-msg-send .chat-msg-avatar{margin-left:10px;}
         .chat-msg-recv .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-right: 5px solid #fff;left: -5px;top: 8px;}
         .chat-msg-send .chat-msg-content::after {content: '';position: absolute;width: 0;height: 0;border-top: 5px solid transparent;border-bottom: 5px solid transparent;border-left: 5px solid #95EC69;right: -5px;top: 8px;}
+        .chat-msg-state{font-size: 11px;height:18px;width:100%;align-items: flex-end;}
+        .chat-msg-state .state0{color:#3a8ee6;}
+        .chat-msg-state .state1{color:#909090;}
+        .chat-msg-state .state2{color:#3a8ee6;}
 
         .chat-content{box-sizing: border-box;height:100%;width: 100%;position: relative;}
         .chat-content-target{border-bottom: 1px solid #ccc;flex:0 0  50px;}
         .chat-content-target-name{height:50px;padding:0 20px;}
         .chat-content-target-more{height:100%;padding:0 10px;}
-        .chat-conv-msg-wrapper{flex-grow: 1;width: 100%;box-sizing: border-box;padding:10px 15px;position: relative;overflow: hidden;}
+        .chat-conv-msg-wrapper{flex-grow: 1;width: 100%;box-sizing: border-box;padding:0 15px;position: relative;overflow: hidden;}
         .chat-conv-msg{width:100%;height:100%;overflow-y:auto;}
         .chat-conv-msg-new-bottom{position: absolute;bottom:10px;left:50%;transform: translateX(-50%);color:#3a8ee6;font-size: 13px;box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);padding:5px 15px;border-radius: 30px;z-index:3;}
         .chat-conv-msg-new-bottom-icon{transform: rotate(90deg);font-size: 16px;margin-right:5px;}
@@ -216,11 +220,16 @@
                             <i class="chat-conv-msg-new-bottom-icon el-icon-d-arrow-right "></i> {{convList[activeConvIndex].unread}}条新消息
                         </div>
                         <div class="chat-conv-msg" ref="chatConvMsgWindow" @scroll="onChatConvMsgListScroll">
-                            <div class="chat-msg-item" v-for="item in convList[activeConvIndex].msgList">
+                            <div class="chat-msg-item" v-for="(item,index) in convList[activeConvIndex].msgList" :key="item.id"
+                                 :ref="'msgItem_' + index">
                                 <div class="fc chat-msg-time" v-if="item.isShowTime">{{formatConvTime(item.sendTime)}}</div>
                                 <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
                                     <div class="chat-msg-wrapper">
                                         <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                        <div class="fr chat-msg-state">
+                                            <div v-if="item.msgState == 0" class="state0">未读</div>
+                                            <div v-if="item.msgState == 1" class="state1">已读</div>
+                                        </div>
                                     </div>
                                     <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
                                     <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
@@ -333,6 +342,17 @@
     var apiUserUrl = "http://localhost:8801"
     var wsUrl = "http://localhost:8808"
     var appToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjQxMzMzMjYsImlhdCI6MTcxODA4NTMyNiwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.bvUAW1KWYTZOy2VEyfmSYKRpXYkYS5h0lRfiUQgYxL0'
+    function throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
     new Vue({
         el: '#app',
         data() {
@@ -376,6 +396,8 @@
                 showAddGroupDialog:false,
                 groupAddSearchList:[],
                 groupAddSearchListShowNone:false,
+                readQueue: new Set(), // 用于存储需要标记已读的消息
+                scrollTimeout: null   // 用于记录滚动停止的定时器
 
             }
         },
@@ -668,7 +690,72 @@
                     // 触发事件
                     this.onScrollNearBottom();
                 }
+
+                this.checkVisibleMessages();
+                // 如果有未处理的计时器，先清除
+                if (this.scrollTimeout) {
+                    clearTimeout(this.scrollTimeout);
+                }
+                // 重新设置一个计时器，滚动停止后再触发最后一次处理
+                this.scrollTimeout = setTimeout(() => {
+                    this.forceMarkAsRead();
+                }, 300); // 300ms 后触发
             },
+            throttledMarkAsRead: throttle(function() {
+                this.processReadQueue()
+            }, 500), // 每500毫秒批量处理一次
+            processReadQueue() {
+                if (this.readQueue.size > 0) {
+                    let list = []
+                    this.readQueue.forEach(msg => {
+                        list.push(msg)
+                    });
+                    this.markAsRead(list);
+                    this.readQueue.clear();
+                }
+            },
+            forceMarkAsRead() {
+                // 强制执行最后一次标记已读
+                this.processReadQueue();
+            },
+            isElementInViewport(el) {
+                const rect = el.querySelector('.chat-msg-content').getBoundingClientRect(); // 获取消息内容的边界
+                const containerRect = this.$refs.chatConvMsgWindow.getBoundingClientRect();
+
+                return (
+                    rect.top >= containerRect.top &&
+                    rect.bottom <= containerRect.bottom &&
+                    rect.bottom > containerRect.top && // 确保元素至少有部分是可见的
+                    rect.top < containerRect.bottom    // 确保元素至少有部分是可见的
+                );
+            },
+            checkVisibleMessages() {
+                this.$nextTick(() => {
+                    const msgList = this.convList[this.activeConvIndex].msgList;
+                    msgList.forEach((msg, index) => {
+                        // 使用节流的标记已读方法
+                        this.throttledMarkAsRead(msg);
+                        if (msg.msgState === 0) {
+                            const msgElement = this.$refs['msgItem_' + index][0]; // 获取对应的 DOM 元素
+                            if (this.isElementInViewport(msgElement)) {
+                                this.readQueue.add(msg);
+                            }
+                        }
+                    });
+                });
+            },
+            markAsRead(msgList) {
+                if (msgList) {
+                    msgList.forEach(msg => {
+                        msg.msgState = 1;
+                    });
+                }
+                this.sendReadStatusToServer(msgList);
+            },
+            sendReadStatusToServer(msgList){
+                console.log('触发标记已读',msgList)
+            },
+
             tapChatWindowMoreBottom(){
                 this.$refs.chatConvMsgWindow.scrollTop = this.$refs.chatConvMsgWindow.scrollHeight
             },
