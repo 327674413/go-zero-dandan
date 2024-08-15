@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>im前端测试</title>
     <link rel="stylesheet" href="static/css/element-ui.css">
     <link rel="stylesheet" href="static/css/common.css">
@@ -167,7 +168,7 @@
                                     <img v-if="friendObj[item.targetId] && friendObj[item.targetId].friendAvatarImg" :src="friendObj[item.targetId].friendAvatarImg" class="conv-avatar"  />
                                     <div class="conv-avatar conv-avatar-text fc" v-if="friendObj[item.targetId] && !friendObj[item.targetId].friendAvatarImg">{{friendObj[item.targetId].friendName.substring(0,1).toUpperCase()}}</div>
                                 </div>
-                               <div class="conv-content">
+                                <div class="conv-content">
                                     <div class="fb conv-content-top">
                                         <div class="conv-name" v-if="friendObj[item.targetId]">{{friendObj[item.targetId].friendAlias ? friendObj[item.targetId].friendAlias : friendObj[item.targetId].friendName}}</div>
                                         <div class="conv-date">{{formatConvTime(item.lastAtMs)}}</div>
@@ -334,6 +335,8 @@
 <script src="static/js/axios.js"></script>
 <script src="static/js/tool.js"></script>
 <script src="static/js/request.js"></script>
+<!--需要在http环境下才可以用，现在双击打开就先不启用了-->
+<!--<script src="static/js/sql-wasm.js"></script>-->
 <script>
     const MsgClasEmChat = 1
     const MsgClasEmNewFriendApply = 4
@@ -357,6 +360,7 @@
         el: '#app',
         data() {
             return {
+                db:null,
                 headers:{
                     token:'',
                     Authorization:appToken
@@ -403,6 +407,7 @@
         },
         created(){
             this.login()
+            //this.initSqlite() //使用sqlite时需要http换进，并引入上面注释的js文件
         },
         mounted() {
             this.$refs.app.style.display = "block"
@@ -410,6 +415,13 @@
         beforeDestroy() {
         },
         methods:{
+            initSqlite(){
+                initSqlJs({
+                    locateFile: file => `/static/js/${file}`  // 指定 wasm 文件的路径
+                }).then(SQL => {
+                    this.initDB(SQL);
+                });
+            },
             login(){
                 let urlParams = new URLSearchParams(window.location.search);
                 if (!urlParams.get('token')) {
@@ -481,6 +493,157 @@
             },
             sendMsg(msgData){
                 this.conn.send(JSON.stringify(msgData));
+                //this.saveLocal(msgData.data)
+            },
+            //将消息记录缓存到本地sqlite
+            saveLocal(chatLog){
+                chatLog.conversationId = this.convList[this.activeConvIndex].conversationId
+                // 数据库中实际存在的字段名
+                const validColumns = ['id', 'conversationId', 'sendId', 'recvId', 'sendAtMs', 'chatType', 'msgType',
+                    'msgContent', 'sendTime', 'msgState', 'msgReads', 'tempId', 'platId', 'updateAt', 'createAt'];
+
+                // 过滤掉 chatLog 对象中那些不在 validColumns 列表中的字段
+                const keys = Object.keys(chatLog).filter(key => validColumns.includes(key));
+                const values = keys.map(key => chatLog[key]);
+
+                // 如果 keys 或 values 为空，直接返回
+                if (keys.length === 0 || values.length === 0) {
+                    console.error("No valid fields to insert");
+                    return;
+                }
+
+                // 构建 INSERT 语句
+                const insertQuery = `
+                INSERT INTO chatLog (
+                    ${keys.join(', ')}
+                ) VALUES (
+                    ${keys.map(() => '?').join(', ')}
+                )`;
+
+                // 处理 undefined 的情况，替换为合适的默认值
+                const processedValues = values.map(value => {
+                    if (value === undefined) {
+                        return ''; // 或者根据需要返回 null, 0, etc.
+                    }
+                    return value;
+                });
+
+                try {
+                    const stmt = this.db.prepare(insertQuery);
+                    stmt.run(processedValues);
+                    stmt.free();
+                    this.saveDatabaseToIndexedDB(this.db)
+                } catch (error) {
+                    console.error("Error executing insert statement:", error);
+                }
+
+            },
+            //从sqlite里查询消息记录
+            queryChatLogs(conversationId, page, pageSize) {
+                const offset = (page - 1) * pageSize;
+                const stmt = this.db.prepare(`
+                    SELECT * FROM chatlog  WHERE conversationId = ?
+                    ORDER BY sendAtMs DESC
+                    LIMIT ? OFFSET ?
+                `);
+                const results = [];
+                stmt.bind([conversationId, pageSize, offset]);
+                while (stmt.step()) {
+                    results.push(stmt.getAsObject());
+                }
+
+                stmt.free();
+                return results;
+            },
+            // 将sqlite数据持久化到IndexedDB
+            saveDatabaseToIndexedDB(db) {
+                const indexedDBRequest = indexedDB.open("sqlite_database", 1);
+                indexedDBRequest.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains("databases")) {
+                        db.createObjectStore("databases");
+                    }
+                };
+
+                indexedDBRequest.onsuccess = (event) => {
+                    const indexedDB = event.target.result;
+                    const transaction = indexedDB.transaction(["databases"], "readwrite");
+                    const objectStore = transaction.objectStore("databases");
+
+                    // 使用SQL.js库的.serialize方法导出数据库为Uint8Array格式
+                    const binaryArray =  db.export()
+
+                    // 将导出的数据库二进制数据保存到IndexedDB中
+                    objectStore.put(binaryArray, "sqlite.db");
+
+                    transaction.oncomplete = () => {
+                        console.log("数据库保存到IndexedDB成功");
+                    };
+
+                    transaction.onerror = (event) => {
+                        console.error("数据库保存到IndexedDB失败", event);
+                    };
+                };
+
+                indexedDBRequest.onerror = (event) => {
+                    console.error("打开IndexedDB失败", event);
+                };
+            },
+
+            // 从 IndexedDB 恢复sqlite数据库
+            initDB(SQL) {
+                const indexedDBRequest = indexedDB.open("sqlite_database", 1);
+                indexedDBRequest.onsuccess = (event) => {
+                    const indexedDB = event.target.result;
+                    const transaction = indexedDB.transaction(["databases"], "readonly");
+                    const objectStore = transaction.objectStore("databases");
+                    const getRequest = objectStore.get("sqlite.db");
+
+                    getRequest.onsuccess = (event) => {
+                        const binaryArray = event.target.result;
+                        console.log(SQL,binaryArray)
+                        if (binaryArray) {
+                            // 从 IndexedDB 中读取到的二进制数据初始化 SQLite 数据库
+                            const db = new SQL.Database(new Uint8Array(binaryArray));
+                            this.db = db; // 将 db 实例存储到 Vue 组件的实例属性中
+
+                            console.log("数据库从 IndexedDB 成功加载并初始化");
+                        } else {
+                            console.log("没有找到已保存的数据库，可能是第一次加载");
+                            this.db = new SQL.Database(); // 如果没有数据，创建一个新的空数据库
+                            //使用 TEXT 类型存储 MongoDB 的 ObjectID
+                            //使用 INTEGER 类型存储时间戳
+                            //使用 BLOB 类型存储字节数组
+                            this.db.run(`
+                                CREATE TABLE IF NOT EXISTS chatLog (
+                                    id TEXT PRIMARY KEY,
+                                    conversationId TEXT NOT NULL DEFAULT '',
+                                    sendId TEXT NOT NULL DEFAULT '',
+                                    recvId TEXT NOT NULL DEFAULT '',
+                                    sendAtMs INTEGER NOT NULL DEFAULT 0,
+                                    chatType INTEGER NOT NULL DEFAULT 0,
+                                    msgType INTEGER NOT NULL DEFAULT 0,
+                                    msgContent TEXT,
+                                    sendTime TEXT NOT NULL DEFAULT '',
+                                    msgState INTEGER NOT NULL DEFAULT 0,
+                                    msgReads BLOB,
+                                    tempId TEXT NOT NULL DEFAULT '',
+                                    platId TEXT NOT NULL DEFAULT '',
+                                    updateAt TEXT NOT NULL DEFAULT 0,
+                                    createAt TEXT NOT NULL DEFAULT 0
+                                );
+                            `);
+                        }
+                    };
+
+                    getRequest.onerror = (event) => {
+                        console.error("从 IndexedDB 读取数据库失败", event);
+                    };
+                };
+
+                indexedDBRequest.onerror = (event) => {
+                    console.error("打开 IndexedDB 失败", event);
+                };
             },
             recvMsgHanler(msg){
                 if (!msg.data) return console.log("异常消息：",msg)
