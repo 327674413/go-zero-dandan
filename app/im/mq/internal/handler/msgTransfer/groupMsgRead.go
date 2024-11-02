@@ -98,8 +98,8 @@ func (t *groupMsgRead) mergePush(push *websocketd.Push) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.count++
-	for msgId, read := range push.MsgReads {
-		t.push.MsgReads[msgId] = read
+	for msgId, read := range push.ReadRecords {
+		t.push.ReadRecords[msgId] = read
 	}
 }
 

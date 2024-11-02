@@ -1,6 +1,7 @@
 package fmtd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -28,6 +29,12 @@ func (l *logger) Info(content ...any) {
 	for _, v := range content {
 		l.print(fmt.Sprintf("%v", v), "info")
 	}
+}
+
+// Json 转成json打印
+func (l *logger) Json(data any) {
+	v, _ := json.Marshal(data)
+	l.print(string(v), "info")
 }
 
 // Error 打印日志到控制台
@@ -71,6 +78,9 @@ func Info(content ...any) {
 // Error 方法，使用默认的调用者深度
 func Error(content ...any) {
 	WithCaller(2).Error(content...)
+}
+func Json(data any) {
+	WithCaller(2).Json(data)
 }
 func Fatal(content ...any) {
 	WithCaller(2).Error(content...)

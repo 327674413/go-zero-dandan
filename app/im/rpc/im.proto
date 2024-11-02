@@ -16,8 +16,9 @@ message ChatLog {
 	 int64 chatType = 7;
 	 string sendTime = 8;
 	 int64 sendAtMs = 9;
-	 bytes msgReads = 10;
-	 int64 msgState = 11;
+	 map<string, int32> readUsers = 10;
+	 int64 readTotalNo = 11;
+	 int64 msgState = 12;
 }
 message Conversation {
 	 string conversationId = 1;

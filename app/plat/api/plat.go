@@ -31,7 +31,11 @@ func main() {
 	}
 	server := rest.MustNewServer(c.RestConf, rest.WithUnauthorizedCallback(func(w http.ResponseWriter, r *http.Request, err error) {
 		resp := resd.NewResp(r.Context(), r.FormValue("lang"))
-		resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
+		if err.Error() == "Token is expired" {
+			resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlatExpired))
+		} else {
+			resd.ApiFail(w, r, resp.NewErr(resd.ErrAuthPlat))
+		}
 	}), rest.WithCustomCors(func(header http.Header) {
 		//跨域处理
 		header.Set("Access-Control-Allow-Origin", "*")

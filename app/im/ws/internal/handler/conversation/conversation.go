@@ -64,7 +64,6 @@ func MarkRead(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			server.Send(websocketd.NewErrMessage(err), conn)
 			return
 		}
-
 		err := svc.MsgReadTransferClient.Push(&kafkad.MsgMarkRead{
 			ChatType:       data.ChatType,
 			ConversationId: data.ConversationId,
@@ -72,7 +71,6 @@ func MarkRead(svc *svc.ServiceContext) websocketd.HandlerFunc {
 			RecvId:         data.RecvId,
 			MsgIds:         data.MsgIds,
 		})
-
 		if err != nil {
 			server.Send(websocketd.NewErrMessage(err), conn)
 			return

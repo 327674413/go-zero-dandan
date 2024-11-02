@@ -5,6 +5,7 @@ import (
 	"go-zero-dandan/app/im/ws/internal/svc"
 	"go-zero-dandan/app/im/ws/websocketd"
 	"go-zero-dandan/common/constd"
+	"go-zero-dandan/common/fmtd"
 )
 
 func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
@@ -26,6 +27,7 @@ func Push(svc *svc.ServiceContext) websocketd.HandlerFunc {
 
 func single(server *websocketd.Server, data *websocketd.Push, recvId string) error {
 	//发送
+	fmtd.Json(data)
 	rconn := server.GetConn(recvId)
 	if rconn == nil {
 		server.Info("推送用户id【", recvId, "】离线")
@@ -33,13 +35,15 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 		return nil
 	}
 	//普通聊天消息内容
-	if data.MsgClas == constd.MsgClasEmChat {
+	switch data.MsgClas {
+	//普通聊天
+	case constd.MsgClasEmChat:
 		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
 			ConversationId: data.ConversationId,
 			MsgContent:     data.MsgContent,
 			MsgType:        data.MsgType,
 			Id:             data.Id,
-			MsgReads:       data.MsgReads,
+			MsgState:       data.MsgState,
 			ChatType:       data.ChatType,
 			SendTime:       data.SendTime,
 			SendAtMs:       data.SendAtMs,
@@ -47,7 +51,22 @@ func single(server *websocketd.Server, data *websocketd.Push, recvId string) err
 			SendId:         data.SendId,
 			RecvId:         data.RecvId,
 		}), rconn)
-	} else {
+	//消息已读
+	case constd.MsgClasEmMarkRead:
+		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.Chat{
+			ConversationId: data.ConversationId,
+			MsgContent:     data.MsgContent,
+			MsgType:        data.MsgType,
+			Id:             data.Id,
+			ChatType:       data.ChatType,
+			SendTime:       data.SendTime,
+			SendAtMs:       data.SendAtMs,
+			MsgClas:        data.MsgClas,
+			SendId:         data.SendId,
+			RecvId:         data.RecvId,
+			ReadRecords:    data.ReadRecords,
+		}), rconn)
+	default:
 		return server.Send(websocketd.NewMessage(data.SendId, &websocketd.SysMsg{
 			MsgClas:    data.MsgClas,
 			MsgType:    data.MsgType,

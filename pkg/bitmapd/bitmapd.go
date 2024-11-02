@@ -32,7 +32,7 @@ func (t *Bitmap) SetId(id string) {
 	// 在这个byte中的哪个bit位置
 	bitIdx := idx % 8
 	// 设置值
-	t.bits[byteIdx] = 1 << bitIdx
+	t.bits[byteIdx] |= 1 << bitIdx
 }
 func (t *Bitmap) IsSetId(id string) bool {
 	// id在哪个bit

@@ -2,14 +2,14 @@ package msgTransfer
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"github.com/zeromicro/go-queue/kq"
 	"github.com/zeromicro/go-zero/core/logx"
 	"go-zero-dandan/app/im/mq/internal/svc"
 	"go-zero-dandan/app/im/mq/kafkad"
 	"go-zero-dandan/app/im/ws/websocketd"
-	"go-zero-dandan/pkg/bitmapd"
+	"go-zero-dandan/common/fmtd"
+	"go-zero-dandan/common/utild"
 	"sync"
 	"time"
 )
@@ -71,7 +71,7 @@ func (t *MsgReadTransfer) Consume(key, value string) error {
 		SendId:         data.SendId,
 		RecvId:         data.RecvId,
 		MsgClas:        websocketd.MsgClasMakeRead,
-		MsgReads:       readRecords,
+		ReadRecords:    readRecords,
 	}
 	switch data.ChatType {
 	case websocketd.ChatTypeSingle:
@@ -103,8 +103,9 @@ func (t *MsgReadTransfer) Consume(key, value string) error {
 	return nil
 }
 
-func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.MsgMarkRead) (map[string]string, error) {
-	res := make(map[string]string)
+// UpdateChatLogRead 根据消息id列表，更新消息的已读状态，返回消息列表数据
+func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.MsgMarkRead) (map[string]map[string]int32, error) {
+	res := make(map[string]map[string]int32)
 	chatLogs, err := t.svc.ChatLogModel.ListByMsgIds(ctx, data.MsgIds)
 	if err != nil {
 		return nil, err
@@ -113,15 +114,16 @@ func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.Ms
 	for _, chatLog := range chatLogs {
 		switch chatLog.ChatType {
 		case websocketd.ChatTypeSingle:
-			chatLog.MsgReads = []byte{1}
+			chatLog.ReadUsers[utild.UidToCode(data.SendId)] = 1
 		case websocketd.ChatTypeGroup:
-			readRecords := bitmapd.Load(chatLog.MsgReads)
-			readRecords.SetId(data.SendId)
-			chatLog.MsgReads = readRecords.Export()
+			chatLog.ReadUsers[utild.UidToCode(data.SendId)] = 1
+			//readRecords := bitmapd.Load(chatLog.MsgReads)
+			//readRecords.SetId(data.SendId)
+			//chatLog.MsgReads = readRecords.Export()
+
 		}
-		//为了保证精度，转成base64返回给前端判断已读状态
-		res[chatLog.ID.Hex()] = base64.StdEncoding.EncodeToString(chatLog.MsgReads)
-		err = t.svc.ChatLogModel.UpdateMakeRead(ctx, chatLog.ID, chatLog.MsgReads)
+		res[chatLog.ID.Hex()] = chatLog.ReadUsers
+		err = t.svc.ChatLogModel.UpdateMakeRead(ctx, chatLog)
 		if err != nil {
 			return nil, err
 		}
@@ -131,14 +133,13 @@ func (t *MsgReadTransfer) UpdateChatLogRead(ctx context.Context, data *kafkad.Ms
 
 func (t *MsgReadTransfer) transfer() {
 	for push := range t.push {
-		logx.Infof("消息转化：推送进来了%v", push.ConversationId)
+		fmtd.Json(push)
 		if push.RecvId != "" || len(push.RecvIds) > 0 {
-			// 问题排查到这里了，好像消息是发了，但是没收到，应该在这里！！！！！！再试一下非群聊是不是能收到？？？？？
+			//私聊用recvId，群聊用recvIds
 			if err := t.Transfer(context.Background(), push); err != nil {
 				logx.Errorf("推送消息失败：%v", err)
 			}
 		}
-		logx.Infof("消息转化：没有发送对象%v", push.ConversationId)
 		//私聊
 		if push.ChatType == websocketd.ChatTypeSingle {
 			logx.Info("消息转化：私聊结束")

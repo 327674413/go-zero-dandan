@@ -19,8 +19,7 @@ services:
       - 2379:2379
       - 2380:2380
     networks:
-      dandan_net:
-        ipv4_address: 172.20.0.2
+      - dandan_net
   redis:
     container_name: redis
     image: redis:7.0

@@ -175,16 +175,17 @@ type SetMySysMsgReadByIdReq struct {
 }
 
 type ChatLog struct {
-	Id             string `json:"id"`
-	ConversationId string `json:"conversationId"`
-	SendId         string `json:"sendId"`
-	RecvId         string `json:"recvId"`
-	MsgType        int64  `json:"msgType"`
-	MsgContent     string `json:"msgContent"`
-	ChatType       int64  `json:"chatType"`
-	SendTime       string `json:"sendTime"`
-	SendAtMs       int64  `json:"sendAtMs"`
-	MsgState       int64  `json:"msgState"`
+	Id             string           `json:"id"`
+	ConversationId string           `json:"conversationId"`
+	SendId         string           `json:"sendId"`
+	RecvId         string           `json:"recvId"`
+	MsgType        int64            `json:"msgType"`
+	MsgContent     string           `json:"msgContent"`
+	ChatType       int64            `json:"chatType"`
+	SendTime       string           `json:"sendTime"`
+	SendAtMs       int64            `json:"sendAtMs"`
+	ReadUsers      map[string]int64 `json:"readUsers"`
+	MsgState       int64            `json:"msgState"`
 }
 
 type Conversation struct {

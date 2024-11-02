@@ -8,6 +8,7 @@ type ChatLog {
     ChatType       int64 `json:"chatType"`
     SendTime       string  `json:"sendTime"`
     SendAtMs          int64  `json:"sendAtMs"`
+    ReadUsers   map[string]int64 `json:"readUsers"`
     MsgState int64 `json:"msgState"`
 }
 type Conversation {

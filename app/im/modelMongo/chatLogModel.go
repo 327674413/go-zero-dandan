@@ -17,7 +17,7 @@ type (
 		chatLogModel
 		ListBySendTime(ctx context.Context, conversationId string, startSendTime, endSendTime, limit int64) ([]*ChatLog, error)
 		ListByMsgIds(ctx context.Context, msgIds []string) ([]*ChatLog, error)
-		UpdateMakeRead(ctx context.Context, id primitive.ObjectID, readRecords []byte) error
+		UpdateMakeRead(ctx context.Context, chatLog *ChatLog) error
 	}
 
 	customChatLogModel struct {
@@ -92,7 +92,7 @@ func (m *defaultChatLogModel) ListBySendTime(ctx context.Context, conversationId
 		return nil, err
 	}
 }
-func (m *defaultChatLogModel) UpdateMakeRead(ctx context.Context, id primitive.ObjectID, readRecords []byte) error {
-	_, err := m.conn.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": bson.M{"readRecords": readRecords}})
+func (m *defaultChatLogModel) UpdateMakeRead(ctx context.Context, chatLog *ChatLog) error {
+	_, err := m.conn.UpdateOne(ctx, bson.M{"_id": chatLog.ID}, bson.M{"$set": bson.M{"readUsers": chatLog.ReadUsers}})
 	return err
 }

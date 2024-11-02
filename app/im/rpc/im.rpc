@@ -10,7 +10,8 @@ type ChatLog {
   ChatType int64
   SendTime string
   SendAtMs int64
-  MsgReads []byte
+  ReadUsers map[string]int32
+  ReadTotalNo int64
   MsgState int64
 }
 type Conversation {

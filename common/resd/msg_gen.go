@@ -8,6 +8,7 @@ func init() {
 	msg[ErrAuthOperateState] = "ErrAuthOperateState"
 	msg[ErrAuthOperateUser] = "ErrAuthOperateUser"
 	msg[ErrAuthPlat] = "ErrAuthPlat"
+	msg[ErrAuthPlatExpired] = "ErrAuthPlatExpired"
 	msg[ErrAuthUserNotLogin] = "ErrAuthUserNotLogin"
 	msg[ErrConfigNotInit1] = "ErrConfigNotInit1"
 	msg[ErrCopier] = "ErrCopier"
@@ -92,6 +93,7 @@ const (
 	ErrAuthOperateState                = 40302
 	ErrAuthOperateUser                 = 40301
 	ErrAuthPlat                        = 40101
+	ErrAuthPlatExpired                 = 40102
 	ErrAuthUserNotLogin                = 40201
 	ErrConfigNotInit1                  = 603
 	ErrCopier                          = 521

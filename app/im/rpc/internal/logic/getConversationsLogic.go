@@ -68,7 +68,7 @@ func (l *GetConversationsLogic) GetConversations(in *imRpc.GetConversationsReq) 
 				ChatType:       int64(item.LastMsg.ChatType),
 				SendTime:       item.LastMsg.SendTime,
 				SendAtMs:       item.LastMsg.SendAtMs,
-				MsgReads:       item.LastMsg.MsgReads,
+				MsgState:       item.LastMsg.MsgState,
 			}
 			res.ConversationList[item.ConversationId].LastAtMs = item.LastMsg.SendAtMs
 		}

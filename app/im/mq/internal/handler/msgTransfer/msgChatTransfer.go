@@ -10,7 +10,7 @@ import (
 	"go-zero-dandan/common/constd"
 	"go-zero-dandan/common/fmtd"
 	"go-zero-dandan/common/resd"
-	"go-zero-dandan/pkg/bitmapd"
+	"go-zero-dandan/common/utild"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -57,6 +57,7 @@ func (t *MsgChatTransfer) Consume(key, value string) error {
 func (t *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.ObjectID, data *kafkad.MsgChatTransfer) error {
 	chatLog := modelMongo.ChatLog{
 		ID:             msgId,
+		MsgId:          data.MsgId,
 		ChatType:       data.ChatType,
 		MsgType:        data.MsgType,
 		SendTime:       data.SendTime,
@@ -69,9 +70,8 @@ func (t *MsgChatTransfer) addChatLog(ctx context.Context, msgId primitive.Object
 	}
 	fmtd.Info(chatLog.SendAtMs)
 	//将此条消息的发送者设置为已读(每条消息都记录是否已读方式)
-	readRecords := bitmapd.NewBitmap()
-	readRecords.SetId(chatLog.SendId)
-	chatLog.MsgReads = readRecords.Export()
+	chatLog.ReadUsers = make(map[string]int32)
+	chatLog.ReadUsers[utild.UidToCode(chatLog.SendId)] = 1
 	//存储消息数据
 	err := t.svc.ChatLogModel.Insert(ctx, &chatLog)
 	if err != nil {

@@ -36,6 +36,7 @@ const (
 	MsgClasSysAnnounceNew      = constd.MsgClasEmSysAnnounceNew
 	MsgClasFriendApplyNew      = constd.MsgClasEmFriendApplyNew
 	MsgClasFriendApplyOperated = constd.MsgClasEmFriendApplyOperated
+	MsgClasMarkSend            = constd.MsgClasEmMarkSend
 )
 
 func (t AckType) ToString() string {
@@ -56,8 +57,9 @@ type (
 		SendId         string `mapstructure:"sendId" json:"sendId"`
 		RecvId         string `mapstructure:"recvId" json:"recvId"`
 		MsgType        `mapstructure:"msgType" json:"msgType"`
-		MsgContent     string            `mapstructure:"msgContent" json:"msgContent"`
-		MsgReads       map[string]string `mapstructure:"msgReads" json:"msgReads"`
+		MsgContent     string                      `mapstructure:"msgContent" json:"msgContent"`
+		ReadRecords    map[string]map[string]int32 `mapstructure:"readRecords" json:"readRecords"`
+		MsgState       int64                       `mapstructure:"msgState" json:"msgState"`
 		ChatType       `mapstructure:"chatType" json:"chatType"`
 		MsgClas        `mapstructure:"msgClas" json:"msgClas"`
 		SendTime       string `mapstructure:"sendTime" json:"sendTime"`
@@ -75,7 +77,8 @@ type (
 		RecvIds        []string                                `mapstructure:"recvIds" json:"recvIds"`
 		SendTime       string                                  `mapstructure:"sendTime" json:"sendTime"`
 		SendAtMs       int64                                   `mapstructure:"sendAtMs" json:"sendAtMs"`
-		MsgReads       map[string]string                       `mapstructure:"msgReads" json:"msgReads"`
+		ReadRecords    map[string]map[string]int32             `mapstructure:"readRecords" json:"readRecords"` //消息id为key，消息已读情况为value的暂存群聊已读
+		MsgState       int64                                   `mapstructure:"msgState" json:"msgState"`
 		MsgClas        MsgClas                                 `mapstructure:"msgClas" json:"msgClas"` //业务类型：0聊天消息 1消息已读等
 		MsgType        `mapstructure:"msgType" json:"msgType"` //消息数据类型：文本消息、图片消息等
 		MsgContent     string                                  `mapstructure:"msgContent" json:"msgContent"`

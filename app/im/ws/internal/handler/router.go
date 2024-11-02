@@ -20,7 +20,7 @@ func RegisterHandlers(server *websocketd.Server, svc *svc.ServiceContext) {
 			Handler: conversation.Chat(svc),
 		},
 		{
-			Method:  "conversation.markChat", //标记消息已读
+			Method:  "conversation.markRead", //标记消息已读
 			Handler: conversation.MarkRead(svc),
 		},
 		{

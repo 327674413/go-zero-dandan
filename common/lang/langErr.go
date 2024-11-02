@@ -12,6 +12,7 @@ var Errs = []*langErr{
 	// 4开头权限类
 	{400, "ErrAuth", "权限异常"},
 	{40101, "ErrAuthPlat", "无效应用"},
+	{40102, "ErrAuthPlatExpired", "应用token已失效"},
 	{40201, "ErrAuthUserNotLogin", "您还未登录"},
 	{40301, "ErrAuthOperateUser", "用户无操作权限"},
 	{40302, "ErrAuthOperateState", "数据状态不允许操作"},

@@ -41,7 +41,8 @@ func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLog
 					RecvId:         chatLog.RecvId,
 					SendId:         chatLog.SendId,
 					MsgContent:     chatLog.MsgContent,
-					MsgReads:       chatLog.MsgReads,
+					ReadUsers:      chatLog.ReadUsers,
+					ReadTotalNo:    chatLog.ReadTotalNo,
 				},
 			},
 		}, nil
@@ -62,7 +63,8 @@ func (l *GetChatLogLogic) GetChatLog(in *imRpc.GetChatLogReq) (*imRpc.GetChatLog
 			RecvId:         item.RecvId,
 			SendId:         item.SendId,
 			MsgContent:     item.MsgContent,
-			MsgReads:       item.MsgReads,
+			ReadUsers:      item.ReadUsers,
+			ReadTotalNo:    item.ReadTotalNo,
 			SendAtMs:       item.SendAtMs,
 			MsgState:       item.MsgState,
 		})
