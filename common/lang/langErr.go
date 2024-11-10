@@ -14,6 +14,7 @@ var Errs = []*langErr{
 	{40101, "ErrAuthPlat", "无效应用"},
 	{40102, "ErrAuthPlatExpired", "应用token已失效"},
 	{40201, "ErrAuthUserNotLogin", "您还未登录"},
+	{40202, "ErrLoginAcctOrPassInvalid", "账号或密码错误"},
 	{40301, "ErrAuthOperateUser", "用户无操作权限"},
 	{40302, "ErrAuthOperateState", "数据状态不允许操作"},
 	{40501, "ErrReqRateLimit", "请求太频繁，请休息一会"},
@@ -59,7 +60,13 @@ var Errs = []*langErr{
 	{521, "ErrCopier", "内部数据格式转换失败"},
 	{510, "ErrRpcResDecode", "RpcResDecode"},
 	{51001, "ErrRpcMissMeta", "缺失meta信息"},
-
+	// 505 CURL
+	{50501, "ErrCurlCreate", "创建http请求失败"},
+	{50502, "ErrCurlSend", "发送http请求失败"},
+	{50503, "ErrCurlSteamNotSupported", "不支持的流式请求"},
+	{50504, "ErrCurlSteamScan", "获取流式数据出错"},
+	// 506 io
+	{50601, "ErrIoRead", "获取数据失败"},
 	//业务类
 	{600, "ErrReqKeyRequired", "未提供主键"},
 	{601, "ErrReqFieldRequired1", "缺少参数{{.Field1}}"},
@@ -98,5 +105,8 @@ var Errs = []*langErr{
 	{63000003, "ErrSocialNotAddSelf", "不能添加自己为好友"},
 	{63000004, "ErrCreateConversation", "创建会话失败"},
 	{660, "ErrDataBiz", "业务数据异常"},
-	{700, "ErrTrdSmsSend", "TrdSmsSend"},
+	//700 三方平台
+	{70001, "ErrTrdNotFound", "三方服务未找到"},
+	{70101, "ErrTrdSmsSend", "短信发送失败"},
+	{72002, "ErrTrdDifyChatStream", "发送ai流式信息失败"},
 }

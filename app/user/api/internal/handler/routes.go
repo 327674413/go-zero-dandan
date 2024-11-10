@@ -28,6 +28,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					Method:  http.MethodPost,
+					Path:    "/loginByAccount",
+					Handler: account.LoginByAccountHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodPost,
 					Path:    "/getPhoneVerifyCode",
 					Handler: account.GetPhoneVerifyCodeHandler(serverCtx),
 				},

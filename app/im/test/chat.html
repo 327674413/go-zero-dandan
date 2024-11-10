@@ -71,6 +71,7 @@
 
         .chat-content-friend{height:100%;}
         .chat-content-conv{height:100%;display: flex;flex-direction: column;}
+        .chat-conv{height:100%;}
         .chat-conv-input {width: 100%;flex-grow:1;border: none;padding: 5px;resize: none;overflow-y: auto;box-sizing: border-box;white-space: pre-wrap;word-break: break-word;}
         .chat-conv-input:focus {outline: none;}
         .chat-conv-form{flex:0 0 200px;display: flex;flex-direction: column;border-top:1px solid #ccc;}
@@ -99,6 +100,7 @@
 
         .search-result{padding:50px 30px;}
 
+        .conv-list{overflow-y:auto;height: 100%;}
         .conv-list .active{background: #eee;}
         .conv-item{padding:10px;width:100%;}
         .conv-item:hover{cursor: pointer;}
@@ -145,7 +147,11 @@
                         </el-badge>
                     </div>
                 </div>
-
+                <div class="fr chat-nav-item" @click="tapNav('llm')">
+                    <div class="fc chat-nav-item-bg" :class="{'chat-nav-item-active':currNav == 'llm'}">
+                        <svg t="1730516950798" class="chat-nav-item-group" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11972" width="32" height="32"><path d="M539.70311902 245.19566222v-71.19960494c21.23042765-12.55702124 34.30526419-35.7292563 34.17581037-60.84329876 0.25890765-38.05942518-29.64492642-69.1283437-66.79817482-69.51670519-17.86462815 0.12945383-34.95253333 7.63777581-47.50955457 20.58315852a69.30957906 69.30957906 0 0 0-19.28862025 48.93354667c0 26.02021925 13.72210569 48.54518518 33.91690272 60.58439111v71.32905876H236.39280197c-111.0713837 0-201.04179358 93.72457086-201.1712474 209.45629236v284.66896592c0 115.60226765 89.97040987 209.45629235 201.04179358 209.58574616h541.37590518c110.94192987-0.12945383 200.91233975-93.98347852 200.91233976-209.58574616V454.65195457c-0.12945383-115.60226765-90.0998637-209.32683852-201.04179359-209.45629235H539.70311902zM329.08174222 516.2719763c43.10812445 0.38836148 77.80175013 36.50597925 77.54284247 80.64973431 0.38836148 44.27320889-34.30526419 80.39082667-77.54284247 80.77918815-20.71261235-0.12945383-40.64850173-8.80286025-55.14733037-23.94895801-14.49882864-15.14609778-22.65441975-35.59980247-22.52496593-56.83023014-0.25890765-44.14375506 34.56417185-80.26137283 77.6722963-80.64973431z m355.22130173 0c43.10812445 0.38836148 77.80175013 36.50597925 77.54284247 80.64973431 0 32.75181827-18.90025876 62.13783703-47.76846223 74.56540445-28.99765728 12.55702124-62.52619852 5.56651457-84.53334913-17.34681284-22.26605827-23.30168889-28.86820347-57.99531457-16.82899753-88.1580563 11.78029827-29.90383408 40.13068642-49.58081581 71.58796642-49.71026962z m0 0" p-id="11973" fill="#ffffff"></path></svg>
+                    </div>
+                </div>
                 <div class="fc chat-nav-item" style="position: absolute;bottom:20px;width:50px;">
                     <div class="fc btn"  @click="tapNav('logout')">
                         <svg t="1723363168072" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6614" width="25" height="25"><path d="M512 0c30.72 0 51.2 20.48 51.2 51.2v307.2c0 30.72-20.48 51.2-51.2 51.2s-51.2-20.48-51.2-51.2V51.2c0-30.72 20.48-51.2 51.2-51.2z" fill="#ffffff" p-id="6615"></path><path d="M512 1024C230.4 1024 0 793.6 0 512c0-158.72 71.68-302.08 194.56-399.36 20.48-15.36 56.32-15.36 71.68 10.24 15.36 20.48 10.24 51.2-10.24 66.56C158.72 271.36 102.4 389.12 102.4 512c0 225.28 184.32 409.6 409.6 409.6s409.6-184.32 409.6-409.6c0-128-56.32-240.64-153.6-322.56-20.48-15.36-25.6-51.2-10.24-71.68 15.36-20.48 51.2-25.6 71.68-10.24 122.88 102.4 194.56 245.76 194.56 404.48 0 281.6-230.4 512-512 512z" fill="#ffffff" p-id="6616"></path></svg>
@@ -176,6 +182,19 @@
                                     <div class="fl conv-content-bottom">
                                         <div class="conv-chat" v-if="activeConvIndex !== index && item.inputMsg"><span style="color:red;padding-right:4px;">[草稿]</span>{{item.inputMsg}}</div>
                                         <div class="conv-chat" v-if="item.lastMsg">{{item.lastMsg.msgContent}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-conv" v-if="currNav == 'llm'">
+                    <div class="conv-list" style="padding-top:10px;">
+                        <div class="fl conv-item-wrapper" :class="{active:index == activeLlmConvIndex}" @click="tapLlmConvItem(index)" v-for="(item,index) in llmConvList" :key="item.id">
+                            <div class="fl conv-item">
+                                <div class="conv-content">
+                                    <div class="fb conv-content-top">
+                                        <div class="conv-llm" style="">{{item.name}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -258,6 +277,58 @@
                             </div>
                         </div>
                         <div class="chat-conv-input" contenteditable="true" placeholder="按回车键可以发送"  @input="chatInputUpdate" @compositionstart="chatCompositionStart" @compositionend="chatCompositionEnd"  @keydown="chatInputEnter" ref="chatInput"></div>
+                    </div>
+                </div>
+                <div class="chat-content-conv" v-if="currNav == 'llm'">
+                    <div class="fb chat-content-target">
+                        <div class="fl chat-content-target-name">会话：1</div>
+                        <div class="fl btn chat-content-target-more" @click="showConvDrawer = true" ref="convDrawerBtn"><i class="el-icon-more"></i></div>
+                    </div>
+                    <div class="chat-conv-msg-wrapper" v-if="llmConvListCurrId">
+                        <div class="fc chat-conv-msg-new-bottom btn" v-if="showChatWindowMoreBottom" @click.stop="tapChatWindowMoreBottom">
+                            <i class="chat-conv-msg-new-bottom-icon el-icon-d-arrow-right "></i> {{llmConvList[activeLlmConvIndex].unread}}条新消息
+                        </div>
+                        <div class="chat-conv-msg" ref="chatConvMsgWindow">
+                            <div class="chat-msg-item" v-for="(item,index) in llmConvListObj[llmConvListCurrId].msgList" :key="item.id"
+                                 :ref="'msgItem_' + index">
+                                <div class="fc chat-msg-time" v-if="item.isShowTime">{{formatConvTime(item.sendTime)}}</div>
+                                <div class="fr chat-msg-item chat-msg-send" v-if="item.sendId == userInfo.id">
+                                    <div class="chat-msg-wrapper">
+                                        <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                        <div class="fr chat-msg-state">
+<!--                                            <div v-if="item.msgState == 0" class="state0">未读</div>-->
+<!--                                            <div v-if="item.msgState == 1" class="state1">已读</div>-->
+                                        </div>
+                                    </div>
+                                    <img :src="userInfo.avatarImg" class="chat-msg-avatar" v-if="userInfo.avatarImg" />
+                                    <div class="chat-msg-avatar friend-avatar-text fc" v-if="!userInfo.avatarImg">{{userInfo.nickname.substring(0,1).toUpperCase()}}</div>
+                                </div>
+                                <div class="fl chat-msg-item chat-msg-recv" v-if="item.sendId != userInfo.id">
+<!--                                    <img :src="friendObj[item.sendId].friendIcon" class="chat-msg-avatar" v-if="friendObj[item.sendId].friendIcon" />-->
+<!--                                    <div class="chat-msg-avatar friend-avatar-text fc" v-if="!friendObj[item.sendId].friendIcon">{{friendObj[item.sendId].friendName.substring(0,1).toUpperCase()}}</div>-->
+                                    <div class="chat-msg-avatar friend-avatar-text fc">AI</div>
+                                    <div class="chat-msg-wrapper">
+                                        <div class="fl chat-msg-name">AI小助手</div>
+                                        <div class="fl chat-msg-content">{{item.msgContent}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fc chat-conv-msg-wrapper" v-else>
+                        <div class="fc">开始对话吧～</div>
+                    </div>
+                    <div class="chat-conv-form">
+                        <div class="fb chat-conv-tool">
+                            <div class="fl">
+                                <div class="chat-conv-tool-item"><i class="el-icon-picture-outline chat-conv-tool-btn"></i></div>
+                                <div class="chat-conv-tool-item"><i class="el-icon-chat-dot-round chat-conv-tool-btn"></i></div>
+                            </div>
+                            <div class="fl">
+                                <div style="color:#ccc;font-size: 14px;">使用Enter键发送消息</div>
+                            </div>
+                        </div>
+                        <div class="chat-conv-input" contenteditable="true" placeholder="按回车键可以发送"  @input="llmInputUpdate" @compositionstart="chatCompositionStart" @compositionend="chatCompositionEnd"  @keydown="llmInputEnter" ref="llmInput"></div>
                     </div>
                 </div>
                 <div class="chat-content-friend" v-if="currNav == 'friend'">
@@ -347,6 +418,13 @@
     var apiUserUrl = "http://localhost:8801"
     var wsUrl = "http://localhost:8808"
     var appToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzY1NjE2ODgsImlhdCI6MTczMDUxMzY4OCwicGxhdENsYXNFbSI6MSwicGxhdElkIjoiMSJ9.OhwMM4l_UHtIXqzDFLtRNsattHAtkFuNgBZisf2N6Zw'
+    // var difyApiKey = 'app-8Fxi5VMcFez2UwyBnPnYcJhX' //本地
+    // var difyUrl = 'http://127.0.0.1:8070/v1' // 本地
+    // var difyUrl = 'http://localhost:8089/v1' //gin后端
+    // var difyApiKey = 'app-NPbrmyq5ACrvCPEHJQiRVuM5' //gin后端
+    var difyUrl = 'http://localhost:8824/v1' //gozero后端
+    var difyApiKey = 'app-NPbrmyq5ACrvCPEHJQiRVuM5' //gozero后端
+    var isGozero = true
     function throttle(func, limit) {
         let inThrottle;
         return function(...args) {
@@ -367,6 +445,7 @@
                     token:'',
                     Authorization:appToken
                 },
+                difyHeaders:{Authorization:'Bearer '+difyApiKey},
                 isConvInitScroll:false,
                 unreadConvTotal:0,
                 unreadNewGroupApply:0,
@@ -383,7 +462,13 @@
                 showChatWindowMoreBottom:false,
                 vshowChatWindowMoreTop:false,
                 convList:[],
+                llmConvList:[],
+                llmConvListObj:{},
+                llmConvListCurrId:'',
+                llmSendChatState:0,//0无发送，1有发送
+                llmTempMsg:'',//无会话时的临时对话存储信息
                 activeConvIndex:-1,
+                activeLlmConvIndex:-1,
                 activeFriendIndex:-1,
                 searchFriendVal:'',
                 searchNewFriendVal:'',
@@ -865,6 +950,167 @@
             tapShowConvAdd(){
 
             },
+            tapLlmConvItem(index){
+                this.llmConvListCurrId = this.llmConvList[index].id
+                this.activeLlmConvIndex = index
+                this.getLlmConvDetail(this.llmConvList[index])
+            },
+            getLlmConvDetail(conv){
+                this.llmConvListObj[this.llmConvListCurrId].msgList = []
+                axios({
+                    url:difyUrl + '/messages',
+                    headers:this.difyHeaders,
+                    method:'get',
+                    params: {
+                        user:this.userInfo.id,
+                        conversation_id:conv.id
+                    }
+                }).then(res=>{
+                    let list = []
+                    res.data.data.forEach(item=>{
+                        list.push({
+                            chatType: 2,
+                            recvId:'dify_app_id1',
+                            sendId:this.userInfo.id,
+                            tempId: item.id+'_q', // 临时id，时间戳+9位长度的随机数,
+                            sendAtMs:item.created_at*1000 , //先用来显示消息时间排序用，
+                            msgContent: item.query,
+                            msgType:1,
+                            msgState:0,//刚发的，未读状态
+                        })
+                        list.push({
+                            chatType: 2,
+                            recvId:this.userInfo.id,
+                            sendId:'dify_app_id1',
+                            tempId: item.id+'_a', // 临时id，时间戳+9位长度的随机数,
+                            sendAtMs:item.created_at*1000 , //先用来显示消息时间排序用，
+                            msgContent: item.answer,
+                            msgType:1,
+                            msgState:0,//刚发的，未读状态
+                        })
+                    })
+                    this.llmConvListObj[this.llmConvListCurrId].msgList = list
+                })
+            },
+            sendLlmMsg(){
+                if (this.llmSendChatState == 1){
+                    return tool.toast('请先等待回复完成')
+                }
+                let content = this.$refs.llmInput.innerText.trim()
+                if (content == "") return
+                this.$refs.llmInput.innerText = ''
+                let currConv = {}
+                if (this.llmConvListCurrId){
+                    this.llmConvListObj[this.llmConvListCurrId].inputMsg = ''
+                    currConv = this.llmConvListObj[this.llmConvListCurrId]
+                } else {
+                    this.llmConvListCurrId = 'temp'
+                    currConv ={
+                        chatType:2,
+                        conversationId:'',
+                        isShow:true,
+                        lastAtMs:Date.now(),
+                        lastMsg:'',
+                        targetId:'dify_app_id1',
+                        msgList:[],
+                        seq:0,
+                        total:0
+                    }
+                }
+                this.llmSendChatState = 1
+                let msgData = {
+                    chatType: 2,
+                    recvId:'dify_app_id1',
+                    sendId:this.userInfo.id,
+                    tempId: Date.now() + '' + (Math.floor(Math.random() * 900000000) + 100000000), // 临时id，时间戳+9位长度的随机数,
+                    sendAtMs:Date.now() , //先用来显示消息时间排序用，
+                    msgContent: content,
+                    msgType:1,
+                    msgState:0,//刚发的，未读状态
+                }
+                currConv.msgList.push(msgData)
+                currConv.lastMsg = msgData
+                currConv.lastAtMs = msgData.sendAtMs
+                currConv.seq++
+                currConv.total++
+                this.$set(this.llmConvListObj,this.llmConvListCurrId,currConv)
+                let streamUrl = difyUrl + '/chat-messages'
+                let headers = {
+                    ...this.difyHeaders,
+                    'Content-Type': 'application/json'
+                }
+                if (isGozero){
+                    streamUrl = difyUrl + '/chatMessageStream'
+                    headers['Authorization'] = appToken
+                    console.log(this.userInfo)
+                    headers['Token'] = this.headers.token
+                }
+
+                fetch(streamUrl, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        query: content,
+                        inputs: {},
+                        response_mode: "streaming",
+                        user: this.userInfo.id,
+                        conversation_id: this.llmConvListCurrId,
+                        stream: true
+                    })
+                })
+                    .then(async response => {
+                        const reader = response.body.getReader();
+                        const decoder = new TextDecoder('utf-8');
+                        this.llmConvListObj[this.llmConvListCurrId].msgList.push({
+                            chatType: 2,
+                            recvId:this.userInfo.id,
+                            sendId:'dify_app_id1',
+                            tempId: Date.now() + '' + (Math.floor(Math.random() * 900000000) + 100000000), // 临时id，时间戳+9位长度的随机数,
+                            sendAtMs:Date.now() , //先用来显示消息时间排序用，
+                            msgContent: '回复：',
+                            msgType:1,
+                            msgState:0,//刚发的，未读状态
+                        })
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) {
+                                console.log("Stream finished.");
+                                this.llmSendChatState = 0
+                                break;
+                            }
+                            // 解析数据块
+                            const chunk = decoder.decode(value, { stream: true });
+                            // 移除 "data: " 前缀
+                            if (chunk.substring(0,5) == 'data:'){
+                                console.log(chunk.substring(6))
+                                let msgData = JSON.parse(chunk.substring(6));
+                                if (msgData.event == 'workflow_started'){
+                                    console.log('工作流开始')
+                                } else if (msgData.event =='workflow_finished'){
+                                    console.log('工作流结束')
+                                } else if (msgData.event =='node_started'){
+                                    console.log(msgData.data.title + '开始')
+                                } else if (msgData.event =='node_finished'){
+                                    console.log(msgData.data.title + '结束')
+                                } else if (msgData.event =='message'){
+                                    console.log('aaaaaaaaaa',this.llmConvListObj[this.llmConvListCurrId])
+                                    let lastMsg = this.llmConvListObj[this.llmConvListCurrId].msgList[this.llmConvListObj[this.llmConvListCurrId].msgList.length-1]
+                                    let answer = lastMsg.msgContent +''+ msgData.answer
+                                    this.$set(this.llmConvListObj[this.llmConvListCurrId].msgList[this.llmConvListObj[this.llmConvListCurrId].msgList.length-1],'msgContent',answer)
+                                }
+                                console.log(msgData)
+                            } else {
+                                console.log(chunk)
+                            }
+
+                            // 这里可以对 chunk 做进一步处理
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        this.llmSendChatState = 0
+                    });
+            },
             sendChatMsg(){
                 let content = this.$refs.chatInput.innerText.trim()
                 if (content == "") return
@@ -884,6 +1130,7 @@
                     method: "conversation.chat",
                     data: msgData
                 }
+                //为了效率是可以缓存，但应该要设置上限，进入详情页再分页加载
                 this.convList[this.activeConvIndex].msgList.push(msgData)
                 this.convList[this.activeConvIndex].lastMsg = msgData
                 this.convList[this.activeConvIndex].lastAtMs = msgData.sendAtMs
@@ -900,6 +1147,14 @@
             },
             chatInputUpdate(e){
                 this.convList[this.activeConvIndex].inputMsg = e.target.innerText;
+            },
+            llmInputUpdate(e){
+                if (this.activeLlmConvIndex > 0){
+                    this.llmConvList[this.activeLlmConvIndex].inputMsg = e.target.innerText;
+                } else {
+                    this.llmTempMsg = e.target.innerText;
+                }
+
             },
             //点击会话列表中某个会话
             tapConvItem(index){
@@ -1118,6 +1373,19 @@
                     }
                 }
             },
+            llmInputEnter(e){
+                if (!this.isChatComposing && e.key === 'Enter') {
+                    if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
+                        // 插入换行
+                        document.execCommand('insertLineBreak');
+                        e.preventDefault();
+                    } else {
+                        // 发送消息
+                        e.preventDefault();
+                        this.sendLlmMsg();
+                    }
+                }
+            },
             // 将光标移动到 contenteditable 元素的末尾
             moveCursorToEnd(element) {
                 if (document.createRange && window.getSelection) {
@@ -1175,6 +1443,7 @@
                 }).then(res=>{
                     this.userInfo = res
                     this.myMsgReadUcode = this.uidToCode(res.id)
+                    this.getMyLlmList()
                 })
             },
             getMyFriendList(){
@@ -1188,6 +1457,27 @@
                         friendObj[v.friendUid] = v
                     })
                     this.friendObj = friendObj
+                })
+            },
+            getMyLlmList(){
+                axios({
+                    url:difyUrl + '/conversations',
+                    headers:this.difyHeaders,
+                    params:{user:this.userInfo.id}
+                }).then(res=>{
+                    let llmConvList = []
+                    let llmConvListObj = {}
+                    res.data.data.forEach(v=>{
+                        let conv = {
+                            id:v.id,
+                            name:v.name,
+                            msgList:[]
+                        }
+                        llmConvList.push(conv)
+                        llmConvListObj[v.id] = conv
+                    })
+                    this.llmConvList = llmConvList
+                    this.llmConvListObj = llmConvListObj
                 })
             },
             setNewFriendApplyRead(){

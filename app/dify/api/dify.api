@@ -1,0 +1,13 @@
+import (
+	"desc/main.api"
+)
+@server(
+	timeout: 30s
+	middleware: ReqRateLimitMiddleware,MetaMiddleware,UserInfoMiddleware,UserTokenMiddleware
+	jwt: Auth
+	prefix: v1
+)
+service dify-api {
+	@handler chatMessagesStream
+	post /chatMessageStream(ChatMessagesReq)
+}

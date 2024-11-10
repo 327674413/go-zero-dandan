@@ -3,7 +3,7 @@
 # 公共路径变量，项目根目录
 PROJECT_PATH="/Users/yelin/go_dev/project/src/go-zero-dandan"
 # API和RPC列表，用于全量模块生成代码
-apiList=("asset" "goods" "im" "plat" "user" "wechat")
+apiList=("asset" "goods" "im" "plat" "user" "wechat","dify")
 rpcList=("goods" "im" "message" "plat" "social" "user")
 
 # 判断命令类型并设置服务名称

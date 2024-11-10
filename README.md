@@ -95,15 +95,17 @@ docker exec -it kafka kafka-topics.sh --list --bootstrap-server 127.0.0.1:9092
 ```
 
 ## 开发说明
-### 接口相关
+### 接口
 - api的请求入参，目前是用框架的httpx解析，所以参数可选得用optional
 - api的返回值，如果想让返回的内容为nil时不会返回，则用omitempty
 - 对于接口中，非必填的字段，都建议用指针类型，既明确是可选参数，又可以判断前端是否有传
 
-### 数据库相关
-- 单条数据查询，未查到的err也是nil，只有查询异常err才有内容。如果要判断是否有查到数据，就判断数据是不是nil。
-### 缓存相关
+### 数据库
+- 单条数据查询，未查到的err也是nil，只有查询异常err才有内容。如果要判断是否有查到数据，就直接判断数据是不是nil。
+### 缓存
 - 数据未查到不报错，需要判断查出来的东西是不是空字符串或者写入的目标结构体是不是有值来判断，暂时好像没碰到要区分 未查到的这种场景
+### 国际化
+- 如果在logic文件中，直接用l.resd.NewErrWithTemp(resd.ErrReqFieldEmpty1, "VarPassword")类似写法，其中Var开头代表会二次翻译，*Var就原文输出，需要在common/lang/langField.go中先定义，然后通过godan lang生成，这样可以使用resd.VarPassword来识别是否存在
 ## 部署说明
 
 ### 普通应用部署

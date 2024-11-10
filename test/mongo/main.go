@@ -4,7 +4,6 @@ import (
 	"context"
 	"go-zero-dandan/app/im/modelMongo"
 	"go-zero-dandan/common/fmtd"
-	"go-zero-dandan/pkg/bitmapd"
 )
 
 func main() {
@@ -14,8 +13,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmtd.Info(chatLog.MsgReads)
-	readRecords := bitmapd.Load(chatLog.MsgReads)
-	fmtd.Info(readRecords.IsSetId("1"))
-	fmtd.Json(chatLog)
+	fmtd.Info(chatLog.ReadUsers)
+
 }

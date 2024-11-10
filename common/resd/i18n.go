@@ -111,11 +111,11 @@ func (t *Lang) Msg(msgCode int, tempDatas ...string) string {
 		key := "Field" + fmt.Sprint(i+1)
 		if v == "" {
 			m[key] = ""
-		} else if len(v) > 4 && v[:4] == "*Var" {
+		} else if len(v) > 4 && v[:4] == "*Var" { //去掉星号后原文输出
 			m[key] = v[1:]
-		} else if len(v) > 3 && v[:3] == "Var" {
+		} else if len(v) > 3 && v[:3] == "Var" { //二次翻译单词
 			m[key] = t.Trans(v)
-		} else {
+		} else { //不是var开头就原文输出
 			m[key] = v
 		}
 	}

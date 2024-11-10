@@ -1,0 +1,33 @@
+Name: dify-api
+Host: 0.0.0.0
+Port: 8824
+Log:
+  Level: info
+  Stat: false #关闭logx每分钟的指标统计，等价于logx.DisableStat()
+Mode: dev
+I18n:
+  Default: zh-cn
+  Langs:
+    - "../../../common/lang/en_us.toml"
+    - "../../../common/lang/zh_cn.toml"
+DB:
+  DataSource: root:8a7yNLrsThjw3jra@tcp(127.0.0.1:3306)/gozero?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+Auth:
+  AccessSecret: "dandandandandandandandan"
+  AccessExpire: 604800
+ReqRateLimitByIpAgent:
+  Seconds: 10
+  Quota: 5
+  KeyPrefix: "reqRateLimit:ipAgent:"
+RedisConf:
+  Host: 127.0.0.1:6379
+  Type: node
+  Pass: G62m50oigInC30sf
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+Dify:
+  Url: http://192.168.0.98:8070/v1
+  AppKey: app-NPbrmyq5ACrvCPEHJQiRVuM5

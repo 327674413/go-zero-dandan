@@ -142,6 +142,15 @@
       "env": "test",
       "instance": "host.docker.internal:8823"
     }
+  },
+  {
+    "targets": ["host.docker.internal:9824"],
+    "labels": {
+      "job": "dify-api",
+      "app": "dify-api",
+      "env": "test",
+      "instance": "host.docker.internal:8824"
+    }
   }
 
 ]

@@ -11,6 +11,12 @@ type LoginByPhoneReq {
 	OtpCode *string `json:"otpCode"`
 	PortEm  *int64  `json:"portEm"`
 }
+	type LoginByAccountReq {
+	Account   *string `json:"account"`
+	Password *string `json:"password"`
+	CheckCode *string `json:"checkCode,optional"`
+	PortEm  *int64  `json:"portEm"`
+}
 type RegByPhoneReq {
 	Phone   *string `json:"phone"`
 	PhoneArea *string `json:"phoneArea,optional"`

@@ -1,7 +1,9 @@
 package config
 
-import {{.authImport}}
-
+import (
+	"github.com/zeromicro/go-zero/rest"
+	"github.com/zeromicro/go-zero/zrpc"
+)
 type Config struct {
 	rest.RestConf
 	DB struct {
@@ -11,6 +13,7 @@ type Config struct {
         Default string
         Langs   []string
     }
+    UserRpc zrpc.RpcClientConf
 	{{.auth}}
 	{{.jwtTrans}}
 }

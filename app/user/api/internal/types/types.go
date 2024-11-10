@@ -17,6 +17,13 @@ type LoginByPhoneReq struct {
 	PortEm    *int64  `json:"portEm"`
 }
 
+type LoginByAccountReq struct {
+	Account   *string `json:"account"`
+	Password  *string `json:"password"`
+	CheckCode *string `json:"checkCode,optional"`
+	PortEm    *int64  `json:"portEm"`
+}
+
 type RegByPhoneReq struct {
 	Phone     *string `json:"phone"`
 	PhoneArea *string `json:"phoneArea,optional"`

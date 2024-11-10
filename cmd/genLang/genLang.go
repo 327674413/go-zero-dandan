@@ -15,12 +15,14 @@ var langCnMap map[string]string
 
 func init() {
 	langCnMap = make(map[string]string)
+	//先根据code从小到大排序，让排序好看
 	sort.Slice(lang.Errs, func(i, j int) bool {
 		return lang.Errs[i].Value < lang.Errs[j].Value
 	})
 	sort.Slice(lang.Fields, func(i, j int) bool {
 		return lang.Fields[i].Value < lang.Fields[j].Value
 	})
+	//用map方便取用
 	for _, v := range lang.Errs {
 		langCnMap[v.Value] = v.Label
 	}
@@ -53,12 +55,12 @@ func init() {
 }
 const (
 	{{- range .errList}}
-	{{.Value}} = {{.Code}}
+	{{.Value}} = {{.Code}} // {{with $val := index $.langCnMap .Value}}{{$val}}{{end}}
 	{{- end}}
 )
 const (
 	{{- range .fieldList}}
-	{{.Value}} = "{{.Value}}"
+	{{.Value}} = "{{.Value}}" // {{with $val := index $.langCnMap .Value}}{{$val}}{{end}}
 	{{- end}}
 )
 `
@@ -73,6 +75,7 @@ const (
 	err = msgTmpl.Execute(msgFile, map[string]any{
 		"errList":   lang.Errs,
 		"fieldList": lang.Fields,
+		"langCnMap": langCnMap,
 	})
 
 	if err != nil {
